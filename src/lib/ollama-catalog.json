@@ -1,0 +1,2031 @@
+{
+  "updatedAt": "2026-10-07",
+  "source": "https://ollama.com/library",
+  "models": [
+    {
+      "id": "llama3.1:8b",
+      "name": "llama3.1 \u00b7 8b",
+      "family": "llama3.1"
+    },
+    {
+      "id": "llama3.1:70b",
+      "name": "llama3.1 \u00b7 70b",
+      "family": "llama3.1"
+    },
+    {
+      "id": "llama3.1:405b",
+      "name": "llama3.1 \u00b7 405b",
+      "family": "llama3.1"
+    },
+    {
+      "id": "deepseek-r1:1.5b",
+      "name": "deepseek-r1 \u00b7 1.5b",
+      "family": "deepseek-r1"
+    },
+    {
+      "id": "deepseek-r1:7b",
+      "name": "deepseek-r1 \u00b7 7b",
+      "family": "deepseek-r1"
+    },
+    {
+      "id": "deepseek-r1:8b",
+      "name": "deepseek-r1 \u00b7 8b",
+      "family": "deepseek-r1"
+    },
+    {
+      "id": "deepseek-r1:14b",
+      "name": "deepseek-r1 \u00b7 14b",
+      "family": "deepseek-r1"
+    },
+    {
+      "id": "deepseek-r1:32b",
+      "name": "deepseek-r1 \u00b7 32b",
+      "family": "deepseek-r1"
+    },
+    {
+      "id": "deepseek-r1:70b",
+      "name": "deepseek-r1 \u00b7 70b",
+      "family": "deepseek-r1"
+    },
+    {
+      "id": "deepseek-r1:671b",
+      "name": "deepseek-r1 \u00b7 671b",
+      "family": "deepseek-r1"
+    },
+    {
+      "id": "llama3.2:1b",
+      "name": "llama3.2 \u00b7 1b",
+      "family": "llama3.2"
+    },
+    {
+      "id": "llama3.2:3b",
+      "name": "llama3.2 \u00b7 3b",
+      "family": "llama3.2"
+    },
+    {
+      "id": "qwen2.5:0.5b",
+      "name": "qwen2.5 \u00b7 0.5b",
+      "family": "qwen2.5"
+    },
+    {
+      "id": "qwen2.5:1.5b",
+      "name": "qwen2.5 \u00b7 1.5b",
+      "family": "qwen2.5"
+    },
+    {
+      "id": "qwen2.5:3b",
+      "name": "qwen2.5 \u00b7 3b",
+      "family": "qwen2.5"
+    },
+    {
+      "id": "qwen2.5:7b",
+      "name": "qwen2.5 \u00b7 7b",
+      "family": "qwen2.5"
+    },
+    {
+      "id": "qwen2.5:14b",
+      "name": "qwen2.5 \u00b7 14b",
+      "family": "qwen2.5"
+    },
+    {
+      "id": "qwen2.5:32b",
+      "name": "qwen2.5 \u00b7 32b",
+      "family": "qwen2.5"
+    },
+    {
+      "id": "qwen2.5:72b",
+      "name": "qwen2.5 \u00b7 72b",
+      "family": "qwen2.5"
+    },
+    {
+      "id": "gemma3:270m",
+      "name": "gemma3 \u00b7 270m",
+      "family": "gemma3"
+    },
+    {
+      "id": "gemma3:1b",
+      "name": "gemma3 \u00b7 1b",
+      "family": "gemma3"
+    },
+    {
+      "id": "gemma3:4b",
+      "name": "gemma3 \u00b7 4b",
+      "family": "gemma3"
+    },
+    {
+      "id": "gemma3:12b",
+      "name": "gemma3 \u00b7 12b",
+      "family": "gemma3"
+    },
+    {
+      "id": "gemma3:27b",
+      "name": "gemma3 \u00b7 27b",
+      "family": "gemma3"
+    },
+    {
+      "id": "qwen3:0.6b",
+      "name": "qwen3 \u00b7 0.6b",
+      "family": "qwen3"
+    },
+    {
+      "id": "qwen3:1.7b",
+      "name": "qwen3 \u00b7 1.7b",
+      "family": "qwen3"
+    },
+    {
+      "id": "qwen3:4b",
+      "name": "qwen3 \u00b7 4b",
+      "family": "qwen3"
+    },
+    {
+      "id": "qwen3:8b",
+      "name": "qwen3 \u00b7 8b",
+      "family": "qwen3"
+    },
+    {
+      "id": "qwen3:14b",
+      "name": "qwen3 \u00b7 14b",
+      "family": "qwen3"
+    },
+    {
+      "id": "qwen3:30b",
+      "name": "qwen3 \u00b7 30b",
+      "family": "qwen3"
+    },
+    {
+      "id": "qwen3:32b",
+      "name": "qwen3 \u00b7 32b",
+      "family": "qwen3"
+    },
+    {
+      "id": "qwen3:235b",
+      "name": "qwen3 \u00b7 235b",
+      "family": "qwen3"
+    },
+    {
+      "id": "gemma2:2b",
+      "name": "gemma2 \u00b7 2b",
+      "family": "gemma2"
+    },
+    {
+      "id": "gemma2:9b",
+      "name": "gemma2 \u00b7 9b",
+      "family": "gemma2"
+    },
+    {
+      "id": "gemma2:27b",
+      "name": "gemma2 \u00b7 27b",
+      "family": "gemma2"
+    },
+    {
+      "id": "mistral:7b",
+      "name": "mistral \u00b7 7b",
+      "family": "mistral"
+    },
+    {
+      "id": "gemma4:12b",
+      "name": "gemma4 \u00b7 12b",
+      "family": "gemma4"
+    },
+    {
+      "id": "gemma4:26b",
+      "name": "gemma4 \u00b7 26b",
+      "family": "gemma4"
+    },
+    {
+      "id": "gemma4:31b",
+      "name": "gemma4 \u00b7 31b",
+      "family": "gemma4"
+    },
+    {
+      "id": "llama3:8b",
+      "name": "llama3 \u00b7 8b",
+      "family": "llama3"
+    },
+    {
+      "id": "llama3:70b",
+      "name": "llama3 \u00b7 70b",
+      "family": "llama3"
+    },
+    {
+      "id": "qwen2.5-coder:0.5b",
+      "name": "qwen2.5-coder \u00b7 0.5b",
+      "family": "qwen2.5-coder"
+    },
+    {
+      "id": "qwen2.5-coder:1.5b",
+      "name": "qwen2.5-coder \u00b7 1.5b",
+      "family": "qwen2.5-coder"
+    },
+    {
+      "id": "qwen2.5-coder:3b",
+      "name": "qwen2.5-coder \u00b7 3b",
+      "family": "qwen2.5-coder"
+    },
+    {
+      "id": "qwen2.5-coder:7b",
+      "name": "qwen2.5-coder \u00b7 7b",
+      "family": "qwen2.5-coder"
+    },
+    {
+      "id": "qwen2.5-coder:14b",
+      "name": "qwen2.5-coder \u00b7 14b",
+      "family": "qwen2.5-coder"
+    },
+    {
+      "id": "qwen2.5-coder:32b",
+      "name": "qwen2.5-coder \u00b7 32b",
+      "family": "qwen2.5-coder"
+    },
+    {
+      "id": "qwen3.5:0.8b",
+      "name": "qwen3.5 \u00b7 0.8b",
+      "family": "qwen3.5"
+    },
+    {
+      "id": "qwen3.5:2b",
+      "name": "qwen3.5 \u00b7 2b",
+      "family": "qwen3.5"
+    },
+    {
+      "id": "qwen3.5:4b",
+      "name": "qwen3.5 \u00b7 4b",
+      "family": "qwen3.5"
+    },
+    {
+      "id": "qwen3.5:9b",
+      "name": "qwen3.5 \u00b7 9b",
+      "family": "qwen3.5"
+    },
+    {
+      "id": "qwen3.5:27b",
+      "name": "qwen3.5 \u00b7 27b",
+      "family": "qwen3.5"
+    },
+    {
+      "id": "qwen3.5:35b",
+      "name": "qwen3.5 \u00b7 35b",
+      "family": "qwen3.5"
+    },
+    {
+      "id": "qwen3.5:122b",
+      "name": "qwen3.5 \u00b7 122b",
+      "family": "qwen3.5"
+    },
+    {
+      "id": "phi3:3.8b",
+      "name": "phi3 \u00b7 3.8b",
+      "family": "phi3"
+    },
+    {
+      "id": "phi3:14b",
+      "name": "phi3 \u00b7 14b",
+      "family": "phi3"
+    },
+    {
+      "id": "llava:7b",
+      "name": "llava \u00b7 7b",
+      "family": "llava"
+    },
+    {
+      "id": "llava:13b",
+      "name": "llava \u00b7 13b",
+      "family": "llava"
+    },
+    {
+      "id": "llava:34b",
+      "name": "llava \u00b7 34b",
+      "family": "llava"
+    },
+    {
+      "id": "gpt-oss:20b",
+      "name": "gpt-oss \u00b7 20b",
+      "family": "gpt-oss"
+    },
+    {
+      "id": "gpt-oss:120b",
+      "name": "gpt-oss \u00b7 120b",
+      "family": "gpt-oss"
+    },
+    {
+      "id": "qwen3-coder:30b",
+      "name": "qwen3-coder \u00b7 30b",
+      "family": "qwen3-coder"
+    },
+    {
+      "id": "qwen3-coder:480b",
+      "name": "qwen3-coder \u00b7 480b",
+      "family": "qwen3-coder"
+    },
+    {
+      "id": "gemma:2b",
+      "name": "gemma \u00b7 2b",
+      "family": "gemma"
+    },
+    {
+      "id": "gemma:7b",
+      "name": "gemma \u00b7 7b",
+      "family": "gemma"
+    },
+    {
+      "id": "glm-ocr:latest",
+      "name": "glm-ocr \u00b7 latest",
+      "family": "glm-ocr"
+    },
+    {
+      "id": "qwen:0.5b",
+      "name": "qwen \u00b7 0.5b",
+      "family": "qwen"
+    },
+    {
+      "id": "qwen:1.8b",
+      "name": "qwen \u00b7 1.8b",
+      "family": "qwen"
+    },
+    {
+      "id": "qwen:4b",
+      "name": "qwen \u00b7 4b",
+      "family": "qwen"
+    },
+    {
+      "id": "qwen:7b",
+      "name": "qwen \u00b7 7b",
+      "family": "qwen"
+    },
+    {
+      "id": "qwen:14b",
+      "name": "qwen \u00b7 14b",
+      "family": "qwen"
+    },
+    {
+      "id": "qwen:32b",
+      "name": "qwen \u00b7 32b",
+      "family": "qwen"
+    },
+    {
+      "id": "qwen:72b",
+      "name": "qwen \u00b7 72b",
+      "family": "qwen"
+    },
+    {
+      "id": "qwen:110b",
+      "name": "qwen \u00b7 110b",
+      "family": "qwen"
+    },
+    {
+      "id": "phi4:14b",
+      "name": "phi4 \u00b7 14b",
+      "family": "phi4"
+    },
+    {
+      "id": "llama2:7b",
+      "name": "llama2 \u00b7 7b",
+      "family": "llama2"
+    },
+    {
+      "id": "llama2:13b",
+      "name": "llama2 \u00b7 13b",
+      "family": "llama2"
+    },
+    {
+      "id": "llama2:70b",
+      "name": "llama2 \u00b7 70b",
+      "family": "llama2"
+    },
+    {
+      "id": "qwen3.6:27b",
+      "name": "qwen3.6 \u00b7 27b",
+      "family": "qwen3.6"
+    },
+    {
+      "id": "qwen3.6:35b",
+      "name": "qwen3.6 \u00b7 35b",
+      "family": "qwen3.6"
+    },
+    {
+      "id": "codellama:7b",
+      "name": "codellama \u00b7 7b",
+      "family": "codellama"
+    },
+    {
+      "id": "codellama:13b",
+      "name": "codellama \u00b7 13b",
+      "family": "codellama"
+    },
+    {
+      "id": "codellama:34b",
+      "name": "codellama \u00b7 34b",
+      "family": "codellama"
+    },
+    {
+      "id": "codellama:70b",
+      "name": "codellama \u00b7 70b",
+      "family": "codellama"
+    },
+    {
+      "id": "qwen3-vl:2b",
+      "name": "qwen3-vl \u00b7 2b",
+      "family": "qwen3-vl"
+    },
+    {
+      "id": "qwen3-vl:4b",
+      "name": "qwen3-vl \u00b7 4b",
+      "family": "qwen3-vl"
+    },
+    {
+      "id": "qwen3-vl:8b",
+      "name": "qwen3-vl \u00b7 8b",
+      "family": "qwen3-vl"
+    },
+    {
+      "id": "qwen3-vl:30b",
+      "name": "qwen3-vl \u00b7 30b",
+      "family": "qwen3-vl"
+    },
+    {
+      "id": "qwen3-vl:32b",
+      "name": "qwen3-vl \u00b7 32b",
+      "family": "qwen3-vl"
+    },
+    {
+      "id": "qwen3-vl:235b",
+      "name": "qwen3-vl \u00b7 235b",
+      "family": "qwen3-vl"
+    },
+    {
+      "id": "qwen2:0.5b",
+      "name": "qwen2 \u00b7 0.5b",
+      "family": "qwen2"
+    },
+    {
+      "id": "qwen2:1.5b",
+      "name": "qwen2 \u00b7 1.5b",
+      "family": "qwen2"
+    },
+    {
+      "id": "qwen2:7b",
+      "name": "qwen2 \u00b7 7b",
+      "family": "qwen2"
+    },
+    {
+      "id": "qwen2:72b",
+      "name": "qwen2 \u00b7 72b",
+      "family": "qwen2"
+    },
+    {
+      "id": "tinyllama:1.1b",
+      "name": "tinyllama \u00b7 1.1b",
+      "family": "tinyllama"
+    },
+    {
+      "id": "mistral-nemo:12b",
+      "name": "mistral-nemo \u00b7 12b",
+      "family": "mistral-nemo"
+    },
+    {
+      "id": "minicpm-v:8b",
+      "name": "minicpm-v \u00b7 8b",
+      "family": "minicpm-v"
+    },
+    {
+      "id": "llama3.2-vision:11b",
+      "name": "llama3.2-vision \u00b7 11b",
+      "family": "llama3.2-vision"
+    },
+    {
+      "id": "llama3.2-vision:90b",
+      "name": "llama3.2-vision \u00b7 90b",
+      "family": "llama3.2-vision"
+    },
+    {
+      "id": "qwen2.5vl:3b",
+      "name": "qwen2.5vl \u00b7 3b",
+      "family": "qwen2.5vl"
+    },
+    {
+      "id": "qwen2.5vl:7b",
+      "name": "qwen2.5vl \u00b7 7b",
+      "family": "qwen2.5vl"
+    },
+    {
+      "id": "qwen2.5vl:32b",
+      "name": "qwen2.5vl \u00b7 32b",
+      "family": "qwen2.5vl"
+    },
+    {
+      "id": "qwen2.5vl:72b",
+      "name": "qwen2.5vl \u00b7 72b",
+      "family": "qwen2.5vl"
+    },
+    {
+      "id": "deepseek-coder:1.3b",
+      "name": "deepseek-coder \u00b7 1.3b",
+      "family": "deepseek-coder"
+    },
+    {
+      "id": "deepseek-coder:6.7b",
+      "name": "deepseek-coder \u00b7 6.7b",
+      "family": "deepseek-coder"
+    },
+    {
+      "id": "deepseek-coder:33b",
+      "name": "deepseek-coder \u00b7 33b",
+      "family": "deepseek-coder"
+    },
+    {
+      "id": "llama3.3:70b",
+      "name": "llama3.3 \u00b7 70b",
+      "family": "llama3.3"
+    },
+    {
+      "id": "dolphin3:8b",
+      "name": "dolphin3 \u00b7 8b",
+      "family": "dolphin3"
+    },
+    {
+      "id": "smollm2:135m",
+      "name": "smollm2 \u00b7 135m",
+      "family": "smollm2"
+    },
+    {
+      "id": "smollm2:360m",
+      "name": "smollm2 \u00b7 360m",
+      "family": "smollm2"
+    },
+    {
+      "id": "smollm2:1.7b",
+      "name": "smollm2 \u00b7 1.7b",
+      "family": "smollm2"
+    },
+    {
+      "id": "deepseek-v3:671b",
+      "name": "deepseek-v3 \u00b7 671b",
+      "family": "deepseek-v3"
+    },
+    {
+      "id": "olmo2:7b",
+      "name": "olmo2 \u00b7 7b",
+      "family": "olmo2"
+    },
+    {
+      "id": "olmo2:13b",
+      "name": "olmo2 \u00b7 13b",
+      "family": "olmo2"
+    },
+    {
+      "id": "qwen3.8:27b",
+      "name": "qwen3.8 \u00b7 27b",
+      "family": "qwen3.8"
+    },
+    {
+      "id": "codegemma:2b",
+      "name": "codegemma \u00b7 2b",
+      "family": "codegemma"
+    },
+    {
+      "id": "codegemma:7b",
+      "name": "codegemma \u00b7 7b",
+      "family": "codegemma"
+    },
+    {
+      "id": "deepseek-coder-v2:16b",
+      "name": "deepseek-coder-v2 \u00b7 16b",
+      "family": "deepseek-coder-v2"
+    },
+    {
+      "id": "deepseek-coder-v2:236b",
+      "name": "deepseek-coder-v2 \u00b7 236b",
+      "family": "deepseek-coder-v2"
+    },
+    {
+      "id": "mistral-small:22b",
+      "name": "mistral-small \u00b7 22b",
+      "family": "mistral-small"
+    },
+    {
+      "id": "mistral-small:24b",
+      "name": "mistral-small \u00b7 24b",
+      "family": "mistral-small"
+    },
+    {
+      "id": "orca-mini:3b",
+      "name": "orca-mini \u00b7 3b",
+      "family": "orca-mini"
+    },
+    {
+      "id": "orca-mini:7b",
+      "name": "orca-mini \u00b7 7b",
+      "family": "orca-mini"
+    },
+    {
+      "id": "orca-mini:13b",
+      "name": "orca-mini \u00b7 13b",
+      "family": "orca-mini"
+    },
+    {
+      "id": "orca-mini:70b",
+      "name": "orca-mini \u00b7 70b",
+      "family": "orca-mini"
+    },
+    {
+      "id": "granite3.1-moe:1b",
+      "name": "granite3.1-moe \u00b7 1b",
+      "family": "granite3.1-moe"
+    },
+    {
+      "id": "granite3.1-moe:3b",
+      "name": "granite3.1-moe \u00b7 3b",
+      "family": "granite3.1-moe"
+    },
+    {
+      "id": "starcoder2:3b",
+      "name": "starcoder2 \u00b7 3b",
+      "family": "starcoder2"
+    },
+    {
+      "id": "starcoder2:7b",
+      "name": "starcoder2 \u00b7 7b",
+      "family": "starcoder2"
+    },
+    {
+      "id": "starcoder2:15b",
+      "name": "starcoder2 \u00b7 15b",
+      "family": "starcoder2"
+    },
+    {
+      "id": "nemotron-3-super:120b",
+      "name": "nemotron-3-super \u00b7 120b",
+      "family": "nemotron-3-super"
+    },
+    {
+      "id": "mixtral:8x7b",
+      "name": "mixtral \u00b7 8x7b",
+      "family": "mixtral"
+    },
+    {
+      "id": "mixtral:8x22b",
+      "name": "mixtral \u00b7 8x22b",
+      "family": "mixtral"
+    },
+    {
+      "id": "llama2-uncensored:7b",
+      "name": "llama2-uncensored \u00b7 7b",
+      "family": "llama2-uncensored"
+    },
+    {
+      "id": "llama2-uncensored:70b",
+      "name": "llama2-uncensored \u00b7 70b",
+      "family": "llama2-uncensored"
+    },
+    {
+      "id": "falcon3:1b",
+      "name": "falcon3 \u00b7 1b",
+      "family": "falcon3"
+    },
+    {
+      "id": "falcon3:3b",
+      "name": "falcon3 \u00b7 3b",
+      "family": "falcon3"
+    },
+    {
+      "id": "falcon3:7b",
+      "name": "falcon3 \u00b7 7b",
+      "family": "falcon3"
+    },
+    {
+      "id": "falcon3:10b",
+      "name": "falcon3 \u00b7 10b",
+      "family": "falcon3"
+    },
+    {
+      "id": "translategemma:4b",
+      "name": "translategemma \u00b7 4b",
+      "family": "translategemma"
+    },
+    {
+      "id": "translategemma:12b",
+      "name": "translategemma \u00b7 12b",
+      "family": "translategemma"
+    },
+    {
+      "id": "translategemma:27b",
+      "name": "translategemma \u00b7 27b",
+      "family": "translategemma"
+    },
+    {
+      "id": "mistral-small3.2:24b",
+      "name": "mistral-small3.2 \u00b7 24b",
+      "family": "mistral-small3.2"
+    },
+    {
+      "id": "llava-llama3:8b",
+      "name": "llava-llama3 \u00b7 8b",
+      "family": "llava-llama3"
+    },
+    {
+      "id": "qwq:32b",
+      "name": "qwq \u00b7 32b",
+      "family": "qwq"
+    },
+    {
+      "id": "gemma3n:latest",
+      "name": "gemma3n \u00b7 latest",
+      "family": "gemma3n"
+    },
+    {
+      "id": "smollm:135m",
+      "name": "smollm \u00b7 135m",
+      "family": "smollm"
+    },
+    {
+      "id": "smollm:360m",
+      "name": "smollm \u00b7 360m",
+      "family": "smollm"
+    },
+    {
+      "id": "smollm:1.7b",
+      "name": "smollm \u00b7 1.7b",
+      "family": "smollm"
+    },
+    {
+      "id": "dolphin-llama3:8b",
+      "name": "dolphin-llama3 \u00b7 8b",
+      "family": "dolphin-llama3"
+    },
+    {
+      "id": "dolphin-llama3:70b",
+      "name": "dolphin-llama3 \u00b7 70b",
+      "family": "dolphin-llama3"
+    },
+    {
+      "id": "cogito:3b",
+      "name": "cogito \u00b7 3b",
+      "family": "cogito"
+    },
+    {
+      "id": "cogito:8b",
+      "name": "cogito \u00b7 8b",
+      "family": "cogito"
+    },
+    {
+      "id": "cogito:14b",
+      "name": "cogito \u00b7 14b",
+      "family": "cogito"
+    },
+    {
+      "id": "cogito:32b",
+      "name": "cogito \u00b7 32b",
+      "family": "cogito"
+    },
+    {
+      "id": "cogito:70b",
+      "name": "cogito \u00b7 70b",
+      "family": "cogito"
+    },
+    {
+      "id": "qwen3-coder-next:latest",
+      "name": "qwen3-coder-next \u00b7 latest",
+      "family": "qwen3-coder-next"
+    },
+    {
+      "id": "glm-4.7-flash:latest",
+      "name": "glm-4.7-flash \u00b7 latest",
+      "family": "glm-4.7-flash"
+    },
+    {
+      "id": "sqlcoder:7b",
+      "name": "sqlcoder \u00b7 7b",
+      "family": "sqlcoder"
+    },
+    {
+      "id": "sqlcoder:15b",
+      "name": "sqlcoder \u00b7 15b",
+      "family": "sqlcoder"
+    },
+    {
+      "id": "moondream:1.8b",
+      "name": "moondream \u00b7 1.8b",
+      "family": "moondream"
+    },
+    {
+      "id": "dolphin-mixtral:8x7b",
+      "name": "dolphin-mixtral \u00b7 8x7b",
+      "family": "dolphin-mixtral"
+    },
+    {
+      "id": "dolphin-mixtral:8x22b",
+      "name": "dolphin-mixtral \u00b7 8x22b",
+      "family": "dolphin-mixtral"
+    },
+    {
+      "id": "llama4:16x17b",
+      "name": "llama4 \u00b7 16x17b",
+      "family": "llama4"
+    },
+    {
+      "id": "llama4:128x17b",
+      "name": "llama4 \u00b7 128x17b",
+      "family": "llama4"
+    },
+    {
+      "id": "dolphin-mistral:7b",
+      "name": "dolphin-mistral \u00b7 7b",
+      "family": "dolphin-mistral"
+    },
+    {
+      "id": "hermes3:3b",
+      "name": "hermes3 \u00b7 3b",
+      "family": "hermes3"
+    },
+    {
+      "id": "hermes3:8b",
+      "name": "hermes3 \u00b7 8b",
+      "family": "hermes3"
+    },
+    {
+      "id": "hermes3:70b",
+      "name": "hermes3 \u00b7 70b",
+      "family": "hermes3"
+    },
+    {
+      "id": "hermes3:405b",
+      "name": "hermes3 \u00b7 405b",
+      "family": "hermes3"
+    },
+    {
+      "id": "phi4-reasoning:14b",
+      "name": "phi4-reasoning \u00b7 14b",
+      "family": "phi4-reasoning"
+    },
+    {
+      "id": "dolphin-phi:2.7b",
+      "name": "dolphin-phi \u00b7 2.7b",
+      "family": "dolphin-phi"
+    },
+    {
+      "id": "granite-code:3b",
+      "name": "granite-code \u00b7 3b",
+      "family": "granite-code"
+    },
+    {
+      "id": "granite-code:8b",
+      "name": "granite-code \u00b7 8b",
+      "family": "granite-code"
+    },
+    {
+      "id": "granite-code:20b",
+      "name": "granite-code \u00b7 20b",
+      "family": "granite-code"
+    },
+    {
+      "id": "granite-code:34b",
+      "name": "granite-code \u00b7 34b",
+      "family": "granite-code"
+    },
+    {
+      "id": "devstral-small-2:24b",
+      "name": "devstral-small-2 \u00b7 24b",
+      "family": "devstral-small-2"
+    },
+    {
+      "id": "phi:2.7b",
+      "name": "phi \u00b7 2.7b",
+      "family": "phi"
+    },
+    {
+      "id": "command-r:35b",
+      "name": "command-r \u00b7 35b",
+      "family": "command-r"
+    },
+    {
+      "id": "granite4:350m",
+      "name": "granite4 \u00b7 350m",
+      "family": "granite4"
+    },
+    {
+      "id": "granite4:1b",
+      "name": "granite4 \u00b7 1b",
+      "family": "granite4"
+    },
+    {
+      "id": "granite4:3b",
+      "name": "granite4 \u00b7 3b",
+      "family": "granite4"
+    },
+    {
+      "id": "phi4-mini:3.8b",
+      "name": "phi4-mini \u00b7 3.8b",
+      "family": "phi4-mini"
+    },
+    {
+      "id": "yi:6b",
+      "name": "yi \u00b7 6b",
+      "family": "yi"
+    },
+    {
+      "id": "yi:9b",
+      "name": "yi \u00b7 9b",
+      "family": "yi"
+    },
+    {
+      "id": "yi:34b",
+      "name": "yi \u00b7 34b",
+      "family": "yi"
+    },
+    {
+      "id": "ministral-3:3b",
+      "name": "ministral-3 \u00b7 3b",
+      "family": "ministral-3"
+    },
+    {
+      "id": "ministral-3:8b",
+      "name": "ministral-3 \u00b7 8b",
+      "family": "ministral-3"
+    },
+    {
+      "id": "ministral-3:14b",
+      "name": "ministral-3 \u00b7 14b",
+      "family": "ministral-3"
+    },
+    {
+      "id": "starcoder:1b",
+      "name": "starcoder \u00b7 1b",
+      "family": "starcoder"
+    },
+    {
+      "id": "starcoder:3b",
+      "name": "starcoder \u00b7 3b",
+      "family": "starcoder"
+    },
+    {
+      "id": "starcoder:7b",
+      "name": "starcoder \u00b7 7b",
+      "family": "starcoder"
+    },
+    {
+      "id": "starcoder:15b",
+      "name": "starcoder \u00b7 15b",
+      "family": "starcoder"
+    },
+    {
+      "id": "magistral:24b",
+      "name": "magistral \u00b7 24b",
+      "family": "magistral"
+    },
+    {
+      "id": "openchat:7b",
+      "name": "openchat \u00b7 7b",
+      "family": "openchat"
+    },
+    {
+      "id": "wizardcoder:33b",
+      "name": "wizardcoder \u00b7 33b",
+      "family": "wizardcoder"
+    },
+    {
+      "id": "codestral:22b",
+      "name": "codestral \u00b7 22b",
+      "family": "codestral"
+    },
+    {
+      "id": "openhermes:latest",
+      "name": "openhermes \u00b7 latest",
+      "family": "openhermes"
+    },
+    {
+      "id": "mistral-large:123b",
+      "name": "mistral-large \u00b7 123b",
+      "family": "mistral-large"
+    },
+    {
+      "id": "wizard-vicuna-uncensored:7b",
+      "name": "wizard-vicuna-uncensored \u00b7 7b",
+      "family": "wizard-vicuna-uncensored"
+    },
+    {
+      "id": "wizard-vicuna-uncensored:13b",
+      "name": "wizard-vicuna-uncensored \u00b7 13b",
+      "family": "wizard-vicuna-uncensored"
+    },
+    {
+      "id": "wizard-vicuna-uncensored:30b",
+      "name": "wizard-vicuna-uncensored \u00b7 30b",
+      "family": "wizard-vicuna-uncensored"
+    },
+    {
+      "id": "zephyr:7b",
+      "name": "zephyr \u00b7 7b",
+      "family": "zephyr"
+    },
+    {
+      "id": "zephyr:141b",
+      "name": "zephyr \u00b7 141b",
+      "family": "zephyr"
+    },
+    {
+      "id": "lfm2.5-thinking:1.2b",
+      "name": "lfm2.5-thinking \u00b7 1.2b",
+      "family": "lfm2.5-thinking"
+    },
+    {
+      "id": "vicuna:7b",
+      "name": "vicuna \u00b7 7b",
+      "family": "vicuna"
+    },
+    {
+      "id": "vicuna:13b",
+      "name": "vicuna \u00b7 13b",
+      "family": "vicuna"
+    },
+    {
+      "id": "vicuna:33b",
+      "name": "vicuna \u00b7 33b",
+      "family": "vicuna"
+    },
+    {
+      "id": "deepscaler:1.5b",
+      "name": "deepscaler \u00b7 1.5b",
+      "family": "deepscaler"
+    },
+    {
+      "id": "glm4:9b",
+      "name": "glm4 \u00b7 9b",
+      "family": "glm4"
+    },
+    {
+      "id": "deepseek-llm:7b",
+      "name": "deepseek-llm \u00b7 7b",
+      "family": "deepseek-llm"
+    },
+    {
+      "id": "deepseek-llm:67b",
+      "name": "deepseek-llm \u00b7 67b",
+      "family": "deepseek-llm"
+    },
+    {
+      "id": "nous-hermes:7b",
+      "name": "nous-hermes \u00b7 7b",
+      "family": "nous-hermes"
+    },
+    {
+      "id": "nous-hermes:13b",
+      "name": "nous-hermes \u00b7 13b",
+      "family": "nous-hermes"
+    },
+    {
+      "id": "deepseek-v2:16b",
+      "name": "deepseek-v2 \u00b7 16b",
+      "family": "deepseek-v2"
+    },
+    {
+      "id": "deepseek-v2:236b",
+      "name": "deepseek-v2 \u00b7 236b",
+      "family": "deepseek-v2"
+    },
+    {
+      "id": "wizardlm2:7b",
+      "name": "wizardlm2 \u00b7 7b",
+      "family": "wizardlm2"
+    },
+    {
+      "id": "wizardlm2:8x22b",
+      "name": "wizardlm2 \u00b7 8x22b",
+      "family": "wizardlm2"
+    },
+    {
+      "id": "falcon:7b",
+      "name": "falcon \u00b7 7b",
+      "family": "falcon"
+    },
+    {
+      "id": "falcon:40b",
+      "name": "falcon \u00b7 40b",
+      "family": "falcon"
+    },
+    {
+      "id": "falcon:180b",
+      "name": "falcon \u00b7 180b",
+      "family": "falcon"
+    },
+    {
+      "id": "openthinker:7b",
+      "name": "openthinker \u00b7 7b",
+      "family": "openthinker"
+    },
+    {
+      "id": "openthinker:32b",
+      "name": "openthinker \u00b7 32b",
+      "family": "openthinker"
+    },
+    {
+      "id": "neural-chat:7b",
+      "name": "neural-chat \u00b7 7b",
+      "family": "neural-chat"
+    },
+    {
+      "id": "qwen2-math:1.5b",
+      "name": "qwen2-math \u00b7 1.5b",
+      "family": "qwen2-math"
+    },
+    {
+      "id": "qwen2-math:7b",
+      "name": "qwen2-math \u00b7 7b",
+      "family": "qwen2-math"
+    },
+    {
+      "id": "qwen2-math:72b",
+      "name": "qwen2-math \u00b7 72b",
+      "family": "qwen2-math"
+    },
+    {
+      "id": "lfm2:24b",
+      "name": "lfm2 \u00b7 24b",
+      "family": "lfm2"
+    },
+    {
+      "id": "codeqwen:7b",
+      "name": "codeqwen \u00b7 7b",
+      "family": "codeqwen"
+    },
+    {
+      "id": "llama2-chinese:7b",
+      "name": "llama2-chinese \u00b7 7b",
+      "family": "llama2-chinese"
+    },
+    {
+      "id": "llama2-chinese:13b",
+      "name": "llama2-chinese \u00b7 13b",
+      "family": "llama2-chinese"
+    },
+    {
+      "id": "granite3.3:2b",
+      "name": "granite3.3 \u00b7 2b",
+      "family": "granite3.3"
+    },
+    {
+      "id": "granite3.3:8b",
+      "name": "granite3.3 \u00b7 8b",
+      "family": "granite3.3"
+    },
+    {
+      "id": "nous-hermes2:10.7b",
+      "name": "nous-hermes2 \u00b7 10.7b",
+      "family": "nous-hermes2"
+    },
+    {
+      "id": "nous-hermes2:34b",
+      "name": "nous-hermes2 \u00b7 34b",
+      "family": "nous-hermes2"
+    },
+    {
+      "id": "stablelm2:1.6b",
+      "name": "stablelm2 \u00b7 1.6b",
+      "family": "stablelm2"
+    },
+    {
+      "id": "stablelm2:12b",
+      "name": "stablelm2 \u00b7 12b",
+      "family": "stablelm2"
+    },
+    {
+      "id": "aya:8b",
+      "name": "aya \u00b7 8b",
+      "family": "aya"
+    },
+    {
+      "id": "aya:35b",
+      "name": "aya \u00b7 35b",
+      "family": "aya"
+    },
+    {
+      "id": "yi-coder:1.5b",
+      "name": "yi-coder \u00b7 1.5b",
+      "family": "yi-coder"
+    },
+    {
+      "id": "yi-coder:9b",
+      "name": "yi-coder \u00b7 9b",
+      "family": "yi-coder"
+    },
+    {
+      "id": "stable-code:3b",
+      "name": "stable-code \u00b7 3b",
+      "family": "stable-code"
+    },
+    {
+      "id": "wizard-math:7b",
+      "name": "wizard-math \u00b7 7b",
+      "family": "wizard-math"
+    },
+    {
+      "id": "wizard-math:13b",
+      "name": "wizard-math \u00b7 13b",
+      "family": "wizard-math"
+    },
+    {
+      "id": "wizard-math:70b",
+      "name": "wizard-math \u00b7 70b",
+      "family": "wizard-math"
+    },
+    {
+      "id": "llama-guard3:1b",
+      "name": "llama-guard3 \u00b7 1b",
+      "family": "llama-guard3"
+    },
+    {
+      "id": "llama-guard3:8b",
+      "name": "llama-guard3 \u00b7 8b",
+      "family": "llama-guard3"
+    },
+    {
+      "id": "devstral:24b",
+      "name": "devstral \u00b7 24b",
+      "family": "devstral"
+    },
+    {
+      "id": "llama3-chatqa:8b",
+      "name": "llama3-chatqa \u00b7 8b",
+      "family": "llama3-chatqa"
+    },
+    {
+      "id": "llama3-chatqa:70b",
+      "name": "llama3-chatqa \u00b7 70b",
+      "family": "llama3-chatqa"
+    },
+    {
+      "id": "internlm2:1m",
+      "name": "internlm2 \u00b7 1m",
+      "family": "internlm2"
+    },
+    {
+      "id": "internlm2:1.8b",
+      "name": "internlm2 \u00b7 1.8b",
+      "family": "internlm2"
+    },
+    {
+      "id": "internlm2:7b",
+      "name": "internlm2 \u00b7 7b",
+      "family": "internlm2"
+    },
+    {
+      "id": "internlm2:20b",
+      "name": "internlm2 \u00b7 20b",
+      "family": "internlm2"
+    },
+    {
+      "id": "granite3.1-dense:2b",
+      "name": "granite3.1-dense \u00b7 2b",
+      "family": "granite3.1-dense"
+    },
+    {
+      "id": "granite3.1-dense:8b",
+      "name": "granite3.1-dense \u00b7 8b",
+      "family": "granite3.1-dense"
+    },
+    {
+      "id": "phi3.5:3.8b",
+      "name": "phi3.5 \u00b7 3.8b",
+      "family": "phi3.5"
+    },
+    {
+      "id": "granite3-dense:2b",
+      "name": "granite3-dense \u00b7 2b",
+      "family": "granite3-dense"
+    },
+    {
+      "id": "granite3-dense:8b",
+      "name": "granite3-dense \u00b7 8b",
+      "family": "granite3-dense"
+    },
+    {
+      "id": "aya-expanse:8b",
+      "name": "aya-expanse \u00b7 8b",
+      "family": "aya-expanse"
+    },
+    {
+      "id": "aya-expanse:32b",
+      "name": "aya-expanse \u00b7 32b",
+      "family": "aya-expanse"
+    },
+    {
+      "id": "xwinlm:7b",
+      "name": "xwinlm \u00b7 7b",
+      "family": "xwinlm"
+    },
+    {
+      "id": "xwinlm:13b",
+      "name": "xwinlm \u00b7 13b",
+      "family": "xwinlm"
+    },
+    {
+      "id": "samantha-mistral:7b",
+      "name": "samantha-mistral \u00b7 7b",
+      "family": "samantha-mistral"
+    },
+    {
+      "id": "dolphincoder:7b",
+      "name": "dolphincoder \u00b7 7b",
+      "family": "dolphincoder"
+    },
+    {
+      "id": "dolphincoder:15b",
+      "name": "dolphincoder \u00b7 15b",
+      "family": "dolphincoder"
+    },
+    {
+      "id": "llama3-gradient:8b",
+      "name": "llama3-gradient \u00b7 8b",
+      "family": "llama3-gradient"
+    },
+    {
+      "id": "llama3-gradient:70b",
+      "name": "llama3-gradient \u00b7 70b",
+      "family": "llama3-gradient"
+    },
+    {
+      "id": "llama3-groq-tool-use:8b",
+      "name": "llama3-groq-tool-use \u00b7 8b",
+      "family": "llama3-groq-tool-use"
+    },
+    {
+      "id": "llama3-groq-tool-use:70b",
+      "name": "llama3-groq-tool-use \u00b7 70b",
+      "family": "llama3-groq-tool-use"
+    },
+    {
+      "id": "yarn-llama2:7b",
+      "name": "yarn-llama2 \u00b7 7b",
+      "family": "yarn-llama2"
+    },
+    {
+      "id": "yarn-llama2:13b",
+      "name": "yarn-llama2 \u00b7 13b",
+      "family": "yarn-llama2"
+    },
+    {
+      "id": "granite3.2-vision:2b",
+      "name": "granite3.2-vision \u00b7 2b",
+      "family": "granite3.2-vision"
+    },
+    {
+      "id": "starling-lm:7b",
+      "name": "starling-lm \u00b7 7b",
+      "family": "starling-lm"
+    },
+    {
+      "id": "phind-codellama:34b",
+      "name": "phind-codellama \u00b7 34b",
+      "family": "phind-codellama"
+    },
+    {
+      "id": "solar:10.7b",
+      "name": "solar \u00b7 10.7b",
+      "family": "solar"
+    },
+    {
+      "id": "granite3-moe:1b",
+      "name": "granite3-moe \u00b7 1b",
+      "family": "granite3-moe"
+    },
+    {
+      "id": "granite3-moe:3b",
+      "name": "granite3-moe \u00b7 3b",
+      "family": "granite3-moe"
+    },
+    {
+      "id": "stable-beluga:7b",
+      "name": "stable-beluga \u00b7 7b",
+      "family": "stable-beluga"
+    },
+    {
+      "id": "stable-beluga:13b",
+      "name": "stable-beluga \u00b7 13b",
+      "family": "stable-beluga"
+    },
+    {
+      "id": "stable-beluga:70b",
+      "name": "stable-beluga \u00b7 70b",
+      "family": "stable-beluga"
+    },
+    {
+      "id": "deepcoder:1.5b",
+      "name": "deepcoder \u00b7 1.5b",
+      "family": "deepcoder"
+    },
+    {
+      "id": "deepcoder:14b",
+      "name": "deepcoder \u00b7 14b",
+      "family": "deepcoder"
+    },
+    {
+      "id": "shieldgemma:2b",
+      "name": "shieldgemma \u00b7 2b",
+      "family": "shieldgemma"
+    },
+    {
+      "id": "shieldgemma:9b",
+      "name": "shieldgemma \u00b7 9b",
+      "family": "shieldgemma"
+    },
+    {
+      "id": "shieldgemma:27b",
+      "name": "shieldgemma \u00b7 27b",
+      "family": "shieldgemma"
+    },
+    {
+      "id": "orca2:7b",
+      "name": "orca2 \u00b7 7b",
+      "family": "orca2"
+    },
+    {
+      "id": "orca2:13b",
+      "name": "orca2 \u00b7 13b",
+      "family": "orca2"
+    },
+    {
+      "id": "reader-lm:0.5b",
+      "name": "reader-lm \u00b7 0.5b",
+      "family": "reader-lm"
+    },
+    {
+      "id": "reader-lm:1.5b",
+      "name": "reader-lm \u00b7 1.5b",
+      "family": "reader-lm"
+    },
+    {
+      "id": "wizardlm:latest",
+      "name": "wizardlm \u00b7 latest",
+      "family": "wizardlm"
+    },
+    {
+      "id": "llama-pro:latest",
+      "name": "llama-pro \u00b7 latest",
+      "family": "llama-pro"
+    },
+    {
+      "id": "yarn-mistral:7b",
+      "name": "yarn-mistral \u00b7 7b",
+      "family": "yarn-mistral"
+    },
+    {
+      "id": "nexusraven:13b",
+      "name": "nexusraven \u00b7 13b",
+      "family": "nexusraven"
+    },
+    {
+      "id": "meditron:7b",
+      "name": "meditron \u00b7 7b",
+      "family": "meditron"
+    },
+    {
+      "id": "meditron:70b",
+      "name": "meditron \u00b7 70b",
+      "family": "meditron"
+    },
+    {
+      "id": "bakllava:7b",
+      "name": "bakllava \u00b7 7b",
+      "family": "bakllava"
+    },
+    {
+      "id": "mistral-openorca:7b",
+      "name": "mistral-openorca \u00b7 7b",
+      "family": "mistral-openorca"
+    },
+    {
+      "id": "nemotron-3-nano:4b",
+      "name": "nemotron-3-nano \u00b7 4b",
+      "family": "nemotron-3-nano"
+    },
+    {
+      "id": "nemotron-3-nano:30b",
+      "name": "nemotron-3-nano \u00b7 30b",
+      "family": "nemotron-3-nano"
+    },
+    {
+      "id": "command-r-plus:104b",
+      "name": "command-r-plus \u00b7 104b",
+      "family": "command-r-plus"
+    },
+    {
+      "id": "mistral-small3.1:24b",
+      "name": "mistral-small3.1 \u00b7 24b",
+      "family": "mistral-small3.1"
+    },
+    {
+      "id": "exaone-deep:2.4b",
+      "name": "exaone-deep \u00b7 2.4b",
+      "family": "exaone-deep"
+    },
+    {
+      "id": "exaone-deep:7.8b",
+      "name": "exaone-deep \u00b7 7.8b",
+      "family": "exaone-deep"
+    },
+    {
+      "id": "exaone-deep:32b",
+      "name": "exaone-deep \u00b7 32b",
+      "family": "exaone-deep"
+    },
+    {
+      "id": "medllama2:7b",
+      "name": "medllama2 \u00b7 7b",
+      "family": "medllama2"
+    },
+    {
+      "id": "tinydolphin:1.1b",
+      "name": "tinydolphin \u00b7 1.1b",
+      "family": "tinydolphin"
+    },
+    {
+      "id": "deepseek-v3.1:671b",
+      "name": "deepseek-v3.1 \u00b7 671b",
+      "family": "deepseek-v3.1"
+    },
+    {
+      "id": "nemotron-mini:4b",
+      "name": "nemotron-mini \u00b7 4b",
+      "family": "nemotron-mini"
+    },
+    {
+      "id": "codegeex4:9b",
+      "name": "codegeex4 \u00b7 9b",
+      "family": "codegeex4"
+    },
+    {
+      "id": "nemotron3:33b",
+      "name": "nemotron3 \u00b7 33b",
+      "family": "nemotron3"
+    },
+    {
+      "id": "opencoder:1.5b",
+      "name": "opencoder \u00b7 1.5b",
+      "family": "opencoder"
+    },
+    {
+      "id": "opencoder:8b",
+      "name": "opencoder \u00b7 8b",
+      "family": "opencoder"
+    },
+    {
+      "id": "wizardlm-uncensored:13b",
+      "name": "wizardlm-uncensored \u00b7 13b",
+      "family": "wizardlm-uncensored"
+    },
+    {
+      "id": "nemotron:70b",
+      "name": "nemotron \u00b7 70b",
+      "family": "nemotron"
+    },
+    {
+      "id": "reflection:70b",
+      "name": "reflection \u00b7 70b",
+      "family": "reflection"
+    },
+    {
+      "id": "codeup:13b",
+      "name": "codeup \u00b7 13b",
+      "family": "codeup"
+    },
+    {
+      "id": "nous-hermes2-mixtral:8x7b",
+      "name": "nous-hermes2-mixtral \u00b7 8x7b",
+      "family": "nous-hermes2-mixtral"
+    },
+    {
+      "id": "athene-v2:72b",
+      "name": "athene-v2 \u00b7 72b",
+      "family": "athene-v2"
+    },
+    {
+      "id": "qwen3-next:80b",
+      "name": "qwen3-next \u00b7 80b",
+      "family": "qwen3-next"
+    },
+    {
+      "id": "ornith:9b",
+      "name": "ornith \u00b7 9b",
+      "family": "ornith"
+    },
+    {
+      "id": "ornith:35b",
+      "name": "ornith \u00b7 35b",
+      "family": "ornith"
+    },
+    {
+      "id": "megadolphin:120b",
+      "name": "megadolphin \u00b7 120b",
+      "family": "megadolphin"
+    },
+    {
+      "id": "everythinglm:13b",
+      "name": "everythinglm \u00b7 13b",
+      "family": "everythinglm"
+    },
+    {
+      "id": "exaone3.5:2.4b",
+      "name": "exaone3.5 \u00b7 2.4b",
+      "family": "exaone3.5"
+    },
+    {
+      "id": "exaone3.5:7.8b",
+      "name": "exaone3.5 \u00b7 7.8b",
+      "family": "exaone3.5"
+    },
+    {
+      "id": "exaone3.5:32b",
+      "name": "exaone3.5 \u00b7 32b",
+      "family": "exaone3.5"
+    },
+    {
+      "id": "solar-pro:22b",
+      "name": "solar-pro \u00b7 22b",
+      "family": "solar-pro"
+    },
+    {
+      "id": "magicoder:7b",
+      "name": "magicoder \u00b7 7b",
+      "family": "magicoder"
+    },
+    {
+      "id": "nuextract:3.8b",
+      "name": "nuextract \u00b7 3.8b",
+      "family": "nuextract"
+    },
+    {
+      "id": "mathstral:7b",
+      "name": "mathstral \u00b7 7b",
+      "family": "mathstral"
+    },
+    {
+      "id": "llava-phi3:3.8b",
+      "name": "llava-phi3 \u00b7 3.8b",
+      "family": "llava-phi3"
+    },
+    {
+      "id": "falcon2:11b",
+      "name": "falcon2 \u00b7 11b",
+      "family": "falcon2"
+    },
+    {
+      "id": "notus:7b",
+      "name": "notus \u00b7 7b",
+      "family": "notus"
+    },
+    {
+      "id": "notux:8x7b",
+      "name": "notux \u00b7 8x7b",
+      "family": "notux"
+    },
+    {
+      "id": "deepseek-ocr:3b",
+      "name": "deepseek-ocr \u00b7 3b",
+      "family": "deepseek-ocr"
+    },
+    {
+      "id": "stablelm-zephyr:3b",
+      "name": "stablelm-zephyr \u00b7 3b",
+      "family": "stablelm-zephyr"
+    },
+    {
+      "id": "bespoke-minicheck:7b",
+      "name": "bespoke-minicheck \u00b7 7b",
+      "family": "bespoke-minicheck"
+    },
+    {
+      "id": "duckdb-nsql:7b",
+      "name": "duckdb-nsql \u00b7 7b",
+      "family": "duckdb-nsql"
+    },
+    {
+      "id": "firefunction-v2:70b",
+      "name": "firefunction-v2 \u00b7 70b",
+      "family": "firefunction-v2"
+    },
+    {
+      "id": "mistrallite:7b",
+      "name": "mistrallite \u00b7 7b",
+      "family": "mistrallite"
+    },
+    {
+      "id": "wizard-vicuna:13b",
+      "name": "wizard-vicuna \u00b7 13b",
+      "family": "wizard-vicuna"
+    },
+    {
+      "id": "open-orca-platypus2:13b",
+      "name": "open-orca-platypus2 \u00b7 13b",
+      "family": "open-orca-platypus2"
+    },
+    {
+      "id": "granite4.1:3b",
+      "name": "granite4.1 \u00b7 3b",
+      "family": "granite4.1"
+    },
+    {
+      "id": "granite4.1:8b",
+      "name": "granite4.1 \u00b7 8b",
+      "family": "granite4.1"
+    },
+    {
+      "id": "granite4.1:30b",
+      "name": "granite4.1 \u00b7 30b",
+      "family": "granite4.1"
+    },
+    {
+      "id": "rnj-1:8b",
+      "name": "rnj-1 \u00b7 8b",
+      "family": "rnj-1"
+    },
+    {
+      "id": "codebooga:34b",
+      "name": "codebooga \u00b7 34b",
+      "family": "codebooga"
+    },
+    {
+      "id": "goliath:latest",
+      "name": "goliath \u00b7 latest",
+      "family": "goliath"
+    },
+    {
+      "id": "olmo-3:7b",
+      "name": "olmo-3 \u00b7 7b",
+      "family": "olmo-3"
+    },
+    {
+      "id": "olmo-3:32b",
+      "name": "olmo-3 \u00b7 32b",
+      "family": "olmo-3"
+    },
+    {
+      "id": "granite3.2:2b",
+      "name": "granite3.2 \u00b7 2b",
+      "family": "granite3.2"
+    },
+    {
+      "id": "granite3.2:8b",
+      "name": "granite3.2 \u00b7 8b",
+      "family": "granite3.2"
+    },
+    {
+      "id": "medgemma:4b",
+      "name": "medgemma \u00b7 4b",
+      "family": "medgemma"
+    },
+    {
+      "id": "medgemma:27b",
+      "name": "medgemma \u00b7 27b",
+      "family": "medgemma"
+    },
+    {
+      "id": "r1-1776:70b",
+      "name": "r1-1776 \u00b7 70b",
+      "family": "r1-1776"
+    },
+    {
+      "id": "r1-1776:671b",
+      "name": "r1-1776 \u00b7 671b",
+      "family": "r1-1776"
+    },
+    {
+      "id": "sailor2:1b",
+      "name": "sailor2 \u00b7 1b",
+      "family": "sailor2"
+    },
+    {
+      "id": "sailor2:8b",
+      "name": "sailor2 \u00b7 8b",
+      "family": "sailor2"
+    },
+    {
+      "id": "sailor2:20b",
+      "name": "sailor2 \u00b7 20b",
+      "family": "sailor2"
+    },
+    {
+      "id": "mistral-medium-3.5:128b",
+      "name": "mistral-medium-3.5 \u00b7 128b",
+      "family": "mistral-medium-3.5"
+    },
+    {
+      "id": "tulu3:8b",
+      "name": "tulu3 \u00b7 8b",
+      "family": "tulu3"
+    },
+    {
+      "id": "tulu3:70b",
+      "name": "tulu3 \u00b7 70b",
+      "family": "tulu3"
+    },
+    {
+      "id": "dbrx:132b",
+      "name": "dbrx \u00b7 132b",
+      "family": "dbrx"
+    },
+    {
+      "id": "ornith-1.5:9b",
+      "name": "ornith-1.5 \u00b7 9b",
+      "family": "ornith-1.5"
+    },
+    {
+      "id": "ornith-1.5:35b",
+      "name": "ornith-1.5 \u00b7 35b",
+      "family": "ornith-1.5"
+    },
+    {
+      "id": "ornith-1.5:397b",
+      "name": "ornith-1.5 \u00b7 397b",
+      "family": "ornith-1.5"
+    },
+    {
+      "id": "devstral-2:123b",
+      "name": "devstral-2 \u00b7 123b",
+      "family": "devstral-2"
+    },
+    {
+      "id": "granite3-guardian:2b",
+      "name": "granite3-guardian \u00b7 2b",
+      "family": "granite3-guardian"
+    },
+    {
+      "id": "granite3-guardian:8b",
+      "name": "granite3-guardian \u00b7 8b",
+      "family": "granite3-guardian"
+    },
+    {
+      "id": "command-r7b:7b",
+      "name": "command-r7b \u00b7 7b",
+      "family": "command-r7b"
+    },
+    {
+      "id": "phi4-mini-reasoning:3.8b",
+      "name": "phi4-mini-reasoning \u00b7 3.8b",
+      "family": "phi4-mini-reasoning"
+    },
+    {
+      "id": "olmo-3.1:32b",
+      "name": "olmo-3.1 \u00b7 32b",
+      "family": "olmo-3.1"
+    },
+    {
+      "id": "deepseek-v2.5:236b",
+      "name": "deepseek-v2.5 \u00b7 236b",
+      "family": "deepseek-v2.5"
+    },
+    {
+      "id": "alfred:40b",
+      "name": "alfred \u00b7 40b",
+      "family": "alfred"
+    },
+    {
+      "id": "muse-glimmer:30b",
+      "name": "muse-glimmer \u00b7 30b",
+      "family": "muse-glimmer"
+    },
+    {
+      "id": "smallthinker:3b",
+      "name": "smallthinker \u00b7 3b",
+      "family": "smallthinker"
+    },
+    {
+      "id": "command-a:111b",
+      "name": "command-a \u00b7 111b",
+      "family": "command-a"
+    },
+    {
+      "id": "cogito-2.1:671b",
+      "name": "cogito-2.1 \u00b7 671b",
+      "family": "cogito-2.1"
+    },
+    {
+      "id": "marco-o1:7b",
+      "name": "marco-o1 \u00b7 7b",
+      "family": "marco-o1"
+    },
+    {
+      "id": "nemotron-3.5-lightning:30b",
+      "name": "nemotron-3.5-lightning \u00b7 30b",
+      "family": "nemotron-3.5-lightning"
+    },
+    {
+      "id": "medgemma1.5:4b",
+      "name": "medgemma1.5 \u00b7 4b",
+      "family": "medgemma1.5"
+    },
+    {
+      "id": "command-r7b-arabic:7b",
+      "name": "command-r7b-arabic \u00b7 7b",
+      "family": "command-r7b-arabic"
+    },
+    {
+      "id": "functiongemma:270m",
+      "name": "functiongemma \u00b7 270m",
+      "family": "functiongemma"
+    },
+    {
+      "id": "lfm2.5:8b",
+      "name": "lfm2.5 \u00b7 8b",
+      "family": "lfm2.5"
+    },
+    {
+      "id": "qwen3.8-flash-next:latest",
+      "name": "qwen3.8-flash-next \u00b7 latest",
+      "family": "qwen3.8-flash-next"
+    },
+    {
+      "id": "laguna-s-2.1:latest",
+      "name": "laguna-s-2.1 \u00b7 latest",
+      "family": "laguna-s-2.1"
+    },
+    {
+      "id": "gpt-oss-safeguard:20b",
+      "name": "gpt-oss-safeguard \u00b7 20b",
+      "family": "gpt-oss-safeguard"
+    },
+    {
+      "id": "gpt-oss-safeguard:120b",
+      "name": "gpt-oss-safeguard \u00b7 120b",
+      "family": "gpt-oss-safeguard"
+    },
+    {
+      "id": "nemotron-cascade-2:30b",
+      "name": "nemotron-cascade-2 \u00b7 30b",
+      "family": "nemotron-cascade-2"
+    },
+    {
+      "id": "laguna-xs-2.1:latest",
+      "name": "laguna-xs-2.1 \u00b7 latest",
+      "family": "laguna-xs-2.1"
+    },
+    {
+      "id": "granite4.2:3b",
+      "name": "granite4.2 \u00b7 3b",
+      "family": "granite4.2"
+    },
+    {
+      "id": "granite4.2:8b",
+      "name": "granite4.2 \u00b7 8b",
+      "family": "granite4.2"
+    },
+    {
+      "id": "granite4.2:30b",
+      "name": "granite4.2 \u00b7 30b",
+      "family": "granite4.2"
+    },
+    {
+      "id": "north-mini-code-1.0:latest",
+      "name": "north-mini-code-1.0 \u00b7 latest",
+      "family": "north-mini-code-1.0"
+    },
+    {
+      "id": "tev1:0.8b",
+      "name": "tev1 \u00b7 0.8b",
+      "family": "tev1"
+    },
+    {
+      "id": "tev1:4b",
+      "name": "tev1 \u00b7 4b",
+      "family": "tev1"
+    },
+    {
+      "id": "minicpm-v4.6:1b",
+      "name": "minicpm-v4.6 \u00b7 1b",
+      "family": "minicpm-v4.6"
+    },
+    {
+      "id": "minicpm-v4.5:8b",
+      "name": "minicpm-v4.5 \u00b7 8b",
+      "family": "minicpm-v4.5"
+    },
+    {
+      "id": "laguna-xs.2:latest",
+      "name": "laguna-xs.2 \u00b7 latest",
+      "family": "laguna-xs.2"
+    },
+    {
+      "id": "granite4.1-guardian:8b",
+      "name": "granite4.1-guardian \u00b7 8b",
+      "family": "granite4.1-guardian"
+    },
+    {
+      "id": "nimble:9b",
+      "name": "nimble \u00b7 9b",
+      "family": "nimble"
+    },
+    {
+      "id": "clef-flash:9b",
+      "name": "clef-flash \u00b7 9b",
+      "family": "clef-flash"
+    },
+    {
+      "id": "clef:27b",
+      "name": "clef \u00b7 27b",
+      "family": "clef"
+    },
+    {
+      "id": "laya:latest",
+      "name": "laya \u00b7 latest",
+      "family": "laya"
+    }
+  ]
+}

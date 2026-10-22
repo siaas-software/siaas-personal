@@ -1,0 +1,9 @@
+**/node_modules
+**/.git*
+**/.env*
+.next
+.desktop
+dist
+test-results
+**/__pycache__
+**/dist

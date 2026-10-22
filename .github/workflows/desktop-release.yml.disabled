@@ -1,0 +1,140 @@
+name: Desktop installers
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+jobs:
+  package:
+    name: ${{ matrix.os }} / ${{ matrix.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            arch: x64
+            executable: dist/linux-unpacked/siaas
+          - os: windows-2022
+            arch: x64
+            executable: dist/win-unpacked/SIAAS Personal.exe
+          - os: macos-15
+            arch: arm64
+            executable: dist/mac-arm64/SIAAS Personal.app/Contents/MacOS/SIAAS Personal
+          - os: macos-15-intel
+            arch: x64
+            executable: dist/mac/SIAAS Personal.app/Contents/MacOS/SIAAS Personal
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Pilot packages are unsigned. Configure publisher certificates before
+      # a public release; no certificate or credentials are embedded in the app.
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify release tag
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: |
+          node -e 'const p=require("./package.json"); if(process.env.GITHUB_REF_NAME!==`v${p.version}` || !/^\d+\.\d+\.\d+$/.test(p.version)) process.exit(1)'
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          architecture: ${{ matrix.arch }}
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+      - name: Require publisher credentials for tagged releases
+        if: startsWith(github.ref, 'refs/tags/') && runner.os != 'Linux'
+        shell: bash
+        env:
+          CSC_LINK: ${{ runner.os == 'Windows' && secrets.WIN_CSC_LINK || runner.os == 'macOS' && secrets.MAC_CSC_LINK || '' }}
+          CSC_KEY_PASSWORD: ${{ runner.os == 'Windows' && secrets.WIN_CSC_KEY_PASSWORD || runner.os == 'macOS' && secrets.MAC_CSC_KEY_PASSWORD || '' }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          test -n "$CSC_LINK" && test -n "$CSC_KEY_PASSWORD"
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            test -n "$APPLE_ID" && test -n "$APPLE_APP_SPECIFIC_PASSWORD" && test -n "$APPLE_TEAM_ID"
+          fi
+      - run: npm run desktop:package -- --${{ matrix.arch }}
+        env:
+          CSC_LINK: ${{ startsWith(github.ref, 'refs/tags/') && (runner.os == 'Windows' && secrets.WIN_CSC_LINK || runner.os == 'macOS' && secrets.MAC_CSC_LINK || '') || '' }}
+          CSC_KEY_PASSWORD: ${{ startsWith(github.ref, 'refs/tags/') && (runner.os == 'Windows' && secrets.WIN_CSC_KEY_PASSWORD || runner.os == 'macOS' && secrets.MAC_CSC_KEY_PASSWORD || '') || '' }}
+          APPLE_ID: ${{ startsWith(github.ref, 'refs/tags/') && secrets.APPLE_ID || '' }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ startsWith(github.ref, 'refs/tags/') && secrets.APPLE_APP_SPECIFIC_PASSWORD || '' }}
+          APPLE_TEAM_ID: ${{ startsWith(github.ref, 'refs/tags/') && secrets.APPLE_TEAM_ID || '' }}
+      - name: Test packaged app (Linux)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a npm run test:package
+        env:
+          SIAAS_PACKAGED_EXECUTABLE: ${{ matrix.executable }}
+      - name: Test packaged app (Windows/macOS)
+        if: runner.os != 'Linux'
+        run: npm run test:package
+        env:
+          SIAAS_PACKAGED_EXECUTABLE: ${{ matrix.executable }}
+      - run: node scripts/checksums.mjs
+      - run: npm run release:manifest
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SIAAS-Personal-${{ runner.os }}-${{ matrix.arch }}
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.zip
+            dist/*.AppImage
+            dist/*.deb
+            dist/SHA256SUMS-*.txt
+            dist/update-*.json
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: diagnostics-${{ runner.os }}-${{ matrix.arch }}
+          retention-days: 7
+          path: test-results/package/
+
+  release:
+    name: Publish verified tagged release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: package
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: SIAAS-Personal-*
+          merge-multiple: true
+          path: release
+      - run: node scripts/verify-release.mjs
+      - name: Publish all installers together
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "Release already exists. Never overwrite a published version."
+            exit 1
+          fi
+          gh release create "$GITHUB_REF_NAME" release/* --verify-tag --draft --generate-notes --title "SIAAS Personal $GITHUB_REF_NAME"
+          gh release edit "$GITHUB_REF_NAME" --draft=false --latest

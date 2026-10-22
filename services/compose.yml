@@ -1,0 +1,24 @@
+name: siaas-research
+services:
+  laya:
+    build:
+      context: ..
+      dockerfile: services/laya/Dockerfile
+    ports: ["127.0.0.1:7821:7821"]
+    environment:
+      SIAAS_RESEARCH_TOKEN: ${SIAAS_RESEARCH_TOKEN:?Run npm run research:setup}
+      HF_HUB_DISABLE_TELEMETRY: "1"
+    volumes: ["laya-models:/home/siaas/.cache/huggingface"]
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+  searxng:
+    image: ${SIAAS_SEARXNG_IMAGE:-searxng/searxng@sha256:ddd642cae6eac75412938fd846ddbf440a2df029cfeae8a562b8b205f4e35e25}
+    ports: ["127.0.0.1:7823:8080"]
+    environment:
+      SEARXNG_SECRET: ${SIAAS_RESEARCH_TOKEN:?Run npm run research:setup}
+    volumes: ["./searxng/settings.yml:/etc/searxng/settings.yml:ro"]
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+volumes:
+  laya-models:

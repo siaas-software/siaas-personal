@@ -1,0 +1,15 @@
+node_modules/
+.next/
+.env*
+!.env.example
+.vercel/
+*.tsbuildinfo
+test-results/
+.vercel
+
+.desktop/
+dist/
+services/morphic/dist/
+**/__pycache__/
+
+dist-source/

@@ -1,0 +1,4 @@
+{
+  "nodeVersion": "24.22.0",
+  "reason": "Node 24 LTS; desktop packaging requires Node 24 Zstandard support."
+}

@@ -1,0 +1,9 @@
+{
+  "repository": "siaas-software/siaas-templates",
+  "ref": "100cc3f2974c37489bb85add87555c3bb2f63c9e",
+  "path": "catalog.json",
+  "target": "app",
+  "output": "src/generated/builtin-templates.json",
+  "catalogSha256": "7411ad8388aeb3b949582c7f7b59d2e1bda5093e35d1b592d10fff05e1e4e1a8",
+  "outputSha256": "7bd8ed5d3e596455ce880134ec61affb6744390b3cd65c63dbc951ab5b287f8e"
+}

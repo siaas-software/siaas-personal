@@ -1,0 +1,93 @@
+name: Package stable release
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+permissions:
+  contents: read
+concurrency:
+  group: stable-release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Validate stable version tag
+        shell: bash
+        env:
+          TAG: ${{ github.ref_name }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT" != "push" ]; then
+            echo "Manual runs validate configuration only; they do not publish releases."
+            exit 0
+          fi
+          [[ "$TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || exit 1
+  package:
+    needs: validate
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: windows-2022
+            platform: win
+          - os: macos-15
+            platform: mac
+          - os: ubuntu-24.04
+            platform: linux
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Validate types
+        run: npm run typecheck
+      - name: Run tests
+        run: npm test
+      - name: Build desktop
+        run: npm run desktop:build
+      - name: Prepare packaged runtime
+        run: npm run desktop:prepare
+      - name: Build native packages
+        run: npx --no-install electron-builder --config electron-builder.cjs --publish never
+      - name: Generate SHA-256 checksums
+        shell: bash
+        run: |
+          node -e "const fs=require('fs'),crypto=require('crypto');const files=fs.readdirSync('dist').filter(f=>/\.(exe|dmg|zip|AppImage|deb)$/.test(f));if(!files.length)process.exit(1);fs.writeFileSync('dist/SHA256SUMS-${{ matrix.platform }}.txt',files.map(f=>crypto.createHash('sha256').update(fs.readFileSync('dist/'+f)).digest('hex')+'  '+f).join('\n')+'\n')"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.platform }}
+          path: dist/
+          retention-days: 1
+          if-no-files-found: error
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push'
+    needs: package
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: release
+          merge-multiple: true
+      - name: Validate release assets
+        shell: bash
+        run: |
+          test -n "$(find release -maxdepth 1 -name '*.exe' -print -quit)"
+          test -n "$(find release -maxdepth 1 -name '*.dmg' -print -quit)"
+          test -n "$(find release -maxdepth 1 -name '*.AppImage' -print -quit)"
+          test "$(find release -maxdepth 1 -name 'SHA256SUMS-*.txt' | wc -l)" -eq 3
+      - name: Publish completed stable release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        shell: bash
+        run: gh release create "$TAG" release/* --title "SIAAS Personal $TAG" --generate-notes --verify-tag

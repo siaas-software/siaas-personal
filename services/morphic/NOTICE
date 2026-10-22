@@ -1,0 +1,16 @@
+SIAAS Personal headless research adapter, derived from the Morphic researcher architecture.
+Upstream: miurla/morphic, https://github.com/miurla/morphic
+Revision: 62e0816b019c5543ccc280c40ec1f020d5af4669
+License: Apache-2.0 (included in LICENSE).
+Copyright 2024 Yoshiki Miura
+
+No upstream NOTICE is present at the referenced revision. This file records
+SIAAS modifications and attribution; it is not an upstream NOTICE.
+
+This is a SIAAS-Personal-specific port of createResearcher, not an official Morphic API
+and not the complete Morphic application. It retains the AI SDK ToolLoopAgent
+search/fetch loop and Ollama provider. The UI, database, cloud providers,
+tracing, multimodal tools and upstream search/extraction providers are omitted.
+SIAAS Personal adds bounded SearXNG search, pinned-DNS public-page reading, authenticated
+HTTP transport and a versioned evidence response. The final generated text is
+not used as evidence. Instructions are adapted for evidence collection only.
