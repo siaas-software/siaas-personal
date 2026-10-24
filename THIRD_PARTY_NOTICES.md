@@ -48,3 +48,21 @@ Docker image retains LICENSE and NOTICE beside the bundled service.
 See the dated [license verification record](docs/license-verification.md) for
 exact revisions, artifact hashes, inspected sources and remaining uncertainty.
 Later upstream license changes do not retroactively determine these versions.
+
+## Dependency, font and asset inventory (24 October 2026)
+
+See the [dated audit](docs/licensing/audit-2026-10-24.md),
+[application lock inventory](docs/licensing/dependency-inventory.json) and
+[optional Morphic inventory](docs/licensing/morphic-dependency-inventory.json).
+These include development tools and platform alternatives; they are not a bill
+of materials for every final executable.
+
+DM Sans and Manrope use OFL-1.1; their exact copyright/license texts are retained
+in `docs/licensing/notices/`. Lucide 1.49.0 includes ISC and Feather MIT attribution;
+both are retained there. Sharp/libvips native distributions carry additional
+LGPL and component-specific obligations. AI model weights retain their own terms.
+
+Structured Data Analysis remains draft PR #4. Its ExcelJS, Papa Parse, Decimal.js
+and Yauzl additions are MIT, but the audit flags unresolved transitive package
+provenance and artifact-specific redistribution checks. The application MIT
+license neither resolves those findings nor grants rights to third-party assets.
