@@ -1,3 +1,4 @@
+import { buildStructuredParser } from "./build-structured-parser.mjs";
 import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, rmSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
@@ -38,3 +39,6 @@ for (const file of ["research-services.mjs", "docker-prerequisites.mjs"]) {
     recursive: true,
   });
 }
+
+// Bundle the isolated parser with its pure-JavaScript dependencies for source installs.
+await buildStructuredParser();

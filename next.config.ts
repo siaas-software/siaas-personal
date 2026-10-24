@@ -24,7 +24,7 @@ const config: NextConfig = {
       "./services/morphic/NOTICE",
     ],
   },
-  serverExternalPackages: ["mammoth", "unpdf"],
+  serverExternalPackages: ["mammoth", "unpdf", "exceljs", "papaparse", "yauzl"],
   async headers() {
     return [
       {

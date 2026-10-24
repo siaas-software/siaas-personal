@@ -2234,3 +2234,15 @@ textarea::placeholder {
 .actions-models { display: grid; gap: 14px; margin-top: 24px; }
 .actions-models label { display: flex; align-items: center; gap: 10px; }
 .actions-models input[type="radio"] { width: auto; margin: 0; }
+
+.structured-knowledge { margin: 1.25rem 0; padding: 1rem; border: 1px solid #d8dedb; border-radius: 12px; }
+.structured-knowledge details { margin: .75rem 0; }
+.structured-knowledge summary { cursor: pointer; font-weight: 600; padding: .5rem 0; }
+.structured-knowledge form { display: grid; gap: .75rem; margin: .75rem 0; }
+.structured-knowledge label { display: grid; gap: .3rem; }
+.structured-knowledge input[type="checkbox"] { width: auto; justify-self: start; }
+.structured-knowledge pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 320px; overflow: auto; }
+.structured-scroll { max-width: 100%; overflow: auto; margin: .75rem 0; }
+.structured-scroll table { border-collapse: collapse; width: 100%; font-size: .85rem; }
+.structured-scroll td, .structured-scroll th { padding: .5rem; border: 1px solid #d8dedb; text-align: left; min-width: 80px; }
+.structured-knowledge textarea { width: 100%; font-family: monospace; }

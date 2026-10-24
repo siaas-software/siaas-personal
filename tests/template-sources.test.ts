@@ -165,6 +165,8 @@ test("new built-ins replace retired catalog entries without changing existing pr
       "computer-science-study",
       "home-gardening",
       "software-engineering",
+      "production-planning",
+      "personal-finance",
     ]);
     const old = db.put("project_templates", {
       tenant_id: LOCAL_USER_ID,
@@ -183,9 +185,9 @@ test("new built-ins replace retired catalog entries without changing existing pr
       db,
       LOCAL_USER_ID,
     );
-    assert.equal(rows.length, 3);
+    assert.equal(rows.length, 5);
     assert.equal(db.get("projects", project.project.id)?.template_id, old.id);
-    for (const row of rows) {
+    for (const row of rows.filter(r => !["production-planning", "personal-finance"].includes(r.builtin_key ?? ""))) {
       assert.equal(row.assistants.length, 3);
       assert(row.assistants.every((a) => a.sources.length === 1));
       const imported = importLocalTemplate(db, row);

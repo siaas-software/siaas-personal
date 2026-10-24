@@ -8,6 +8,8 @@ export function agentToolLabel(tool: AgentStep["tool"], italian = false) {
     assess_evidence: ["Evidence Evaluation", "Valutazione delle fonti"],
     search_websites: ["Selected Websites", "Siti selezionati"],
     research_web: ["Advanced Web Research", "Ricerca web avanzata"],
+    inspect_datasets: ["Dataset schemas", "Schemi dataset"],
+    query_datasets: ["Structured calculation", "Calcolo strutturato"],
     unknown: ["Tool", "Strumento"],
   };
   return labels[tool][italian ? 1 : 0];
@@ -22,7 +24,9 @@ export function summarizeAgentTool(
   const tool: AgentStep["tool"] =
     name === "search_documents" ||
     name === "read_document" ||
-    name === "create_report"
+    name === "create_report" ||
+    name === "inspect_datasets" ||
+    name === "query_datasets"
       ? name
       : "unknown";
   let result: Record<string, unknown> = {};
