@@ -138,93 +138,68 @@ export async function POST(req: Request) {
               let sources: Source[] = [];
               let inputTokens = 0,
                 outputTokens = 0;
-              const research = await prepareAssistantResearch({
+              const { structuredChat } = await import("@/lib/structured/chat");
+              const structured = await structuredChat({
                 db,
                 assistantId: assistant.id,
                 modelId: assistant.model_id,
-                question,
+                question: invocation,
+                instructions: assistant.instructions,
                 embeddingProfile: runtime.embeddingProfile,
-                conversationId: conversation_id,
-                language,
-                signal: AbortSignal.any([
-                  agentAbort.signal,
-                  req.signal,
-                  AbortSignal.timeout(240_000),
-                ]),
-                emit(event) {
-                  if (event.type === "sources") sources = event.sources;
-                  send(event);
-                  if (
-                    event.type === "sources" ||
-                    event.type === "steps" ||
-                    event.type === "research"
-                  ) {
-                    const current = db.get("messages", responseId);
-                    if (!current) throw new Error("Conversation removed");
-                    db.put(
-                      "messages",
-                      {
-                        ...current,
-                        sources,
-                        ...(event.type === "steps"
-                          ? { agent_steps: event.steps }
-                          : {}),
-                        ...(event.type === "research"
-                          ? {
-                              research_warnings: event.warnings,
-                              research_missing: event.missing,
-                            }
-                          : {}),
-                      },
-                      true,
-                    );
-                  }
+                signal: AbortSignal.any([agentAbort.signal, req.signal]),
+                emit(delta) {
+                  text += delta;
+                  send({ type: "delta", text: delta });
                 },
               });
-              sources = research.sources;
-              if (useAgent) {
-                const [{ runLocalAgent }, { localDatabase }] =
-                  await Promise.all([
-                    import("@/lib/local/agent"),
-                    import("@/lib/local/database"),
-                  ]);
-                const local = localDatabase();
-                let savedAt = Date.now();
-                const result = await runLocalAgent({
-                  db: local,
-                  language,
-                  preparedResearch: research,
+              if (structured) {
+                sources = structured.sources;
+                send({ type: "sources", sources });
+                if (structured.result) {
+                  const artifacts = [
+                    {
+                      id: randomUUID(),
+                      title: "Structured Data Analysis",
+                      content: structured.content,
+                    },
+                  ];
+                  await db
+                    .from("messages")
+                    .update({
+                      structured_analysis: structured.result,
+                      artifacts,
+                    })
+                    .eq("id", responseId);
+                  send({ type: "artifacts", artifacts });
+                }
+              } else {
+                const research = await prepareAssistantResearch({
+                  db,
                   assistantId: assistant.id,
-                  conversationId: conversation_id,
                   modelId: assistant.model_id,
-                  instructions: assistant.instructions,
-                  question: invocation,
-                  history: prior.map((message) => ({
-                    role: message.role as "user" | "assistant",
-                    content: message.content,
-                  })),
+                  question,
                   embeddingProfile: runtime.embeddingProfile,
+                  conversationId: conversation_id,
+                  language,
                   signal: AbortSignal.any([
                     agentAbort.signal,
                     req.signal,
                     AbortSignal.timeout(240_000),
                   ]),
                   emit(event) {
-                    if (event.type === "delta") text += event.text;
                     if (event.type === "sources") sources = event.sources;
                     send(event);
                     if (
+                      event.type === "sources" ||
                       event.type === "steps" ||
-                      event.type === "research" ||
-                      Date.now() - savedAt > 1500
+                      event.type === "research"
                     ) {
-                      const current = local.get("messages", responseId);
+                      const current = db.get("messages", responseId);
                       if (!current) throw new Error("Conversation removed");
-                      local.put(
+                      db.put(
                         "messages",
                         {
                           ...current,
-                          content: text,
                           sources,
                           ...(event.type === "steps"
                             ? { agent_steps: event.steps }
@@ -238,81 +213,142 @@ export async function POST(req: Request) {
                         },
                         true,
                       );
-                      savedAt = Date.now();
                     }
-                  },
-                  async saveArtifacts(artifacts) {
-                    const current = local.get("messages", responseId);
-                    if (!current) throw new Error("Conversation removed");
-                    local.put("messages", { ...current, artifacts }, true);
                   },
                 });
-                sources = result.sources;
-                inputTokens = result.inputTokens;
-                outputTokens = result.outputTokens;
-                if (!text.trim()) throw new Error("Empty generation");
-              } else {
-                const { error: sError } = await db
-                  .from("messages")
-                  .update({ sources })
-                  .eq("id", responseId);
-                if (sError) throw sError;
-                send({ type: "sources", sources });
-                {
-                  const messages: OllamaMessage[] = [
-                    {
-                      role: "system",
-                      content:
-                        (sources.length
-                          ? ragPrompt(
-                              assistant.instructions.slice(0, 1000),
-                              // Bound the model context; full sources remain in SQLite and the UI.
-                              sources.map((source) => ({
-                                ...source,
-                                title: source.title.slice(0, 100),
-                                url: undefined,
-                                content: source.content.slice(
-                                  0,
-                                  Math.floor(
-                                    5000 / Math.max(1, sources.length),
-                                  ),
-                                ),
-                              })),
-                            )
-                          : assistant.instructions.slice(0, 1000) ||
-                            "You are a helpful assistant. Explain when no relevant sources are available.") +
-                        researchLimitations(research),
-                    },
-                    ...prior.slice(-2).map((m) => ({
-                      role: m.role as "user" | "assistant",
-                      content: m.content.slice(0, 400),
-                    })),
-                    { role: "user", content: invocation },
-                  ];
+                sources = research.sources;
+                if (useAgent) {
+                  const [{ runLocalAgent }, { localDatabase }] =
+                    await Promise.all([
+                      import("@/lib/local/agent"),
+                      import("@/lib/local/database"),
+                    ]);
+                  const local = localDatabase();
                   let savedAt = Date.now();
-                  for await (const event of streamLocal(
-                    assistant.model_id,
-                    messages,
-                    fetch,
-                    inferenceContext,
-                  )) {
-                    if (event.type === "done") {
-                      inputTokens = event.inputTokens;
-                      outputTokens = event.outputTokens;
-                      continue;
-                    }
-                    text += event.text;
-                    send({ type: "delta", text: event.text });
-                    if (Date.now() - savedAt > 1500) {
-                      const { error: pError } = await db
-                        .from("messages")
-                        .update({ content: text })
-                        .eq("id", responseId);
-                      if (pError) throw pError;
-                      savedAt = Date.now();
-                    }
-                  }
+                  const result = await runLocalAgent({
+                    db: local,
+                    language,
+                    preparedResearch: research,
+                    assistantId: assistant.id,
+                    conversationId: conversation_id,
+                    modelId: assistant.model_id,
+                    instructions: assistant.instructions,
+                    question: invocation,
+                    history: prior.map((message) => ({
+                      role: message.role as "user" | "assistant",
+                      content: message.content,
+                    })),
+                    embeddingProfile: runtime.embeddingProfile,
+                    signal: AbortSignal.any([
+                      agentAbort.signal,
+                      req.signal,
+                      AbortSignal.timeout(240_000),
+                    ]),
+                    emit(event) {
+                      if (event.type === "delta") text += event.text;
+                      if (event.type === "sources") sources = event.sources;
+                      send(event);
+                      if (
+                        event.type === "steps" ||
+                        event.type === "research" ||
+                        Date.now() - savedAt > 1500
+                      ) {
+                        const current = local.get("messages", responseId);
+                        if (!current) throw new Error("Conversation removed");
+                        local.put(
+                          "messages",
+                          {
+                            ...current,
+                            content: text,
+                            sources,
+                            ...(event.type === "steps"
+                              ? { agent_steps: event.steps }
+                              : {}),
+                            ...(event.type === "research"
+                              ? {
+                                  research_warnings: event.warnings,
+                                  research_missing: event.missing,
+                                }
+                              : {}),
+                          },
+                          true,
+                        );
+                        savedAt = Date.now();
+                      }
+                    },
+                    async saveArtifacts(artifacts) {
+                      const current = local.get("messages", responseId);
+                      if (!current) throw new Error("Conversation removed");
+                      local.put("messages", { ...current, artifacts }, true);
+                    },
+                  });
+                  sources = result.sources;
+                  inputTokens = result.inputTokens;
+                  outputTokens = result.outputTokens;
                   if (!text.trim()) throw new Error("Empty generation");
+                } else {
+                  const { error: sError } = await db
+                    .from("messages")
+                    .update({ sources })
+                    .eq("id", responseId);
+                  if (sError) throw sError;
+                  send({ type: "sources", sources });
+                  {
+                    const messages: OllamaMessage[] = [
+                      {
+                        role: "system",
+                        content:
+                          (sources.length
+                            ? ragPrompt(
+                                assistant.instructions.slice(0, 1000),
+                                // Bound the model context; full sources remain in SQLite and the UI.
+                                sources.map((source) => ({
+                                  ...source,
+                                  title: source.title.slice(0, 100),
+                                  url: undefined,
+                                  content: source.content.slice(
+                                    0,
+                                    Math.floor(
+                                      5000 / Math.max(1, sources.length),
+                                    ),
+                                  ),
+                                })),
+                              )
+                            : assistant.instructions.slice(0, 1000) ||
+                              "You are a helpful assistant. Explain when no relevant sources are available.") +
+                          researchLimitations(research),
+                      },
+                      ...prior.slice(-2).map((m) => ({
+                        role: m.role as "user" | "assistant",
+                        content: m.content.slice(0, 400),
+                      })),
+                      { role: "user", content: invocation },
+                    ];
+                    let savedAt = Date.now();
+                    for await (const event of streamLocal(
+                      assistant.model_id,
+                      messages,
+                      fetch,
+                      inferenceContext,
+                    )) {
+                      if (event.type === "done") {
+                        inputTokens = event.inputTokens;
+                        outputTokens = event.outputTokens;
+                        continue;
+                      }
+                      text += event.text;
+                      send({ type: "delta", text: event.text });
+                      if (Date.now() - savedAt > 1500) {
+                        const { error: pError } = await db
+                          .from("messages")
+                          .update({ content: text })
+                          .eq("id", responseId);
+                        if (pError) throw pError;
+                        savedAt = Date.now();
+                      }
+                    }
+                    if (!text.trim()) throw new Error("Empty generation");
+                  }
                 }
               }
               const { error: saveError } = await db

@@ -1,3 +1,4 @@
+import { AnalysisError } from "./structured/types";
 import { ActionError } from "./actions";
 import { FeatureUnavailableError } from "./local/experimental-features";
 import "server-only";
@@ -25,7 +26,8 @@ export function fail(error: unknown) {
   if (
     error instanceof HttpError ||
     error instanceof OllamaError ||
-    error instanceof ActionError
+    error instanceof ActionError ||
+    error instanceof AnalysisError
   )
     return Response.json({ error: error.message }, { status: error.status });
   if (error instanceof z.ZodError || error instanceof SyntaxError)
