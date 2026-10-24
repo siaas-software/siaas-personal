@@ -8,7 +8,7 @@ Serve un desktop Windows, macOS o Linux a 64 bit (x64 o arm64), connessione Inte
 
 Il bootstrap non richiede Node.js preinstallato. Windows usa PowerShell 5.1+ e gli strumenti archivio di Windows. macOS/Linux richiedono Bash, curl, tar, unzip e sha256sum o shasum. L’uso normale non richiede Docker. Ragionamento avanzato (Beta) e Ricerca web avanzata (Beta) sono opzionali e indipendenti, entrambi disattivati per impostazione predefinita; attivarli richiede Docker Engine 20.10+ (container Linux, x64/arm64), Compose v2 e consenso esplicito in Impostazioni → Funzionalità sperimentali. Ricerca web avanzata richiede anche il consenso per assistente; documenti e siti configurati condividono il percorso standard senza Docker. Vedi la guida alla ricerca.
 
-**Prelancio:** l’installazione richiede che repository applicativo e asset della release stabile siano pubblici. Un repository privato o una release assente produce un errore comprensibile, senza richiedere credenziali GitHub. Queste modifiche non pubblicano release e non avviano il lancio del prodotto.
+**Disponibilità verificata il 24 ottobre 2026:** il repository pubblico contiene la release stabile `v1.0.0` con ZIP sorgente e specifica di installazione. I metadati della release non dimostrano l’installazione sul tuo sistema. Il sito resta prelaunch (noindex); Structured Data Analysis e i nuovi template sono PR draft separate, non incluse nella release.
 
 ## Installazioni esistenti
 
@@ -65,9 +65,15 @@ Il manifest risolve l’ultima GitHub Release stabile pubblica senza autenticazi
 Il manutentore li crea localmente con `npm run release:source` da sorgenti già committati. Il comando non pubblica nulla. Versione del pacchetto, manifest e runtime devono corrispondere. Pubblicare una release richiede un’autorizzazione separata.
 
 - **Nessuna release pubblica stabile:** verifica visibilità e presenza dei due asset. Gli archivi automatici di GitHub non sostituiscono questi asset verificati.
-- **Installer service not configured:** il sito precedente dipendeva dal proxy `SIAAS_SERVICE_URL`. La dipendenza è stata rimossa dal codice; serve un deploy autorizzato per rendere attiva la correzione. Non serve un token o servizio privato sostitutivo.
+- **Installer service not configured:** errore del precedente sito/proxy. Il codice verificato usa i metadati pubblici delle release. Controlla di usare lo script ufficiale corrente e leggi l’errore dell’endpoint; non aggiungere token privati e non disabilitare le verifiche.
 - **Errore di rete:** verifica accesso a GitHub, release-assets.githubusercontent.com, nodejs.org e registry npm. Un errore durante preparazione/compilazione conserva l’installazione precedente.
 - **Checksum o schema non valido:** interrompi e riprova dall’endpoint ufficiale; non disabilitare i controlli.
 - **Errore di compilazione:** consulta terminale o `update.log`, spazio libero e dipendenze di sistema; conserva installazione e dati.
 
 Il sito conserva `SITE_LAUNCH_STATUS=prelaunch`, blocco dell’indicizzazione e sitemap vuota. Dopo il collegamento autorizzato del nuovo repository, Vercel esegue i deploy dei commit su `main`. Il deploy non modifica le restrizioni di indicizzazione del prelaunch.
+
+## Avvio, antivirus e file bloccati
+
+Avvia **SIAAS Personal** dal menu Start di Windows (`%APPDATA%/Microsoft/Windows/Start Menu/Programs/SIAAS Personal.cmd`), da `~/Applications/SIAAS Personal.command` su macOS o dal menu applicazioni Linux (`~/.local/share/applications/siaas-personal.desktop`). Se manca il collegamento, controlla il log e riesegui l’installer verificato per ripararlo; non cancellare i dati.
+
+Gli errori `EPERM` / `EACCES` durante la pulizia npm o la preparazione di una versione possono dipendere da processi aperti, permessi o blocchi dell’antivirus. Chiudi SIAAS e i processi che usano la cartella, verifica eventi dell’antivirus e spazio libero, quindi riprova. Per file verificati bloccati segui la procedura di eccezione approvata dall’amministratore, senza disattivare globalmente l’antivirus. Una preparazione fallita deve conservare la versione corrente. Esegui un backup del profilo dati Electron prima degli aggiornamenti: il rollback non annulla modifiche a dati o schema.

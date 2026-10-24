@@ -43,6 +43,12 @@ Assistants can use PDF, DOCX, TXT and Markdown sources. SIAAS Personal stores an
 
 Knowledge remains isolated according to the configured assistant/project context, and sources used in answers remain inspectable.
 
+### Structured Data Analysis — draft preview
+
+[Draft PR #4](https://github.com/siaas-software/siaas-personal/pull/4) implements local XLSX/CSV ingestion, profiling, confirmed mappings, dataset relationships and deterministic calculations alongside Knowledge/RAG and Ollama chat. It uses existing SQLite persistence with a typed query executor; DuckDB was evaluated but not adopted. No Docker or Python is required.
+
+This is **not confirmed in the stable release**. See the [feature preview](docs/structured-data-analysis-preview.md) for formulas, limits, evidence and validation status. Production Planning and Personal Finance are in [templates draft PR #1](https://github.com/siaas-software/siaas-templates/pull/1). Do not expect these features from the current installer until separately reviewed, merged and released.
+
 ### Templates
 
 Templates are reusable starting points for recognizable roles or concrete activities.
@@ -64,6 +70,8 @@ Visit [Get started](https://siaas.vercel.app/get-started) for source installatio
 SIAAS Personal runs entirely in **guest mode**. Projects, assistants, chats, local Knowledge, templates, Overview, model downloads and application updates require no account. Use **Settings → Application updates** to check the latest stable release. Local work remains available offline; use separate OS profiles for separate workspaces.
 
 The source manager keeps the current installation when it is already up to date and stages newer versions separately. On first launch, the shared Ollama manager reuses a compatible service or starts a stopped installation, preserving existing models. It offers a managed download only if Ollama is absent; incompatible installations are reported, never silently replaced. Missing models are downloaded when needed.
+
+Launch an installed application from its generated Start menu entry (Windows), `~/Applications/SIAAS Personal.command` (macOS), or application-menu entry (Linux). Updates and rollback retain user data; uninstall unregisters the launcher and preserves application versions/data. See [installation and troubleshooting](docs/installation-en.md) for repair, backups and antivirus/file-lock errors. Native Windows/macOS acceptance remains separate from successful Linux builds.
 
 ### Source development requirements
 
@@ -218,10 +226,10 @@ For documentation-only changes, check links, commands and consistency with curre
 
 ## Releases and updates
 
-Desktop installers are generated only for real releases, manually or from version tags such as `v1.3.0`.
+Public distribution uses reviewed source ZIP and installation-specification assets, built locally with `npm run release:source`. Native Electron packages are development/verification artifacts; this workflow does not publish .exe/.dmg installers. Release publication is a separate maintainer action.
 
 ```text
-merge → version tag → desktop build → release → in-app update
+reviewed merge → release tag → source assets + checksums → authorized release → source-managed update
 ```
 
 Normal website or documentation changes do not trigger desktop packaging.
@@ -243,7 +251,7 @@ npm run templates:sync -- --ref <full-commit-sha>
 npm run templates:check
 ```
 
-For the private repository, configure `SIAAS_TEMPLATES_TOKEN` in the maintainer's environment (read-only repository access), or use an authenticated local checkout:
+The official templates repository is public. A token is unnecessary for normal public reads. To use a reviewed local checkout:
 
 ```sh
 npm run templates:sync -- --ref <full-commit-sha> --catalog ../siaas-templates/catalog.json
@@ -296,7 +304,7 @@ without a browser; Ollama responses are simulated in these tests.
 Original SIAAS Personal code is available under the [MIT License](LICENSE).
 Copyright (c) 2026 Davide Abbatiello. Commercial use and modification are permitted
 under the license terms. Third-party components and model weights keep their own
-licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
+licenses; see [third-party notices](THIRD_PARTY_NOTICES.md) and the [dependency/asset audit](docs/licensing/audit-2026-10-24.md).
 
 The canonical source repository is
 [siaas-personal](https://github.com/siaas-software/siaas-personal).
