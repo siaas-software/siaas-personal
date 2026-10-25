@@ -27,6 +27,10 @@ export async function POST(
         status: result.status === "ready" ? 200 : 202,
       });
     }
+    if (["xlsx", "csv"].includes(doc.kind)) {
+      const { importStructured } = await import("@/lib/structured/store");
+      return Response.json(await importStructured(db, id));
+    }
     const runtime = await requireOllama();
     if (
       doc.status === "ready" &&

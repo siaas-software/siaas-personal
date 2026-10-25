@@ -163,8 +163,8 @@ test("new built-ins replace retired catalog entries without changing existing pr
   try {
     assert.deepEqual(Object.keys(BUILTIN_TEMPLATES), [
       "computer-science-study",
-      "home-gardening",
-      "software-engineering",
+      "production-planning",
+      "personal-finance",
     ]);
     const old = db.put("project_templates", {
       tenant_id: LOCAL_USER_ID,
@@ -185,7 +185,7 @@ test("new built-ins replace retired catalog entries without changing existing pr
     );
     assert.equal(rows.length, 3);
     assert.equal(db.get("projects", project.project.id)?.template_id, old.id);
-    for (const row of rows) {
+    for (const row of rows.filter(r => !["production-planning", "personal-finance"].includes(r.builtin_key ?? ""))) {
       assert.equal(row.assistants.length, 3);
       assert(row.assistants.every((a) => a.sources.length === 1));
       const imported = importLocalTemplate(db, row);

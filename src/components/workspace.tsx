@@ -9,6 +9,7 @@ import { useInterfaceLanguage } from "./interface-language";
 import { shortcutDisplayPrompt } from "@/lib/shortcuts";
 import { WebKnowledge } from "./web-knowledge";
 import { ChatMarkdown } from "./chat-markdown";
+import { StructuredKnowledge } from "./structured-knowledge";
 import { LocalKnowledge, LocalStoragePanel } from "./local-knowledge";
 import { ExperimentalFeaturesPanel } from "./experimental-features";
 import { ResearchSettingsFields } from "./research-settings";
@@ -585,11 +586,13 @@ export function Workspace() {
         const kind = file.name.split(".").pop()?.toLowerCase();
         if (
           !kind ||
-          !["pdf", "docx", "txt", "md"].includes(kind) ||
+          !["pdf", "docx", "txt", "md", "xlsx", "csv"].includes(kind) ||
           file.size > MAX_FILE_BYTES ||
           !file.size
         )
-          throw new Error("Usa PDF, DOCX, TXT o MD, fino a 10 MB per file.");
+          throw new Error(
+            "Use PDF, DOCX, TXT, MD, XLSX or CSV, up to 10 MB per file.",
+          );
         const d = await api<{ id: string; storage_path: string }>(
           "/api/documents",
           {
@@ -632,7 +635,8 @@ export function Workspace() {
           );
         }
         await loadDocs();
-        if (data?.aiReady) await processDocument(importedId);
+        if (data?.aiReady || ["xlsx", "csv"].includes(kind))
+          await processDocument(importedId);
       }
       setNotice(
         data?.aiReady
@@ -1490,7 +1494,7 @@ export function Workspace() {
                           hidden
                           ref={fileRef}
                           type="file"
-                          accept=".pdf,.docx,.txt,.md"
+                          accept=".pdf,.docx,.txt,.md,.xlsx,.csv"
                           multiple
                           onChange={(e) => void upload(e.target.files)}
                         />
@@ -1502,8 +1506,19 @@ export function Workspace() {
                             ? italian
                               ? "Salvataggio e indicizzazione…"
                               : "Saving and indexing…"
-                            : "PDF, DOCX, TXT, Markdown · max 10 MB"}
+                            : "PDF, DOCX, TXT, Markdown, XLSX, CSV · max 10 MB"}
                         </p>
+                        <StructuredKnowledge
+                          key={selected.id + "-structured"}
+                          assistantId={selected.id}
+                          revision={
+                            knowledgeRevision +
+                            docs.reduce(
+                              (n, d) => n + (d.status === "ready" ? 1 : 0),
+                              0,
+                            )
+                          }
+                        />
                         {docsLoading && !docs.length ? (
                           <SiaasLoader label="Loading sources…" compact />
                         ) : (
@@ -1564,7 +1579,11 @@ export function Workspace() {
                                         new Date())) && (
                                     <button
                                       className="button compact"
-                                      disabled={busy || !data.aiReady}
+                                      disabled={
+                                        busy ||
+                                        (!data.aiReady &&
+                                          !["xlsx", "csv"].includes(d.kind))
+                                      }
                                       onClick={async () => {
                                         setBusy(true);
                                         setError("");
@@ -2399,7 +2418,11 @@ function Chat({
                     )
                   ) : (
                     <span className="thinking">
-                      <SiaasLoader iconOnly size={16} label="Preparing response…" />
+                      <SiaasLoader
+                        iconOnly
+                        size={16}
+                        label="Preparing response…"
+                      />
                       {m.agent_activity || "Preparing response…"}
                     </span>
                   )}

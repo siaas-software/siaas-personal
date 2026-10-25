@@ -214,7 +214,7 @@ try {
   assert(!workspace.assistants.some(x => x.project_id === project.id));
   assert.equal((await request(`/api/conversations/${conversation.id}`)).status, 404);
   await assert.rejects(access(join(directory, 'data', 'files', doc.storage_path)));
-  assert.equal((await api('/api/templates')).length, 5);
+  assert.equal((await api('/api/templates')).length, 3);
   await page.getByRole('button', { name: 'New project', exact: true }).first().click();
   await page.getByLabel('Project name', { exact: true }).fill('Project bianco');
   await page.getByRole('button', { name: 'Create project', exact: true }).click();

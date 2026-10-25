@@ -31,7 +31,7 @@ export const EMBEDDING_MODEL = "embeddinggemma:latest";
 export const EMBEDDING_DIMENSIONS = 768;
 export const MAX_FILE_BYTES = 10 * 1024 * 1024;
 export const MAX_DOCUMENT_CHARS = 150_000;
-export const FILE_EXTENSIONS = ["pdf", "docx", "txt", "md"];
+export const FILE_EXTENSIONS = ["pdf", "docx", "txt", "md", "xlsx", "csv"];
 export type Project = {
   id: string;
   tenant_id: string;
@@ -110,6 +110,8 @@ export type AgentStep = {
     | "assess_evidence"
     | "search_websites"
     | "research_web"
+    | "inspect_datasets"
+    | "query_datasets"
     | "unknown";
   status: "success" | "error";
   detail: string;
@@ -133,6 +135,7 @@ export function needsReindex(
 ) {
   return (
     doc.status === "ready" &&
+    doc.embedding_model !== "structured-v1" &&
     (!doc.embedding_model.startsWith("ollama/embeddinggemma:latest@") ||
       (!!profile && doc.embedding_model !== profile))
   );

@@ -14,9 +14,10 @@ test('managed source installation stages updates, retains matching rollback, and
   const node=join(runtimeFolder,'bin/node'),npm=join(runtimeFolder,'npm-fixture.mjs');copyFileSync(process.execPath,node);
   writeFileSync(npm,`import {readFileSync} from 'node:fs'; const pkg=JSON.parse(readFileSync('package.json')); if(pkg.failBuild) process.exit(17); if(process.env.SIAAS_SOURCE_NODE!==process.execPath)throw Error('Wrong runtime'); if(process.env.NPM_CONFIG_PREFIX)throw Error('Global npm prefix leaked');`);
   writeFileSync(join(runtimeFolder,'runtime.json'),JSON.stringify({folder:runtimeFolder,node,npm,version:process.versions.node,binarySha256:hash(readFileSync(node))}));
-  const env={...process.env,HOME:base,SIAAS_INSTALL_DIR:root,NPM_CONFIG_PREFIX:'/do-not-touch',NVM_DIR:join(base,'nvm')};
+  const env={...process.env,SIAAS_INSTALL_DIR:root,NPM_CONFIG_PREFIX:'/do-not-touch',NVM_DIR:join(base,'nvm')};
   delete env.NODE_OPTIONS;delete env.NODE_PATH;
-  const run=(script,args)=>spawnSync(node,[script,...args],{env,encoding:'utf8',timeout:20000});
+  const hook=join(base,'home-hook.mjs');writeFileSync(hook,`import os from 'node:os';import {syncBuiltinESMExports} from 'node:module';os.homedir=()=>${JSON.stringify(base)};syncBuiltinESMExports();`);
+  const run=(script,args)=>spawnSync(node,['--import',hook,script,...args],{env,encoding:'utf8',timeout:20000});
   const manager=resolve('scripts/source-manager.mjs');
   function install(version,failBuild=false){
    const source=join(base,'source-'+version),prepared=join(base,'prepared-'+version);mkdirSync(source);mkdirSync(prepared);
@@ -41,5 +42,15 @@ test('managed source installation stages updates, retains matching rollback, and
   const before=current();result=install('1.4.0',true);assert.notEqual(result.status,0);assert.deepEqual(current(),before);
   result=install('1.5.0');assert.equal(result.status,0,result.stdout+result.stderr);assert(!existsSync(join(root,'versions',first.folder)));assert.equal(current().previous.version,'1.3.0');
   assert.equal(readFileSync(join(root,'personal.txt'),'utf8'),'preserve');assert(!existsSync(join(base,'nvm')));assert(!existsSync(join(root,'.operation-lock')));
+  const stableLauncher=join(base,'.local/share/applications/siaas-personal.desktop'), launcherBefore=readFileSync(stableLauncher,'utf8');
+  result=install('1.6.0-rc.1');assert.equal(result.status,0,result.stdout+result.stderr);
+  assert.equal(current().profile,join(root,'profile'));assert(existsSync(join(root,'launch-rc.sh')));
+  assert.equal(readFileSync(stableLauncher,'utf8'),launcherBefore);
+  mkdirSync(current().profile,{recursive:true});writeFileSync(join(current().profile,'retained.txt'),'private test data');
+  result=install('1.6.0-rc.2');assert.equal(result.status,0,result.stdout+result.stderr);
+  result=run(join(root,'source-manager.mjs'),['rollback']);assert.equal(result.status,0,result.stderr);assert.equal(current().version,'1.6.0-rc.1');
+  result=run(join(root,'source-manager.mjs'),['uninstall']);assert.equal(result.status,0,result.stderr);
+  assert(!existsSync(join(root,'launch-rc.sh')));assert.equal(readFileSync(stableLauncher,'utf8'),launcherBefore);
+  assert.equal(readFileSync(join(root,'profile','retained.txt'),'utf8'),'private test data');
  } finally {rmSync(base,{recursive:true,force:true});}
 });

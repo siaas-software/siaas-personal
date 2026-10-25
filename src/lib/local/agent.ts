@@ -1,3 +1,7 @@
+import { planSchema } from "../structured/engine";
+import { planningCatalog } from "../structured/planner";
+import { queryStructured } from "../structured/service";
+import { AnalysisError } from "../structured/types";
 import {
   prepareAssistantResearch,
   researchLimitations,
@@ -220,6 +224,41 @@ export function createLocalAgentTools(options: ToolOptions) {
         }),
       },
     ),
+    tool(
+      async () => {
+        before("Inspecting structured datasets…");
+        return JSON.stringify(planningCatalog(options.db, options.assistantId));
+      },
+      {
+        name: "inspect_datasets",
+        description:
+          "List this assistant's structured dataset schemas and confirmed relationships. No private rows from other assistants are accessible.",
+        schema: z.object({}).strict(),
+      },
+    ),
+    tool(
+      async ({ plan }) => {
+        before("Calculating structured results…");
+        try {
+          return JSON.stringify(
+            queryStructured(options.db, options.assistantId, plan),
+          );
+        } catch (e) {
+          return JSON.stringify({
+            error:
+              e instanceof AnalysisError
+                ? e.message
+                : "Invalid analytical plan. No result produced.",
+          });
+        }
+      },
+      {
+        name: "query_datasets",
+        description:
+          "Execute a validated read-only analytical plan for this assistant. Use inspect_datasets first. No SQL/code. Confirmed mappings/relationships required; group by all currency/unit partition columns.",
+        schema: z.object({ plan: planSchema }).strict(),
+      },
+    ),
   ] as const;
   return { tools, sources, artifacts, remember };
 }
@@ -290,6 +329,7 @@ export async function runLocalAgent(
     model,
     tools: [...scoped.tools],
     systemPrompt: `${options.instructions.slice(0, 4000)}
+For spreadsheet calculations, use inspect_datasets and query_datasets; never calculate exact totals from semantic snippets. Respect confirmed mappings, currency partitions, missing data and query errors. If a required operation is unsupported, explain the limitation instead of fabricating a result.
 You are the local SIAAS Personal assistant. Respond in English by default, or in the language explicitly requested by the user. For questions about knowledge, use search_documents and cite source titles.
 Search results contain passages already read: if sufficient, answer or create the report directly. Use read_document only for additional passages, copying document_id (for example doc_1); start_chunk is optional and starts at 0.
 When the user requests a downloadable report, complete it in the same turn: search, use the evidence and call create_report with Markdown content. Confirm creation only after saved:true; the download button appears in chat, so do not expose its ID.
