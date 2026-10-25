@@ -38,6 +38,21 @@ export async function buildStructuredParser(
       cpSync(join(root, name), target, { recursive: true });
       notices.push(name);
     }
+    // These exact npm versions omit a standalone license file. Preserve the
+    // upstream text instead of treating an SPDX field as a redistribution notice.
+    const fallback = pkg.name === "isarray" && pkg.version === "1.0.0"
+      ? join(root, "README.md")
+      : pkg.name === "saxes" && pkg.version === "5.0.1"
+        ? "docs/licensing/notices/saxes-5.0.1-LICENSE"
+        : null;
+    if (!notices.length && fallback) {
+      const name = pkg.name === "isarray" ? "README.md" : "LICENSE";
+      const target = join(destination, "structured-licenses", root.replaceAll("/", "_"), name);
+      mkdirSync(dirname(target), { recursive: true });
+      cpSync(fallback, target);
+      notices.push(name);
+    }
+    if (!notices.length) throw new Error(`Missing redistribution notice: ${pkg.name}@${pkg.version}`);
     inventory.push({ name: pkg.name, version: pkg.version, license: pkg.license || null, notices });
   }
   mkdirSync(join(destination, "structured-licenses"), { recursive: true });

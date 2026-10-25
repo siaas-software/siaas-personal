@@ -65,3 +65,8 @@ are not real inference tests.
 Electron downloaded and its version probe passed. Graphical startup was blocked
 by the host denying Chromium's process-singleton Unix socket. Windows/macOS were
 not executed. Do not publish or infer release readiness from successful builds.
+
+The parser notice check now covers all 33 bundled components. For saxes 5.0.1,
+the version-pinned upstream LICENSE is retained under docs/licensing/notices;
+isarray 1.0.0 supplies its full MIT text in its installed README. The build fails
+if any compiled dependency has no notice, instead of silently exporting an empty entry.
