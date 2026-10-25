@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "label": "Personal develop b31e8b8",
-  "lockSha256": "175c8c25db0a0126705547faa0bb3a5ded5d7b30adf2343b2318cb868fd8b004",
+  "label": "Integrated security candidate 2026-10-25",
+  "lockSha256": "a8c7dc0675ab7c87a38ee058cda9e5b0afa37cd9b0fad272ed128d3526815160",
   "limitations": "Includes all locked platform alternatives. Installed text is inspected only at matching versions. Native subcomponents, model weights and dynamic Python dependencies require separate inventories. No legal clearance is implied.",
   "counts": {
     "(MIT AND Zlib)": 1,
@@ -9,19 +9,22 @@
     "(MIT OR GPL-3.0-or-later)": 1,
     "(WTFPL OR MIT)": 1,
     "0BSD": 1,
-    "Apache-2.0": 45,
+    "Apache-2.0": 47,
     "Apache-2.0 AND LGPL-3.0-or-later": 3,
     "Apache-2.0 AND LGPL-3.0-or-later AND MIT": 1,
     "BSD": 1,
-    "BSD-2-Clause": 11,
-    "BSD-3-Clause": 11,
+    "BSD-2-Clause": 10,
+    "BSD-3-Clause": 12,
     "BlueOak-1.0.0": 8,
     "CC-BY-4.0": 1,
-    "ISC": 38,
+    "ISC": 43,
     "LGPL-3.0-or-later": 10,
-    "MIT": 388,
+    "MIT": 509,
+    "MIT/X11": 1,
+    "NOT DECLARED": 1,
     "OFL-1.1": 2,
     "Python-2.0": 1,
+    "Unlicense": 1,
     "WTFPL": 1,
     "WTFPL OR ISC": 1
   },
@@ -909,6 +912,102 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "@fast-csv/format",
+      "version": "4.3.5",
+      "path": "node_modules/@fast-csv/format",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/@fast-csv/format/-/format-4.3.5.tgz",
+      "integrity": "sha512-8iRn6QF3I8Ak78lNAa+Gdl5MJJBM5vRHivFtMRUWINdevNo00K7OXxS2PshawLKTejVwieIlPmK5YlLu6w4u8A==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/C2FO/fast-csv.git",
+        "directory": "packages/format"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "2450088d1769a2b36e210a5a345a55b209944f4c6a9a89f7ce3aaba163680a42"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "@types/node",
+      "version": "14.18.63",
+      "path": "node_modules/@fast-csv/format/node_modules/@types/node",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/@types/node/-/node-14.18.63.tgz",
+      "integrity": "sha512-fAtCfv4jJg+ExtXhvCkCqUKZ+4ok/JQk01qDKhL5BDDoS3AxKXhV5/MAVUZyQnSEd2GT92fkgZl0pz0Q0AzcIQ==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/node"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "@fast-csv/parse",
+      "version": "4.3.6",
+      "path": "node_modules/@fast-csv/parse",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/@fast-csv/parse/-/parse-4.3.6.tgz",
+      "integrity": "sha512-uRsLYksqpbDmWaSmzvJcuApSEe38+6NQZBUsuAyMZKqHxH0g1wcJgsKUvN3WC8tewaqFjBMMGrkHmC+T7k8LvA==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/C2FO/fast-csv.git",
+        "directory": "packages/parse"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "2450088d1769a2b36e210a5a345a55b209944f4c6a9a89f7ce3aaba163680a42"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "@types/node",
+      "version": "14.18.63",
+      "path": "node_modules/@fast-csv/parse/node_modules/@types/node",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/@types/node/-/node-14.18.63.tgz",
+      "integrity": "sha512-fAtCfv4jJg+ExtXhvCkCqUKZ+4ok/JQk01qDKhL5BDDoS3AxKXhV5/MAVUZyQnSEd2GT92fkgZl0pz0Q0AzcIQ==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/node"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "@fontsource-variable/dm-sans",
       "version": "5.3.0",
       "path": "node_modules/@fontsource-variable/dm-sans",
@@ -1696,14 +1795,14 @@
     },
     {
       "name": "@next/env",
-      "version": "16.3.8",
+      "version": "16.4.3",
       "path": "node_modules/@next/env",
       "direct": false,
       "scope": "runtime",
       "optional": false,
       "license": "MIT",
-      "source": "https://registry.npmjs.org/@next/env/-/env-16.3.8.tgz",
-      "integrity": "sha512-Al9zqHVV7TJv0eFuOU4U7Lvv74PTih4Ch63sk2xCIpSTkE3udFnaOcnzP2lQVymiL7yS9Cj2iClUXlR3EQ5sEw==",
+      "source": "https://registry.npmjs.org/@next/env/-/env-16.4.3.tgz",
+      "integrity": "sha512-a7tz1QCcWWkwC/rPJcPMJk/UNRu9CFhDd3OHYE5hddbJrs8BqRTalxI6GlKCWEGzRLHN+S/B7a4PAHCtm25aBQ==",
       "upstream": {
         "type": "git",
         "url": "https://github.com/vercel/next.js",
@@ -1715,14 +1814,14 @@
     },
     {
       "name": "@next/swc-darwin-arm64",
-      "version": "16.3.8",
+      "version": "16.4.3",
       "path": "node_modules/@next/swc-darwin-arm64",
       "direct": false,
       "scope": "runtime",
       "optional": true,
       "license": "MIT",
-      "source": "https://registry.npmjs.org/@next/swc-darwin-arm64/-/swc-darwin-arm64-16.3.8.tgz",
-      "integrity": "sha512-2JPRMh2nmQG5CiL7cXGL9AGwnPWJQ//cTtAUCT+w511QHk79SYz3LGv/pc5X643B/WEO0rvu3Yww0hqwt3kgeA==",
+      "source": "https://registry.npmjs.org/@next/swc-darwin-arm64/-/swc-darwin-arm64-16.4.3.tgz",
+      "integrity": "sha512-4yq5EXBt+VDtAZwTyfijaFp5D2C5oz3Ikw5a2kiX2K9nw72vrZX2q5UuAlkPtUMO1tQz6JTKpaKWjS7OOefTDQ==",
       "upstream": null,
       "licenseFiles": [],
       "evidence": "METADATA ONLY — TEXT NOT VERIFIED",
@@ -1730,14 +1829,14 @@
     },
     {
       "name": "@next/swc-darwin-x64",
-      "version": "16.3.8",
+      "version": "16.4.3",
       "path": "node_modules/@next/swc-darwin-x64",
       "direct": false,
       "scope": "runtime",
       "optional": true,
       "license": "MIT",
-      "source": "https://registry.npmjs.org/@next/swc-darwin-x64/-/swc-darwin-x64-16.3.8.tgz",
-      "integrity": "sha512-GZtCCOBKJ4leVIT/Th0llWKhD1ca92lzbQiS5R5ON9QkoiFnilFsebDae1JU2a3HWoKMEmEZWGs1AGLavVM72Q==",
+      "source": "https://registry.npmjs.org/@next/swc-darwin-x64/-/swc-darwin-x64-16.4.3.tgz",
+      "integrity": "sha512-1Rvkn/LUhnEF8WxnRkOrqGhbwXui1bkWFxONKIbN+r7C+9KHDSZ+iUoj4CzymVMWUyZIyx9szcb9+kbKhD500A==",
       "upstream": null,
       "licenseFiles": [],
       "evidence": "METADATA ONLY — TEXT NOT VERIFIED",
@@ -1745,14 +1844,14 @@
     },
     {
       "name": "@next/swc-linux-arm64-gnu",
-      "version": "16.3.8",
+      "version": "16.4.3",
       "path": "node_modules/@next/swc-linux-arm64-gnu",
       "direct": false,
       "scope": "runtime",
       "optional": true,
       "license": "MIT",
-      "source": "https://registry.npmjs.org/@next/swc-linux-arm64-gnu/-/swc-linux-arm64-gnu-16.3.8.tgz",
-      "integrity": "sha512-O659ygeQYqneJ1fBKMpFxIFqYkYswu8IAS1OCKK/4f3ZgJJm1dRz4fVJZRi/kLLWjnBKnebOePA4WNv+sV1pVA==",
+      "source": "https://registry.npmjs.org/@next/swc-linux-arm64-gnu/-/swc-linux-arm64-gnu-16.4.3.tgz",
+      "integrity": "sha512-dCKpXErGg3abUM6t5JTJV/ottVBTStJB5lRJTbgdUdQaQ+jNHiK56Hsc0YAEg/rinSh42hYG3HWiYmEMdilnxg==",
       "upstream": null,
       "licenseFiles": [],
       "evidence": "METADATA ONLY — TEXT NOT VERIFIED",
@@ -1760,14 +1859,14 @@
     },
     {
       "name": "@next/swc-linux-arm64-musl",
-      "version": "16.3.8",
+      "version": "16.4.3",
       "path": "node_modules/@next/swc-linux-arm64-musl",
       "direct": false,
       "scope": "runtime",
       "optional": true,
       "license": "MIT",
-      "source": "https://registry.npmjs.org/@next/swc-linux-arm64-musl/-/swc-linux-arm64-musl-16.3.8.tgz",
-      "integrity": "sha512-dSjKSyWpzxoO1d3DIZZcP4XJcNaKeLmxQMFOiYl5vuBRMmweIqnAhty8tAmRsvTss779cK1FtYnDMj40e4TQlg==",
+      "source": "https://registry.npmjs.org/@next/swc-linux-arm64-musl/-/swc-linux-arm64-musl-16.4.3.tgz",
+      "integrity": "sha512-WwYbhWkhYBvBtib1K4W0kL8MW2snBD2A5b3SN4vPpqalZbZs5+bQ1yzAdepVoOqrFfEW3dmREy4Zs1MrWcrFbw==",
       "upstream": null,
       "licenseFiles": [],
       "evidence": "METADATA ONLY — TEXT NOT VERIFIED",
@@ -1775,14 +1874,14 @@
     },
     {
       "name": "@next/swc-linux-x64-gnu",
-      "version": "16.3.8",
+      "version": "16.4.3",
       "path": "node_modules/@next/swc-linux-x64-gnu",
       "direct": false,
       "scope": "runtime",
       "optional": true,
       "license": "MIT",
-      "source": "https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-16.3.8.tgz",
-      "integrity": "sha512-lbqOuz3RPRcv+o9msNsJw5x4+Y1ZwPTs6vmL6DCf7i0fZfvng/F59wyeDwqHIvV0mK//RBy/jJkZ+nCKsSMXjQ==",
+      "source": "https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-16.4.3.tgz",
+      "integrity": "sha512-QymWvfUwDEC5/lpJOsxX5VAbyoR2D13+2Jsjz4be7gT4LPqEgdpkeLIR/HFfCLgKzoMhpJbp6I/JnogyNZHcaA==",
       "upstream": {
         "type": "git",
         "url": "https://github.com/vercel/next.js",
@@ -1794,14 +1893,14 @@
     },
     {
       "name": "@next/swc-linux-x64-musl",
-      "version": "16.3.8",
+      "version": "16.4.3",
       "path": "node_modules/@next/swc-linux-x64-musl",
       "direct": false,
       "scope": "runtime",
       "optional": true,
       "license": "MIT",
-      "source": "https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-16.3.8.tgz",
-      "integrity": "sha512-+316WswI8ScVgZeUd+1KGaXkHhaYQzCjvH/05TZSpJ8zBizb1a4G7DtO7F12jcBIqMOtsz9ji1t48fmKtzqsGA==",
+      "source": "https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-16.4.3.tgz",
+      "integrity": "sha512-Vmjd9D7DpA4Vv3cUlr82QWgJD/BQZmns801vtC5VWHg6jCIA4a5vMKpQnfrM2pyCrp2eV0ENdUg4PlN3bAc2Yw==",
       "upstream": {
         "type": "git",
         "url": "https://github.com/vercel/next.js",
@@ -1813,14 +1912,14 @@
     },
     {
       "name": "@next/swc-win32-arm64-msvc",
-      "version": "16.3.8",
+      "version": "16.4.3",
       "path": "node_modules/@next/swc-win32-arm64-msvc",
       "direct": false,
       "scope": "runtime",
       "optional": true,
       "license": "MIT",
-      "source": "https://registry.npmjs.org/@next/swc-win32-arm64-msvc/-/swc-win32-arm64-msvc-16.3.8.tgz",
-      "integrity": "sha512-ji0gd4kMYUxO+1fJBIbiBVRCjzG/lloiyCccnlebvb1ZJ5qXCPZqYg4Jl1DrrixnWNMKylzgpmMWx0yNDYXlzw==",
+      "source": "https://registry.npmjs.org/@next/swc-win32-arm64-msvc/-/swc-win32-arm64-msvc-16.4.3.tgz",
+      "integrity": "sha512-lG1pPdPLk7gTyGb00n5JIMLdBJgjb+UEhSdZvFbhUMg0DyC6z4B7RnpSKF9VCd4imkLObVbXOFA0kFCpw7yFow==",
       "upstream": null,
       "licenseFiles": [],
       "evidence": "METADATA ONLY — TEXT NOT VERIFIED",
@@ -1828,14 +1927,14 @@
     },
     {
       "name": "@next/swc-win32-x64-msvc",
-      "version": "16.3.8",
+      "version": "16.4.3",
       "path": "node_modules/@next/swc-win32-x64-msvc",
       "direct": false,
       "scope": "runtime",
       "optional": true,
       "license": "MIT",
-      "source": "https://registry.npmjs.org/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-16.3.8.tgz",
-      "integrity": "sha512-WcTlaKt/TWkh5kUjdJcUmB1XgZ+1c6fz4Y9fDHL73YNSdGaUWjceeWrrlwF0nv19iABYWC4iAq1oX1w4Bn0vfg==",
+      "source": "https://registry.npmjs.org/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-16.4.3.tgz",
+      "integrity": "sha512-NmQC9RkJdnPXRaMxtkCzobB3teVjqF33oSOnwDfi+XYGWWYpt+xlGK3mtktSKLbdjwaWbJu2OkkMiRFGUUncKg==",
       "upstream": null,
       "licenseFiles": [],
       "evidence": "METADATA ONLY — TEXT NOT VERIFIED",
@@ -2421,30 +2520,6 @@
         "type": "git",
         "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
         "directory": "types/unist"
-      },
-      "licenseFiles": [
-        {
-          "file": "LICENSE",
-          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
-        }
-      ],
-      "evidence": "MATCHING LICENSE FILE HASHED",
-      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
-    },
-    {
-      "name": "@types/yauzl",
-      "version": "2.10.3",
-      "path": "node_modules/@types/yauzl",
-      "direct": false,
-      "scope": "development",
-      "optional": true,
-      "license": "MIT",
-      "source": "https://registry.npmjs.org/@types/yauzl/-/yauzl-2.10.3.tgz",
-      "integrity": "sha512-oJoftv0LSuaDZE3Le4DbKX+KS9G36NzOeSap90UIK0yMA/NhKJhqlSGtNDORNRaIbQfzjXDrQa0ytJ6mNRGz/Q==",
-      "upstream": {
-        "type": "git",
-        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
-        "directory": "types/yauzl"
       },
       "licenseFiles": [
         {
@@ -3138,6 +3213,75 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "archiver",
+      "version": "5.3.2",
+      "path": "node_modules/archiver",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/archiver/-/archiver-5.3.2.tgz",
+      "integrity": "sha512-+25nxyyznAXF7Nef3y0EbBeqmGZgeN/BxHX29Rs39djAfaFalmQ89SE6CWyDCHzGL0yt/ycBtNOmGTW0FyGWNw==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/archiverjs/node-archiver.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "9e23899170d96e708b24a2afce11e96d169c8cebf1bd24ac60b675a400cb1cf1"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "archiver-utils",
+      "version": "2.1.0",
+      "path": "node_modules/archiver-utils",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/archiver-utils/-/archiver-utils-2.1.0.tgz",
+      "integrity": "sha512-bEL/yUb/fNNiNTuUz979Z0Yg5L+LzLxGJz8x79lYmR54fmTIb6ob/hNQgkQnIUDWIFjZVQwl9Xs356I6BAMHfw==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/archiverjs/archiver-utils.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "19a37eba4fee8b33d904c46235c30bd668cff139f50b1fa5c7c57d2f920e6a4f"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "readable-stream",
+      "version": "3.6.2",
+      "path": "node_modules/archiver/node_modules/readable-stream",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/readable-stream/-/readable-stream-3.6.2.tgz",
+      "integrity": "sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/nodejs/readable-stream"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "ec62dc96da0099b87f4511736c87309335527fb7031639493e06c95728dc8c54"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "argparse",
       "version": "1.0.10",
       "path": "node_modules/argparse",
@@ -3152,6 +3296,52 @@
         {
           "file": "LICENSE",
           "sha256": "c8442419dc614089ea022b3da6bfc089b41a58fb7b9030d1e651f2f36189dce2"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "array-buffer-byte-length",
+      "version": "1.0.2",
+      "path": "node_modules/array-buffer-byte-length",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/array-buffer-byte-length/-/array-buffer-byte-length-1.0.2.tgz",
+      "integrity": "sha512-LHE+8BuR7RYGDKvnrmcuSq3tDcKv9OFEXQt/HpbZhY7V6h0zlUXutnAD82GiFx9rdieCMjkvtcsPqBwgUl1Iiw==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/array-buffer-byte-length.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "499507afc8a14166950bd5e445a8206d0b38fab61ea54e436b8bf2fa073cd59a"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "arraybuffer.prototype.slice",
+      "version": "1.0.4",
+      "path": "node_modules/arraybuffer.prototype.slice",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/arraybuffer.prototype.slice/-/arraybuffer.prototype.slice-1.0.4.tgz",
+      "integrity": "sha512-BNoCY6SXXPQ7gF2opIP4GBE+Xw7U+pHMYKuzjgCN3GwiaIR09UUeKfheyIry77QtrCBlC0KK0q5/TER/tYh3PQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/es-shims/ArrayBuffer.prototype.slice.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "a6c1514885935d6b699b7e6c1ab22e9312189a75a4e937d83f20749a67d0dbe7"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -3185,7 +3375,7 @@
       "version": "3.2.6",
       "path": "node_modules/async",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/async/-/async-3.2.6.tgz",
@@ -3221,6 +3411,29 @@
         {
           "file": "license",
           "sha256": "6fb9754611c20f6649f68805e8c990e83261f29316e29de9e6cedae607b8634c"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "async-function",
+      "version": "1.0.0",
+      "path": "node_modules/async-function",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/async-function/-/async-function-1.0.0.tgz",
+      "integrity": "sha512-hsU18Ae8CDTR6Kgu9DYf0EbCr/a5iGL0rytQDobUcdpYOKokk8LEjVphnXkDkgpi0wYVsqrXuP0bZxJaTqdgoA==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/async-function.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "eab1e270ad6ecc6fdd64f9c149e019633fb6e59b2445002cb33d14f93092c42f"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -3267,6 +3480,29 @@
         {
           "file": "LICENSE",
           "sha256": "ecc042b5f1cdc6854fc00486065084bed877daa8a7fadce15ef943a550d1dff0"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "available-typed-arrays",
+      "version": "1.0.7",
+      "path": "node_modules/available-typed-arrays",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/available-typed-arrays/-/available-typed-arrays-1.0.7.tgz",
+      "integrity": "sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/available-typed-arrays.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "6d0917530cf3b3dca12c1ab7798e4d38ad0a6798ecc1bd27849a3048ba91d265"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -3382,6 +3618,93 @@
       "obligations": "Include license, retain attribution/NOTICE where present, and mark modified upstream files; preserve all AND-license terms."
     },
     {
+      "name": "big-integer",
+      "version": "1.6.52",
+      "path": "node_modules/big-integer",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "Unlicense",
+      "source": "https://registry.npmjs.org/big-integer/-/big-integer-1.6.52.tgz",
+      "integrity": "sha512-QxD8cf2eVqJOOz63z6JIN9BzvVs/dlySa5HGSBH5xtR8dPteIRQnBxxKqkNTiT6jbDTF6jAfrd4oMcND9RGbQg==",
+      "upstream": {
+        "type": "git",
+        "url": "git@github.com:peterolson/BigInteger.js.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "e9b0e94f628e00b5ed98046cfa041696ff89eebbbdd54108ee350625bc6d0363"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "binary",
+      "version": "0.3.0",
+      "path": "node_modules/binary",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/binary/-/binary-0.3.0.tgz",
+      "integrity": "sha512-D4H1y5KYwpJgK8wk1Cue5LLPgmwHKYSChkbspQg5JtVuR5ulGckxfR62H3AE9UDkdMC8yyXlqYihuz3Aqg2XZg==",
+      "upstream": {
+        "type": "git",
+        "url": "http://github.com/substack/node-binary.git"
+      },
+      "licenseFiles": [],
+      "evidence": "METADATA ONLY — TEXT NOT VERIFIED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "bl",
+      "version": "4.1.0",
+      "path": "node_modules/bl",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/bl/-/bl-4.1.0.tgz",
+      "integrity": "sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/rvagg/bl.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE.md",
+          "sha256": "9377db95383c8befacf05c6e465d969d756edf178487ca1344fdf3ba147c596f"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "readable-stream",
+      "version": "3.6.2",
+      "path": "node_modules/bl/node_modules/readable-stream",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/readable-stream/-/readable-stream-3.6.2.tgz",
+      "integrity": "sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/nodejs/readable-stream"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "ec62dc96da0099b87f4511736c87309335527fb7031639493e06c95728dc8c54"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "bluebird",
       "version": "3.7.2",
       "path": "node_modules/bluebird",
@@ -3451,11 +3774,34 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "buffer",
+      "version": "5.7.1",
+      "path": "node_modules/buffer",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/buffer/-/buffer-5.7.1.tgz",
+      "integrity": "sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/feross/buffer.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "06bafa45fdad2579ba0e43b0c9b2c6290287c99c4203c300254a462b38a307f6"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "buffer-crc32",
       "version": "0.2.13",
       "path": "node_modules/buffer-crc32",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/buffer-crc32/-/buffer-crc32-0.2.13.tgz",
@@ -3494,6 +3840,44 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "buffer-indexof-polyfill",
+      "version": "1.0.2",
+      "path": "node_modules/buffer-indexof-polyfill",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/buffer-indexof-polyfill/-/buffer-indexof-polyfill-1.0.2.tgz",
+      "integrity": "sha512-I7wzHwA3t1/lwXQh+A5PbNvJxgfo5r3xulgpYDB5zckTu/Z9oUK9biouBKQUjEqzaz3HnAT6TYoovmE+GqSf7A==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/sarosia/buffer-indexof-polyfill.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "bb0c66acc537d3d1a046b55181bd77a2fdbf6310b5b2ebd754f9415447944be3"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "buffers",
+      "version": "0.1.1",
+      "path": "node_modules/buffers",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "NOT DECLARED",
+      "source": "https://registry.npmjs.org/buffers/-/buffers-0.1.1.tgz",
+      "integrity": "sha512-9q/rDEGSb/Qsvv2qvzIzdluL5k7AaJOTrw23z9reQthrbF7is4CtlT0DXyO1oei2DCp4uojjzQ7igaSHp1kAEQ==",
+      "upstream": "http://github.com/substack/node-buffers.git",
+      "licenseFiles": [],
+      "evidence": "METADATA ONLY — TEXT NOT VERIFIED",
+      "obligations": "Unresolved: obtain artifact-specific permission or replace/remove before redistribution."
+    },
+    {
       "name": "builder-util",
       "version": "26.15.3",
       "path": "node_modules/builder-util",
@@ -3522,7 +3906,7 @@
       "version": "9.7.0",
       "path": "node_modules/builder-util-runtime",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/builder-util-runtime/-/builder-util-runtime-9.7.0.tgz",
@@ -3608,11 +3992,34 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "call-bind",
+      "version": "1.0.9",
+      "path": "node_modules/call-bind",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/call-bind/-/call-bind-1.0.9.tgz",
+      "integrity": "sha512-a/hy+pNsFUTR+Iz8TCJvXudKVLAnz/DyeSUo10I5yvFDQJBFU2s9uqQpoSrJlroHUKoKqzg+epxyP9lqFdzfBQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/call-bind.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "39c5ec504cf6bd5cd782a7c695828e09189df79f5d94840e4f08feb97b9fd416"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "call-bind-apply-helpers",
       "version": "1.0.2",
       "path": "node_modules/call-bind-apply-helpers",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/call-bind-apply-helpers/-/call-bind-apply-helpers-1.0.2.tgz",
@@ -3620,6 +4027,29 @@
       "upstream": {
         "type": "git",
         "url": "git+https://github.com/ljharb/call-bind-apply-helpers.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "5e325595b4ea8cfec3802f545b1def5d7b73e4a5b8e9ba63e32a320f67732292"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "call-bound",
+      "version": "1.0.4",
+      "path": "node_modules/call-bound",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/call-bound/-/call-bound-1.0.4.tgz",
+      "integrity": "sha512-+ys997U96po4Kx/ABpBCqhA9EuxJaQWDQg7295H4hBphv3IZg0boBKuwYpt4YXp6MZ5AmZQnU/tyMTlRpaSejg==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/call-bound.git"
       },
       "licenseFiles": [
         {
@@ -3668,6 +4098,24 @@
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "chainsaw",
+      "version": "0.1.0",
+      "path": "node_modules/chainsaw",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT/X11",
+      "source": "https://registry.npmjs.org/chainsaw/-/chainsaw-0.1.0.tgz",
+      "integrity": "sha512-75kWfWt6MEKNC8xYXIdRpDehRYY/tNSgwKaJq+dbbDcxORuVrrQ+SEHoWsniVn9XPYfP4gmdWIeDk/4YNp1rNQ==",
+      "upstream": {
+        "type": "git",
+        "url": "http://github.com/substack/node-chainsaw.git"
+      },
+      "licenseFiles": [],
+      "evidence": "METADATA ONLY — TEXT NOT VERIFIED",
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
@@ -4014,11 +4462,57 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "compress-commons",
+      "version": "4.1.2",
+      "path": "node_modules/compress-commons",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/compress-commons/-/compress-commons-4.1.2.tgz",
+      "integrity": "sha512-D3uMHtGc/fcO1Gt1/L7i1e33VOvD4A9hfQLP+6ewd+BvG/gQ84Yh4oftEhAdjSMgBgwGL+jsppT7JYNpo6MHHg==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/archiverjs/node-compress-commons.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "79bad9f51738814f83251ae89460326b2ff2ea19ff5f71ab8f7636b2e17bb231"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "readable-stream",
+      "version": "3.6.2",
+      "path": "node_modules/compress-commons/node_modules/readable-stream",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/readable-stream/-/readable-stream-3.6.2.tgz",
+      "integrity": "sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/nodejs/readable-stream"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "ec62dc96da0099b87f4511736c87309335527fb7031639493e06c95728dc8c54"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "concat-map",
       "version": "0.0.1",
       "path": "node_modules/concat-map",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz",
@@ -4054,6 +4548,75 @@
         {
           "file": "LICENSE",
           "sha256": "33b734d60042d0fe0c92dd1fc1e874193a1c899ec3e276a2eb935d2d0bf5b710"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "crc-32",
+      "version": "1.2.2",
+      "path": "node_modules/crc-32",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "Apache-2.0",
+      "source": "https://registry.npmjs.org/crc-32/-/crc-32-1.2.2.tgz",
+      "integrity": "sha512-ROmzCKrTnOwybPcJApAA6WBWij23HVfGVNKqqrZpuyZOHqK2CwHSvpGuyt/UNNvaIjEd8X5IFGp4Mh+Ie1IHJQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/SheetJS/js-crc32.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "c542ba7851b5d39a5face477e47a27cb7c00a9759e321b66824e79718bffe1ac"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Include license, retain attribution/NOTICE where present, and mark modified upstream files; preserve all AND-license terms."
+    },
+    {
+      "name": "crc32-stream",
+      "version": "4.0.3",
+      "path": "node_modules/crc32-stream",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/crc32-stream/-/crc32-stream-4.0.3.tgz",
+      "integrity": "sha512-NT7w2JVU7DFroFdYkeq8cywxrgjPHWkdX1wjpRQXPX5Asews3tA+Ght6lddQO5Mkumffp3X7GEqku3epj2toIw==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/archiverjs/node-crc32-stream.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "79bad9f51738814f83251ae89460326b2ff2ea19ff5f71ab8f7636b2e17bb231"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "readable-stream",
+      "version": "3.6.2",
+      "path": "node_modules/crc32-stream/node_modules/readable-stream",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/readable-stream/-/readable-stream-3.6.2.tgz",
+      "integrity": "sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/nodejs/readable-stream"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "ec62dc96da0099b87f4511736c87309335527fb7031639493e06c95728dc8c54"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -4167,6 +4730,98 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "data-view-buffer",
+      "version": "1.0.2",
+      "path": "node_modules/data-view-buffer",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/data-view-buffer/-/data-view-buffer-1.0.2.tgz",
+      "integrity": "sha512-EmKO5V3OLXh1rtK2wgXRansaK1/mtVdTUEiEI0W8RkvgT05kfxaH29PliLnpLP73yYO6142Q72QNa8Wx/A5CqQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/data-view-buffer.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "b41d08bc3624d8c436fc80237d73ebb361985a67f4504bbcd703e5ca2b27254c"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "data-view-byte-length",
+      "version": "1.0.2",
+      "path": "node_modules/data-view-byte-length",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/data-view-byte-length/-/data-view-byte-length-1.0.2.tgz",
+      "integrity": "sha512-tuhGbE6CfTM9+5ANGf+oQb72Ky/0+s3xKUpHvShfiz2RxMFgFPjsXuRLBVMtvMs15awe45SRb83D6wH4ew6wlQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/data-view-byte-length.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "5e325595b4ea8cfec3802f545b1def5d7b73e4a5b8e9ba63e32a320f67732292"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "data-view-byte-offset",
+      "version": "1.0.1",
+      "path": "node_modules/data-view-byte-offset",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/data-view-byte-offset/-/data-view-byte-offset-1.0.1.tgz",
+      "integrity": "sha512-BS8PfmtDGnrgYdOonGZQdLZslWIeCGFP9tpan0hi1Co2Zr2NKADsvGYA8XxuG/4UWgJ6Cjtv+YJnB6MM69QGlQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/data-view-byte-offset.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "5e325595b4ea8cfec3802f545b1def5d7b73e4a5b8e9ba63e32a320f67732292"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "dayjs",
+      "version": "1.11.23",
+      "path": "node_modules/dayjs",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/dayjs/-/dayjs-1.11.23.tgz",
+      "integrity": "sha512-QDTCU0M0MxR3hQfnlDJfwekQiaanm1ubOD231u73WBckQ/fsamwRLiE2GBz6D3a/xF1NgfiDLJjXBa1hYOYTtQ==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/iamkun/dayjs.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "5faab7526d055651be3aab769d58897be6bd91f3d39d137f25f12dba1b31d5dc"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "debug",
       "version": "4.4.3",
       "path": "node_modules/debug",
@@ -4184,6 +4839,29 @@
         {
           "file": "LICENSE",
           "sha256": "3a61c6c96caf5c1d9b623fb9b04c822b783dfcb78aa7e49c76a3f643e6ed7f95"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "decimal.js",
+      "version": "10.6.0",
+      "path": "node_modules/decimal.js",
+      "direct": true,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/decimal.js/-/decimal.js-10.6.0.tgz",
+      "integrity": "sha512-YpgQiITW3JXGntzdUmyUR1V812Hn8T1YVXhCu+wO3OpS4eU9l4YdD3qjyiKdV6mvV29zapkMeD390UVEf2lkUg==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/MikeMcl/decimal.js.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENCE.md",
+          "sha256": "3108b546bcff5d346923a82f48b2d252ca722f9088076db6d145f6b67757ad6c"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -4277,8 +4955,8 @@
       "version": "1.1.4",
       "path": "node_modules/define-data-property",
       "direct": false,
-      "scope": "development",
-      "optional": true,
+      "scope": "runtime",
+      "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/define-data-property/-/define-data-property-1.1.4.tgz",
       "integrity": "sha512-rBMvIzlpA8v6E+SJZoo++HAYqsLrkg7MSfIinMPFhmkorw7X+dOXVJQs+QT69zGkzMyfDnIMN2Wid1+NbL3T+A==",
@@ -4300,8 +4978,8 @@
       "version": "1.2.1",
       "path": "node_modules/define-properties",
       "direct": false,
-      "scope": "development",
-      "optional": true,
+      "scope": "runtime",
+      "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/define-properties/-/define-properties-1.2.1.tgz",
       "integrity": "sha512-8QmQKqEASLd5nx0U1B1okLElbUuuttJ/AnYmRXbbbGDWh6uS208EjD4Xqq/I9wK7u0v6O08XhTWnt5XtEbR6Dg==",
@@ -4635,7 +5313,7 @@
       "version": "1.0.1",
       "path": "node_modules/dunder-proto",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/dunder-proto/-/dunder-proto-1.0.1.tgz",
@@ -4658,7 +5336,7 @@
       "version": "0.1.4",
       "path": "node_modules/duplexer2",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "BSD-3-Clause",
       "source": "https://registry.npmjs.org/duplexer2/-/duplexer2-0.1.4.tgz",
@@ -4698,14 +5376,14 @@
     },
     {
       "name": "electron",
-      "version": "44.5.1",
+      "version": "44.9.3",
       "path": "node_modules/electron",
       "direct": true,
       "scope": "development",
       "optional": false,
       "license": "MIT",
-      "source": "https://registry.npmjs.org/electron/-/electron-44.5.1.tgz",
-      "integrity": "sha512-lx7AYoFIiyvEvgvpyWO9kOC60xtNPpiPZAth6Fmg9NutzpCAMLwpUlaBY2EXfZyIgUdzEmLMj9KvK0Vrokl1yQ==",
+      "source": "https://registry.npmjs.org/electron/-/electron-44.9.3.tgz",
+      "integrity": "sha512-Cv9/yMnZxNWsMlIe8T4v//NKHdUvbeyoTJoXE3BIcRxus2meeFaO9h/P3zB5d4cBXum51IgAYrT2QjpIDWKpJA==",
       "upstream": "https://github.com/electron/electron",
       "licenseFiles": [
         {
@@ -4790,14 +5468,14 @@
     },
     {
       "name": "electron-updater",
-      "version": "6.6.2",
+      "version": "6.8.11",
       "path": "node_modules/electron-updater",
       "direct": true,
       "scope": "runtime",
       "optional": false,
       "license": "MIT",
-      "source": "https://registry.npmjs.org/electron-updater/-/electron-updater-6.6.2.tgz",
-      "integrity": "sha512-Cr4GDOkbAUqRHP5/oeOmH/L2Bn6+FQPxVLZtPbcmKZC63a1F3uu5EefYOssgZXG3u/zBlubbJ5PJdITdMVggbw==",
+      "source": "https://registry.npmjs.org/electron-updater/-/electron-updater-6.8.11.tgz",
+      "integrity": "sha512-12U/mbzaIKQS3Q543aQ7DjyAZMXeVJy1Wpu0qdq5ne4RXpIQDpWYm25zRjgXngAoo6swMrm4C4owGyiIipelsg==",
       "upstream": {
         "type": "git",
         "url": "git+https://github.com/electron-userland/electron-builder.git",
@@ -4813,24 +5491,23 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
-      "name": "builder-util-runtime",
-      "version": "9.3.1",
-      "path": "node_modules/electron-updater/node_modules/builder-util-runtime",
+      "name": "semver",
+      "version": "7.7.4",
+      "path": "node_modules/electron-updater/node_modules/semver",
       "direct": false,
       "scope": "runtime",
       "optional": false,
-      "license": "MIT",
-      "source": "https://registry.npmjs.org/builder-util-runtime/-/builder-util-runtime-9.3.1.tgz",
-      "integrity": "sha512-2/egrNDDnRaxVwK3A+cJq6UOlqOdedGA7JPqCeJjN2Zjk1/QB/6QUi3b714ScIGS7HafFXTyzJEOr5b44I3kvQ==",
+      "license": "ISC",
+      "source": "https://registry.npmjs.org/semver/-/semver-7.7.4.tgz",
+      "integrity": "sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==",
       "upstream": {
         "type": "git",
-        "url": "git+https://github.com/electron-userland/electron-builder.git",
-        "directory": "packages/builder-util-runtime"
+        "url": "git+https://github.com/npm/node-semver.git"
       },
       "licenseFiles": [
         {
           "file": "LICENSE",
-          "sha256": "bed8d0ab3e6031817f775a641ff37313b0f5591bc8ba0ed79b978dafbd4231ce"
+          "sha256": "4ec3d4c66cd87f5c8d8ad911b10f99bf27cb00cdfcff82621956e379186b016b"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -5003,7 +5680,7 @@
       "version": "1.4.5",
       "path": "node_modules/end-of-stream",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/end-of-stream/-/end-of-stream-1.4.5.tgz",
@@ -5060,11 +5737,57 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "es-abstract",
+      "version": "1.24.2",
+      "path": "node_modules/es-abstract",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/es-abstract/-/es-abstract-1.24.2.tgz",
+      "integrity": "sha512-2FpH9Q5i2RRwyEP1AylXe6nYLR5OhaJTZwmlcP0dL/+JCbgg7yyEo/sEK6HeGZRf3dFpWwThaRHVApXSkW3xeg==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/ljharb/es-abstract.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "210549bd75abec340599f291e5ecd95b9acd0d8a713543838ab42f6f462b16bc"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "es-abstract-get",
+      "version": "1.0.0",
+      "path": "node_modules/es-abstract-get",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/es-abstract-get/-/es-abstract-get-1.0.0.tgz",
+      "integrity": "sha512-6PMWXpdhshVvFp+FoWYs1EvG1Nj0tvk0dZM+XcK0xMEM1czRVcP6ohqPWHy6qPagSpC8j4+p89WXlT+xXJs/fg==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/es-abstract-get.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "5b06b483b5c8874fd4e977fedb335067a9e8f722fd45c46ed42797af9d37fbf3"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "es-define-property",
       "version": "1.0.1",
       "path": "node_modules/es-define-property",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/es-define-property/-/es-define-property-1.0.1.tgz",
@@ -5087,7 +5810,7 @@
       "version": "1.3.0",
       "path": "node_modules/es-errors",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/es-errors/-/es-errors-1.3.0.tgz",
@@ -5110,7 +5833,7 @@
       "version": "1.1.2",
       "path": "node_modules/es-object-atoms",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/es-object-atoms/-/es-object-atoms-1.1.2.tgz",
@@ -5133,7 +5856,7 @@
       "version": "2.1.0",
       "path": "node_modules/es-set-tostringtag",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/es-set-tostringtag/-/es-set-tostringtag-2.1.0.tgz",
@@ -5146,6 +5869,29 @@
         {
           "file": "LICENSE",
           "sha256": "1a3aeb1f1398bd697d57c3c585faadf59d825aca6e3162cd7eeb72ff76eb2466"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "es-to-primitive",
+      "version": "1.3.4",
+      "path": "node_modules/es-to-primitive",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/es-to-primitive/-/es-to-primitive-1.3.4.tgz",
+      "integrity": "sha512-yPDz7wqpg1/mmHLmS3tcfTfbw5f1eryXvyghYBffGdERwe+mV7ZcWzTR8LR17Kvqt3qfPurjlonmnq3MKXIOXw==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/ljharb/es-to-primitive.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "c61652db3d2808f667b48af0a358f0d85fd07ad4a0d0b1a50882dec3b764c522"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -5281,6 +6027,121 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "exceljs",
+      "version": "4.4.0",
+      "path": "node_modules/exceljs",
+      "direct": true,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/exceljs/-/exceljs-4.4.0.tgz",
+      "integrity": "sha512-XctvKaEMaj1Ii9oDOqbW/6e1gXknSY4g/aLCDicOXqBE4M0nRWkUu0PTp++UPNzoFY12BNHMfs/VadKIS6llvg==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/exceljs/exceljs.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "2ed526b7e7c7681dc2347995b5036ddf73dc27d0539cdea59b6d4a72b63a57a0"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "bluebird",
+      "version": "3.4.7",
+      "path": "node_modules/exceljs/node_modules/bluebird",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/bluebird/-/bluebird-3.4.7.tgz",
+      "integrity": "sha512-iD3898SR7sWVRHbiQv+sHUtHnMvC1o3nW5rAcqnq3uOn07DSAppZYUkIGslDz6gXC7HfunPe7YVBgoEJASPcHA==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/petkaantonov/bluebird.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "bd92858f2261ae179cd4c4f56aaa6fa628dee927cc33808044bd7f676198c0fc"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "readable-stream",
+      "version": "3.6.2",
+      "path": "node_modules/exceljs/node_modules/readable-stream",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/readable-stream/-/readable-stream-3.6.2.tgz",
+      "integrity": "sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/nodejs/readable-stream"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "ec62dc96da0099b87f4511736c87309335527fb7031639493e06c95728dc8c54"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "unzipper",
+      "version": "0.10.14",
+      "path": "node_modules/exceljs/node_modules/unzipper",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/unzipper/-/unzipper-0.10.14.tgz",
+      "integrity": "sha512-ti4wZj+0bQTiX2KmKWuwj7lhV+2n//uXEotUmGuQqrbVZSEGFMbI68+c6JCQ8aAmUWYvtHEz2A8K6wXvueR/6g==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/ZJONSSON/node-unzipper.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "b9e9abeaf8b92573dc28915d4948dbce30d55b30c688d109898b35e6105c4215"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "readable-stream",
+      "version": "2.3.8",
+      "path": "node_modules/exceljs/node_modules/unzipper/node_modules/readable-stream",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/readable-stream/-/readable-stream-2.3.8.tgz",
+      "integrity": "sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/nodejs/readable-stream"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "ec62dc96da0099b87f4511736c87309335527fb7031639493e06c95728dc8c54"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "exponential-backoff",
       "version": "3.1.3",
       "path": "node_modules/exponential-backoff",
@@ -5327,20 +6188,24 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
-      "name": "extract-zip",
-      "version": "2.0.1",
-      "path": "node_modules/extract-zip",
-      "direct": true,
-      "scope": "development",
+      "name": "fast-csv",
+      "version": "4.3.6",
+      "path": "node_modules/fast-csv",
+      "direct": false,
+      "scope": "runtime",
       "optional": false,
-      "license": "BSD-2-Clause",
-      "source": "https://registry.npmjs.org/extract-zip/-/extract-zip-2.0.1.tgz",
-      "integrity": "sha512-GDhU9ntwuKyGXdZBUgTIe+vXnWj0fppUEtMDL0+idd5Sta8TGpHssn/eusA9mrPr9qNDym6SxAYZjNvCn/9RBg==",
-      "upstream": "maxogden/extract-zip",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/fast-csv/-/fast-csv-4.3.6.tgz",
+      "integrity": "sha512-2RNSpuwwsJGP0frGsOmTb9oUF+VkFSM4SyLTDgwf2ciHWTarN0lQTC+F2f/t5J9QjW+c65VFIAAu85GsvMIusw==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/C2FO/fast-csv.git",
+        "directory": "packages/fast-csv"
+      },
       "licenseFiles": [
         {
           "file": "LICENSE",
-          "sha256": "77b2de947c65f3062fb347118ca198ca50898ead84a8509d8153fa65741f029b"
+          "sha256": "2450088d1769a2b36e210a5a345a55b209944f4c6a9a89f7ce3aaba163680a42"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -5371,14 +6236,14 @@
     },
     {
       "name": "fast-uri",
-      "version": "3.1.8",
+      "version": "3.1.9",
       "path": "node_modules/fast-uri",
       "direct": false,
       "scope": "development",
       "optional": false,
       "license": "BSD-3-Clause",
-      "source": "https://registry.npmjs.org/fast-uri/-/fast-uri-3.1.8.tgz",
-      "integrity": "sha512-GZMtZUTNRpOVIECoXwLNZS5xUGE+mVNbTB8h/7Rwh2TFWcBQiPzTgyZi05BF9UMZKkLJv8XBRJTlU7zg8+ZfMg==",
+      "source": "https://registry.npmjs.org/fast-uri/-/fast-uri-3.1.9.tgz",
+      "integrity": "sha512-hS/0Wt3Ya043oKXs0sIxrMpKQITXhMLIrVAKKXi4gozGC9v7YRWVnXIZzjNPTO02M9BdxLCWqK1yRXgNziVyJQ==",
       "upstream": {
         "type": "git",
         "url": "git+https://github.com/fastify/fast-uri.git"
@@ -5387,29 +6252,6 @@
         {
           "file": "LICENSE",
           "sha256": "b010b0dfdfdb23d7396e03b82cd4621fc9bb8f95d6b0aea70b9c24e12074c786"
-        }
-      ],
-      "evidence": "MATCHING LICENSE FILE HASHED",
-      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
-    },
-    {
-      "name": "fd-slicer",
-      "version": "1.1.0",
-      "path": "node_modules/fd-slicer",
-      "direct": false,
-      "scope": "development",
-      "optional": false,
-      "license": "MIT",
-      "source": "https://registry.npmjs.org/fd-slicer/-/fd-slicer-1.1.0.tgz",
-      "integrity": "sha512-cE1qsB/VwyQozZ+q1dGxR8LBYNZeofhEdUNGSMbQD3Gw2lAzX9Zb3uIU6Ebc/Fmyjo9AWWfnn0AUCHqtevs/8g==",
-      "upstream": {
-        "type": "git",
-        "url": "git://github.com/andrewrk/node-fd-slicer.git"
-      },
-      "licenseFiles": [
-        {
-          "file": "LICENSE",
-          "sha256": "176d95320d565cb034d8323797b6cd6160238f625453687f98aad2085c46c3b3"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -5526,6 +6368,29 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "for-each",
+      "version": "0.3.5",
+      "path": "node_modules/for-each",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/for-each/-/for-each-0.3.5.tgz",
+      "integrity": "sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/Raynos/for-each.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "d07913d776eef217a95d7ee3ee83577fc3c365b9c870f5a3411f785b81090614"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "form-data",
       "version": "4.0.6",
       "path": "node_modules/form-data",
@@ -5543,6 +6408,29 @@
         {
           "file": "License",
           "sha256": "e5b780d4f38d1d3328e3e53186c4e62d3fa149ea6f2bacd5de5ad0c30ac85343"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "fs-constants",
+      "version": "1.0.0",
+      "path": "node_modules/fs-constants",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/fs-constants/-/fs-constants-1.0.0.tgz",
+      "integrity": "sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/mafintosh/fs-constants.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "2281f2db407bdbb54f069eec38128b2dee2c0c952f52b786ef1faecb81767b3c"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -5576,7 +6464,7 @@
       "version": "1.0.0",
       "path": "node_modules/fs.realpath",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "ISC",
       "source": "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz",
@@ -5610,11 +6498,34 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "fstream",
+      "version": "1.0.12",
+      "path": "node_modules/fstream",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "ISC",
+      "source": "https://registry.npmjs.org/fstream/-/fstream-1.0.12.tgz",
+      "integrity": "sha512-WvJ193OHa0GHPEL+AycEJgxvBEwyfRkN1vhjca23OaPVMCaLCXTd5qAu82AjTcgP1UJmytkOKb63Ypde7raDIg==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/npm/fstream.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "4ec3d4c66cd87f5c8d8ad911b10f99bf27cb00cdfcff82621956e379186b016b"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "function-bind",
       "version": "1.1.2",
       "path": "node_modules/function-bind",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz",
@@ -5627,6 +6538,75 @@
         {
           "file": "LICENSE",
           "sha256": "773e131a7684726005a7e4688a80b4620033bc08499bc1404dd1a1eb3bca725e"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "function.prototype.name",
+      "version": "1.2.0",
+      "path": "node_modules/function.prototype.name",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/function.prototype.name/-/function.prototype.name-1.2.0.tgz",
+      "integrity": "sha512-jObKIik1P2QjPHP5nz5BaOtUlfgS0fWo8IUByNXkM+o+02sJOi94em77GwJKQSJ3gfPHdgzLNrHc1uokV4P/ew==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/es-shims/Function.prototype.name.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "acfaf437865d82f0fa9b9cdcae8b550bed8d011adaa5b42d973191caf99f62a8"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "functions-have-names",
+      "version": "1.2.3",
+      "path": "node_modules/functions-have-names",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/functions-have-names/-/functions-have-names-1.2.3.tgz",
+      "integrity": "sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/functions-have-names.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "cfc3f455254c0af0655cc3ff46a41ed644b67599f6043346169d285bf2b3cf3b"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "generator-function",
+      "version": "2.0.1",
+      "path": "node_modules/generator-function",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/generator-function/-/generator-function-2.0.1.tgz",
+      "integrity": "sha512-SFdFmIJi+ybC0vjlHN0ZGVGHc3lgE0DxPAT0djjVg+kjOnSqclqmj0KQ7ykTOLP6YxoqOvuAODGdcHJn+43q3g==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/TimothyGu/generator-function.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE.md",
+          "sha256": "1ac0263302bfb8eedc54a10a44175b0df51419306d5bc1539bfd7a7da121bd08"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -5660,7 +6640,7 @@
       "version": "1.3.0",
       "path": "node_modules/get-intrinsic",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/get-intrinsic/-/get-intrinsic-1.3.0.tgz",
@@ -5683,7 +6663,7 @@
       "version": "1.0.1",
       "path": "node_modules/get-proto",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/get-proto/-/get-proto-1.0.1.tgz",
@@ -5722,11 +6702,34 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "get-symbol-description",
+      "version": "1.1.0",
+      "path": "node_modules/get-symbol-description",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/get-symbol-description/-/get-symbol-description-1.1.0.tgz",
+      "integrity": "sha512-w9UMqWwJxHNOvoNzSJ2oPF5wvYcvP7jUvYzhp67yEhTi17ZDBBC1z9pTdGuzjD+EFIqLSYRweZjqfiPzQ06Ebg==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/get-symbol-description.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "e2560e002e13281578c75c850061d9255c33d16d732939e8c2db64c2506642fa"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "glob",
       "version": "7.2.3",
       "path": "node_modules/glob",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "ISC",
       "source": "https://registry.npmjs.org/glob/-/glob-7.2.3.tgz",
@@ -5749,7 +6752,7 @@
       "version": "1.0.2",
       "path": "node_modules/glob/node_modules/balanced-match",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz",
@@ -5772,7 +6775,7 @@
       "version": "1.1.21",
       "path": "node_modules/glob/node_modules/brace-expansion",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-1.1.21.tgz",
@@ -5795,7 +6798,7 @@
       "version": "3.1.5",
       "path": "node_modules/glob/node_modules/minimatch",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "ISC",
       "source": "https://registry.npmjs.org/minimatch/-/minimatch-3.1.5.tgz",
@@ -5841,8 +6844,8 @@
       "version": "1.0.4",
       "path": "node_modules/globalthis",
       "direct": false,
-      "scope": "development",
-      "optional": true,
+      "scope": "runtime",
+      "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/globalthis/-/globalthis-1.0.4.tgz",
       "integrity": "sha512-DpLKbNU4WylpxJykQujfCcwYWiV/Jhm50Goo0wrVILAv5jOr9d+H+UR3PhSCD2rCCEIg0uc+G+muBTwD54JhDQ==",
@@ -5864,7 +6867,7 @@
       "version": "1.2.0",
       "path": "node_modules/gopd",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/gopd/-/gopd-1.2.0.tgz",
@@ -5926,6 +6929,29 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "has-bigints",
+      "version": "1.1.0",
+      "path": "node_modules/has-bigints",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/has-bigints/-/has-bigints-1.1.0.tgz",
+      "integrity": "sha512-R3pbpkcIqv2Pm3dUwgjclDRVmWpTJW2DcMzcIhEXEx1oh/CEMObMm3KLmRJOdvhM7o4uQBnwr8pzRK2sJWIqfg==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/has-bigints.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "cfc3f455254c0af0655cc3ff46a41ed644b67599f6043346169d285bf2b3cf3b"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "has-flag",
       "version": "4.0.0",
       "path": "node_modules/has-flag",
@@ -5950,8 +6976,8 @@
       "version": "1.0.2",
       "path": "node_modules/has-property-descriptors",
       "direct": false,
-      "scope": "development",
-      "optional": true,
+      "scope": "runtime",
+      "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/has-property-descriptors/-/has-property-descriptors-1.0.2.tgz",
       "integrity": "sha512-55JNKuIW+vq4Ke1BjOTjM2YctQIvCT7GFzHwmfZPGo5wnrgkid0YQtnAleFSqumZm4az3n2BS+erby5ipJdgrg==",
@@ -5969,11 +6995,34 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "has-proto",
+      "version": "1.2.0",
+      "path": "node_modules/has-proto",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/has-proto/-/has-proto-1.2.0.tgz",
+      "integrity": "sha512-KIL7eQPfHQRC8+XluaIw7BHUwwqL19bQn4hzNgdr+1wXoU0KKj6rufu47lhY7KbJR2C6T6+PfyN0Ea7wkSS+qQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/has-proto.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "0f0ca96f50793990031ebc488a38f7292ff70bce8ab6a8e5eeda674abc32ccdf"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "has-symbols",
       "version": "1.1.0",
       "path": "node_modules/has-symbols",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/has-symbols/-/has-symbols-1.1.0.tgz",
@@ -5996,7 +7045,7 @@
       "version": "1.0.2",
       "path": "node_modules/has-tostringtag",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/has-tostringtag/-/has-tostringtag-1.0.2.tgz",
@@ -6019,7 +7068,7 @@
       "version": "2.0.4",
       "path": "node_modules/hasown",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/hasown/-/hasown-2.0.4.tgz",
@@ -6122,14 +7171,14 @@
     },
     {
       "name": "http-cache-semantics",
-      "version": "4.2.0",
+      "version": "4.3.0",
       "path": "node_modules/http-cache-semantics",
       "direct": false,
       "scope": "development",
       "optional": false,
       "license": "BSD-2-Clause",
-      "source": "https://registry.npmjs.org/http-cache-semantics/-/http-cache-semantics-4.2.0.tgz",
-      "integrity": "sha512-dTxcvPXqPvXBQpq5dUr6mEMJX4oIEFv6bwom3FDwKRDsuIjjJGANqhBuoAn9c1RQJIdAKav33ED65E2ys+87QQ==",
+      "source": "https://registry.npmjs.org/http-cache-semantics/-/http-cache-semantics-4.3.0.tgz",
+      "integrity": "sha512-M5t5LlJpS1UHMjvwRQVdFHvPISGeLAxNcrWuJkeGh0KxsqCHZ1O3NXZU/8x7cD0BDcGW8kapxMKTvwlqrNkHkA==",
       "upstream": {
         "type": "git",
         "url": "git+https://github.com/kornelski/http-cache-semantics.git"
@@ -6215,6 +7264,29 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "ieee754",
+      "version": "1.2.1",
+      "path": "node_modules/ieee754",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "BSD-3-Clause",
+      "source": "https://registry.npmjs.org/ieee754/-/ieee754-1.2.1.tgz",
+      "integrity": "sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/feross/ieee754.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "18d45466ba3253deae04667e267a91ea8de8548f18c1125264d1c9db28194cc1"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "immediate",
       "version": "3.0.6",
       "path": "node_modules/immediate",
@@ -6242,7 +7314,7 @@
       "version": "1.0.6",
       "path": "node_modules/inflight",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "ISC",
       "source": "https://registry.npmjs.org/inflight/-/inflight-1.0.6.tgz",
@@ -6304,6 +7376,29 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "internal-slot",
+      "version": "1.1.0",
+      "path": "node_modules/internal-slot",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/internal-slot/-/internal-slot-1.1.0.tgz",
+      "integrity": "sha512-4gd7VpWNQNB4UKKCFFVcp1AVv+FMOgs9NKzjHKusc8jTMhd5eL1NqQqOpE0KzMds804/yHlglp3uxgluOqAPLw==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/internal-slot.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "cfc3f455254c0af0655cc3ff46a41ed644b67599f6043346169d285bf2b3cf3b"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "is-alphabetical",
       "version": "2.0.1",
       "path": "node_modules/is-alphabetical",
@@ -6344,6 +7439,167 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "is-array-buffer",
+      "version": "3.0.5",
+      "path": "node_modules/is-array-buffer",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-array-buffer/-/is-array-buffer-3.0.5.tgz",
+      "integrity": "sha512-DDfANUiiG2wC1qawP66qlTugJeL5HyzMpfr8lLK+jMQirGzNod0B12cFB/9q838Ru27sBwfw78/rdoU7RERz6A==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/is-array-buffer.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "b505862c2bf0b38f98a4629efe0d17fb87690cbd35a9f3ae95d2fd769d7cea23"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-async-function",
+      "version": "2.1.1",
+      "path": "node_modules/is-async-function",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-async-function/-/is-async-function-2.1.1.tgz",
+      "integrity": "sha512-9dgM/cZBnNvjzaMYHVoxxfPj2QXt22Ev7SuuPrs+xav0ukGB0S6d4ydZdEiM48kLx5kDV+QBPrpVnFyefL8kkQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/inspect-js/is-async-function.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "36571397680e083211d7968a24f46e31cb75df18d4c03fe48896ee1367119fe8"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-bigint",
+      "version": "1.1.0",
+      "path": "node_modules/is-bigint",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-bigint/-/is-bigint-1.1.0.tgz",
+      "integrity": "sha512-n4ZT37wG78iz03xPRKJrHTdZbe3IicyucEtdRsV5yglwc3GyUfbAfpSeD0FJ41NbUNSt5wbhqfp1fS+BgnvDFQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/is-bigint.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "971e376febf7afbcceab6857e243f2ccb3ea88f520b68c324af15a28171f5de3"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-boolean-object",
+      "version": "1.2.2",
+      "path": "node_modules/is-boolean-object",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-boolean-object/-/is-boolean-object-1.2.2.tgz",
+      "integrity": "sha512-wa56o2/ElJMYqjCjGkXri7it5FbebW5usLw/nPmCMs5DeZ7eziSYZhSmPRn0txqeW4LnAmQQU7FgqLpsEFKM4A==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/inspect-js/is-boolean-object.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "c61652db3d2808f667b48af0a358f0d85fd07ad4a0d0b1a50882dec3b764c522"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-callable",
+      "version": "1.2.7",
+      "path": "node_modules/is-callable",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-callable/-/is-callable-1.2.7.tgz",
+      "integrity": "sha512-1BC0BVFhS/p0qtw6enp8e+8OD0UrK0oFLztSjNzhcKA3WDuJxxAPXzPuPtKkjEY9UUoEWlX/8fgKeu2S8i9JTA==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/inspect-js/is-callable.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "c61652db3d2808f667b48af0a358f0d85fd07ad4a0d0b1a50882dec3b764c522"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-data-view",
+      "version": "1.0.2",
+      "path": "node_modules/is-data-view",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-data-view/-/is-data-view-1.0.2.tgz",
+      "integrity": "sha512-RKtWF8pGmS87i2D6gqQu/l7EYRlVdfzemCJN/P3UOs//x1QE7mfhvzHIApBTRf7axvT6DMGwSwBXYCT0nfB9xw==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/is-data-view.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "166ffde0aa2773f509ba6edb3d0716602e076eb1cb1b21ae50b8262641af13b3"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-date-object",
+      "version": "1.1.0",
+      "path": "node_modules/is-date-object",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-date-object/-/is-date-object-1.1.0.tgz",
+      "integrity": "sha512-PwwhEakHVKTdRNVOw+/Gyh0+MzlCl4R6qKvkhuvLtPMggI1WAHt9sOwZxQLSGpUaDnrdyDsomoRgNnCfKNSXXg==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/inspect-js/is-date-object.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "c61652db3d2808f667b48af0a358f0d85fd07ad4a0d0b1a50882dec3b764c522"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "is-decimal",
       "version": "2.0.1",
       "path": "node_modules/is-decimal",
@@ -6358,6 +7614,52 @@
         {
           "file": "license",
           "sha256": "ca4662cb5d1b738fbe5350c0d5485ba11773b4b7208974082ae6e129a52d631d"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-document.all",
+      "version": "1.0.0",
+      "path": "node_modules/is-document.all",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-document.all/-/is-document.all-1.0.0.tgz",
+      "integrity": "sha512-+XSoyS05OdBbhFuELhgTCpFNHkpBOJqtsZfUFFpe5QTw+9Sjbh8zitxhQkYAo6wV7e1Vb8cAPvpCk9jGam/82g==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/is-document.all.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "492328129d2df31681bd85ebc673ebadb6017bcbc7a494e2eaf475eefc0e6d24"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-finalizationregistry",
+      "version": "1.1.1",
+      "path": "node_modules/is-finalizationregistry",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-finalizationregistry/-/is-finalizationregistry-1.1.1.tgz",
+      "integrity": "sha512-1pC6N8qWJbWoPtEjgcL2xyhQOP491EQjeUo3qTKcmV8YSDDJrOepfG8pcC7h/QgnQHYSv0mJ3Z/ZWxmatVrysg==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/is-finalizationregistry.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "6d0917530cf3b3dca12c1ab7798e4d38ad0a6798ecc1bd27849a3048ba91d265"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -6384,6 +7686,29 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "is-generator-function",
+      "version": "1.1.2",
+      "path": "node_modules/is-generator-function",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-generator-function/-/is-generator-function-1.1.2.tgz",
+      "integrity": "sha512-upqt1SkGkODW9tsGNG5mtXTXtECizwtS2kA161M+gJPc1xdb/Ax629af6YrTwcOeQHbewrPNlE5Dx7kzvXTizA==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/inspect-js/is-generator-function.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "dc0fe5a22d9336f345ee984f9bf56f11f22877a3aa5fd16a1db9a8ca0e23a5d1"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "is-hexadecimal",
       "version": "2.0.1",
       "path": "node_modules/is-hexadecimal",
@@ -6398,6 +7723,52 @@
         {
           "file": "license",
           "sha256": "ca4662cb5d1b738fbe5350c0d5485ba11773b4b7208974082ae6e129a52d631d"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-map",
+      "version": "2.0.3",
+      "path": "node_modules/is-map",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-map/-/is-map-2.0.3.tgz",
+      "integrity": "sha512-1Qed0/Hr2m+YqxnM09CjA2d/i6YZNfF6R2oRAOj36eUdS6qIV/huPJNSEpKbupewFs+ZsJlxsjjPbc0/afW6Lw==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/is-map.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "5a26e47b9d7020848f061bcad66f8e73cab95f529dab5c02588b21e57c4f876c"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-negative-zero",
+      "version": "2.0.3",
+      "path": "node_modules/is-negative-zero",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-negative-zero/-/is-negative-zero-2.0.3.tgz",
+      "integrity": "sha512-5KoIu2Ngpyek75jXodFvnafB6DJgr3u8uuK0LEZJjrU19DrMD3EVERaR8sjz8CCGgpZvxPl9SuE1GMVPFHx1mw==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/inspect-js/is-negative-zero.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "dc0fe5a22d9336f345ee984f9bf56f11f22877a3aa5fd16a1db9a8ca0e23a5d1"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -6424,6 +7795,29 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "is-number-object",
+      "version": "1.1.1",
+      "path": "node_modules/is-number-object",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-number-object/-/is-number-object-1.1.1.tgz",
+      "integrity": "sha512-lZhclumE1G6VYD8VHe35wFaIif+CTy5SJIi5+3y4psDgWu4wPDoBhF8NxUOinEc7pHgiTsT6MaBb92rKhhD+Xw==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/inspect-js/is-number-object.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "c61652db3d2808f667b48af0a358f0d85fd07ad4a0d0b1a50882dec3b764c522"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "is-plain-obj",
       "version": "4.1.0",
       "path": "node_modules/is-plain-obj",
@@ -6438,6 +7832,213 @@
         {
           "file": "license",
           "sha256": "5c932d88256b4ab958f64a856fa48e8bd1f55bc1d96b8149c65689e0c61789d3"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-regex",
+      "version": "1.2.1",
+      "path": "node_modules/is-regex",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-regex/-/is-regex-1.2.1.tgz",
+      "integrity": "sha512-MjYsKHO5O7mCsmRGxWcLWheFqN9DJ/2TmngvjKXihe6efViPqc274+Fx/4fYj/r03+ESvBdTXK0V6tA3rgez1g==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/inspect-js/is-regex.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "dc0fe5a22d9336f345ee984f9bf56f11f22877a3aa5fd16a1db9a8ca0e23a5d1"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-set",
+      "version": "2.0.3",
+      "path": "node_modules/is-set",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-set/-/is-set-2.0.3.tgz",
+      "integrity": "sha512-iPAjerrse27/ygGLxw+EBR9agv9Y6uLeYVJMu+QNCoouJ1/1ri0mGrcWpfCqFZuzzx3WjtwxG098X+n4OuRkPg==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/is-set.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "5a26e47b9d7020848f061bcad66f8e73cab95f529dab5c02588b21e57c4f876c"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-shared-array-buffer",
+      "version": "1.0.4",
+      "path": "node_modules/is-shared-array-buffer",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-shared-array-buffer/-/is-shared-array-buffer-1.0.4.tgz",
+      "integrity": "sha512-ISWac8drv4ZGfwKl5slpHG9OwPNty4jOWPRIhBpxOoD+hqITiwuipOQ2bNthAzwA3B4fIjO4Nln74N0S9byq8A==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/is-shared-array-buffer.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "e2560e002e13281578c75c850061d9255c33d16d732939e8c2db64c2506642fa"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-string",
+      "version": "1.1.1",
+      "path": "node_modules/is-string",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-string/-/is-string-1.1.1.tgz",
+      "integrity": "sha512-BtEeSsoaQjlSPBemMQIrY1MY0uM6vnS1g5fmufYOtnxLGUZM2178PKbhsk7Ffv58IX+ZtcvoGwccYsh0PglkAA==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/inspect-js/is-string.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "c61652db3d2808f667b48af0a358f0d85fd07ad4a0d0b1a50882dec3b764c522"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-symbol",
+      "version": "1.1.1",
+      "path": "node_modules/is-symbol",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-symbol/-/is-symbol-1.1.1.tgz",
+      "integrity": "sha512-9gGx6GTtCQM73BgmHQXfDmLtfjjTUDSyoxTCbp5WtoixAhfgsDirWIcVQ/IHpvI5Vgd5i/J5F7B9cN/WlVbC/w==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/inspect-js/is-symbol.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "c61652db3d2808f667b48af0a358f0d85fd07ad4a0d0b1a50882dec3b764c522"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-typed-array",
+      "version": "1.1.15",
+      "path": "node_modules/is-typed-array",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-typed-array/-/is-typed-array-1.1.15.tgz",
+      "integrity": "sha512-p3EcsicXjit7SaskXHs1hA91QxgTw46Fv6EFKKGS5DRFLD8yKnohjF3hxoju94b/OcMZoQukzpPpBE9uLVKzgQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/inspect-js/is-typed-array.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "c61652db3d2808f667b48af0a358f0d85fd07ad4a0d0b1a50882dec3b764c522"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-weakmap",
+      "version": "2.0.2",
+      "path": "node_modules/is-weakmap",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-weakmap/-/is-weakmap-2.0.2.tgz",
+      "integrity": "sha512-K5pXYOm9wqY1RgjpL3YTkF39tni1XajUIkawTLUo9EZEVUFga5gSQJF8nNS7ZwJQ02y+1YCNYcMh+HIf1ZqE+w==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/is-weakmap.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "5a26e47b9d7020848f061bcad66f8e73cab95f529dab5c02588b21e57c4f876c"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-weakref",
+      "version": "1.1.1",
+      "path": "node_modules/is-weakref",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-weakref/-/is-weakref-1.1.1.tgz",
+      "integrity": "sha512-6i9mGWSlqzNMEqpCp93KwRS1uUOodk2OJ6b+sq7ZPDSy2WuI5NFIxp/254TytR8ftefexkWn5xNiHUNpPOfSew==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/is-weakref.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "6d0917530cf3b3dca12c1ab7798e4d38ad0a6798ecc1bd27849a3048ba91d265"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "is-weakset",
+      "version": "2.0.4",
+      "path": "node_modules/is-weakset",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-weakset/-/is-weakset-2.0.4.tgz",
+      "integrity": "sha512-mfcwb6IzQyOKTs84CQMrOwW4gQcaTOAWJ0zzJCl2WSPDrWk/OzDaImWFH3djXhb24g4eudZfLRozAvPGw4d9hQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/is-weakset.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "5a26e47b9d7020848f061bcad66f8e73cab95f529dab5c02588b21e57c4f876c"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -6815,6 +8416,29 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "lazystream",
+      "version": "1.0.1",
+      "path": "node_modules/lazystream",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/lazystream/-/lazystream-1.0.1.tgz",
+      "integrity": "sha512-b94GiNHQNy6JNTrt5w6zNyffMrNkXZb3KTkCZJb2V1xaEGCk093vkZ2jk3tpaeP33/OiXC+WvK9AxUebnf5nbw==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/jpommerening/node-lazystream.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "e7f5d28405c9fe6580db684634bace66953055b436d7fbb6f860d0c800c44a9f"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "lie",
       "version": "3.3.0",
       "path": "node_modules/lie",
@@ -6832,6 +8456,26 @@
         {
           "file": "license.md",
           "sha256": "5c81b0caa98593408b03125efa25efe622341ed87ae55561968828cd887d64a4"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "listenercount",
+      "version": "1.0.1",
+      "path": "node_modules/listenercount",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "ISC",
+      "source": "https://registry.npmjs.org/listenercount/-/listenercount-1.0.1.tgz",
+      "integrity": "sha512-3mk/Zag0+IJxeDrxSgaDPy4zZ3w05PRZeJNnlWhzFz5OkX49J4krc+A8X2d2M69vGMBEX0uyl8M+W+8gH+kBqQ==",
+      "upstream": "git@github.com:jden/node-listenercount.git",
+      "licenseFiles": [
+        {
+          "file": "LICENSE.md",
+          "sha256": "a0071c9694f9d2813c586364281e42132539bebe451e31c19bb03f180db1ef04"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -6858,6 +8502,46 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "lodash.defaults",
+      "version": "4.2.0",
+      "path": "node_modules/lodash.defaults",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/lodash.defaults/-/lodash.defaults-4.2.0.tgz",
+      "integrity": "sha512-qjxPLHd3r5DnsdGacqOMU6pb/avJzdh9tFX2ymgoZE27BmjXrNy/y4LoaiTeAb+O3gL8AfpJGtqfX/ae2leYYQ==",
+      "upstream": "lodash/lodash",
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "ffd8b33b354585f4ce119f19c53728281e48a97b074491eb6bf6d5c5ff305272"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "lodash.difference",
+      "version": "4.5.0",
+      "path": "node_modules/lodash.difference",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/lodash.difference/-/lodash.difference-4.5.0.tgz",
+      "integrity": "sha512-dS2j+W26TQ7taQBGN8Lbbq04ssV3emRw4NY58WErlTO29pIqS0HmoT5aJ9+TUQ1N3G+JOZSji4eugsWwGp9yPA==",
+      "upstream": "lodash/lodash",
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "ffd8b33b354585f4ce119f19c53728281e48a97b074491eb6bf6d5c5ff305272"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "lodash.escaperegexp",
       "version": "4.1.2",
       "path": "node_modules/lodash.escaperegexp",
@@ -6878,6 +8562,66 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "lodash.flatten",
+      "version": "4.4.0",
+      "path": "node_modules/lodash.flatten",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/lodash.flatten/-/lodash.flatten-4.4.0.tgz",
+      "integrity": "sha512-C5N2Z3DgnnKr0LOpv/hKCgKdb7ZZwafIrsesve6lmzvZIRZRGaZ/l6Q8+2W7NaT+ZwO3fFlSCzCzrDCFdJfZ4g==",
+      "upstream": "lodash/lodash",
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "ffd8b33b354585f4ce119f19c53728281e48a97b074491eb6bf6d5c5ff305272"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "lodash.groupby",
+      "version": "4.6.0",
+      "path": "node_modules/lodash.groupby",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/lodash.groupby/-/lodash.groupby-4.6.0.tgz",
+      "integrity": "sha512-5dcWxm23+VAoz+awKmBaiBvzox8+RqMgFhi7UvX9DHZr2HdxHXM/Wrf8cfKpsW37RNrvtPn6hSwNqurSILbmJw==",
+      "upstream": "lodash/lodash",
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "ffd8b33b354585f4ce119f19c53728281e48a97b074491eb6bf6d5c5ff305272"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "lodash.isboolean",
+      "version": "3.0.3",
+      "path": "node_modules/lodash.isboolean",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/lodash.isboolean/-/lodash.isboolean-3.0.3.tgz",
+      "integrity": "sha512-Bz5mupy2SVbPHURB98VAcw+aHh4vRV5IPNhILUCsOzRmsTmSQ17jIuqopAentWoehktxGd9e/hbIXq980/1QJg==",
+      "upstream": "lodash/lodash",
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "25a399d4a42f419445101092a1fc3f9b4bfe06d614f84128222d79e3a2105fe7"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "lodash.isequal",
       "version": "4.5.0",
       "path": "node_modules/lodash.isequal",
@@ -6892,6 +8636,126 @@
         {
           "file": "LICENSE",
           "sha256": "e159c6d48c989185448658f276375bfb2300362ec6d4ae5525a2d49c4bcb947d"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "lodash.isfunction",
+      "version": "3.0.9",
+      "path": "node_modules/lodash.isfunction",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/lodash.isfunction/-/lodash.isfunction-3.0.9.tgz",
+      "integrity": "sha512-AirXNj15uRIMMPihnkInB4i3NHeb4iBtNg9WRWuK2o31S+ePwwNmDPaTL3o7dTJ+VXNZim7rFs4rxN4YU1oUJw==",
+      "upstream": "lodash/lodash",
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "e159c6d48c989185448658f276375bfb2300362ec6d4ae5525a2d49c4bcb947d"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "lodash.isnil",
+      "version": "4.0.0",
+      "path": "node_modules/lodash.isnil",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/lodash.isnil/-/lodash.isnil-4.0.0.tgz",
+      "integrity": "sha512-up2Mzq3545mwVnMhTDMdfoG1OurpA/s5t88JmQX809eH3C8491iu2sfKhTfhQtKY78oPNhiaHJUpT/dUDAAtng==",
+      "upstream": "lodash/lodash",
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "25a399d4a42f419445101092a1fc3f9b4bfe06d614f84128222d79e3a2105fe7"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "lodash.isplainobject",
+      "version": "4.0.6",
+      "path": "node_modules/lodash.isplainobject",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/lodash.isplainobject/-/lodash.isplainobject-4.0.6.tgz",
+      "integrity": "sha512-oSXzaWypCMHkPC3NvBEaPHf0KsA5mvPrOPgQWDsbg8n7orZ290M0BmC/jgRZ4vcJ6DTAhjrsSYgdsW/F+MFOBA==",
+      "upstream": "lodash/lodash",
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "ffd8b33b354585f4ce119f19c53728281e48a97b074491eb6bf6d5c5ff305272"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "lodash.isundefined",
+      "version": "3.0.1",
+      "path": "node_modules/lodash.isundefined",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/lodash.isundefined/-/lodash.isundefined-3.0.1.tgz",
+      "integrity": "sha512-MXB1is3s899/cD8jheYYE2V9qTHwKvt+npCwpD+1Sxm3Q3cECXCiYHjeHWXNwr6Q0SOBPrYUDxendrO6goVTEA==",
+      "upstream": "lodash/lodash",
+      "licenseFiles": [
+        {
+          "file": "LICENSE.txt",
+          "sha256": "90df9e2220f682e1f77e24b1c0f72d2de18b818096c957a65698e74c41a4826f"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "lodash.union",
+      "version": "4.6.0",
+      "path": "node_modules/lodash.union",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/lodash.union/-/lodash.union-4.6.0.tgz",
+      "integrity": "sha512-c4pB2CdGrGdjMKYLA+XiRDO7Y0PRQbm/Gzg8qMj+QH+pFVAoTp5sBpO0odL3FjoPCGjK96p6qsP+yQoiLoOBcw==",
+      "upstream": "lodash/lodash",
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "ffd8b33b354585f4ce119f19c53728281e48a97b074491eb6bf6d5c5ff305272"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "lodash.uniq",
+      "version": "4.5.0",
+      "path": "node_modules/lodash.uniq",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/lodash.uniq/-/lodash.uniq-4.5.0.tgz",
+      "integrity": "sha512-xfBaXQd9ryd9dlSDvnvI0lvxfLJlYAZzXomUYzLKtUeOQvOP5piqAWuGtrhWeqaXK9hhoM/iyJc5AV+XfsX3HQ==",
+      "upstream": "lodash/lodash",
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "ffd8b33b354585f4ce119f19c53728281e48a97b074491eb6bf6d5c5ff305272"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -7052,7 +8916,7 @@
       "version": "1.1.0",
       "path": "node_modules/math-intrinsics",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/math-intrinsics/-/math-intrinsics-1.1.0.tgz",
@@ -7781,7 +9645,7 @@
       "version": "1.2.8",
       "path": "node_modules/minimist",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/minimist/-/minimist-1.2.8.tgz",
@@ -7847,7 +9711,7 @@
       "version": "0.5.6",
       "path": "node_modules/mkdirp",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.6.tgz",
@@ -7930,14 +9794,14 @@
     },
     {
       "name": "next",
-      "version": "16.3.8",
+      "version": "16.4.3",
       "path": "node_modules/next",
       "direct": true,
       "scope": "runtime",
       "optional": false,
       "license": "MIT",
-      "source": "https://registry.npmjs.org/next/-/next-16.3.8.tgz",
-      "integrity": "sha512-U7QEZaTini6wKrb8A8hqLLqYQyCetegKjCpJOyxk642vWoMoU1x5PyZCJFvgYgiptA8xc5j/9xYlZFO7w9Sjmw==",
+      "source": "https://registry.npmjs.org/next/-/next-16.4.3.tgz",
+      "integrity": "sha512-OqxKTGi9u80FydydsMNYNjnuje9Au+kvHlt2GZ//ftdpDHm1dxKqAaENoOOTX5wKzn+9vaKUNIfZeyZUuLhCnA==",
       "upstream": "vercel/next.js",
       "licenseFiles": [
         {
@@ -8054,14 +9918,14 @@
     },
     {
       "name": "undici",
-      "version": "6.29.0",
+      "version": "6.29.1",
       "path": "node_modules/node-gyp/node_modules/undici",
       "direct": false,
       "scope": "development",
       "optional": false,
       "license": "MIT",
-      "source": "https://registry.npmjs.org/undici/-/undici-6.29.0.tgz",
-      "integrity": "sha512-R+RODBqp6i2pPflGdq+xIOUkl+RNfGgHwoinecKu/JCuf2uO06cOKoDbI2P7Dn6KcswdKwrczbU6IYJ6K8X+wg==",
+      "source": "https://registry.npmjs.org/undici/-/undici-6.29.1.tgz",
+      "integrity": "sha512-EvRlUt/QqAEvXdQeRMYUfwOQsfzpDztykrG2owGEE/rBOBoYv9uF39ZzsNDh4lTFHhTr2XOZjKkYgueD12ZmGA==",
       "upstream": {
         "type": "git",
         "url": "git+https://github.com/nodejs/undici.git"
@@ -8145,6 +10009,26 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "normalize-path",
+      "version": "3.0.0",
+      "path": "node_modules/normalize-path",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/normalize-path/-/normalize-path-3.0.0.tgz",
+      "integrity": "sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==",
+      "upstream": "jonschlinkert/normalize-path",
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "e70ff771504ba41f2be55de812a017ff46433d7a250c862e38fc419159e44500"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "normalize-url",
       "version": "6.1.0",
       "path": "node_modules/normalize-url",
@@ -8165,12 +10049,35 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "object-inspect",
+      "version": "1.13.4",
+      "path": "node_modules/object-inspect",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/object-inspect/-/object-inspect-1.13.4.tgz",
+      "integrity": "sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/inspect-js/object-inspect.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "bd40cc437e28a3ad7bef2ad34e6b72e757b182e67bda1acadbab4ef0476f8232"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "object-keys",
       "version": "1.1.1",
       "path": "node_modules/object-keys",
       "direct": false,
-      "scope": "development",
-      "optional": true,
+      "scope": "runtime",
+      "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/object-keys/-/object-keys-1.1.1.tgz",
       "integrity": "sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==",
@@ -8182,6 +10089,29 @@
         {
           "file": "LICENSE",
           "sha256": "5640e5cbe2e9f57f6ccfdd8dbfbeadb875495bdbcb69d2666ce3177ccd0942e4"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "object.assign",
+      "version": "4.1.7",
+      "path": "node_modules/object.assign",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/object.assign/-/object.assign-4.1.7.tgz",
+      "integrity": "sha512-nK28WOo+QIjBkDduTINE4JkF/UJJKyf2EJxvJKfblDpyg0Q+pkOHNTL0Qwy6NP6FhE/EnzV73BxxqcJaXY9anw==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/ljharb/object.assign.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "a596744eec6b05682ed972bf93937668bbc8da2caed93fbf6510389de019b5c0"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -8215,7 +10145,7 @@
       "version": "1.4.0",
       "path": "node_modules/once",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "ISC",
       "source": "https://registry.npmjs.org/once/-/once-1.4.0.tgz",
@@ -8251,6 +10181,29 @@
         {
           "file": "LICENSE",
           "sha256": "6663bbd049205d38a496ccacb412a151980b444627d38de218b3b809aef330f1"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "own-keys",
+      "version": "1.0.2",
+      "path": "node_modules/own-keys",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/own-keys/-/own-keys-1.0.2.tgz",
+      "integrity": "sha512-19YVAg7T+WTrxggPukVq7DjTv6+PJ867TmhCvBsYwmbFCsZd344rq2Ld1p0wo8f8Qrrhgp82c6FJRqdXWtSEhg==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/own-keys.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "5e325595b4ea8cfec3802f545b1def5d7b73e4a5b8e9ba63e32a320f67732292"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -8397,6 +10350,29 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "papaparse",
+      "version": "5.5.3",
+      "path": "node_modules/papaparse",
+      "direct": true,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/papaparse/-/papaparse-5.5.3.tgz",
+      "integrity": "sha512-5QvjGxYVjxO59MGU2lHVYpRWBBtKHnlIAcSe1uNFCkkptUh63NFRj0FJQm7nR67puEruUci/ZkjmEFrjCAyP4A==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/mholt/PapaParse.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "99aa68e4b42758b09828a46515f70369e5463458ab7a990189f641af2b8d9b4e"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "parse-entities",
       "version": "4.0.2",
       "path": "node_modules/parse-entities",
@@ -8445,7 +10421,7 @@
       "version": "1.0.1",
       "path": "node_modules/path-is-absolute",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/path-is-absolute/-/path-is-absolute-1.0.1.tgz",
@@ -8508,7 +10484,7 @@
       "version": "1.2.0",
       "path": "node_modules/pend",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/pend/-/pend-1.2.0.tgz",
@@ -8684,6 +10660,29 @@
         {
           "file": "LICENSE",
           "sha256": "e368bc4263b466cf98c225af15e300549e00da8859416a4536109e9654d434a8"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "possible-typed-array-names",
+      "version": "1.1.0",
+      "path": "node_modules/possible-typed-array-names",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/possible-typed-array-names/-/possible-typed-array-names-1.1.0.tgz",
+      "integrity": "sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/possible-typed-array-names.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "5e325595b4ea8cfec3802f545b1def5d7b73e4a5b8e9ba63e32a320f67732292"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -9106,6 +11105,144 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "readdir-glob",
+      "version": "1.1.3",
+      "path": "node_modules/readdir-glob",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "Apache-2.0",
+      "source": "https://registry.npmjs.org/readdir-glob/-/readdir-glob-1.1.3.tgz",
+      "integrity": "sha512-v05I2k7xN8zXvPD9N+z/uhXPaj0sUFCe2rcWZIpBsqxfP7xXFQ0tipAd/wjj1YxWyWtUS5IDJpOG82JKt2EAVA==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/Yqnn/node-readdir-glob.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "8cd23e2d76d2791765f7dd1025a9df99d81db91da9e2701f283987a1c0435aa3"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Include license, retain attribution/NOTICE where present, and mark modified upstream files; preserve all AND-license terms."
+    },
+    {
+      "name": "balanced-match",
+      "version": "1.0.2",
+      "path": "node_modules/readdir-glob/node_modules/balanced-match",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz",
+      "integrity": "sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/juliangruber/balanced-match.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE.md",
+          "sha256": "a1bd5deadb6a06dd74efa852c1b8b23f63b67f2214fbe9c8bd591da51da69268"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "brace-expansion",
+      "version": "2.1.7",
+      "path": "node_modules/readdir-glob/node_modules/brace-expansion",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-2.1.7.tgz",
+      "integrity": "sha512-uZbew1NqdmPDTMJ8ah1y+b+9QEJrfkXFk3RcTQw3X0jW/xRUvFKsg1CfQdSYGdTbXZWExtU3J3ccxtnfw1Fi0g==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/juliangruber/brace-expansion.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "68f12f6e2c33688699249c01d8f9623c534da20aa71989c57b061b7bc1676d14"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "minimatch",
+      "version": "5.1.9",
+      "path": "node_modules/readdir-glob/node_modules/minimatch",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "ISC",
+      "source": "https://registry.npmjs.org/minimatch/-/minimatch-5.1.9.tgz",
+      "integrity": "sha512-7o1wEA2RyMP7Iu7GNba9vc0RWWGACJOCZBJX2GJWip0ikV+wcOsgVuY9uE8CPiyQhkGFSlhuSkZPavN7u1c2Fw==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/isaacs/minimatch.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "d11323827fa4edeaafc437cc5b91b6971b335f0127efeeb42bf5122fe8657e8f"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "reflect.getprototypeof",
+      "version": "1.0.10",
+      "path": "node_modules/reflect.getprototypeof",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/reflect.getprototypeof/-/reflect.getprototypeof-1.0.10.tgz",
+      "integrity": "sha512-00o4I+DVrefhv+nX0ulyi3biSHCPDe+yLv5o/p6d/UVlirijB8E16FtfwSAi4g3tcqrQ4lRAqQSoFEZJehYEcw==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/es-shims/Reflect.getPrototypeOf.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "d6151cc698dc6a772e5b448069270a095488f3962aef0b11e78974e1e1587082"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "regexp.prototype.flags",
+      "version": "1.5.4",
+      "path": "node_modules/regexp.prototype.flags",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/regexp.prototype.flags/-/regexp.prototype.flags-1.5.4.tgz",
+      "integrity": "sha512-dYqgNSZbDwkaJ2ceRd9ojCGjBq+mOm9LmtXnAnEGyHhN/5R7iDW2TRw3h+o/jCFxus3P2LfWIIiwowAjANm7IA==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/es-shims/RegExp.prototype.flags.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "9616325393b574ca774a0409b95b05cb0f640393513f72da00c5e3191de4a1ea"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "remark-parse",
       "version": "11.0.0",
       "path": "node_modules/remark-parse",
@@ -9285,7 +11422,7 @@
       "version": "2.6.3",
       "path": "node_modules/rimraf",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "ISC",
       "source": "https://registry.npmjs.org/rimraf/-/rimraf-2.6.3.tgz",
@@ -9347,6 +11484,52 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "safe-array-concat",
+      "version": "1.1.4",
+      "path": "node_modules/safe-array-concat",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/safe-array-concat/-/safe-array-concat-1.1.4.tgz",
+      "integrity": "sha512-wtZlHyOje6OZTGqAoaDKxFkgRtkF9CnHAVnCHKfuj200wAgL+bSJhdsCD2l0Qx/2ekEXjPWcyKkfGb5CPboslg==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/safe-array-concat.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "b41d08bc3624d8c436fc80237d73ebb361985a67f4504bbcd703e5ca2b27254c"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "isarray",
+      "version": "2.0.5",
+      "path": "node_modules/safe-array-concat/node_modules/isarray",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/isarray/-/isarray-2.0.5.tgz",
+      "integrity": "sha512-xHjhDr3cNBK0BzdUJSPXZntQUx/mwMS5Rw4A7lPJ90XGAO6ISP/ePDNuo0vhqOZU+UD5JoodwCAAoZQd3FeAKw==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/juliangruber/isarray.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "68f12f6e2c33688699249c01d8f9623c534da20aa71989c57b061b7bc1676d14"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "safe-buffer",
       "version": "5.1.2",
       "path": "node_modules/safe-buffer",
@@ -9364,6 +11547,75 @@
         {
           "file": "LICENSE",
           "sha256": "c7cc929b57080f4b9d0c6cf57669f0463fc5b39906344dfc8d3bc43426b30eac"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "safe-push-apply",
+      "version": "1.0.0",
+      "path": "node_modules/safe-push-apply",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/safe-push-apply/-/safe-push-apply-1.0.0.tgz",
+      "integrity": "sha512-iKE9w/Z7xCzUMIZqdBsp6pEQvwuEebH4vdpjcDWnyzaI6yl6O9FHvVpmGelvEHNsoY6wGblkxR6Zty/h00WiSA==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/safe-push-apply.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "5e325595b4ea8cfec3802f545b1def5d7b73e4a5b8e9ba63e32a320f67732292"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "isarray",
+      "version": "2.0.5",
+      "path": "node_modules/safe-push-apply/node_modules/isarray",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/isarray/-/isarray-2.0.5.tgz",
+      "integrity": "sha512-xHjhDr3cNBK0BzdUJSPXZntQUx/mwMS5Rw4A7lPJ90XGAO6ISP/ePDNuo0vhqOZU+UD5JoodwCAAoZQd3FeAKw==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/juliangruber/isarray.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "68f12f6e2c33688699249c01d8f9623c534da20aa71989c57b061b7bc1676d14"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "safe-regex-test",
+      "version": "1.1.0",
+      "path": "node_modules/safe-regex-test",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/safe-regex-test/-/safe-regex-test-1.1.0.tgz",
+      "integrity": "sha512-x/+Cz4YrimQxQccJf5mKEbIa1NzeCRNI5Ecl/ekmlYaampdNLPalVyIcCZNNH3MvmqBugV5TMYZXv0ljslUlaw==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/safe-regex-test.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "d90bf0a089da4cf43d644ed240a0b3825dcdb705e64e38371d56995a4cc9e4c5"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -9413,6 +11665,21 @@
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "saxes",
+      "version": "5.0.1",
+      "path": "node_modules/saxes",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "ISC",
+      "source": "https://registry.npmjs.org/saxes/-/saxes-5.0.1.tgz",
+      "integrity": "sha512-5LBh1Tls8c9xgGjw3QrMwETmTMVk0oFgvrFSvWx62llR2hcEInrKNZ2GZCCuuy2lvWrdl5jhbpeqc5hRYKFOcw==",
+      "upstream": "https://github.com/lddubeau/saxes.git",
+      "licenseFiles": [],
+      "evidence": "METADATA ONLY — TEXT NOT VERIFIED",
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
@@ -9521,6 +11788,75 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "set-function-length",
+      "version": "1.2.2",
+      "path": "node_modules/set-function-length",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/set-function-length/-/set-function-length-1.2.2.tgz",
+      "integrity": "sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/set-function-length.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "bf9b0d665be2a689851eea667ca9f42066ea1d903b38349c51e6a44b2577680a"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "set-function-name",
+      "version": "2.0.2",
+      "path": "node_modules/set-function-name",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/set-function-name/-/set-function-name-2.0.2.tgz",
+      "integrity": "sha512-7PGFlmtwsEADb0WYyvCMa1t+yke6daIG4Wirafur5kcf+MhUnPms1UeR0CKQdTZD81yESwMHbtn+TR+dMviakQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/set-function-name.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "bf9b0d665be2a689851eea667ca9f42066ea1d903b38349c51e6a44b2577680a"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "set-proto",
+      "version": "1.0.0",
+      "path": "node_modules/set-proto",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/set-proto/-/set-proto-1.0.0.tgz",
+      "integrity": "sha512-RJRdvCo6IAnPdsvP/7m6bsQqNnn1FCBX5ZNtFL98MmFF/4xAIJTIg1YbHW5DC2W5SKZanrC6i4HsJqlajw/dZw==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/set-proto.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "5e325595b4ea8cfec3802f545b1def5d7b73e4a5b8e9ba63e32a320f67732292"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "setimmediate",
       "version": "1.0.5",
       "path": "node_modules/setimmediate",
@@ -9598,6 +11934,98 @@
         {
           "file": "license",
           "sha256": "48da2f39e100d4085767e94966b43f4fa95ff6a0698fba57ed460914e35f94a0"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "side-channel",
+      "version": "1.1.1",
+      "path": "node_modules/side-channel",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/side-channel/-/side-channel-1.1.1.tgz",
+      "integrity": "sha512-6x6dK6zJdpTzF4sQeNYxwtvBzf6Eg4GtlesS94HOvTudUeyK2WXAaIfmDgsyslYrRBeFIlsi54AYsFGUuhmvrQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/side-channel.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "cfc3f455254c0af0655cc3ff46a41ed644b67599f6043346169d285bf2b3cf3b"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "side-channel-list",
+      "version": "1.0.1",
+      "path": "node_modules/side-channel-list",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/side-channel-list/-/side-channel-list-1.0.1.tgz",
+      "integrity": "sha512-mjn/0bi/oUURjc5Xl7IaWi/OJJJumuoJFQJfDDyO46+hBWsfaVM65TBHq2eoZBhzl9EchxOijpkbRC8SVBQU0w==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/side-channel-list.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "5e325595b4ea8cfec3802f545b1def5d7b73e4a5b8e9ba63e32a320f67732292"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "side-channel-map",
+      "version": "1.0.1",
+      "path": "node_modules/side-channel-map",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/side-channel-map/-/side-channel-map-1.0.1.tgz",
+      "integrity": "sha512-VCjCNfgMsby3tTdo02nbjtM/ewra6jPHmpThenkTYh8pG9ucZ/1P8So4u4FGBek/BjpOVsDCMoLA/iuBKIFXRA==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/side-channel-map.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "5e325595b4ea8cfec3802f545b1def5d7b73e4a5b8e9ba63e32a320f67732292"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "side-channel-weakmap",
+      "version": "1.0.2",
+      "path": "node_modules/side-channel-weakmap",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/side-channel-weakmap/-/side-channel-weakmap-1.0.2.tgz",
+      "integrity": "sha512-WPS/HvHQTYnHisLo9McqBHOJk2FkHO/tlpvldyrnem4aeQp4hai3gythswg6p01oSoTl58rcpiFAjF2br2Ak2A==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/side-channel-weakmap.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "cfc3f455254c0af0655cc3ff46a41ed644b67599f6043346169d285bf2b3cf3b"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -9782,6 +12210,29 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "stop-iteration-iterator",
+      "version": "1.1.0",
+      "path": "node_modules/stop-iteration-iterator",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/stop-iteration-iterator/-/stop-iteration-iterator-1.1.0.tgz",
+      "integrity": "sha512-eLoXW/DHyl62zxY4SCaIgnRhuMr6ri4juEYARS8E6sCEqzKpOiE521Ucofdx+KnDZl5xmvGYaaKCk5FEOxJCoQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/stop-iteration-iterator.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "b41d08bc3624d8c436fc80237d73ebb361985a67f4504bbcd703e5ca2b27254c"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "string_decoder",
       "version": "1.1.1",
       "path": "node_modules/string_decoder",
@@ -9819,6 +12270,75 @@
         {
           "file": "license",
           "sha256": "48da2f39e100d4085767e94966b43f4fa95ff6a0698fba57ed460914e35f94a0"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "string.prototype.trim",
+      "version": "1.2.11",
+      "path": "node_modules/string.prototype.trim",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/string.prototype.trim/-/string.prototype.trim-1.2.11.tgz",
+      "integrity": "sha512-PwvK7BU+CMTJGYQCTZb5RWXIML92lftJLhQz1tBzgKiqGxJaMlBAa48POXaNAC2s4y8jr3EFqrkF9+44neS46w==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/es-shims/String.prototype.trim.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "c16d06f1808d8d8c6ec0f6b6fb7e951126c46730fbb67320863a81f8aa8ca033"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "string.prototype.trimend",
+      "version": "1.0.10",
+      "path": "node_modules/string.prototype.trimend",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/string.prototype.trimend/-/string.prototype.trimend-1.0.10.tgz",
+      "integrity": "sha512-2+3aDAOmPTmuFwjDnmJG2ctEkQKVki7vOSqaxkv42Mowj1V6PnvuwFCRrR5lChUux1TBskPjfkeTOhqczDMxTw==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/es-shims/String.prototype.trimEnd.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "a5e49293b629194f16e08c965807b34a4a8f45aa2735658a3b0e3c1478a34b30"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "string.prototype.trimstart",
+      "version": "1.0.8",
+      "path": "node_modules/string.prototype.trimstart",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/string.prototype.trimstart/-/string.prototype.trimstart-1.0.8.tgz",
+      "integrity": "sha512-UXSH262CSZY1tfu3G3Secr6uGLCFVPMhIqHjlgCUtCCcgihYc/xKs9djMTMUOb2j1mVSeU8EU6NWc/iQKU6Gfg==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/es-shims/String.prototype.trimStart.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "a5e49293b629194f16e08c965807b34a4a8f45aa2735658a3b0e3c1478a34b30"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -9997,6 +12517,52 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "tar-stream",
+      "version": "2.2.0",
+      "path": "node_modules/tar-stream",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/tar-stream/-/tar-stream-2.2.0.tgz",
+      "integrity": "sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/mafintosh/tar-stream.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "3fe8d55a98dbf260eace67c00cf9bc53edb46234e840098a0b93df3096b97fb6"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "readable-stream",
+      "version": "3.6.2",
+      "path": "node_modules/tar-stream/node_modules/readable-stream",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/readable-stream/-/readable-stream-3.6.2.tgz",
+      "integrity": "sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/nodejs/readable-stream"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "ec62dc96da0099b87f4511736c87309335527fb7031639493e06c95728dc8c54"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "yallist",
       "version": "5.0.0",
       "path": "node_modules/tar/node_modules/yallist",
@@ -10151,7 +12717,7 @@
       "version": "0.2.7",
       "path": "node_modules/tmp",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
       "source": "https://registry.npmjs.org/tmp/-/tmp-0.2.7.tgz",
@@ -10182,6 +12748,29 @@
       },
       "licenseFiles": [],
       "evidence": "METADATA ONLY — TEXT NOT VERIFIED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "traverse",
+      "version": "0.3.10",
+      "path": "node_modules/traverse",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/traverse/-/traverse-0.3.10.tgz",
+      "integrity": "sha512-pd6fq5qmiFuPA3TpdqBCqJXlOrSdCSt0l9IZDg83Vbf4x3m/X18prEwMMVM5LXp9vGL9NxjeiDGBrTasqyngXQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/ljharb/js-traverse.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "50810ca34b3c662b51f54cdf2ba6bfa346f5528cc2af4001716092a55c397c28"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
@@ -10306,6 +12895,121 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "typed-array-buffer",
+      "version": "1.0.3",
+      "path": "node_modules/typed-array-buffer",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/typed-array-buffer/-/typed-array-buffer-1.0.3.tgz",
+      "integrity": "sha512-nAYYwfY3qnzX30IkA6AQZjVbtK6duGontcQm1WSG1MD94YLqK0515GNApXkoxKOWMusVssAHWLh9SeaoefYFGw==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/typed-array-buffer.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "b41d08bc3624d8c436fc80237d73ebb361985a67f4504bbcd703e5ca2b27254c"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "typed-array-byte-length",
+      "version": "1.0.3",
+      "path": "node_modules/typed-array-byte-length",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/typed-array-byte-length/-/typed-array-byte-length-1.0.3.tgz",
+      "integrity": "sha512-BaXgOuIxz8n8pIq3e7Atg/7s+DpiYrxn4vdot3w9KbnBhcRQq6o3xemQdIfynqSeXeDrF32x+WvfzmOjPiY9lg==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/typed-array-byte-length.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "6d0917530cf3b3dca12c1ab7798e4d38ad0a6798ecc1bd27849a3048ba91d265"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "typed-array-byte-offset",
+      "version": "1.0.5",
+      "path": "node_modules/typed-array-byte-offset",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/typed-array-byte-offset/-/typed-array-byte-offset-1.0.5.tgz",
+      "integrity": "sha512-0FHJvLPqZ7KJzp17O13jfsAjsqazgrxBu2zEK95PmUz8lv2+GjRuxUInCr2Rk9Dms3ihN21zJ929ZO43yJ95QQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/typed-array-byte-offset.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "6d0917530cf3b3dca12c1ab7798e4d38ad0a6798ecc1bd27849a3048ba91d265"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "typed-array-length",
+      "version": "1.0.8",
+      "path": "node_modules/typed-array-length",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/typed-array-length/-/typed-array-length-1.0.8.tgz",
+      "integrity": "sha512-phPGCwqr2+Qo0fwniCE8e4pKnGu/yFb5nD5Y8bf0EEeiI5GklnACYA9GFy/DrAeRrKHXvHn+1SUsOWgJp6RO+g==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/typed-array-length.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "6d0917530cf3b3dca12c1ab7798e4d38ad0a6798ecc1bd27849a3048ba91d265"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "typedarray.prototype.slice",
+      "version": "1.0.6",
+      "path": "node_modules/typedarray.prototype.slice",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/typedarray.prototype.slice/-/typedarray.prototype.slice-1.0.6.tgz",
+      "integrity": "sha512-r+7YvGfM5TkTiDQ5EqWi/Z4L4KP3jUI+YCmTtWg1tmTHUw6xladLJqzR2heMaHBIM0TTFLZmn/EkIaEHYs/bIA==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/es-shims/TypedArray.prototype.slice.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "a6c1514885935d6b699b7e6c1ab22e9312189a75a4e937d83f20749a67d0dbe7"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "typescript",
       "version": "7.0.2",
       "path": "node_modules/typescript",
@@ -10333,6 +13037,29 @@
       "obligations": "Include license, retain attribution/NOTICE where present, and mark modified upstream files; preserve all AND-license terms."
     },
     {
+      "name": "unbox-primitive",
+      "version": "1.1.0",
+      "path": "node_modules/unbox-primitive",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/unbox-primitive/-/unbox-primitive-1.1.0.tgz",
+      "integrity": "sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/ljharb/unbox-primitive.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "cfc3f455254c0af0655cc3ff46a41ed644b67599f6043346169d285bf2b3cf3b"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "underscore",
       "version": "1.13.8",
       "path": "node_modules/underscore",
@@ -10357,14 +13084,14 @@
     },
     {
       "name": "undici",
-      "version": "7.30.0",
+      "version": "7.30.1",
       "path": "node_modules/undici",
       "direct": false,
       "scope": "development",
       "optional": true,
       "license": "MIT",
-      "source": "https://registry.npmjs.org/undici/-/undici-7.30.0.tgz",
-      "integrity": "sha512-dkrQXeHSaoamnItlYbmzG0wFYrM0ZwDxCIg0A7aKjTyyhh9svRzCNFEzV+Vm05/yehjCzjDZ31KXfGEjYSztDQ==",
+      "source": "https://registry.npmjs.org/undici/-/undici-7.30.1.tgz",
+      "integrity": "sha512-03KrMbjIFDWQR5RNPrSw3bd1r12JpyFQl9/yxjUbJtqkjmllqC5lFjZh6ujeuJCKr8EOQvRW872Oy/az+nLYxg==",
       "upstream": {
         "type": "git",
         "url": "git+https://github.com/nodejs/undici.git"
@@ -10664,6 +13391,29 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "uuid",
+      "version": "8.3.2",
+      "path": "node_modules/uuid",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/uuid/-/uuid-8.3.2.tgz",
+      "integrity": "sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/uuidjs/uuid.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE.md",
+          "sha256": "beaa6b04fb82e41dd2ad679e19e27953afb5999b1abbb455b6564e78ebfeb332"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "vfile",
       "version": "6.0.3",
       "path": "node_modules/vfile",
@@ -10770,6 +13520,121 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "which-boxed-primitive",
+      "version": "1.1.1",
+      "path": "node_modules/which-boxed-primitive",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/which-boxed-primitive/-/which-boxed-primitive-1.1.1.tgz",
+      "integrity": "sha512-TbX3mj8n0odCBFVlY8AxkqcHASw3L60jIuF8jFP78az3C2YhmGvqbHBpAjTRH2/xqYunrJ9g1jSyjCjpoWzIAA==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/which-boxed-primitive.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "cfc3f455254c0af0655cc3ff46a41ed644b67599f6043346169d285bf2b3cf3b"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "which-builtin-type",
+      "version": "1.2.1",
+      "path": "node_modules/which-builtin-type",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/which-builtin-type/-/which-builtin-type-1.2.1.tgz",
+      "integrity": "sha512-6iBczoX+kDQ7a3+YJBnh3T+KZRxM/iYNPXicqk66/Qfm1b93iu+yOImkg0zHbj5LNOcNv1TEADiZ0xa34B4q6Q==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/which-builtin-type.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "bfc4406bbf7f0bc110196312ce26471bcc7c47666949ef6a42fa500cfcb4173a"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "isarray",
+      "version": "2.0.5",
+      "path": "node_modules/which-builtin-type/node_modules/isarray",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/isarray/-/isarray-2.0.5.tgz",
+      "integrity": "sha512-xHjhDr3cNBK0BzdUJSPXZntQUx/mwMS5Rw4A7lPJ90XGAO6ISP/ePDNuo0vhqOZU+UD5JoodwCAAoZQd3FeAKw==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/juliangruber/isarray.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "68f12f6e2c33688699249c01d8f9623c534da20aa71989c57b061b7bc1676d14"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "which-collection",
+      "version": "1.0.2",
+      "path": "node_modules/which-collection",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/which-collection/-/which-collection-1.0.2.tgz",
+      "integrity": "sha512-K4jVyjnBdgvc86Y6BkaLZEN933SwYOuBFkdmBu9ZfkcAbdVbpITnDmjvZ/aQjRXQrv5EPkTnD1s39GiiqbngCw==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/inspect-js/which-collection.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "5a26e47b9d7020848f061bcad66f8e73cab95f529dab5c02588b21e57c4f876c"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "which-typed-array",
+      "version": "1.1.24",
+      "path": "node_modules/which-typed-array",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/which-typed-array/-/which-typed-array-1.1.24.tgz",
+      "integrity": "sha512-wk4Mf4pR5mRP7eYuuTBCIQ9d0ud2Fv2jRLQpfgnRjbOxAFHmjKFValgTpitVKzJJS8ajnYQV2Du1SZ8j6b/EUQ==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/inspect-js/which-typed-array.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "c61652db3d2808f667b48af0a358f0d85fd07ad4a0d0b1a50882dec3b764c522"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "wrap-ansi",
       "version": "7.0.0",
       "path": "node_modules/wrap-ansi",
@@ -10794,7 +13659,7 @@
       "version": "1.0.2",
       "path": "node_modules/wrappy",
       "direct": false,
-      "scope": "development",
+      "scope": "runtime",
       "optional": false,
       "license": "ISC",
       "source": "https://registry.npmjs.org/wrappy/-/wrappy-1.0.2.tgz",
@@ -10830,6 +13695,26 @@
         {
           "file": "LICENSE",
           "sha256": "8ad16994acb18814fcd2ff6d0b559906b842047b995baf33fd0c55e4d24cbac8"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "xmlchars",
+      "version": "2.2.0",
+      "path": "node_modules/xmlchars",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/xmlchars/-/xmlchars-2.2.0.tgz",
+      "integrity": "sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==",
+      "upstream": "https://github.com/lddubeau/xmlchars.git",
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "45d196313c2647d313cc65ca9b093d2d6974b64d35ee7346f2c60c9d518dff2c"
         }
       ],
       "evidence": "MATCHING LICENSE FILE HASHED",
@@ -10926,17 +13811,25 @@
     },
     {
       "name": "yauzl",
-      "version": "2.10.0",
+      "version": "3.4.0",
       "path": "node_modules/yauzl",
-      "direct": false,
-      "scope": "development",
+      "direct": true,
+      "scope": "runtime",
       "optional": false,
       "license": "MIT",
-      "source": "https://registry.npmjs.org/yauzl/-/yauzl-2.10.0.tgz",
-      "integrity": "sha512-p4a9I6X6nu6IhoGmBqAcbJy1mlC4j27vEPZX9F4L4/vZT3Lyq1VkFHw/V/PUcB9Buo+DG3iHkT0x3Qya58zc3g==",
-      "upstream": null,
-      "licenseFiles": [],
-      "evidence": "METADATA ONLY — TEXT NOT VERIFIED",
+      "source": "https://registry.npmjs.org/yauzl/-/yauzl-3.4.0.tgz",
+      "integrity": "sha512-jIH9yLR9wqr0wOS0TpBvo/g/2UgZH5qePVbjgRliiF0BYvOZyaBknKsF+x9Iht0O6sqgnB93rCICdOZFecJuDw==",
+      "upstream": {
+        "type": "git",
+        "url": "git+https://github.com/thejoshwolfe/yauzl.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "b303783d5eb7ca50b853ffa5f145e4e7998fab339831d848f507ca6cd970577a"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
@@ -10960,15 +13853,84 @@
       "obligations": "Retain original license, copyright and attribution; inspect the exact text."
     },
     {
+      "name": "zip-stream",
+      "version": "4.1.1",
+      "path": "node_modules/zip-stream",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/zip-stream/-/zip-stream-4.1.1.tgz",
+      "integrity": "sha512-9qv4rlDiopXg4E69k+vMHjNN63YFMe9sZMrdlvKnCjlCRWeCBswPPMPUfx+ipsAWq1LXHe70RcbaHdJJpS6hyQ==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/archiverjs/node-zip-stream.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "79bad9f51738814f83251ae89460326b2ff2ea19ff5f71ab8f7636b2e17bb231"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "archiver-utils",
+      "version": "3.0.4",
+      "path": "node_modules/zip-stream/node_modules/archiver-utils",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/archiver-utils/-/archiver-utils-3.0.4.tgz",
+      "integrity": "sha512-KVgf4XQVrTjhyWmx6cte4RxonPLR9onExufI1jhvw/MQ4BB6IsZD5gT8Lq+u/+pRkWna/6JoHpiQioaqFP5Rzw==",
+      "upstream": {
+        "type": "git",
+        "url": "https://github.com/archiverjs/archiver-utils.git"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "9fe335fb097fbff0b7f709ee14a77b1d1cf739d3400cd0b0e19118946772ea56"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
+      "name": "readable-stream",
+      "version": "3.6.2",
+      "path": "node_modules/zip-stream/node_modules/readable-stream",
+      "direct": false,
+      "scope": "runtime",
+      "optional": false,
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/readable-stream/-/readable-stream-3.6.2.tgz",
+      "integrity": "sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==",
+      "upstream": {
+        "type": "git",
+        "url": "git://github.com/nodejs/readable-stream"
+      },
+      "licenseFiles": [
+        {
+          "file": "LICENSE",
+          "sha256": "ec62dc96da0099b87f4511736c87309335527fb7031639493e06c95728dc8c54"
+        }
+      ],
+      "evidence": "MATCHING LICENSE FILE HASHED",
+      "obligations": "Retain original license, copyright and attribution; inspect the exact text."
+    },
+    {
       "name": "zod",
-      "version": "4.6.5",
+      "version": "4.6.7",
       "path": "node_modules/zod",
       "direct": true,
       "scope": "runtime",
       "optional": false,
       "license": "MIT",
-      "source": "https://registry.npmjs.org/zod/-/zod-4.6.5.tgz",
-      "integrity": "sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==",
+      "source": "https://registry.npmjs.org/zod/-/zod-4.6.7.tgz",
+      "integrity": "sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==",
       "upstream": {
         "type": "git",
         "url": "git+https://github.com/colinhacks/zod.git"

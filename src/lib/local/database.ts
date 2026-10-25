@@ -425,7 +425,7 @@ export class LocalDatabase {
     this.assistantDirectory(assistantId);
     if (
       !/^[a-f0-9-]{36}$/.test(documentId) ||
-      !/^(pdf|docx|txt|md)$/.test(kind)
+      !/^(pdf|docx|txt|md|xlsx|csv)$/.test(kind)
     )
       throw new Error("Documento non valido.");
     // A dedicated document directory prevents collisions while retaining a readable filename.
@@ -450,7 +450,7 @@ export class LocalDatabase {
       id.test(parts[3]) &&
       parts[4] === "documents" &&
       id.test(parts[5]) &&
-      /^[a-zA-Z0-9_][a-zA-Z0-9._ -]*\.(pdf|docx|txt|md)$/.test(parts[6])
+      /^[a-zA-Z0-9_][a-zA-Z0-9._ -]*\.(pdf|docx|txt|md|xlsx|csv)$/.test(parts[6])
     )
       return join(this.directory, ...parts);
     // Legacy paths remain readable if migration was interrupted or a file is missing.
@@ -458,7 +458,7 @@ export class LocalDatabase {
       parts.length !== 3 ||
       parts[0] !== LOCAL_USER_ID ||
       !id.test(parts[1]) ||
-      !/^[a-f0-9-]{36}\.(pdf|docx|txt|md)$/.test(parts[2])
+      !/^[a-f0-9-]{36}\.(pdf|docx|txt|md|xlsx|csv)$/.test(parts[2])
     )
       throw new Error("Percorso file non valido.");
     return join(this.directory, "files", ...parts);

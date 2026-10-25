@@ -25,11 +25,11 @@ test("built-in templates are complete, persist once and respect tombstones acros
   try {
     const client = () => db;
     const first = await listTemplates(client(), LOCAL_USER_ID);
-    assert.equal(first.length, 3);
+    assert.equal(first.length, 5);
     assert(first.every((t) => t.assistants.every((a) => a.instructions && a.description && a.model === null)));
-    assert.equal((await listTemplates(client(), LOCAL_USER_ID)).length, 3);
+    assert.equal((await listTemplates(client(), LOCAL_USER_ID)).length, 5);
     await db.from("project_templates").update({ deleted: true }).eq("id", first[0].id);
     db.close(); db = new LocalDatabase(path);
-    assert.equal((await listTemplates(client(), LOCAL_USER_ID)).length, 2);
+    assert.equal((await listTemplates(client(), LOCAL_USER_ID)).length, 4);
   } finally { db.close(); rmSync(path, { recursive: true, force: true }); }
 });

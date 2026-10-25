@@ -344,3 +344,11 @@ Run `npm run test:actions` for Actions unit tests. After `npm run desktop:build`
 ## Migration from the previous release series
 
 Existing v1.2.0 installations need a separate installation of SIAAS Personal v1.0.0; the old updater does not cross repositories. See the [English migration guide](docs/migration-en.md) or [Italian migration guide](docs/migration-it.md). Existing desktop data is preserved.
+
+## Structured Data Analysis
+
+Import local XLSX/CSV worksheets in assistant Knowledge, review mappings and
+relationships, then ask Chat for traceable deterministic analysis. Includes
+Production Planning and Personal Finance templates. No Docker, Python or external
+database server is required. See [the guide](docs/structured-data-analysis.md)
+for limits, formula handling, privacy and examples.

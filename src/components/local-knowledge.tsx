@@ -53,7 +53,8 @@ export function LocalStoragePanel() {
     <section className="panel local-storage-panel">
       <h2>Documents on this PC</h2>
       <p>
-        Imported copies are organized by project and assistant. Linked folders stay in their original location.
+        Imported copies are organized by project and assistant. Linked folders
+        stay in their original location.
       </p>
       {directory && <code className="local-path">{directory}</code>}
       <button
@@ -133,14 +134,25 @@ export function LocalKnowledge({
       setNotice(result.source.error ?? "Folder unavailable.");
       return;
     }
-    if (!embeddingReady) {
+    if (!embeddingReady && !result.queued.length) {
       setNotice(
         "Sources updated. New documents become available after indexing with the local model.",
       );
       return;
     }
     let failed = 0;
+    const docs = await fetch(`/api/documents?assistant=${assistantId}`).then(
+      (r) => r.json(),
+    );
     for (const id of result.queued) {
+      if (
+        !embeddingReady &&
+        !docs.some(
+          (d: { id: string; kind: string }) =>
+            d.id === id && ["xlsx", "csv"].includes(d.kind),
+        )
+      )
+        continue;
       try {
         const r = await fetch(`/api/documents/${id}/process`, {
           method: "POST",
@@ -170,7 +182,8 @@ export function LocalKnowledge({
         <div>
           <h3>Linked folders</h3>
           <p className="muted small">
-            Files stay in place. Changes are checked when you open the project or select Refresh now.
+            Files stay in place. Changes are checked when you open the project
+            or select Refresh now.
           </p>
         </div>
         <button className="button" disabled={busy} onClick={() => edit()}>
@@ -221,9 +234,7 @@ export function LocalKnowledge({
           }}
         >
           <div className="section-toolbar">
-            <h4>
-              {editing ? "Update path" : "Choose a local folder"}
-            </h4>
+            <h4>{editing ? "Update path" : "Choose a local folder"}</h4>
             <button
               type="button"
               className="icon-button"
@@ -288,7 +299,8 @@ export function LocalKnowledge({
                 items excluded
               </strong>
               <p className="muted small">
-                PDF, DOCX, TXT and MD up to 10 MB. Hidden files and symbolic links are excluded.
+                PDF, DOCX, TXT, MD, XLSX and CSV up to 10 MB. Hidden files and
+                symbolic links are excluded.
               </p>
               <ul>
                 {preview.files.map((file) => (
@@ -301,7 +313,8 @@ export function LocalKnowledge({
               </ul>
               {!preview.files.length && (
                 <p>
-                  This folder is empty or has no supported documents. You can link it and add files later.
+                  This folder is empty or has no supported documents. You can
+                  link it and add files later.
                 </p>
               )}
             </div>
@@ -368,9 +381,7 @@ export function LocalKnowledge({
                 onClick={() =>
                   void run(async () => {
                     if (!window.siaasDesktop)
-                      throw new Error(
-                        "Open the path in your file manager.",
-                      );
+                      throw new Error("Open the path in your file manager.");
                     await window.siaasDesktop.openKnowledgeFolder(source.path);
                   })
                 }

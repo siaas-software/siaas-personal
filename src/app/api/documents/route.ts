@@ -46,7 +46,7 @@ export async function POST(req: Request) {
       .object({
         assistant_id: uuid,
         title: z.string().trim().min(1).max(180),
-        kind: z.enum(["text", "pdf", "docx", "txt", "md"]),
+        kind: z.enum(["text", "pdf", "docx", "txt", "md", "xlsx", "csv"]),
         text: z.string().trim().min(1).max(MAX_DOCUMENT_CHARS).optional(),
         byte_size: z.number().int().positive().max(MAX_FILE_BYTES).optional(),
       })

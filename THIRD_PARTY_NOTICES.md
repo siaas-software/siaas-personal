@@ -66,3 +66,19 @@ Structured Data Analysis remains draft PR #4. Its ExcelJS, Papa Parse, Decimal.j
 and Yauzl additions are MIT, but the audit flags unresolved transitive package
 provenance and artifact-specific redistribution checks. The application MIT
 license neither resolves those findings nor grants rights to third-party assets.
+
+## Structured Data Analysis dependencies
+
+ExcelJS 4.4.0, Papa Parse 5.5.3, Decimal.js 10.6.0 and Yauzl 3.4.0
+are used under their MIT licenses. Source installations retain npm package
+license files. Desktop builds bundle the parser worker with legal comments and
+copy original LICENSE/LICENCE/NOTICE/COPYING files of its bundled dependencies
+into `scripts/structured-licenses` beside the standalone server. Other bundled
+packages retain their own license terms.
+
+## Release-readiness follow-up (25 October 2026)
+
+See [security and parser distribution](docs/security-readiness-2026-10-25.md) and
+[the coordinated release checklist](docs/release-readiness-1.1.0.md). The compiled
+parser excludes unused buffers/chainsaw streaming dependencies; the full lockfile
+still declares them. This does not grant missing upstream permissions.
