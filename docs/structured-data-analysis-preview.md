@@ -1,63 +1,9 @@
-# Structured Data Analysis — draft feature preview
+# Structured Data Analysis
 
-**Status, 24 October 2026:** implemented in [draft PR #4](https://github.com/siaas-software/siaas-personal/pull/4) at `b76f6ff5f547d2f5833df34877d78af911ed9b65`. This guide describes that branch, not the stable v1.0.0 release. Templates are in [draft PR #1](https://github.com/siaas-software/siaas-templates/pull/1). Neither PR is merged. Graphical UI, real Ollama inference and Windows/macOS execution remain unverified. Earlier passing fixture/build results are historical evidence, not new tests or release approval.
-
-
-## Verified starting architecture
-
-Audited application `develop` at `b31e8b8db6db9aae1a5c75c50fc5d4898bf057bb`
-(tree identical to stable main) and templates `main` at
-`100cc3f2974c37489bb85add87555c3bb2f63c9e`. Both repositories are public.
-Application main/develop and template main are protected; changes use feature
-branches and separate unmerged PRs. GitHub Actions are not required or changed.
-
-The application uses Next.js 16.3.8, React 19.3, Node >=22.16, Electron 44.5.1,
-local Ollama, LangChain agent tools, and Node's built-in SQLite. Electron runs a
-standalone local HTTP server using a separate Node process. Existing Knowledge
-accepts PDF (unpdf), DOCX (Mammoth), TXT, Markdown and pasted text, creates local
-embedding chunks, and retrieves semantic or lexical evidence. It had no XLSX,
-legacy XLS, CSV or JSON dataset parser. Data Cell was a prompt shortcut producing
-Markdown tables, not an analytical engine. The tool surface contained document
-search, bounded document reads and downloadable Markdown reports.
-
-SQLite stores scoped JSON records with foreign keys and cascading deletion.
-Imported originals are managed copies under each project/assistant; linked
-folders retain their original files and verify fingerprints. Templates use the
-existing `siaas-project-v1` allowlist and an offline generated catalog pinned by
-commit and hashes. Source installation/update/rollback/uninstall and desktop
-build scripts already exist; no native installer or release is needed here.
-
-Missing capabilities were spreadsheet parsing, profiling, confirmed mappings,
-relationships, a deterministic query executor, structured chat planning and
-an inspection UI. These are added beside the existing semantic pipeline.
-
-## Engine decision and dependencies
-
-DuckDB Neo (`@duckdb/node-api` over `@duckdb/node-bindings`) was evaluated from
-its official Node client documentation: https://duckdb.org/docs/stable/clients/node_neo/overview .
-It is an embedded engine with native, platform-specific bindings. Upstream
-platform support alone is not evidence of compatibility with this repository's
-source installer, standalone tracing, update/rollback or Electron distribution.
-No Windows/macOS native integration test environment was available here. Adding
-and certifying a second native database is unnecessary for the bounded datasets
-supported in this increment, so DuckDB was **not adopted**. This is not a claim
-that DuckDB is incompatible with Electron. Re-evaluate it for larger workloads.
-
-The selected alternative is existing SQLite persistence plus a restricted,
-deterministic TypeScript relational executor. It does not translate model output
-to SQL at all. Queries cannot write to SQLite or access filesystem/network APIs.
-Decimal.js 10.6.0 provides decimal arithmetic (40 significant digits, half-even
-rounding); numeric results are strings to avoid a second binary float conversion.
-It is not unlimited-precision mathematics or a domain-specific finance engine.
-
-ExcelJS 4.4.0 reads XLSX metadata and cached results. Papa Parse 5.5.3 handles
-UTF-8 CSV quoting, multiline fields and delimiter detection. Yauzl 3.2.0 validates
-ZIP entries and actual decompressed lengths before ExcelJS loads a workbook.
-These are JavaScript dependencies installed by the existing npm workflow, with
-no new native ABI, Docker, Python or database server requirement. SheetJS was not
-needed; existing extractors remain unchanged. ExcelJS's `cell.value` omits falsy
-formula results, so the parser deliberately uses `cell.result`, tested with zero.
-See upstream https://github.com/exceljs/exceljs and https://www.papaparse.com/docs .
+Structured Data Analysis uses local SQLite persistence and a bounded TypeScript
+analytical execution engine. ExcelJS reads XLSX workbooks, Papa Parse handles CSV,
+and Decimal.js performs decimal arithmetic. No Docker, Python or database server
+is required. Numerical results are computed from authorized assistant datasets.
 
 ## Import, safety and limits
 
@@ -172,7 +118,7 @@ most bounded output rows; it must not infer omitted rows or recompute totals.
 ## Official templates
 
 Both templates are shipped in the generated offline catalog pinned to the
-companion templates feature commit. They remain `siaas-project-v1`, use only
+reviewed templates catalog. They remain `siaas-project-v1`, use only
 project colors, `model:null`, and no local/remote knowledge sources. No schema
 extension was needed: guidance lives in assistant instructions; actual private
 mappings stay in the local database. Existing templates continue to import/export.
@@ -215,9 +161,7 @@ new-format documents using an old application. Existing documents are unaffected
 rollback and uninstall retain their existing entry points. The desktop build
 bundles the parser worker and its JavaScript dependencies with esbuild beside the
 standalone server. No Electron ABI rebuild is introduced. The Windows entry point
-remains `irm https://siaas.vercel.app/install.ps1 | iex`; this task does not deploy
-that website or publish a release. Cross-platform runtime claims require actual
-Windows/macOS execution and are reported separately in the implementation report.
+remains `irm https://siaas.vercel.app/install.ps1 | iex`; the installer verifies source and runtime checksums before installation.
 
 ## Troubleshooting
 

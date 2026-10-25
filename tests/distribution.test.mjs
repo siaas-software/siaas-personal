@@ -6,6 +6,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   REPOSITORY,
+  compareVersions,
+  releaseVersion,
   NODE_VERSION,
   runtimeAsset,
   resolveManifest,
@@ -133,4 +135,13 @@ test("corrupt or missing runtime fails before executing it", async () => {
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+test('explicit RC versions validate while stable discovery rejects prereleases',async()=>{
+ assert(releaseVersion('1.1.0-rc.1'));assert(!releaseVersion('1.1.0-rc.01'));assert(!releaseVersion('../1.1.0'));
+ assert.equal(compareVersions('1.1.0-rc.2','1.1.0-rc.1'),1);
+ assert.equal(compareVersions('1.1.0','1.1.0-rc.2'),1);
+ assert.equal(compareVersions('1.0.0','1.1.0-rc.1'),-1);
+ const m=await resolveManifest('linux','x64',request);m.version='1.1.0-rc.1';m.name='SIAAS-Personal-'+m.version+'-source.zip';m.downloadUrl='https://github.com/'+REPOSITORY+'/releases/download/v'+m.version+'/'+m.name;assert.equal(validateManifest(m,'linux','x64'),m);
+ await assert.rejects(resolveManifest('linux','x64',async(url,opts)=>url.endsWith('/releases/latest')?new Response(JSON.stringify({...release,tag_name:'v1.1.0-rc.1',prerelease:true})):request(url,opts)),/No valid stable/);
 });

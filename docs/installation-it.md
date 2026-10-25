@@ -8,7 +8,6 @@ Serve un desktop Windows, macOS o Linux a 64 bit (x64 o arm64), connessione Inte
 
 Il bootstrap non richiede Node.js preinstallato. Windows usa PowerShell 5.1+ e gli strumenti archivio di Windows. macOS/Linux richiedono Bash, curl, tar, unzip e sha256sum o shasum. L’uso normale non richiede Docker. Ragionamento avanzato (Beta) e Ricerca web avanzata (Beta) sono opzionali e indipendenti, entrambi disattivati per impostazione predefinita; attivarli richiede Docker Engine 20.10+ (container Linux, x64/arm64), Compose v2 e consenso esplicito in Impostazioni → Funzionalità sperimentali. Ricerca web avanzata richiede anche il consenso per assistente; documenti e siti configurati condividono il percorso standard senza Docker. Vedi la guida alla ricerca.
 
-**Disponibilità verificata il 24 ottobre 2026:** il repository pubblico contiene la release stabile `v1.0.0` con ZIP sorgente e specifica di installazione. I metadati della release non dimostrano l’installazione sul tuo sistema. Il sito resta prelaunch (noindex); Structured Data Analysis e i nuovi template sono PR draft separate, non incluse nella release.
 
 ## Installazioni esistenti
 

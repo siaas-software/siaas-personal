@@ -1,0 +1,5 @@
+Date,Category,Type,Amount,Currency
+2026-10-01,Salary,income,100,EUR
+2026-10-02,Food,expense,12.50,EUR
+2026-10-03,Food,expense,17.50,EUR
+2026-10-04,Food,expense,4,USD

@@ -8,7 +8,6 @@ Use a 64-bit Windows, macOS or Linux desktop (x64 or arm64), an Internet connect
 
 The bootstrap requires no existing Node.js. Windows uses PowerShell 5.1+ and Windows archive tools. macOS/Linux require Bash, curl, tar, unzip, and sha256sum or shasum. Normal usage requires no Docker. Advanced Reasoning (Beta) and Advanced Web Research (Beta) are optional, independent features, both off by default; enabling either requires Docker Engine 20.10+ (Linux containers, x64/arm64), Compose v2 and explicit opt-in in Settings → Experimental Features. Advanced Web Research also requires the assistant-level toggle; documents and configured websites share a standard workflow without Docker. See the research guide.
 
-**Availability, checked 24 October 2026:** the public repository has stable release `v1.0.0` with the required source ZIP and installation specification. Release metadata is not proof of installation on your OS. The website remains prelaunch (noindex); Structured Data Analysis and its new templates are separate unmerged draft PRs and are not part of this release.
 
 ## Existing installations
 

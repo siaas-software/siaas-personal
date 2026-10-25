@@ -44,6 +44,17 @@ Delete the feature branch after it has been merged when it is no longer needed. 
 
 A documentation-only integration may follow the same release-branch pull request path without creating a version tag or publishing a release. A merge, branch creation, or documentation change does not itself authorize publication.
 
+## Release candidates
+
+An explicitly authorized release candidate may be tagged from a reviewed
+release/<version> branch created from integrated develop. Use X.Y.Z-rc.N in
+both package manifests, publish with GitHub prerelease enabled and Latest disabled,
+and retain the release branch for stabilization. Do not advance stable main merely
+to publish a candidate. Stable promotion still requires the release PR into main
+and synchronization back to develop described above. Never move an existing tag.
+The stable installer/update channel excludes prereleases. Candidate installation
+uses the explicit install-rc scripts and a separate application/profile directory.
+
 ## Hotfix workflow
 
 1. Create `hotfix/<description>` from the latest `main`.
