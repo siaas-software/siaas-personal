@@ -83,12 +83,14 @@ const headers = {
   "Content-Type": "application/json",
 };
 let server,
+  serverExit,
   browser,
   logs = "";
 async function api(path, method = "GET", body, status = 200) {
   const response = await fetch(origin + path, {
     method,
     headers,
+    signal: AbortSignal.timeout(60000),
     ...(body === undefined
       ? {}
       : { body: Buffer.isBuffer(body) ? body : JSON.stringify(body) }),
@@ -116,7 +118,7 @@ try {
     process.env.SIAAS_TEST_SERVER_ROOT || ".next/standalone",
   );
   server = spawn(
-    process.env.SIAAS_TEST_NODE || process.execPath,
+    process.env.SIAAS_TEST_NODE ? resolve(process.env.SIAAS_TEST_NODE) : process.execPath,
     [join(serverRoot, "server.js")],
     {
       cwd: serverRoot,
@@ -138,6 +140,10 @@ try {
     },
   );
   server.stdout.on("data", (d) => (logs += d));
+  serverExit = new Promise((done) => {
+    server.once("exit", done);
+    server.once("error", (error) => { logs += error.message; done(); });
+  });
   server.stderr.on("data", (d) => (logs += d));
   let ready = false;
   for (let i = 0; i < 120; i++) {
@@ -473,7 +479,7 @@ try {
   if (browser) await browser.close();
   if (server) {
     server.kill();
-    await new Promise((r) => server.once("exit", r));
+    await serverExit;
   }
   await new Promise((r) => ollama.close(r));
   await mkdir("test-results/structured", { recursive: true });

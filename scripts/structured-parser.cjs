@@ -1,6 +1,7 @@
 // Runs in a disposable worker. No paths, URLs or executable expressions are accepted.
 const { parentPort, workerData } = require("node:worker_threads");
-const ExcelJS = require("exceljs");
+// Pinned document reader: avoid the unused streaming reader's legacy dependencies.
+const Workbook = require("exceljs/lib/doc/workbook");
 const Papa = require("papaparse");
 const yauzl = require("yauzl");
 const MAX_CELLS = 250000,
@@ -108,7 +109,7 @@ async function parse() {
     ];
   } else if (workerData.kind === "xlsx") {
     await checkArchive(bytes);
-    const workbook = new ExcelJS.Workbook();
+    const workbook = new Workbook();
     await workbook.xlsx.load(bytes, {
       ignoreNodes: ["drawing", "picture", "extLst"],
     });

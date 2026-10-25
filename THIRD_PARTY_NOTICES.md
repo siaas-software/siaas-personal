@@ -51,7 +51,7 @@ Later upstream license changes do not retroactively determine these versions.
 
 ## Structured Data Analysis dependencies
 
-ExcelJS 4.4.0, Papa Parse 5.5.3, Decimal.js 10.6.0 and Yauzl 3.2.0
+ExcelJS 4.4.0, Papa Parse 5.5.3, Decimal.js 10.6.0 and Yauzl 3.4.0
 are used under their MIT licenses. Source installations retain npm package
 license files. Desktop builds bundle the parser worker with legal comments and
 copy original LICENSE/LICENCE/NOTICE/COPYING files of its bundled dependencies

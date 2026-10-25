@@ -13,7 +13,7 @@ const { Readable, Transform } = require("node:stream");
 const { pipeline } = require("node:stream/promises");
 const { createHash } = require("node:crypto");
 const { createZstdDecompress } = require("node:zlib");
-const extractZip = require("extract-zip");
+const { extractZip } = require("./safe-zip.cjs");
 const tar = require("tar");
 const manifest = require("./ollama-assets.json");
 
@@ -80,15 +80,7 @@ async function downloadVerified(asset, destination, report = () => {}) {
 }
 async function extractArchive(archive, destination, name) {
   if (name.endsWith(".zip")) {
-    await extractZip(archive, {
-      dir: resolve(destination),
-      onEntry(entry) {
-        if (!safeEntry(entry.fileName))
-          throw new Error("Percorso non valido nel pacchetto.");
-        // The official macOS app contains framework symlinks. extract-zip verifies
-        // destination paths; the complete archive is pinned by SHA-256 before extraction.
-      },
-    });
+    await extractZip(archive, resolve(destination));
   } else {
     await pipeline(
       createReadStream(archive),
