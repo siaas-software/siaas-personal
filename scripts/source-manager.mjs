@@ -11,7 +11,7 @@ import {
 } from "node:fs";
 import { join, dirname, resolve, isAbsolute } from "node:path";
 import { homedir } from "node:os";
-import { resolveManifest, validateManifest } from "./lib/distribution.mjs";
+import { resolveManifest, validateManifest, compareVersions } from "./lib/distribution.mjs";
 import {
   provisionRuntime,
   verifyRuntime,
@@ -81,6 +81,7 @@ function executable(path) {
   return match;
 }
 function launcherFile() {
+  if (installed()?.profile) return join(root, process.platform === "win32" ? "launch-rc.cmd" : "launch-rc.sh");
   return process.platform === "win32"
     ? join(
         process.env.APPDATA || join(homedir(), "AppData", "Roaming"),
@@ -119,7 +120,7 @@ function launcher(item) {
   let body;
   if (process.platform === "win32")
     body = `@echo off\r\nset "NODE_OPTIONS="\r\nset "NODE_PATH="\r\nset "SIAAS_INSTALL_DIR=${root}"\r\n"${node}" "${manager}" launch\r\n`;
-  else if (process.platform === "darwin")
+  else if (process.platform === "darwin" || item.profile)
     body = `#!/bin/sh\nunset NODE_OPTIONS NODE_PATH\nexport SIAAS_INSTALL_DIR=${sh(root)}\nexec ${sh(node)} ${sh(manager)} launch\n`;
   else
     body = `[Desktop Entry]\nType=Application\nName=SIAAS Personal\nExec=env -u NODE_OPTIONS -u NODE_PATH ${desktop("SIAAS_INSTALL_DIR=" + root)} ${desktop(node)} ${desktop(manager)} launch\nTerminal=false\nCategories=Office;\n`;
@@ -141,7 +142,7 @@ async function launch(item) {
   if (!item) throw Error("SIAAS Personal is not installed.");
   await verifyRuntime(item.runtime, item.runtime?.version);
   const manager = join(folder(item), "scripts", "source-manager.mjs");
-  const child = spawn(executable(folder(item)), [], {
+  const child = spawn(executable(folder(item)), item.profile ? ["--user-data-dir=" + item.profile] : [], {
     detached: true,
     stdio: "ignore",
     env: {
@@ -160,7 +161,7 @@ async function launch(item) {
 function cleanup(item) {
   const keep = new Set([item.folder, item.previous?.folder]);
   for (const name of readdirSync(versions))
-    if (/^\d+\.\d+\.\d+-\d+$/.test(name) && !keep.has(name)) {
+    if (/^\d+\.\d+\.\d+(?:-rc\.\d+)?-\d+$/.test(name) && !keep.has(name)) {
       try {
         rmSync(join(versions, name), { recursive: true, force: true });
       } catch {}
@@ -186,12 +187,7 @@ function cleanup(item) {
     }
   }
 }
-const newer = (a, b) => {
-  const x = a.split(".").map(Number),
-    y = b.split(".").map(Number);
-  for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] > y[i];
-  return false;
-};
+const newer = (a, b) => compareVersions(a, b) > 0;
 async function install() {
   emit(
     "checking",
@@ -295,6 +291,7 @@ async function install() {
     renameSync(source, dest);
     const next = {
       version: manifest.version,
+      ...((old?.profile || manifest.version.includes("-rc.")) ? { profile: old?.profile || join(root, "profile") } : {}),
       tag: "v" + manifest.version,
       folder: id,
       runtime,

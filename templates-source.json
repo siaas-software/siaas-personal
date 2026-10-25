@@ -1,9 +1,9 @@
 {
   "repository": "siaas-software/siaas-templates",
-  "ref": "7ec5a819be9051242f1b9f94317629f593f1d265",
+  "ref": "d2ab4cd0afacbfdc109a95a9890d761ec7dd1af4",
   "path": "catalog.json",
   "target": "app",
   "output": "src/generated/builtin-templates.json",
-  "catalogSha256": "a32db2a78dc93ac46d0e004120bcd1e6f8ee62cd73053c4a6a54d9654a918c4f",
-  "outputSha256": "177e82a8574af0922651ccb520ce3b7cdbd4f5125f01d5453e858d7824d61ce4"
+  "catalogSha256": "eea48a8fa8675093be69c2164123a38f71eedd919eae29e7d0c3bbc35bf6dc3f",
+  "outputSha256": "b2edc327a3568e5c5afe552aff4eaad88882a9b68c556eb90f41dadf5d3f2f1d"
 }

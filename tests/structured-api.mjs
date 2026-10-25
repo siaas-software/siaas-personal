@@ -473,7 +473,7 @@ try {
     0,
   );
   console.log(
-    "PASS: standalone parser; XLSX/CSV without embeddings/Docker/Python; five-template catalog and both project creations; confirmed mappings and joins; exact shortage and multi-currency results; isolation and Origin guards; mocked Ollama JSON fallback, invalid plan and unsupported-request handling; persisted chat evidence/report; deletion.",
+    "PASS: standalone parser; XLSX/CSV without embeddings/Docker/Python; three-template catalog and both project creations; confirmed mappings and joins; exact shortage and multi-currency results; isolation and Origin guards; mocked Ollama JSON fallback, invalid plan and unsupported-request handling; persisted chat evidence/report; deletion.",
   );
 } finally {
   if (browser) await browser.close();
