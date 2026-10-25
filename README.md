@@ -43,17 +43,14 @@ Assistants can use PDF, DOCX, TXT and Markdown sources. SIAAS Personal stores an
 
 Knowledge remains isolated according to the configured assistant/project context, and sources used in answers remain inspectable.
 
-### Templates
+### Structured Data Analysis
 
-Templates are reusable starting points for recognizable roles or concrete activities.
-
-A Template can define a project structure with multiple specialized assistants, their roles, instructions, configuration, project color and model references.
-
-The model belongs to the individual assistant. Portable templates keep the `siaas-project-v1` format and export only project name, description, color and assistant name, description, instructions, public web `sources` (URL strings) and `model: null`. Models are recommended on the destination computer. Assistant colors and `listing` are ignored when importing legacy files. Missing `sources` defaults to an empty list.
-
-Files, linked folders, local paths, downloaded text, embeddings, chats and indexing metadata never travel in a project template. Exporting leaves the original workspace and local folder updates unchanged. All registered web URLs, including disabled sources, are exported; imported sources start enabled. Adding a template to the catalog stores its configuration only. Creating a project from it (or importing into an empty project) registers each assistant’s URLs immediately and starts local extraction/indexing in the background. Offline or without an embedding model, sources stay pending and can be retried from Knowledge.
-
-Each assistant can add, refresh, enable/disable and remove its own web sources. Disabled sources are excluded from new RAG retrieval and agent document tools; existing chat messages remain unchanged. Refresh replaces the previous index without duplicates, and removing a source removes its chunks. Only readable public HTML/text pages are supported; sign-in, JavaScript-only pages and website restrictions can prevent extraction.
+Import XLSX/CSV datasets into assistant Knowledge, inspect profiles, confirm mappings
+and relationships, and calculate traceable results with SQLite persistence and a
+bounded TypeScript execution engine. Knowledge/RAG supplies descriptive evidence;
+Ollama proposes validated plans and explains computed results. No Docker or Python
+is required. See the [Structured Data Analysis guide](docs/structured-data-analysis.md).
+Production Planning and Personal Finance provide reusable assistant configurations.
 
 ## Quick Start
 
@@ -64,6 +61,8 @@ Visit [Get started](https://siaas.vercel.app/get-started) for source installatio
 SIAAS Personal runs entirely in **guest mode**. Projects, assistants, chats, local Knowledge, templates, Overview, model downloads and application updates require no account. Use **Settings → Application updates** to check the latest stable release. Local work remains available offline; use separate OS profiles for separate workspaces.
 
 The source manager keeps the current installation when it is already up to date and stages newer versions separately. On first launch, the shared Ollama manager reuses a compatible service or starts a stopped installation, preserving existing models. It offers a managed download only if Ollama is absent; incompatible installations are reported, never silently replaced. Missing models are downloaded when needed.
+
+Launch an installed application from its generated Start menu entry (Windows), `~/Applications/SIAAS Personal.command` (macOS), or application-menu entry (Linux). Updates and rollback retain user data; uninstall unregisters the launcher and preserves application versions/data. See [installation and troubleshooting](docs/installation-en.md) for repair, backups and antivirus/file-lock errors. Native Windows/macOS acceptance remains separate from successful Linux builds.
 
 ### Source development requirements
 
@@ -218,10 +217,10 @@ For documentation-only changes, check links, commands and consistency with curre
 
 ## Releases and updates
 
-Desktop installers are generated only for real releases, manually or from version tags such as `v1.3.0`.
+Public distribution uses reviewed source ZIP and installation-specification assets, built locally with `npm run release:source`. Native Electron packages are development/verification artifacts; this workflow does not publish .exe/.dmg installers. Release publication is a separate maintainer action.
 
 ```text
-merge → version tag → desktop build → release → in-app update
+reviewed merge → release tag → source assets + checksums → authorized release → source-managed update
 ```
 
 Normal website or documentation changes do not trigger desktop packaging.
@@ -234,7 +233,7 @@ This repository contains the **Personal application**. Its README is the in-repo
 
 ## Shared template catalog
 
-Template definitions are maintained in [siaas-templates](https://github.com/siaas-software/siaas-templates). This repository consumes a generated snapshot pinned in `templates-source.json`; edit the source repository, not `src/generated/`. The app preserves users’ saved templates and deletions. The website displays summaries and downloadable JSON from the same catalog. The current presets are Computer Science Study, Home Gardening and Software Engineering, each with three assistants and their own public sources. Retired built-in presets are hidden from the catalog; existing projects and user-saved templates are preserved.
+Template definitions are maintained in [siaas-templates](https://github.com/siaas-software/siaas-templates). This repository consumes a generated snapshot pinned in `templates-source.json`; edit the source repository, not `src/generated/`. The app preserves users’ saved templates and deletions. The website displays summaries and downloadable JSON from the same catalog. The current presets are Computer Science Study, Production Planning and Personal Finance. Retired built-in presets are hidden from the catalog; existing projects and user-saved templates are preserved.
 
 To adopt a catalog commit:
 
@@ -243,7 +242,7 @@ npm run templates:sync -- --ref <full-commit-sha>
 npm run templates:check
 ```
 
-For the private repository, configure `SIAAS_TEMPLATES_TOKEN` in the maintainer's environment (read-only repository access), or use an authenticated local checkout:
+The official templates repository is public. A token is unnecessary for normal public reads. To use a reviewed local checkout:
 
 ```sh
 npm run templates:sync -- --ref <full-commit-sha> --catalog ../siaas-templates/catalog.json
@@ -296,7 +295,7 @@ without a browser; Ollama responses are simulated in these tests.
 Original SIAAS Personal code is available under the [MIT License](LICENSE).
 Copyright (c) 2026 Davide Abbatiello. Commercial use and modification are permitted
 under the license terms. Third-party components and model weights keep their own
-licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
+licenses; see [third-party notices](THIRD_PARTY_NOTICES.md) and the [dependency/asset audit](docs/licensing/audit-2026-10-24.md).
 
 The canonical source repository is
 [siaas-personal](https://github.com/siaas-software/siaas-personal).

@@ -8,7 +8,6 @@ Use a 64-bit Windows, macOS or Linux desktop (x64 or arm64), an Internet connect
 
 The bootstrap requires no existing Node.js. Windows uses PowerShell 5.1+ and Windows archive tools. macOS/Linux require Bash, curl, tar, unzip, and sha256sum or shasum. Normal usage requires no Docker. Advanced Reasoning (Beta) and Advanced Web Research (Beta) are optional, independent features, both off by default; enabling either requires Docker Engine 20.10+ (Linux containers, x64/arm64), Compose v2 and explicit opt-in in Settings → Experimental Features. Advanced Web Research also requires the assistant-level toggle; documents and configured websites share a standard workflow without Docker. See the research guide.
 
-**Prelaunch:** installation cannot complete until the application repository and stable release assets are public. A private repository or missing release produces a clear availability error, not a request for GitHub credentials. These changes do not publish a release or launch the product.
 
 ## Existing installations
 
@@ -65,9 +64,15 @@ The public manifest resolves the latest stable public GitHub Release without aut
 Both require valid GitHub SHA-256 asset digests. Maintainers create these locally with `npm run release:source` from a committed release checkout; the command does not publish anything. The installer checks agreement between the manifest, package version and runtime specification. Publishing a release remains a separately authorized action.
 
 - **No public stable release:** check release visibility and the two required assets. GitHub's automatically generated source archives are not a substitute for these assets and their integrity metadata.
-- **Installer service not configured:** the old site proxied `SIAAS_SERVICE_URL`. That dependency has been removed from the source; an authorized site redeploy is needed before the public endpoint uses the fix. No replacement token or private service is required.
+- **Installer service not configured:** this is an older site/proxy error. The reviewed source uses public release metadata. Check that you downloaded the current official script and inspect endpoint errors; do not add a private token or disable verification.
 - **Network/HTTP error:** check connectivity to GitHub, release-assets.githubusercontent.com, nodejs.org and the package registry. Retry; the prior installation remains available if staging/building fails.
 - **Checksum/schema mismatch:** stop and retry from the official endpoint. Do not disable integrity verification.
 - **Build error:** inspect the terminal or `update.log`, disk space and OS build dependencies. Keep the working installation and data.
 
 The website keeps `SITE_LAUNCH_STATUS=prelaunch`, no indexing and an empty prelaunch sitemap. After the approved repository reconnection, Vercel deploys commits from the new `main` branch. Deployment does not change the prelaunch indexing policy.
+
+## Launchers, antivirus and file locks
+
+After installation, launch **SIAAS Personal** from the Windows Start menu (`%APPDATA%/Microsoft/Windows/Start Menu/Programs/SIAAS Personal.cmd`), `~/Applications/SIAAS Personal.command` on macOS, or the Linux application menu (`~/.local/share/applications/siaas-personal.desktop`). A missing launcher is an installation/registration issue, not a reason to delete the workspace; inspect the install log and rerun the verified installer to repair registration.
+
+`EPERM` / `EACCES` during npm cleanup or version staging can be caused by open application processes, filesystem permissions or antivirus locks. Close SIAAS and processes using its installation folder, inspect antivirus events and available disk space, then retry the verified installer. Follow your administrator’s approved exception process if protection blocks a verified file; do not disable antivirus globally. Failed staging should preserve the current installation. Keep the Electron data profile separate from the installation root and back it up before updates; rollback does not undo data/schema changes.

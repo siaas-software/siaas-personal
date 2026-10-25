@@ -49,6 +49,24 @@ See the dated [license verification record](docs/license-verification.md) for
 exact revisions, artifact hashes, inspected sources and remaining uncertainty.
 Later upstream license changes do not retroactively determine these versions.
 
+## Dependency, font and asset inventory (24 October 2026)
+
+See the [dated audit](docs/licensing/audit-2026-10-24.md),
+[application lock inventory](docs/licensing/dependency-inventory.json) and
+[optional Morphic inventory](docs/licensing/morphic-dependency-inventory.json).
+These include development tools and platform alternatives; they are not a bill
+of materials for every final executable.
+
+DM Sans and Manrope use OFL-1.1; their exact copyright/license texts are retained
+in `docs/licensing/notices/`. Lucide 1.49.0 includes ISC and Feather MIT attribution;
+both are retained there. Sharp/libvips native distributions carry additional
+LGPL and component-specific obligations. AI model weights retain their own terms.
+
+Structured Data Analysis remains draft PR #4. Its ExcelJS, Papa Parse, Decimal.js
+and Yauzl additions are MIT, but the audit flags unresolved transitive package
+provenance and artifact-specific redistribution checks. The application MIT
+license neither resolves those findings nor grants rights to third-party assets.
+
 ## Structured Data Analysis dependencies
 
 ExcelJS 4.4.0, Papa Parse 5.5.3, Decimal.js 10.6.0 and Yauzl 3.4.0
@@ -57,3 +75,10 @@ license files. Desktop builds bundle the parser worker with legal comments and
 copy original LICENSE/LICENCE/NOTICE/COPYING files of its bundled dependencies
 into `scripts/structured-licenses` beside the standalone server. Other bundled
 packages retain their own license terms.
+
+## Release-readiness follow-up (25 October 2026)
+
+See [security and parser distribution](docs/security-readiness-2026-10-25.md) and
+[the coordinated release checklist](docs/release-readiness-1.1.0.md). The compiled
+parser excludes unused buffers/chainsaw streaming dependencies; the full lockfile
+still declares them. This does not grant missing upstream permissions.
