@@ -1,7 +1,7 @@
 # Synthetic analytical examples
 
-These non-confidential fixtures are for repeatable local testing. All columns are
-suggestions; explicitly confirm mappings and relationships in Knowledge.
+These non-confidential fixtures are for repeatable local testing. Ordinary files are ready automatically after import. Confirm the business meaning
+of relationship suggestions before joins; advanced mappings remain optional.
 
 | File | Expected result |
 | --- | --- |

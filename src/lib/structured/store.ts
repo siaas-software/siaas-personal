@@ -5,7 +5,12 @@ import Decimal from "decimal.js";
 import type { LocalDatabase } from "../local/database";
 import { fingerprint, readLinkedDocument } from "../local/knowledge";
 import { parseStructured } from "./parser";
-import { initialMapping, mappingSchema, profile } from "./profile";
+import { mappingSchema, profile } from "./profile";
+import {
+  automaticMapping,
+  importQuestions,
+  isPartitionName,
+} from "./import-review";
 import { AnalysisError, type Dataset, type Relationship } from "./types";
 export function initStructured(db: LocalDatabase) {
   // Additive derived tables keep the existing schema version and rollback compatibility.
@@ -79,14 +84,18 @@ export async function importStructured(db: LocalDatabase, documentId: string) {
       );
     const prepared = sheets.map((sheet) => {
       const dataset: Dataset = {
-        id: randomUUID(),
+        id:
+          existing.find((d) => d.worksheet === sheet.name)?.id ?? randomUUID(),
         assistantId: doc.assistant_id,
         documentId,
         filename: doc.title,
         worksheet: sheet.name,
         revision,
         sheet,
-        mapping: initialMapping(sheet),
+        mapping: automaticMapping(
+          sheet,
+          doc.kind === "csv" ? doc.title.replace(/\.csv$/i, "") : sheet.name,
+        ),
       };
       return { dataset, body: JSON.stringify(dataset) };
     });
@@ -164,10 +173,7 @@ export function updateMapping(
   mapping.types = Object.fromEntries(p.columns.map((c) => [c.id, c.type]));
   // Currency/unit columns are generic partition dimensions, never silently collapsed.
   for (const c of p.columns)
-    if (
-      /currency|valuta|unit.*measure|unità|^uom$/i.test(c.name) &&
-      !mapping.partitionColumns.includes(c.id)
-    )
+    if (isPartitionName(c.name) && !mapping.partitionColumns.includes(c.id))
       throw new AnalysisError(
         `Keep ${c.name} as a partition column to avoid combining incompatible units.`,
       );
@@ -263,9 +269,153 @@ export function inspectDatasets(db: LocalDatabase, assistantId: string) {
       worksheet: d.worksheet,
       revision: d.revision,
       mapping: d.mapping,
+      questions: d.mapping.confirmed ? [] : importQuestions(d.sheet, d.mapping),
       ...p,
       rows: p.rows.slice(0, 20),
       rawPreview: d.sheet.rows.slice(0, 10),
     };
   });
+}
+
+export function clarifyImport(
+  db: LocalDatabase,
+  assistantId: string,
+  id: string,
+  input: unknown,
+) {
+  const answer = z
+    .object({
+      kind: z.enum(["header", "date", "mixed", "formula"]),
+      column: z.string().optional(),
+      value: z.union([z.string(), z.number()]),
+    })
+    .strict()
+    .parse(input);
+  const d = datasets(db, assistantId).find((d) => d.id === id);
+  if (!d) throw new AnalysisError("Dataset not found in this assistant.");
+  const questions = importQuestions(d.sheet, d.mapping);
+  if (
+    !questions.some((q) => q.kind === answer.kind && q.column === answer.column)
+  )
+    throw new AnalysisError(
+      "This clarification is no longer needed. Refresh the file preview.",
+    );
+  const mapping = structuredClone(d.mapping);
+  if (answer.kind === "header") {
+    if (
+      typeof answer.value !== "number" ||
+      !Number.isInteger(answer.value) ||
+      answer.value < 0 ||
+      answer.value > d.sheet.rows.length
+    )
+      throw new AnalysisError("Choose a valid header row.");
+    mapping.headerRow = answer.value;
+    mapping.headerReviewed = true;
+    mapping.types = {};
+    mapping.reviewedColumns = [];
+    mapping.dateFormats = {};
+    const p = profile({ sheet: d.sheet, mapping });
+    mapping.types = Object.fromEntries(p.columns.map((c) => [c.id, c.type]));
+    mapping.partitionColumns = p.columns
+      .filter((c) => isPartitionName(c.name))
+      .map((c) => c.id);
+  } else if (answer.kind === "formula") {
+    if (answer.value !== "accept" || profile(d).missingCached)
+      throw new AnalysisError("Recalculate missing formula results first.");
+    mapping.useCachedFormulas = true;
+    // Formula columns were excluded before consent; infer their saved values now.
+    for (const c of profile(d).columns) {
+      if (
+        d.sheet.rows
+          .slice(mapping.headerRow)
+          .some((row) => row[Number(c.id.slice(1)) - 1]?.formula)
+      )
+        delete mapping.types[c.id];
+    }
+  } else {
+    const column = profile(d).columns.find((c) => c.id === answer.column);
+    if (!column) throw new AnalysisError("Unknown clarification column.");
+    if (answer.value === "text") {
+      mapping.types[column.id] = "text";
+      mapping.reviewedColumns = [
+        ...new Set([...(mapping.reviewedColumns ?? []), column.id]),
+      ];
+    } else if (
+      answer.kind === "date" &&
+      ["DMY", "MDY"].includes(String(answer.value))
+    ) {
+      mapping.types[column.id] = "date";
+      mapping.dateFormats = {
+        ...mapping.dateFormats,
+        [column.id]: answer.value as "DMY" | "MDY",
+      };
+      if (
+        profile({ sheet: d.sheet, mapping }).columns.find(
+          (c) => c.id === column.id,
+        )?.invalid
+      )
+        throw new AnalysisError(
+          "Some dates do not match this order. Correct the source or keep this column as text.",
+        );
+    } else throw new AnalysisError("Unsupported clarification choice.");
+  }
+  mapping.confirmed = importQuestions(d.sheet, mapping).length === 0;
+  updateMapping(db, assistantId, id, mapping);
+}
+
+// Candidates are suggestions, never executable relationships until the user
+// confirms that equal labels represent the same business entity.
+export function relationshipCandidates(db: LocalDatabase, assistantId: string) {
+  const all = datasets(db, assistantId).filter((d) => d.mapping.confirmed);
+  const saved = relations(db, assistantId);
+  const profiles = all.map((d) => ({ d, p: profile(d) }));
+  const candidates: Array<Omit<Relationship, "id"> & { label: string }> = [];
+  for (let i = 0; i < profiles.length; i++)
+    for (let j = i + 1; j < profiles.length; j++) {
+      const { d: left, p: lp } = profiles[i],
+        { d: right, p: rp } = profiles[j];
+      for (const lc of lp.columns)
+        for (const rc of rp.columns) {
+          if (candidates.length >= 30) return candidates;
+          if (
+            lc.name.toLowerCase().trim() !== rc.name.toLowerCase().trim() ||
+            lc.type !== rc.type ||
+            lc.invalid ||
+            rc.invalid ||
+            lc.missing ||
+            rc.missing ||
+            !lc.distinct ||
+            !rc.distinct ||
+            isPartitionName(lc.name)
+          )
+            continue;
+          if (lc.distinct !== lp.rowCount && rc.distinct !== rp.rowCount)
+            continue;
+          if (
+            saved.some(
+              (r) =>
+                (r.leftDataset === left.id && r.rightDataset === right.id) ||
+                (r.leftDataset === right.id && r.rightDataset === left.id),
+            )
+          )
+            continue;
+          const values = new Set(rp.rows.map((r) => String(r.values[rc.id])));
+          if (!lp.rows.some((r) => values.has(String(r.values[lc.id]))))
+            continue;
+          candidates.push({
+            leftDataset: left.id,
+            leftColumn: lc.id,
+            rightDataset: right.id,
+            rightColumn: rc.id,
+            cardinality:
+              lc.distinct === lp.rowCount
+                ? rc.distinct === rp.rowCount
+                  ? "one-to-one"
+                  : "one-to-many"
+                : "many-to-one",
+            label: `${left.filename} / ${left.worksheet} and ${right.filename} / ${right.worksheet}: does “${lc.name}” identify the same thing?`,
+          });
+        }
+    }
+  return candidates;
 }

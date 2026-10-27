@@ -14,6 +14,9 @@ export type Mapping = {
   confirmed: boolean;
   useCachedFormulas: boolean;
   partitionColumns: string[];
+  headerReviewed?: boolean;
+  reviewedColumns?: string[];
+  dateFormats?: Record<string, "DMY" | "MDY">;
 };
 export type Column = {
   id: string;

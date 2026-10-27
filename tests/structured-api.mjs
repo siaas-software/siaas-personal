@@ -49,13 +49,15 @@ const ollama = createServer(async (req, res) => {
   if (req.url === "/api/chat") {
     const question = body.messages.at(-1)?.content;
     const general = question === "Quanto fa 2 + 2?";
-    if (general) assert(body.messages[0].content.includes("do not require Knowledge"));
+    if (general)
+      assert(body.messages[0].content.includes("do not require Knowledge"));
     res.setHeader("Content-Type", "application/x-ndjson");
     return res.end(
       JSON.stringify({
         message: {
-          content:
-            general ? "4" : "The computed result identifies a shortage. See the exact table and source evidence.",
+          content: general
+            ? "4"
+            : "The computed result identifies a shortage. See the exact table and source evidence.",
         },
         done: false,
       }) +
@@ -209,12 +211,11 @@ try {
   );
   assert.equal(inspection.datasets.length, 3);
   for (const d of inspection.datasets)
-    await api("/api/local/structured", "POST", {
-      assistantId: production.id,
-      action: "mapping",
-      id: d.id,
-      value: { ...d.mapping, confirmed: true },
-    });
+    assert.equal(
+      d.mapping.confirmed,
+      true,
+      "ordinary worksheets must be ready without mapping confirmation",
+    );
   inspection = await api(`/api/local/structured?assistant=${production.id}`);
   const orders = inspection.datasets.find((d) => d.filename === "orders.csv"),
     stock = inspection.datasets.find((d) => d.worksheet === "Stock");
@@ -307,16 +308,12 @@ try {
       assistantId: finance.id,
       action: "mapping",
       id: fd.id,
-      value: { ...fd.mapping, confirmed: true },
+      value: { ...fd.mapping, confirmed: true, partitionColumns: [] },
     },
     422,
   );
-  await api("/api/local/structured", "POST", {
-    assistantId: finance.id,
-    action: "mapping",
-    id: fd.id,
-    value: { ...fd.mapping, confirmed: true, partitionColumns: ["c4"] },
-  });
+  assert.equal(fd.mapping.confirmed, true);
+  assert.deepEqual(fd.mapping.partitionColumns, ["c4"]);
   const financial = await api("/api/local/structured", "POST", {
     assistantId: finance.id,
     action: "query",
@@ -388,8 +385,18 @@ try {
   assert(message.artifacts[0].content.includes("orders.csv"));
   assert.equal(plannerRequests, 1);
   const generalEvents = await chat("Quanto fa 2 + 2?");
-  assert.equal(generalEvents.filter((e) => e.type === "delta").map((e) => e.text).join(""), "4");
-  assert.equal(plannerRequests, 1, "general arithmetic must bypass structured planner");
+  assert.equal(
+    generalEvents
+      .filter((e) => e.type === "delta")
+      .map((e) => e.text)
+      .join(""),
+    "4",
+  );
+  assert.equal(
+    plannerRequests,
+    1,
+    "general arithmetic must bypass structured planner",
+  );
   plannerMode = "invalid";
   const invalid = await chat("Calculate again");
   assert(
@@ -453,6 +460,7 @@ try {
     await page
       .getByRole("heading", { name: "Structured Data Analysis", exact: true })
       .waitFor();
+    await page.getByText("Advanced Settings", { exact: true }).click();
     await page.locator(".structured-dataset summary").first().click();
     await page
       .getByRole("button", { name: "Confirm mapping", exact: true })

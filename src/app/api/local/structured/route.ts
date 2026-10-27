@@ -6,6 +6,8 @@ import {
   updateMapping,
   saveRelationship,
   initStructured,
+  clarifyImport,
+  relationshipCandidates,
 } from "@/lib/structured/store";
 import { queryStructured } from "@/lib/structured/service";
 export const runtime = "nodejs";
@@ -14,7 +16,11 @@ export async function GET(req: Request) {
     const { db } = await localWorkspace();
     const id = uuid.parse(new URL(req.url).searchParams.get("assistant"));
     return Response.json(
-      { datasets: inspectDatasets(db, id), relationships: relations(db, id) },
+      {
+        datasets: inspectDatasets(db, id),
+        relationships: relations(db, id),
+        candidates: relationshipCandidates(db, id),
+      },
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch (e) {
@@ -29,6 +35,7 @@ export async function POST(req: Request) {
         assistantId: uuid,
         action: z.enum([
           "mapping",
+          "clarify",
           "relationship",
           "query",
           "deleteRelationship",
@@ -43,6 +50,8 @@ export async function POST(req: Request) {
     initStructured(db);
     if (body.action === "query")
       return Response.json(queryStructured(db, body.assistantId, body.value));
+    if (body.action === "clarify")
+      clarifyImport(db, body.assistantId, uuid.parse(body.id), body.value);
     if (body.action === "mapping")
       updateMapping(db, body.assistantId, uuid.parse(body.id), body.value);
     if (body.action === "relationship")
