@@ -282,6 +282,12 @@ export function executePlan(
     });
     for (const s of stage.steps) {
       tick(t.rows.length);
+      // Validate references even after a filter has produced zero rows.
+      if ("value" in s && s.value && "column" in s.value)
+        need(t, s.value.column);
+      if ("left" in s && "column" in s.left) need(t, s.left.column);
+      if ("right" in s && typeof s.right === "object" && "column" in s.right)
+        need(t, s.right.column);
       if (s.op === "filter") {
         const m = need(t, s.column);
         if (!["isNull", "notNull"].includes(s.comparison) && !s.value)
@@ -580,7 +586,18 @@ export function executePlan(
   const totalRows = result.rows.length,
     rows = result.rows.slice(0, plan.limit);
   const response = {
-    columns: [...result.columns].map(([id, m]) => ({ id, type: m.type })),
+    columns: [...result.columns].map(([id, m]) => {
+      const [datasetId, columnId] = m.origin?.split(":") ?? [];
+      const source = authorized.find((d) => d.id === datasetId);
+      return {
+        id,
+        type: m.type,
+        partition: !!m.partition,
+        name: source
+          ? (profile(source).columns.find((c) => c.id === columnId)?.name ?? id)
+          : id,
+      };
+    }),
     rows,
     totalRows,
     truncated: totalRows > rows.length,

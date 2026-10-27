@@ -315,7 +315,8 @@ export async function POST(req: Request) {
                                 })),
                               )
                             : assistant.instructions.slice(0, 1000) ||
-                              "You are a helpful assistant. Explain when no relevant sources are available.") +
+                              "You are a helpful assistant.") +
+                          "\nFollow the user request and assistant instructions. General conversation and standalone arithmetic do not require Knowledge. For claims about private documents or datasets, use verified evidence and never invent results." +
                           researchLimitations(research),
                       },
                       ...prior.slice(-2).map((m) => ({
@@ -328,7 +329,15 @@ export async function POST(req: Request) {
                     for await (const event of streamLocal(
                       assistant.model_id,
                       messages,
-                      fetch,
+                      (url, init) =>
+                        fetch(url, {
+                          ...init,
+                          signal: AbortSignal.any([
+                            agentAbort.signal,
+                            req.signal,
+                            ...(init?.signal ? [init.signal] : []),
+                          ]),
+                        }),
                       inferenceContext,
                     )) {
                       if (event.type === "done") {

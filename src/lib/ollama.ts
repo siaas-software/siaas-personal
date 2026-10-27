@@ -278,6 +278,7 @@ export async function* streamLocal(
       model: modelId.slice(7),
       messages,
       stream: true,
+      think: false,
       keep_alive: 0,
       options: { num_ctx: 4096, num_predict: 768, temperature: 0.2 },
     }),

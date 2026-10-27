@@ -157,6 +157,7 @@ test("stream handles fragmented UTF-8, final line without newline and real compl
     assert.equal(body.model, "qwen2.5:1.5b");
     assert.equal(body.options.num_ctx, 4096);
     assert.equal(body.keep_alive, 0);
+    assert.equal(body.think, false, "reserve the answer budget for content, not hidden reasoning");
     return new Response(
       new ReadableStream({
         start(c) {
