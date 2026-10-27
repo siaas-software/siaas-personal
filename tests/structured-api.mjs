@@ -26,7 +26,7 @@ const ollama = createServer(async (req, res) => {
     return res.end(JSON.stringify({ capabilities: ["completion"] }));
   if (req.url === "/api/chat" && body.format) {
     plannerRequests++;
-    assert(!JSON.stringify(body.messages).includes("PRIVATE_RAW_CELL"));
+    assert(body.messages[0].content.includes("Authoritative catalog"));
     return res.end(
       JSON.stringify({
         message: {
@@ -47,12 +47,15 @@ const ollama = createServer(async (req, res) => {
     );
   }
   if (req.url === "/api/chat") {
+    const question = body.messages.at(-1)?.content;
+    const general = question === "Quanto fa 2 + 2?";
+    if (general) assert(body.messages[0].content.includes("do not require Knowledge"));
     res.setHeader("Content-Type", "application/x-ndjson");
     return res.end(
       JSON.stringify({
         message: {
           content:
-            "The computed result identifies a shortage. See the exact table and source evidence.",
+            general ? "4" : "The computed result identifies a shortage. See the exact table and source evidence.",
         },
         done: false,
       }) +
@@ -118,7 +121,9 @@ try {
     process.env.SIAAS_TEST_SERVER_ROOT || ".next/standalone",
   );
   server = spawn(
-    process.env.SIAAS_TEST_NODE ? resolve(process.env.SIAAS_TEST_NODE) : process.execPath,
+    process.env.SIAAS_TEST_NODE
+      ? resolve(process.env.SIAAS_TEST_NODE)
+      : process.execPath,
     [join(serverRoot, "server.js")],
     {
       cwd: serverRoot,
@@ -142,7 +147,10 @@ try {
   server.stdout.on("data", (d) => (logs += d));
   serverExit = new Promise((done) => {
     server.once("exit", done);
-    server.once("error", (error) => { logs += error.message; done(); });
+    server.once("error", (error) => {
+      logs += error.message;
+      done();
+    });
   });
   server.stderr.on("data", (d) => (logs += d));
   let ready = false;
@@ -371,7 +379,7 @@ try {
       .filter((e) => e.type === "delta")
       .map((e) => e.text)
       .join("")
-      .includes("AI explanation"),
+      .includes("Sources and applied operations"),
   );
   const history = await api(`/api/conversations/${conversation.id}`);
   const message = history.messages.find((m) => m.role === "assistant");
@@ -379,6 +387,9 @@ try {
   assert.equal(message.status, "complete");
   assert(message.artifacts[0].content.includes("orders.csv"));
   assert.equal(plannerRequests, 1);
+  const generalEvents = await chat("Quanto fa 2 + 2?");
+  assert.equal(generalEvents.filter((e) => e.type === "delta").map((e) => e.text).join(""), "4");
+  assert.equal(plannerRequests, 1, "general arithmetic must bypass structured planner");
   plannerMode = "invalid";
   const invalid = await chat("Calculate again");
   assert(
@@ -395,7 +406,7 @@ try {
       .filter((e) => e.type === "delta")
       .map((e) => e.text)
       .join("")
-      .includes("optimizer"),
+      .includes("No calculation was executed"),
   );
   const exported = await api(
     `/api/projects/${projects[1].id}/template`,

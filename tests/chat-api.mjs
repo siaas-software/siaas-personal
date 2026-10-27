@@ -57,6 +57,8 @@ const ollama = createServer(async (req, res) => {
     if (body.model === "qwen3:8b") {
       assert.deepEqual(body.tools.map((t) => t.function.name).sort(), [
         "create_report",
+        "inspect_datasets",
+        "query_datasets",
         "read_document",
         "search_documents",
       ]);

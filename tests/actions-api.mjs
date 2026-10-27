@@ -427,7 +427,7 @@ try {
     if (model === "test:8b")
       assert.deepEqual(
         actionCall.tools.map((tool) => tool.function.name).sort(),
-        ["create_report", "read_document", "search_documents"],
+        ["create_report", "inspect_datasets", "query_datasets", "read_document", "search_documents"],
       );
     else assert.equal(actionCall.tools, undefined);
     const nextCall = await chat(conversation.id, "Unrelated next request");

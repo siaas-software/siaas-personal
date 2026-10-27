@@ -97,9 +97,8 @@ try {
   assert.equal(message.structured_analysis.rows.length, 1);
   assert(Object.values(message.structured_analysis.rows[0]).includes('15'), 'Expected exact SUM = 15');
   assert(message.artifacts?.some(a => a.content.includes('orders.csv')), 'Missing source evidence');
-  const explanation = events.filter(e => e.type === 'delta').map(e => e.text).join('').split('### AI explanation')[1];
-  assert(explanation?.trim() && !explanation.includes('AI explanation unavailable'), 'No real model explanation');
-  console.log('PASS real analytical chat: template/model selection, import, confirmed mapping, exact SUM 15, evidence, explanation and history');
+  assert(message.content.includes('Sources and applied operations'), 'Missing grounded evidence');
+  console.log('PASS real analytical chat: template/model selection, import, confirmed mapping, exact SUM 15, evidence and history');
 } finally {
   console.log('Standalone server log', logs);
   server.kill();

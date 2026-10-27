@@ -329,6 +329,7 @@ export async function runLocalAgent(
     model,
     tools: [...scoped.tools],
     systemPrompt: `${options.instructions.slice(0, 4000)}
+General conversation, writing instructions and standalone arithmetic do not require Knowledge or tools; answer them directly.
 For spreadsheet calculations, use inspect_datasets and query_datasets; never calculate exact totals from semantic snippets. Respect confirmed mappings, currency partitions, missing data and query errors. If a required operation is unsupported, explain the limitation instead of fabricating a result.
 You are the local SIAAS Personal assistant. Respond in English by default, or in the language explicitly requested by the user. For questions about knowledge, use search_documents and cite source titles.
 Search results contain passages already read: if sufficient, answer or create the report directly. Use read_document only for additional passages, copying document_id (for example doc_1); start_chunk is optional and starts at 0.
