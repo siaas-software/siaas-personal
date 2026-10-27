@@ -1,6 +1,9 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import type { inspectDatasets } from "@/lib/structured/store";
+import type {
+  inspectDatasets,
+  relationshipCandidates,
+} from "@/lib/structured/store";
 import type { Relationship, Mapping, ColumnType } from "@/lib/structured/types";
 import type { AnalysisResult } from "@/lib/structured/engine";
 type Inspection = ReturnType<typeof inspectDatasets>[number];
@@ -19,6 +22,159 @@ async function request(assistantId: string, body?: object) {
   if (!response.ok)
     throw new Error(result.error ?? "Structured analysis failed.");
   return result;
+}
+function ImportSummary({
+  dataset,
+  count,
+  busy,
+  clarify,
+}: {
+  dataset: Inspection;
+  count: number;
+  busy: boolean;
+  clarify: (value: {
+    kind: string;
+    column?: string;
+    value: string | number;
+  }) => void;
+}) {
+  const [header, setHeader] = useState(dataset.mapping.headerRow);
+  return (
+    <article className="structured-import-summary">
+      <strong>{dataset.filename}</strong>
+      <p role="status">
+        {dataset.mapping.confirmed
+          ? "Ready for analysis · Ask a question in Chat"
+          : "Clarification needed before analysis"}
+      </p>
+      <p className="muted small">
+        {count} {count === 1 ? "dataset" : "datasets"} in file ·{" "}
+        {dataset.worksheet} · {dataset.rowCount} rows · {dataset.columnCount}{" "}
+        columns
+      </p>
+      {dataset.questions.map((question, i) => (
+        <div
+          key={`${question.kind}-${question.column ?? i}`}
+          className="structured-clarification"
+        >
+          <p>{question.label}</p>
+          {question.kind === "header" && (
+            <>
+              <label>
+                Column names row
+                <select
+                  value={header}
+                  onChange={(e) => setHeader(Number(e.target.value))}
+                >
+                  <option value={0}>No header</option>
+                  {dataset.rawPreview.map((row, index) => (
+                    <option key={index} value={index + 1}>
+                      Row {index + 1}:{" "}
+                      {row
+                        .map((c) => String(c.value ?? ""))
+                        .join(" · ")
+                        .slice(0, 110)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                className="button"
+                disabled={busy}
+                onClick={() => clarify({ kind: "header", value: header })}
+              >
+                Use this row
+              </button>
+            </>
+          )}
+          {question.kind === "date" && (
+            <div className="button-row">
+              <button
+                className="button"
+                disabled={busy}
+                onClick={() =>
+                  clarify({
+                    kind: "date",
+                    column: question.column,
+                    value: "DMY",
+                  })
+                }
+              >
+                Day / month / year
+              </button>
+              <button
+                className="button"
+                disabled={busy}
+                onClick={() =>
+                  clarify({
+                    kind: "date",
+                    column: question.column,
+                    value: "MDY",
+                  })
+                }
+              >
+                Month / day / year
+              </button>
+            </div>
+          )}
+          {(question.kind === "date" || question.kind === "mixed") && (
+            <button
+              className="button"
+              disabled={busy}
+              onClick={() =>
+                clarify({
+                  kind: question.kind,
+                  column: question.column,
+                  value: "text",
+                })
+              }
+            >
+              Keep this column as text
+            </button>
+          )}
+          {question.kind === "formula" && !dataset.missingCached && (
+            <button
+              className="button"
+              disabled={busy}
+              onClick={() => clarify({ kind: "formula", value: "accept" })}
+            >
+              Use saved formula results
+            </button>
+          )}
+        </div>
+      ))}
+      {dataset.warnings
+        .filter((w) => !w.includes("Review and confirm"))
+        .map((warning, i) => (
+          <p className="muted small" key={i}>
+            {warning}
+          </p>
+        ))}
+      <details>
+        <summary>Data preview</summary>
+        <div className="structured-scroll">
+          <table>
+            <thead>
+              <tr>
+                {dataset.columns.map((c) => (
+                  <th key={c.id}>{c.name}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {dataset.rows.slice(0, 5).map((row) => (
+                <tr key={row.sourceRow}>
+                  {dataset.columns.map((c) => (
+                    <td key={c.id}>{String(row.values[c.id] ?? "∅")}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </article>
+  );
 }
 function DatasetCard({
   dataset,
@@ -237,7 +393,8 @@ export function StructuredKnowledge({
   const [data, setData] = useState<{
     datasets: Inspection[];
     relationships: Relationship[];
-  }>({ datasets: [], relationships: [] });
+    candidates: ReturnType<typeof relationshipCandidates>;
+  }>({ datasets: [], relationships: [], candidates: [] });
   const [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [notice, setNotice] = useState("");
@@ -281,8 +438,9 @@ export function StructuredKnowledge({
     >
       <h3>Structured Data Analysis</h3>
       <p className="muted small">
-        Local XLSX and CSV analysis. Review each worksheet, confirm mappings,
-        then ask analytical questions in Chat. No Docker or Python needed.
+        Upload a spreadsheet, then ask questions in Chat. Clear files are ready
+        automatically. If something is ambiguous, answer only the clarification
+        below.
       </p>
       {error && (
         <p className="error" role="alert">
@@ -291,275 +449,321 @@ export function StructuredKnowledge({
       )}
       {notice && <p role="status">{notice}</p>}
       {data.datasets.map((d) => (
-        <DatasetCard
-          key={d.id}
+        <ImportSummary
+          key={`${d.id}-${d.revision}`}
           dataset={d}
+          count={
+            data.datasets.filter((other) => other.documentId === d.documentId)
+              .length
+          }
           busy={busy}
-          save={(mapping) => {
-            void run({ action: "mapping", id: d.id, value: mapping });
-          }}
-          remove={() => {
-            if (
-              window.confirm(
-                "Remove this derived dataset and its relationships? The original file is kept.",
-              )
-            )
-              void run({ action: "deleteDataset", id: d.id });
+          clarify={(value) => {
+            void run({ action: "clarify", id: d.id, value });
           }}
         />
       ))}
-      <details>
-        <summary>Relationships ({data.relationships.length})</summary>
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            const saved = await run({
-              action: "relationship",
-              value: {
-                leftDataset: left,
-                leftColumn,
-                rightDataset: right,
-                rightColumn,
-                cardinality,
-              },
-            });
-            if (saved)
-              setNotice(
-                `Relationship saved. ${saved.unmatchedLeftRows} left rows have missing or unmatched keys.`,
-              );
-          }}
-        >
-          <label>
-            Left dataset
-            <select
-              required
-              value={left}
-              onChange={(e) => {
-                setLeft(e.target.value);
-                setLeftColumn("");
-              }}
-            >
-              <option value="">Choose…</option>
-              {data.datasets.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.mapping.name} · {d.filename}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Left key
-            <select
-              required
-              value={leftColumn}
-              onChange={(e) => setLeftColumn(e.target.value)}
-            >
-              <option value="">Choose…</option>
-              {l?.columns.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name} ({c.id})
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Right dataset
-            <select
-              required
-              value={right}
-              onChange={(e) => {
-                setRight(e.target.value);
-                setRightColumn("");
-              }}
-            >
-              <option value="">Choose…</option>
-              {data.datasets.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.mapping.name} · {d.filename}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Right key
-            <select
-              required
-              value={rightColumn}
-              onChange={(e) => setRightColumn(e.target.value)}
-            >
-              <option value="">Choose…</option>
-              {r?.columns.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name} ({c.id})
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Expected key cardinality
-            <select
-              value={cardinality}
-              onChange={(e) =>
-                setCardinality(e.target.value as Relationship["cardinality"])
-              }
-            >
-              {["one-to-one", "many-to-one", "one-to-many", "many-to-many"].map(
-                (v) => (
-                  <option key={v}>{v}</option>
-                ),
-              )}
-            </select>
-          </label>
-          <p className="muted small">
-            Verify that these identifiers represent the same entities.
-            Many-to-many joins can multiply quantities; aggregate deliberately.
-          </p>
-          <button disabled={busy} className="button">
-            Confirm relationship
-          </button>
-        </form>
-        {data.relationships.map((rel) => (
-          <div key={rel.id}>
-            <p>
-              {
-                data.datasets.find((d) => d.id === rel.leftDataset)?.mapping
-                  .name
-              }
-              .{rel.leftColumn} →{" "}
-              {
-                data.datasets.find((d) => d.id === rel.rightDataset)?.mapping
-                  .name
-              }
-              .{rel.rightColumn} ({rel.cardinality})
-            </p>
-            <button
-              className="button"
-              disabled={busy}
-              onClick={() =>
-                void run({ action: "deleteRelationship", id: rel.id })
-              }
-            >
-              Remove relationship
-            </button>
-          </div>
-        ))}
-      </details>
-      <details>
-        <summary>Query editor and downloadable results</summary>
-        <p>
-          Use Chat for natural-language planning, or execute a validated JSON
-          plan here without an AI model. No SQL or code is accepted.
-        </p>
-        <button
-          className="button"
-          onClick={() => {
-            const d = data.datasets[0];
-            if (d)
-              setPlan(
-                JSON.stringify(
-                  {
-                    stages: [{ id: "data", datasetId: d.id, steps: [] }],
-                    output: "data",
-                    limit: 20,
-                  },
-                  null,
-                  2,
-                ),
-              );
-          }}
-        >
-          Load preview query
-        </button>
-        <label>
-          Query plan
-          <textarea
-            rows={12}
-            maxLength={60000}
-            value={plan}
-            onChange={(e) => setPlan(e.target.value)}
-          />
-        </label>
-        <button
-          className="button"
-          disabled={busy || !plan}
-          onClick={async () => {
-            try {
-              const value = JSON.parse(plan);
-              setResult(await run({ action: "query", value }));
-            } catch {
-              setError("Enter a valid JSON query plan.");
-            }
-          }}
-        >
-          Run read-only query
-        </button>
+      {data.candidates.length > 0 && (
         <details>
-          <summary>Dataset and relationship identifiers</summary>
-          <pre>
-            {JSON.stringify(
-              {
-                datasets: data.datasets.map((d) => ({
-                  id: d.id,
-                  name: d.mapping.name,
-                  columns: d.columns.map((c) => ({
-                    id: c.id,
-                    name: c.name,
-                    type: c.type,
-                  })),
-                })),
-                relationships: data.relationships,
-              },
-              null,
-              2,
-            )}
-          </pre>
+          <summary>Connect related files (optional)</summary>
+          <p>
+            Each file can already be analysed separately. Confirm only when the
+            named fields represent the same entity.
+          </p>
+          {data.candidates.map(({ label, ...candidate }) => (
+            <div
+              key={`${candidate.leftDataset}-${candidate.rightDataset}-${candidate.leftColumn}-${candidate.rightColumn}`}
+            >
+              <p>{label}</p>
+              <button
+                className="button"
+                disabled={busy}
+                onClick={() => {
+                  void run({ action: "relationship", value: candidate });
+                }}
+              >
+                Yes, connect these fields
+              </button>
+            </div>
+          ))}
         </details>
-        {result && (
-          <>
-            <p>
-              {result.totalRows} result rows
-              {result.truncated ? " (preview truncated)" : ""}
+      )}
+      <details className="structured-advanced">
+        <summary>Advanced Settings</summary>
+        {data.datasets.map((d) => (
+          <DatasetCard
+            key={d.id}
+            dataset={d}
+            busy={busy}
+            save={(mapping) => {
+              void run({ action: "mapping", id: d.id, value: mapping });
+            }}
+            remove={() => {
+              if (
+                window.confirm(
+                  "Remove this derived dataset and its relationships? The original file is kept.",
+                )
+              )
+                void run({ action: "deleteDataset", id: d.id });
+            }}
+          />
+        ))}
+        <details>
+          <summary>Relationships ({data.relationships.length})</summary>
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const saved = await run({
+                action: "relationship",
+                value: {
+                  leftDataset: left,
+                  leftColumn,
+                  rightDataset: right,
+                  rightColumn,
+                  cardinality,
+                },
+              });
+              if (saved)
+                setNotice(
+                  `Relationship saved. ${saved.unmatchedLeftRows} left rows have missing or unmatched keys.`,
+                );
+            }}
+          >
+            <label>
+              Left dataset
+              <select
+                required
+                value={left}
+                onChange={(e) => {
+                  setLeft(e.target.value);
+                  setLeftColumn("");
+                }}
+              >
+                <option value="">Choose…</option>
+                {data.datasets.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.mapping.name} · {d.filename}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Left key
+              <select
+                required
+                value={leftColumn}
+                onChange={(e) => setLeftColumn(e.target.value)}
+              >
+                <option value="">Choose…</option>
+                {l?.columns.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} ({c.id})
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Right dataset
+              <select
+                required
+                value={right}
+                onChange={(e) => {
+                  setRight(e.target.value);
+                  setRightColumn("");
+                }}
+              >
+                <option value="">Choose…</option>
+                {data.datasets.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.mapping.name} · {d.filename}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Right key
+              <select
+                required
+                value={rightColumn}
+                onChange={(e) => setRightColumn(e.target.value)}
+              >
+                <option value="">Choose…</option>
+                {r?.columns.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} ({c.id})
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Expected key cardinality
+              <select
+                value={cardinality}
+                onChange={(e) =>
+                  setCardinality(e.target.value as Relationship["cardinality"])
+                }
+              >
+                {[
+                  "one-to-one",
+                  "many-to-one",
+                  "one-to-many",
+                  "many-to-many",
+                ].map((v) => (
+                  <option key={v}>{v}</option>
+                ))}
+              </select>
+            </label>
+            <p className="muted small">
+              Verify that these identifiers represent the same entities.
+              Many-to-many joins can multiply quantities; aggregate
+              deliberately.
             </p>
-            <div className="structured-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    {result.columns.map((c) => (
-                      <th key={c.id}>{c.id}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {result.rows.map((row, i) => (
-                    <tr key={i}>
+            <button disabled={busy} className="button">
+              Confirm relationship
+            </button>
+          </form>
+          {data.relationships.map((rel) => (
+            <div key={rel.id}>
+              <p>
+                {
+                  data.datasets.find((d) => d.id === rel.leftDataset)?.mapping
+                    .name
+                }
+                .{rel.leftColumn} →{" "}
+                {
+                  data.datasets.find((d) => d.id === rel.rightDataset)?.mapping
+                    .name
+                }
+                .{rel.rightColumn} ({rel.cardinality})
+              </p>
+              <button
+                className="button"
+                disabled={busy}
+                onClick={() =>
+                  void run({ action: "deleteRelationship", id: rel.id })
+                }
+              >
+                Remove relationship
+              </button>
+            </div>
+          ))}
+        </details>
+        <details>
+          <summary>Query editor and downloadable results</summary>
+          <p>
+            Use Chat for natural-language planning, or execute a validated JSON
+            plan here without an AI model. No SQL or code is accepted.
+          </p>
+          <button
+            className="button"
+            onClick={() => {
+              const d = data.datasets[0];
+              if (d)
+                setPlan(
+                  JSON.stringify(
+                    {
+                      stages: [{ id: "data", datasetId: d.id, steps: [] }],
+                      output: "data",
+                      limit: 20,
+                    },
+                    null,
+                    2,
+                  ),
+                );
+            }}
+          >
+            Load preview query
+          </button>
+          <label>
+            Query plan
+            <textarea
+              rows={12}
+              maxLength={60000}
+              value={plan}
+              onChange={(e) => setPlan(e.target.value)}
+            />
+          </label>
+          <button
+            className="button"
+            disabled={busy || !plan}
+            onClick={async () => {
+              try {
+                const value = JSON.parse(plan);
+                setResult(await run({ action: "query", value }));
+              } catch {
+                setError("Enter a valid JSON query plan.");
+              }
+            }}
+          >
+            Run read-only query
+          </button>
+          <details>
+            <summary>Dataset and relationship identifiers</summary>
+            <pre>
+              {JSON.stringify(
+                {
+                  datasets: data.datasets.map((d) => ({
+                    id: d.id,
+                    name: d.mapping.name,
+                    columns: d.columns.map((c) => ({
+                      id: c.id,
+                      name: c.name,
+                      type: c.type,
+                    })),
+                  })),
+                  relationships: data.relationships,
+                },
+                null,
+                2,
+              )}
+            </pre>
+          </details>
+          {result && (
+            <>
+              <p>
+                {result.totalRows} result rows
+                {result.truncated ? " (preview truncated)" : ""}
+              </p>
+              <div className="structured-scroll">
+                <table>
+                  <thead>
+                    <tr>
                       {result.columns.map((c) => (
-                        <td key={c.id}>{String(row[c.id] ?? "∅")}</td>
+                        <th key={c.id}>{c.id}</th>
                       ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <button
-              className="button"
-              onClick={() => {
-                const url = URL.createObjectURL(
-                  new Blob([JSON.stringify(result, null, 2)], {
-                    type: "application/json",
-                  }),
-                );
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = "structured-analysis.json";
-                a.click();
-                setTimeout(() => URL.revokeObjectURL(url), 1000);
-              }}
-            >
-              Download result and evidence
-            </button>
-            <pre>{JSON.stringify(result.warnings, null, 2)}</pre>
-          </>
-        )}
+                  </thead>
+                  <tbody>
+                    {result.rows.map((row, i) => (
+                      <tr key={i}>
+                        {result.columns.map((c) => (
+                          <td key={c.id}>{String(row[c.id] ?? "∅")}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <button
+                className="button"
+                onClick={() => {
+                  const url = URL.createObjectURL(
+                    new Blob([JSON.stringify(result, null, 2)], {
+                      type: "application/json",
+                    }),
+                  );
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = "structured-analysis.json";
+                  a.click();
+                  setTimeout(() => URL.revokeObjectURL(url), 1000);
+                }}
+              >
+                Download result and evidence
+              </button>
+              <pre>{JSON.stringify(result.warnings, null, 2)}</pre>
+            </>
+          )}
+        </details>
       </details>
     </section>
   );

@@ -19,6 +19,14 @@ export const mappingSchema = z
       z.enum(["text", "number", "date", "boolean"]),
     ),
     confirmed: z.boolean(),
+    headerReviewed: z.boolean().optional(),
+    reviewedColumns: z
+      .array(z.string().regex(/^c[1-9][0-9]*$/))
+      .max(128)
+      .optional(),
+    dateFormats: z
+      .record(z.string().regex(/^c[1-9][0-9]*$/), z.enum(["DMY", "MDY"]))
+      .optional(),
     useCachedFormulas: z.boolean(),
     partitionColumns: z.array(z.string().regex(/^c[1-9][0-9]*$/)).max(8),
   })
@@ -49,11 +57,23 @@ function infer(values: Value[]): ColumnType {
     return "number";
   return "text";
 }
-export function convert(value: Value, type: ColumnType): Value {
+export function convert(
+  value: Value,
+  type: ColumnType,
+  dateFormat?: "DMY" | "MDY",
+): Value {
   if (value === null || value === "") return null;
   if (type === "text") return String(value);
-  if (type === "date")
-    return typeof value === "string" && isDate(value) ? value : null;
+  if (type === "date") {
+    if (typeof value !== "string") return null;
+    if (isDate(value)) return value;
+    const match = value.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+    if (!match || !dateFormat) return null;
+    const day = dateFormat === "DMY" ? match[1] : match[2];
+    const month = dateFormat === "DMY" ? match[2] : match[1];
+    const iso = `${match[3]}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    return isDate(iso) ? iso : null;
+  }
   if (type === "boolean")
     return typeof value === "boolean"
       ? value
@@ -144,7 +164,7 @@ export function profile(dataset: Pick<Dataset, "sheet" | "mapping">) {
     names.add(name);
     const raw = records.map((r) => read(r.cells[i]));
     const type = mapping.types[id] ?? infer(raw);
-    const values = raw.map((v) => convert(v, type));
+    const values = raw.map((v) => convert(v, type, mapping.dateFormats?.[id]));
     const invalid = raw.filter(
       (v, j) => v !== null && v !== "" && values[j] === null,
     ).length;
@@ -186,13 +206,21 @@ export function profile(dataset: Pick<Dataset, "sheet" | "mapping">) {
       ...(sorted.length ? { min: sorted[0], max: sorted.at(-1) } : {}),
     };
   });
-  for (const id of [...Object.keys(mapping.types), ...mapping.partitionColumns])
+  for (const id of [
+    ...Object.keys(mapping.types),
+    ...mapping.partitionColumns,
+    ...Object.keys(mapping.dateFormats ?? {}),
+    ...(mapping.reviewedColumns ?? []),
+  ])
     if (!columns.some((c) => c.id === id))
       throw new AnalysisError(`Unknown mapping column ${id}.`);
   const rows = records.map((r) => ({
     sourceRow: r.sourceRow,
     values: Object.fromEntries(
-      columns.map((c, i) => [c.id, convert(read(r.cells[i]), c.type)]),
+      columns.map((c, i) => [
+        c.id,
+        convert(read(r.cells[i]), c.type, mapping.dateFormats?.[c.id]),
+      ]),
     ) as Record<string, Value>,
   }));
   const seen = new Set<string>();

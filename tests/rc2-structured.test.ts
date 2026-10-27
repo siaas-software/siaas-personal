@@ -7,11 +7,7 @@ import { join } from "node:path";
 import { LocalDatabase } from "../src/lib/local/database";
 import { LOCAL_USER_ID } from "../src/lib/runtime";
 import { saveImportedFile } from "../src/lib/local/knowledge";
-import {
-  datasets,
-  importStructured,
-  updateMapping,
-} from "../src/lib/structured/store";
+import { datasets, importStructured } from "../src/lib/structured/store";
 import { planningCatalog, planQuestion } from "../src/lib/structured/planner";
 import { structuredChat } from "../src/lib/structured/chat";
 import { queryStructured } from "../src/lib/structured/service";
@@ -42,11 +38,12 @@ async function fixture() {
   saveImportedFile(db, id, bytes);
   await importStructured(db, id);
   const [d] = datasets(db, assistant.id);
-  updateMapping(db, assistant.id, d.id, {
-    ...d.mapping,
-    confirmed: true,
-    partitionColumns: ["c4"],
-  });
+  assert.equal(
+    d.mapping.confirmed,
+    true,
+    "CSV must be available without manual mapping",
+  );
+  assert.deepEqual(d.mapping.partitionColumns, ["c4"]);
   const plan = {
     stages: [
       {

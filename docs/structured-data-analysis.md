@@ -28,18 +28,30 @@ modified. Existing path validation and local Origin/desktop-key checks remain.
 
 ## Mapping and profiling
 
-Open Structured Data Analysis in Knowledge. Review the provisional header row
-(0 means no header), dataset name, column IDs, inferred types, missing/invalid
-counts, distinct counts, duplicates and preview. Original filename, worksheet,
-source row, column position and file SHA-256 are preserved. Column IDs (`c1`,
-`c2`, etc.) stay unambiguous even when headers are missing or duplicated. The
-first populated all-text row is a provisional header, not a confident semantic
-interpretation. Confirm it explicitly. Use **Apply header and infer types** to
-preview a different header before confirmation.
+Upload a file and ask a question in Chat. Ordinary rectangular XLSX/CSV tables
+are prepared automatically: sheet discovery, header and type detection, common
+currency/unit partitions, profiling and local persistence. Knowledge shows the
+filename, readiness, dataset/row/column counts, warnings and a concise preview.
+No mapping confirmation is required for high-confidence files.
+
+When interpretation is unsafe, answer the focused question: choose a header row,
+choose day/month or month/day order, keep mixed values as text, or explicitly
+accept saved formula results. Missing formula results and Excel errors require
+correcting the source. A ready file can still contain missing values or duplicate
+records; these remain visible and are not silently replaced or removed.
+
+**Advanced Settings** retains dataset naming, headers, column types, partitions,
+relationships, cardinality, raw/formula metadata, the deterministic Query editor,
+JSON inspection and result/evidence downloads. Original filename, worksheet,
+source rows and SHA-256 are preserved. IDs stay stable for an unchanged worksheet
+within the same imported document, including a refresh; relationships are
+invalidated when source data changes.
 
 Supported types: text, number, ISO date (`YYYY-MM-DD`) and boolean. Keep codes
-with leading zeros as text. Ambiguous locale numbers/dates are not silently
-converted; correct the source or map as text. Numeric strings retain decimal
+with leading zeros as text. Ambiguous locale numbers are not silently converted; correct the source or keep
+them as text. Slash/dash dates with a four-digit year can be interpreted after
+choosing DMY or MDY; impossible dates are rejected. YYYY-MM remains a monthly text
+dimension and is filtered/grouped directly. Numeric strings retain decimal
 precision. Excel numeric cells already have the workbook's binary precision.
 Currency/unit fields must be marked as partitions; common currency/unit header
 names are detected and cannot be silently unmarked. Other unit columns require
@@ -55,13 +67,15 @@ null, not zero; aggregation reports exclusions and returns null for an empty sum
 
 ## Relationships and queries
 
-After confirming both mappings, configure a directed relationship with dataset
-IDs, column keys and expected cardinality. Types must match; declared unique
+Ready datasets with matching labels/types and overlapping key values can offer
+optional relationship suggestions. Confirm their business meaning before joining;
+matching labels alone do not authorize a join. Advanced Settings also permits a
+directed relationship with dataset IDs, column keys and expected cardinality. Types must match; declared unique
 sides are validated. Missing/unmatched left keys are reported. Many-to-many joins
 require explicit selection and can multiply records; aggregate at the intended
 grain. Changing any mapping deletes its relationships for review. Source changes
-replace derived datasets, invalidate mappings/relationships and require renewed
-confirmation. Every query rechecks linked files for changes/unavailability.
+refresh derived datasets, rerun automatic interpretation and invalidate saved
+relationships; ambiguous interpretations require clarification. Every query rechecks linked files for changes/unavailability.
 
 Plans contain up to six stages; each starts from an authorized dataset and has
 at most twelve steps. Operations: filter (`eq`, `ne`, comparisons, contains,
@@ -95,7 +109,8 @@ Input ranges are labeled as input coverage, not fabricated per-output lineage.
 
 ## Ollama, tools and hybrid Knowledge
 
-When datasets exist, Chat first asks the selected **local** Ollama model for a
+General greetings and standalone arithmetic bypass structured planning. For other
+requests when datasets exist, Chat asks the selected **local** Ollama model for a
 schema-constrained JSON plan using only bounded schemas, not entire spreadsheets.
 The model may request clarification or identify a narrative question. Validated
 query plans execute deterministically; errors are displayed without substituting
@@ -106,14 +121,12 @@ shown plan and evidence for high-impact decisions. The server cannot prove a
 model's interpretation matches the user's intended business semantics.
 
 Native agents also have `inspect_datasets` and `query_datasets` scoped tools.
-After successful execution, the exact table is emitted before an explicitly
-labeled AI explanation. Existing semantic/lexical Knowledge can supply narrative
-instructions for the explanation. No optional Docker research service or internet
-fallback is invoked for the structured path. Explanation failure preserves the
-computed result. Narrative-only questions keep the existing Knowledge workflow.
-Conversation history retains the plan/result evidence and report. Structured
-rows are never embedded or exported with project templates. The model sees at
-most bounded output rows; it must not infer omitted rows or recompute totals.
+After successful execution, answers contain the deterministic table, readable
+column labels, exact values and source/operation evidence. A single measure and
+currency can be shown as `35 EUR`. Related document excerpts are supplied separately;
+there is no unconstrained second model explanation that can contradict the table.
+General conversation and document-only requests use the existing chat/RAG flow.
+Invalid model plans cannot generate fallback totals.
 
 ## Official templates
 

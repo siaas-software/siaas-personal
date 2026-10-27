@@ -84,3 +84,46 @@ bloccato da ECONNREFUSED sulla porta locale 11434. La causa esatta dell'errore
 Windows «planner unavailable» non è stata riprodotta. Non viene dichiarata una
 validazione reale Qwen3. Importazione automatica e verifiche grafiche/native
 restano da completare prima della pubblicazione. Main e sito pubblico invariati.
+
+## Phase 2: automatic import (2026-10-27)
+
+Phase 1 merged via PR #7 at 0ea75ff9ae28acf53ab3f65b3a6b139ebaf74de8.
+
+Ordinary CSV/XLSX worksheets now become confirmed/ready automatically when headers,
+types and common currency/unit partitions are unambiguous. Metadata and worksheet
+identity are persisted locally. Original bytes remain unchanged. A title/preamble
+can precede the detected full header. Missing cells and duplicates remain visible.
+
+Focused clarification handles uncertain headers, slash dates (DMY/MDY), mixed or
+locale-formatted values and saved formula results. Invalid dates and missing
+formula caches cannot be accepted as valid results. Numeric locale ambiguity can
+be retained as text or corrected in the source/Advanced Settings; no universal
+locale-number conversion is claimed. Formula values are inferred only after
+explicit cache consent. Multiple currencies are safe partition dimensions, not
+silently converted or summed together.
+
+The normal Knowledge view shows filenames, readiness, counts, warnings and a
+preview. All former technical controls remain under collapsed Advanced Settings.
+Optional candidate relationships compare column labels/types, overlap and observed
+uniqueness, but require confirmation of business meaning before execution. They
+are suggestions, not automatically authorized joins. Many-to-many remains advanced.
+
+Validation:
+- PASS: typecheck; desktop standalone/parser build.
+- PASS: full unit suite 160/160, followed by focused import suite 7/7 after adding
+  the official workbook regression (161 distinct tests in the combined suite).
+- PASS: standalone structured API with zero-config ordinary CSV/XLSX, currency
+  partition enforcement, persisted results and simulated Ollama.
+- PASS: official sample inventory shortages A=2/B=-4; BOM requirement M1=25 and
+  material shortage=5 with operations.xlsx evidence. Finance EUR income=100,
+  EUR expenses=30, USD expenses=4, separate. Budget=35 EUR through real engine
+  with simulated planning and no mapping call.
+- PASS: focused date clarification and SQLite reopen; model-free multi-sheet
+  import; formulas missing/present; suggested relationship confirmation.
+- BLOCKED: actual graphical browser acceptance. Bundled and primary runtime
+  Chromium downloads were invalid ZIPs; no executable installed. apt bootstrap
+  failed on setgroups/setegid/seteuid restrictions. No screenshot is claimed.
+- BLOCKED: real Ollama as in Phase 1. Windows/macOS native checks remain NOT RUN.
+
+Advanced settings are kept, not deleted. The user-facing guide is updated in
+English plus docs/zero-config-import-it.md. No public website files are changed.
