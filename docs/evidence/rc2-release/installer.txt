@@ -1,0 +1,17 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> siaas-personal@1.1.0-rc.2 test:installer
+> node --test tests/installer.test.cjs
+
+✔ Ollama compatibility and loopback policy (1.797902ms)
+✔ package support and archive path validation (0.340724ms)
+✔ download rejects corruption and unexpected origins before execution (18.827747ms)
+✔ existing compatible service is reused and never stopped; old service is preserved (39.701802ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 241.680005

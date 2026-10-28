@@ -1,12 +1,13 @@
 # RC2 Windows acceptance / Verifica Windows RC2
 
-**RC2 is not published. / RC2 non è pubblicata.** This checklist is prepared for
-`v1.1.0-rc.2`; it is not evidence of a successful Windows test. Do not run the
-publication installer section until that exact prerelease exists. Stable installation
-and its profile must remain unchanged. Current engineering evidence and limitations:
-[rc2-validation.md](rc2-validation.md).
+Acceptance checklist for **v1.1.0-rc.2**, a prerelease under the
+[permanent RC publication policy](rc-publication-policy.md). Environmental checks
+are post-publication manual acceptance activities and remain BLOCKED/NOT RUN until
+executed. This document is not evidence of a successful Windows test. Stable
+installation/profile remain unchanged. See [current readiness](releases/1.1.0-rc.2-readiness.md)
+and [historical engineering evidence](rc2-validation.md).
 
-## Before publication / Prima della pubblicazione
+## Native acceptance / Verifica nativa successiva alla pubblicazione
 
 Use a Windows checkout of the reviewed RC2 candidate with Node 24+ and the existing
 local Ollama installation. Record commit, Windows version, PowerShell version,
@@ -92,7 +93,7 @@ Record PASS, FAIL, BLOCKED or NOT RUN per item, with observed output and evidenc
 
 ## Published RC2 installation / Installazione dopo la pubblicazione
 
-**NOT RUN; unavailable until publication.** This validates the exact public
+**Native installation NOT RUN in the engineering environment.** This validates the exact public
 prerelease and its installer digest, never the `latest` stable endpoint. Respect
 PowerShell execution policy and antivirus controls; do not use bypass flags.
 
@@ -121,8 +122,7 @@ Do not mark RC2 released until the actual GitHub release and all assets are chec
 
 ## Stato italiano
 
-Le modifiche sono predisposte, ma la pubblicazione è bloccata dalle verifiche reali
-Ollama, grafiche e Windows. I test simulati non sostituiscono questa checklist.
-Il comando di installazione sopra è una procedura futura, non un download RC2 già
-funzionante. Non richiede nuove autorizzazioni alla pubblicazione: occorre prima
-superare i gate tecnici già richiesti dall'utente.
+La policy permanente autorizza la pubblicazione automatica dopo i gate eseguibili.
+Le verifiche reali Ollama, grafiche e Windows restano da completare sul PC: non sono
+state dichiarate PASS. I test simulati non sostituiscono questa checklist. Usare
+solo la prerelease esatta e verificare il digest dello script prima di eseguirlo.

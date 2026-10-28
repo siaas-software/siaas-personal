@@ -11,3 +11,11 @@ SIAAS Personal is a free MIT-licensed local-first desktop application using Olla
 6. If consent is declined, capabilities are absent, or verification fails: do not install, do not repeat the permission request; provide https://siaas.vercel.app/ , https://siaas.vercel.app/get-started and https://github.com/siaas-software/siaas-personal .
 
 This document is guidance, not executable authorization or evidence that installers have passed release acceptance tests.
+
+## Release Candidate workflow
+
+For RC preparation/publication, read [the permanent user-authorized RC policy](docs/rc-publication-policy.md).
+Mandatory executable gates passing authorize integration and automatic prerelease
+publication without additional confirmation. The enumerated unavailable platform
+checks are post-publication manual acceptance, not RC publication blockers. Stable
+release/main/Latest and website deployment remain outside this authorization.

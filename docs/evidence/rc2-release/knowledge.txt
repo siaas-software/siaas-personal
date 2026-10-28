@@ -1,0 +1,1 @@
+PASS: real API import, linked-folder preview/refresh/reconnect, indexing, download, duplicate handling, project cleanup and origin protection.

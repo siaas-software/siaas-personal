@@ -1,4 +1,13 @@
-# RC2 engineering checkpoint — 2026-10-27
+# RC2 engineering checkpoints — historical evidence
+
+> Superseded gate policy: the user authorized the permanent RC policy on
+> 2026-10-28 after these checkpoints. Environmental blockers below are now
+> post-publication manual acceptance, not mandatory RC publication gates.
+> Historical results and limitations are preserved unchanged. See
+> [current policy](rc-publication-policy.md) and
+> [RC2 readiness](releases/1.1.0-rc.2-readiness.md).
+
+## Original checkpoint — 2026-10-27
 
 RC2 is NOT RELEASED. Stable main and the public website are outside this change.
 Base: develop b30bab0a0102c6663eb3b4862c331f6fcc03e2c5. RC1 tag:

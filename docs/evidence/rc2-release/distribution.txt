@@ -1,0 +1,29 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> siaas-personal@1.1.0-rc.2 test:distribution
+> node --test tests/distribution.test.mjs tests/docker-prerequisites.test.mjs tests/source-manager.test.mjs
+
+✔ all six platforms resolve validated public assets without authentication (11.1169ms)
+✔ missing public release and unsupported platform have actionable errors (0.841269ms)
+✔ manifest rejects tampered URLs, hashes, sizes and runtime target (0.892827ms)
+✔ child environment uses explicit runtime without changing global Node or NVM (0.276798ms)
+✔ corrupt or missing runtime fails before executing it (9.901557ms)
+✔ explicit RC versions validate while stable discovery rejects prereleases (1.21346ms)
+✔ missing Docker produces actionable OS-specific errors without starting or installing it (2.614845ms)
+✔ missing Compose and stopped daemon are distinguished (0.326523ms)
+✔ process execution failures and timeouts have friendly diagnostics (0.202636ms)
+✔ healthy Docker probes only prerequisites (0.327754ms)
+✔ unsupported Docker capability: windows (0.39795ms)
+✔ unsupported Docker capability: old (0.250588ms)
+✔ unsupported Docker capability: architecture (0.236266ms)
+✔ unsupported Docker capability: invalid (0.306863ms)
+✔ async detection distinguishes permission, missing CLI, Compose and stopped Engine without any mutations (0.493815ms)
+✔ managed source installation stages updates, retains matching rollback, and preserves state after failed builds (6106.78634ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6225.753528

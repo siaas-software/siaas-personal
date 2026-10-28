@@ -46,7 +46,7 @@ writeFileSync(
   ) + "\n",
 );
 console.log(
-  "Created local source.zip and install.json artifacts in dist-source. Publication requires separate authorization.",
+  "Created local source.zip and install.json artifacts in dist-source. Publication follows the applicable release policy; this script does not publish.",
 );
 const assets = [prefix + "-source.zip", prefix + "-install.json"];
 for (const extension of ["ps1", "sh"]) {
@@ -71,6 +71,14 @@ if (pkg.version.includes("-rc.")) {
   writeFileSync(join("dist-source","rc-manifests.json"),JSON.stringify(all,null,2)+"\n");
   writeFileSync(join("dist-source","rc-manifests.tsv"),lines.join("\n")+"\n");
   assets.push("rc-manifests.json","rc-manifests.tsv");
+  for (const [source, name] of [
+    [`docs/releases/${pkg.version}.md`, "RELEASE_NOTES.md"],
+    [`docs/releases/${pkg.version}-readiness.md`, "READINESS.md"],
+    [`docs/releases/${pkg.version}-windows.md`, "WINDOWS_TESTING.md"],
+  ]) {
+    copyFileSync(source, join("dist-source", name));
+    assets.push(name);
+  }
   for(const ext of ["ps1","sh"]){const name="install-rc."+ext;copyFileSync("scripts/"+name,join("dist-source",name));assets.push(name);}
 }
 
