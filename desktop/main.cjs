@@ -24,6 +24,7 @@ const userDataDirectory = app.commandLine.getSwitchValue("user-data-dir") ||
 mkdirSync(userDataDirectory, { recursive: true });
 app.setPath("userData", userDataDirectory);
 app.setName("SIAAS Personal");
+if (process.platform === "win32") app.setAppUserModelId("it.siaas.desktop");
 let backend,
   win,
   shuttingDown = false;
@@ -163,7 +164,14 @@ async function start() {
       },
     }),
   );
+  const iconDirectory = app.isPackaged
+    ? join(process.resourcesPath, "branding")
+    : join(__dirname, "..", "build");
+  const icon = join(iconDirectory, process.platform === "win32" ? "icon.ico" : "icon.png");
+  if (!existsSync(icon)) throw new Error("SIAAS application icon is missing from the installation.");
+  if (process.platform === "darwin") app.dock?.setIcon(join(iconDirectory, "icon.png"));
   win = new BrowserWindow({
+    icon,
     title: "SIAAS Personal",
     width: 1360,
     height: 900,

@@ -41,7 +41,10 @@
     "test:actions:ui": "node tests/actions-ui.mjs",
     "test:structured": "node --import tsx --test tests/structured.test.ts",
     "test:structured:api": "node tests/structured-api.mjs",
-    "test:structured:ui": "node tests/structured-api.mjs --ui"
+    "test:structured:ui": "node tests/structured-api.mjs --ui",
+    "icons:generate": "node scripts/generate-icons.mjs",
+    "icons:check": "node scripts/generate-icons.mjs --check",
+    "icons:verify-windows": "node scripts/verify-windows-icon.mjs"
   },
   "keywords": [],
   "author": "Davide Abbatiello",
@@ -76,6 +79,8 @@
     "esbuild": "0.28.2",
     "playwright": "1.63.0",
     "prettier": "3.9.9",
+    "resedit": "1.7.2",
+    "sharp": "0.35.5",
     "tar": "7.5.22",
     "tsx": "4.23.15",
     "typescript": "7.0.2"

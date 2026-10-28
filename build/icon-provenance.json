@@ -1,0 +1,20 @@
+{
+  "source": "src/app/icon.svg",
+  "sourceSha256": "4dac19517fb7e1fd4beb72203884f5c4cc60b2569a3e55ab3b60afab9322f470",
+  "generator": "scripts/generate-icons.mjs",
+  "sharpVersion": "0.35.5",
+  "icons": {
+    "icon.png": {
+      "sha256": "63c3e5026fe54c7dd3f64f99270fdb16ed4f321ba6cca6cbe4a87f3d21176602",
+      "bytes": 57391
+    },
+    "icon.ico": {
+      "sha256": "3bbb4ceeabbe004fb7cba7dc194acd2488812955ff356ed061c28e6900571c27",
+      "bytes": 19274
+    },
+    "icon.icns": {
+      "sha256": "161b1f83be230ea5c299fe0a505bfb983bcf7f8af16633ac010eac6dca109229",
+      "bytes": 96440
+    }
+  }
+}

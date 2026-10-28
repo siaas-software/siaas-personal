@@ -1,0 +1,128 @@
+# RC2 Windows acceptance / Verifica Windows RC2
+
+**RC2 is not published. / RC2 non è pubblicata.** This checklist is prepared for
+`v1.1.0-rc.2`; it is not evidence of a successful Windows test. Do not run the
+publication installer section until that exact prerelease exists. Stable installation
+and its profile must remain unchanged. Current engineering evidence and limitations:
+[rc2-validation.md](rc2-validation.md).
+
+## Before publication / Prima della pubblicazione
+
+Use a Windows checkout of the reviewed RC2 candidate with Node 24+ and the existing
+local Ollama installation. Record commit, Windows version, PowerShell version,
+Ollama version, model tag/digest, CPU/GPU, context and elapsed time. Use synthetic
+files in `examples/structured-analysis`; do not submit private user documents as
+release evidence. Keep the annotated reference screenshot private.
+
+```powershell
+npm ci
+npm run typecheck
+npm test
+npm run icons:check
+npm run desktop:build
+npm run desktop:prepare
+npx --no-install electron-builder --config electron-builder.cjs --win --dir --publish never
+npm run icons:verify-windows -- 'dist/win-unpacked/SIAAS Personal.exe'
+$env:SIAAS_PACKAGED_EXECUTABLE = (Resolve-Path 'dist/win-unpacked/SIAAS Personal.exe').Path
+npm run test:package
+$env:SIAAS_REAL_MODEL = 'qwen3:8b'
+node --import tsx tests/real-structured-api.mjs
+npm run test:structured:ui
+```
+
+The existing real-model script tests SUM on orders.csv. It does **not** replace the
+Italian budgets questions below, generic instruction-following or all manual gates.
+The structured UI test uses simulated model responses to hold the loading state;
+its screenshots establish UI behavior only, not real model accuracy. Save the
+Windows PE check JSON and screenshots with the tested commit and executable SHA-256.
+
+## Functional and visual checklist / Checklist funzionale e visiva
+
+Record PASS, FAIL, BLOCKED or NOT RUN per item, with observed output and evidence.
+
+1. Launch the packaged application with an isolated disposable RC profile. Create
+   a project and assistant, select the local Qwen3 8B model, and import budgets.csv.
+   No mapping clicks: expect ready, 1 dataset, 1 row, 4 columns.
+2. Ask each in a new conversation. All analytical results must be **35 EUR** with
+   budgets.csv, Month, Category, Budget, Currency and applied filters in evidence:
+   - `Qual è il budget totale della categoria Food nel mese di ottobre 2026?`
+   - `Nel dataset budgets, filtra Category = Food e Month = 2026-10. Restituisci Budget per Currency = EUR.`
+   - `Quanto ho previsto per il cibo a ottobre?`
+3. Ask `Quanto fa 2 + 2?` with and without spreadsheets: expect **4**, without an
+   error requiring Knowledge. A chat-only assistant instructed to answer in Italian
+   must follow a simple instruction coherently.
+4. Request a nonexistent column. Expect a controlled error/clarification showing
+   authoritative available columns and no invented result. Stop Ollama and retry:
+   expect an availability error, not fabricated schema or numbers. Automated invalid
+   JSON/timeout/cancellation cases remain in rc2-structured.test.ts.
+5. Import operations.xlsx: Inventory, BOM and Materials should appear automatically.
+   Import orders.csv, explicitly confirm the meaningful suggested relationships,
+   and verify shortages A=2, B=-4 (4 spare), M1 requirement=25 and shortage=5.
+   Confirm units and recipe assumptions. Never silently authorize inferred joins.
+6. Personal Finance: import transactions.csv and budgets.csv. Expect EUR income=100,
+   expenses=30, balance=70; USD expenses=4 separately. Food budget remaining=5 EUR.
+   Never sum currencies without an explicit conversion and valid rate source.
+7. Import duplicate and missing-value samples. Verify COUNT/SUM/AVG/MIN/MAX,
+   filters/sorting, date grouping and duplicate candidates against source records.
+8. Import `Date,Amount` with a row `01/02/2026,10`. Expect a focused date-order choice
+   before analysis. Verify chosen DMY/MDY conversion persists. Mixed numbers or missing
+   formula caches must not become zero or silently pass as valid numeric data.
+9. Advanced Settings starts collapsed and retains header/types/partitions,
+   relationships/cardinality, formulas, JSON query editor, exports and evidence.
+10. Close/reopen the application. Projects, assistants, imports, mappings, relationships,
+    conversations and evidence persist; another assistant cannot read those datasets.
+11. Import a PDF and retrieve/summarize it. Test a mixed document/table question:
+    numeric results must come from execution and document excerpts must cite sources.
+    Verify Actions, Shortcuts and templates still work, preserving assistant instructions.
+12. Switch among lavender, mint and sky projects, then switch back. Outer backgrounds
+    follow project palettes. Knowledge, chat including shortcuts, footer and avatar
+    containers are white; functional green selections/status/buttons remain green.
+13. Test idle, empty/disabled and active generation. Active send-button background is
+    neutral light gray; the complete original hand/star mascot is visible, two green
+    stars alternate, dimensions/padding stay stable. Reduced motion disables animation.
+    Verify navigation/cancellation does not leave an active generation stuck.
+14. Inspect title bar, taskbar, Explorer and executable Properties: official hand with
+    green stars, no old S. First test from a fresh version directory; unpin an old RC
+    taskbar shortcut and re-pin the tested executable if needed. Restart Explorer or
+    sign out/in if Windows retains cached icons. Do not delete user data or disable
+    OS protections. PE resource verification and shell visual inspection are separate gates.
+15. Test separate RC installation, update, failed-update recovery and rollback. Check
+    stable installation path/profile hashes before and after; do not overwrite stable
+    data or use the stable launcher for the RC profile.
+
+## Published RC2 installation / Installazione dopo la pubblicazione
+
+**NOT RUN; unavailable until publication.** This validates the exact public
+prerelease and its installer digest, never the `latest` stable endpoint. Respect
+PowerShell execution policy and antivirus controls; do not use bypass flags.
+
+```powershell
+$SiaasTag = 'v1.1.0-rc.2'
+$SiaasRelease = Invoke-RestMethod "https://api.github.com/repos/siaas-software/siaas-personal/releases/tags/$SiaasTag"
+if (-not $SiaasRelease.prerelease -or $SiaasRelease.draft -or $SiaasRelease.tag_name -cne $SiaasTag) { throw 'Expected public RC2 prerelease' }
+$SiaasAsset = @($SiaasRelease.assets | Where-Object name -CEQ 'install-rc.ps1')
+if ($SiaasAsset.Count -ne 1 -or $SiaasAsset[0].digest -cnotmatch '^sha256:[a-f0-9]{64}$') { throw 'Missing verified installer' }
+$SiaasScript = Join-Path $env:TEMP ('siaas-rc2-' + [guid]::NewGuid().ToString('N') + '.ps1')
+Invoke-WebRequest -UseBasicParsing $SiaasAsset[0].browser_download_url -OutFile $SiaasScript
+if ((Get-FileHash $SiaasScript -Algorithm SHA256).Hash.ToLowerInvariant() -cne $SiaasAsset[0].digest.Substring(7)) { throw 'Installer checksum mismatch' }
+$SiaasRcRoot = Join-Path $env:LOCALAPPDATA 'SIAAS Personal RC Source'
+if (Test-Path (Join-Path $SiaasRcRoot 'current.json')) { throw 'Existing RC: inspect/back up its profile before updating' }
+$env:SIAAS_RELEASE_TAG = $SiaasTag
+$env:SIAAS_INSTALL_DIR = $SiaasRcRoot
+& $SiaasScript
+if ($LASTEXITCODE -ne 0) { throw 'RC2 installation failed' }
+& (Join-Path $SiaasRcRoot 'launch-rc.cmd')
+```
+
+The RC profile is `$SiaasRcRoot\profile`, separate from stable `%APPDATA%\SIAAS`.
+Record anonymously downloaded asset sizes and SHA-256 against `rc-manifests.json`
+and checksums; verify all active RC2 version references and launch behavior.
+Do not mark RC2 released until the actual GitHub release and all assets are checked.
+
+## Stato italiano
+
+Le modifiche sono predisposte, ma la pubblicazione è bloccata dalle verifiche reali
+Ollama, grafiche e Windows. I test simulati non sostituiscono questa checklist.
+Il comando di installazione sopra è una procedura futura, non un download RC2 già
+funzionante. Non richiede nuove autorizzazioni alla pubblicazione: occorre prima
+superare i gate tecnici già richiesti dall'utente.

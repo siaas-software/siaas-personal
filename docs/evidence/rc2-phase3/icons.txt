@@ -1,0 +1,6 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> siaas-personal@1.0.0 icons:check
+> node scripts/generate-icons.mjs --check
+
+Verified PNG, multi-size ICO and ICNS from the original SIAAS SVG (4dac19517fb7e1fd4beb72203884f5c4cc60b2569a3e55ab3b60afab9322f470).

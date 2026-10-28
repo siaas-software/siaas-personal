@@ -460,6 +460,8 @@ try {
     await page
       .getByRole("heading", { name: "Structured Data Analysis", exact: true })
       .waitFor();
+    const { verifyRc2Visuals } = await import("./rc2-visual-checks.mjs");
+    await verifyRc2Visuals(page, api, projects[0], production, projects[1], finance);
     await page.getByText("Advanced Settings", { exact: true }).click();
     await page.locator(".structured-dataset summary").first().click();
     await page

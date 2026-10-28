@@ -2246,3 +2246,18 @@ textarea::placeholder {
 .structured-scroll table { border-collapse: collapse; width: 100%; font-size: .85rem; }
 .structured-scroll td, .structured-scroll th { padding: .5rem; border: 1px solid #d8dedb; text-align: left; min-width: 80px; }
 .structured-knowledge textarea { width: 100%; font-family: monospace; }
+
+/* RC2: palette belongs to the project shell; only its inner panels are white. */
+.app-shell .assistant-workbench .knowledge-panel,
+.app-shell .assistant-workbench .workbench-chat,
+.app-shell .assistant-workbench .chat-layout,
+.app-shell .assistant-workbench .shortcut-sidebar,
+.app-shell .assistant-icon,
+.app-shell .app-footer {
+  background-color: #FFFFFF;
+}
+/* Keep the original loading artwork readable despite the disabled send state. */
+.app-shell .send-button[aria-busy="true"] {
+  background-color: #e5e7eb;
+  opacity: 1;
+}

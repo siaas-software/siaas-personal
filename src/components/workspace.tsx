@@ -2547,7 +2547,8 @@ function Chat({
           />
           <button
             className="send-button"
-            aria-label="Send message"
+            aria-busy={streaming}
+            aria-label={streaming ? "Generating response" : "Send message"}
             disabled={!ready || !input.trim() || streaming || loading}
           >
             {streaming ? (
