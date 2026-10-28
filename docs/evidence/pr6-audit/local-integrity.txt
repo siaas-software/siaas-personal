@@ -1,0 +1,4 @@
+Command: node scripts/verify-source-release.mjs --directory=<audit>/audit-assets
+CWD: detached worktree at 84a1ffab4e5f339519bc80844d88ddcd573f561f
+Exit: 0
+PASS v1.1.0-rc.2: 12 payloads, SHA-256, source commit/version, six platform manifests and official runtime hashes; local artifacts only.

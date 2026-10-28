@@ -1,0 +1,6 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> siaas-personal@1.1.0-rc.2 test:knowledge
+> node tests/knowledge-api.mjs
+
+PASS: real API import, linked-folder preview/refresh/reconnect, indexing, download, duplicate handling, project cleanup and origin protection.

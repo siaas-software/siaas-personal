@@ -1,0 +1,6 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> siaas-personal@1.1.0-rc.2 test:actions:api
+> node tests/actions-api.mjs
+
+PASS: compiled desktop API, built-in protections, real SQLite CRUD/restart, preview confirmation/tampering/conflicts, builder error/scope gates with mock Ollama, exact Markdown in plain and agent chat, preserved instructions/context/model/tools, no later-turn instruction replay, deletion and origin protection.
