@@ -1,0 +1,15 @@
+✔ source updates work without an account, report failures and never install on check (8.332293ms)
+✔ preload exposes only local and update actions; listeners unsubscribe (2.302325ms)
+✔ renaming the app preserves the existing workspace directory (5.987055ms)
+✔ an explicit Electron profile stays isolated from existing user data (1.212109ms)
+✔ Windows uses the packaged application identity without changing the data profile (2.081551ms)
+✔ active source and distributions have no removed SDK, account bridge or Skills loader (18.505225ms)
+✔ source status and rollback keep personal data and do not create removed feature directories (1312.941995ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1456.257871

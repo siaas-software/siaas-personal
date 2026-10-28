@@ -1,0 +1,24 @@
+✔ all six platforms resolve validated public assets without authentication (11.623503ms)
+✔ missing public release and unsupported platform have actionable errors (1.140221ms)
+✔ manifest rejects tampered URLs, hashes, sizes and runtime target (1.554847ms)
+✔ child environment uses explicit runtime without changing global Node or NVM (0.345582ms)
+✔ corrupt or missing runtime fails before executing it (16.37541ms)
+✔ explicit RC versions validate while stable discovery rejects prereleases (1.952357ms)
+✔ missing Docker produces actionable OS-specific errors without starting or installing it (3.434323ms)
+✔ missing Compose and stopped daemon are distinguished (0.423149ms)
+✔ process execution failures and timeouts have friendly diagnostics (0.204719ms)
+✔ healthy Docker probes only prerequisites (0.240893ms)
+✔ unsupported Docker capability: windows (0.292982ms)
+✔ unsupported Docker capability: old (0.366873ms)
+✔ unsupported Docker capability: architecture (0.436529ms)
+✔ unsupported Docker capability: invalid (0.263037ms)
+✔ async detection distinguishes permission, missing CLI, Compose and stopped Engine without any mutations (0.323037ms)
+✔ managed source installation stages updates, retains matching rollback, and preserves state after failed builds (6447.962204ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6562.530266
