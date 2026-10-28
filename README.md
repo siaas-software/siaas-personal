@@ -29,6 +29,15 @@ No paid AI API is required for normal Personal usage. AI execution, documents, c
 
 Every assistant uses a unified local-documents → configured-websites workflow. Websites are consulted on demand only when deterministic source routing calls for them. Advanced Reasoning (Beta) and Advanced Web Research (Beta) are independent optional Docker-based features, both off by default in Settings → Experimental Features. Normal chat, local knowledge, selected websites and standard agents work without Docker. See the [research guide](docs/research-en.md).
 
+## Release Candidate testing
+
+The **v1.1.0-rc.2** testing candidate uses a separate RC installation and profile;
+standard installation still selects stable releases. See the [RC2 notes](docs/releases/1.1.0-rc.2.md),
+[Windows checklist](docs/windows-rc2-testing.md), [test evidence](docs/releases/1.1.0-rc.2-readiness.md)
+and [permanent RC publication policy](docs/rc-publication-policy.md).
+Environmental tests marked BLOCKED/NOT RUN are manual acceptance activities, not
+claims of native or real-model validation. RC2 is not a stable promotion.
+
 ## Product principles
 
 ### Local-first privacy

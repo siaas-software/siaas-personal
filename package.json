@@ -1,6 +1,6 @@
 {
   "name": "siaas-personal",
-  "version": "1.0.0",
+  "version": "1.1.0-rc.2",
   "description": "SIAAS Personal — local-first AI assistants with isolated knowledge",
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
@@ -44,7 +44,8 @@
     "test:structured:ui": "node tests/structured-api.mjs --ui",
     "icons:generate": "node scripts/generate-icons.mjs",
     "icons:check": "node scripts/generate-icons.mjs --check",
-    "icons:verify-windows": "node scripts/verify-windows-icon.mjs"
+    "icons:verify-windows": "node scripts/verify-windows-icon.mjs",
+    "release:verify-source": "node scripts/verify-source-release.mjs"
   },
   "keywords": [],
   "author": "Davide Abbatiello",

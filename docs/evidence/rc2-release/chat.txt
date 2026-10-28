@@ -1,0 +1,1 @@
+PASS: isolated desktop bundle; normal chat and RAG; agent eligibility; three-tool loop; scoped documents; report download; SQLite persistence.

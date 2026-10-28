@@ -1,0 +1,101 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> siaas-personal@1.1.0-rc.2 test:research
+> node --import tsx --test tests/research*.test.ts tests/morphic.test.mjs tests/morphic-http.test.mjs tests/research-lifecycle.test.mjs tests/docker-prerequisites.test.mjs
+
+✔ missing Docker produces actionable OS-specific errors without starting or installing it (2.072607ms)
+✔ missing Compose and stopped daemon are distinguished (0.61621ms)
+✔ process execution failures and timeouts have friendly diagnostics (0.437109ms)
+✔ healthy Docker probes only prerequisites (0.222606ms)
+✔ unsupported Docker capability: windows (0.326513ms)
+✔ unsupported Docker capability: old (0.157768ms)
+✔ unsupported Docker capability: architecture (0.180973ms)
+✔ unsupported Docker capability: invalid (0.254193ms)
+✔ async detection distinguishes permission, missing CLI, Compose and stopped Engine without any mutations (0.6829ms)
+✖ Morphic HTTP authentication, dependency health, timeout, recovery and process restart (287.570997ms)
+node:internal/modules/package_json_reader:331
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'ai' imported from <repo>/services/morphic/adapter.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:331:9)
+    at packageResolve (node:internal/modules/esm/resolve:784:25)
+    at moduleResolve (node:internal/modules/esm/resolve:873:18)
+    at defaultResolve (node:internal/modules/esm/resolve:1006:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:705:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:725:38)
+    at nextStep (node:internal/modules/customization_hooks:189:26)
+    at resolveBaseSync (file://<repo>/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:11092)
+    at resolveDirectorySync (file://<repo>/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:12398)
+    at resolveTsPathsSync (file://<repo>/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:13605) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v24.22.1
+✖ tests/morphic.test.mjs (140.01799ms)
+✔ reasoning setup preserves legacy token during data-directory migration and targets only its service (716.579521ms)
+✔ standard workflow always consults configured websites when local coverage is incomplete, without either Beta (5.695662ms)
+✔ deterministic local coverage avoids website requests without Docker, while fresh information forces configured consultation (0.718925ms)
+✔ greetings and explicit local-only requests never trigger website or generic Internet requests (0.986718ms)
+✔ standard consultation precedes optional reasoning and web fallback, preserving all source order and citations (1.133249ms)
+✔ assistant OFF and global OFF independently prevent arbitrary Internet search (0.661238ms)
+✔ reasoning is independent of assistant discovery; web still works when reasoning is off or fails (1.141322ms)
+✔ sufficient reasoning stops generic search after standard source consultation (0.305691ms)
+✔ Docker/service failures and partial discovery retain document and website evidence with warnings (0.5633ms)
+✔ bounded one-hop section crawl stays within configured paths and reserves optional discovery budget (0.796251ms)
+✔ invalid generic evidence is excluded without losing standard sources; cancellation propagates (0.772245ms)
+✔ legacy migration removes exclusive modes without granting Beta or new website consent (0.748359ms)
+✔ privacy: external query contains only the current public question and never documents, source titles or history (0.607577ms)
+✔ local retrieval works for every saved legacy mode and isolates assistant documents even without embeddings (39.713044ms)
+✔ URL policy enforces exact origins, paths, credentials, ports and encoded boundaries (4.516214ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 24
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 889.345013
+
+✖ failing tests:
+
+test at tests/morphic-http.test.mjs:11:1
+✖ Morphic HTTP authentication, dependency health, timeout, recovery and process restart (287.570997ms)
+  AssertionError [ERR_ASSERTION]: node:internal/modules/package_json_reader:331
+    throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+          ^
+
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'ai' imported from <repo>/services/morphic/adapter.mjs
+      at Object.getPackageJSONURL (node:internal/modules/package_json_reader:331:9)
+      at packageResolve (node:internal/modules/esm/resolve:784:25)
+      at moduleResolve (node:internal/modules/esm/resolve:873:18)
+      at defaultResolve (node:internal/modules/esm/resolve:1006:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:705:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:725:38)
+      at nextStep (node:internal/modules/customization_hooks:189:26)
+      at resolveBaseSync (file://<repo>/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:11092)
+      at resolveDirectorySync (file://<repo>/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:12398)
+      at resolveTsPathsSync (file://<repo>/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:13605) {
+    code: 'ERR_MODULE_NOT_FOUND'
+  }
+
+  Node.js v24.22.1
+
+
+  1 !== null
+
+      at start (file://<repo>/tests/morphic-http.test.mjs:70:16)
+      at async TestContext.<anonymous> (file://<repo>/tests/morphic-http.test.mjs:86:7)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/morphic.test.mjs:1:1
+✖ tests/morphic.test.mjs (140.01799ms)
+  'test failed'
