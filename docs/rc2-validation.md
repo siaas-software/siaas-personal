@@ -127,3 +127,70 @@ Validation:
 
 Advanced settings are kept, not deleted. The user-facing guide is updated in
 English plus docs/zero-config-import-it.md. No public website files are changed.
+
+## Phase 3 checkpoint (2026-10-28)
+
+Phase 2 merged via PR #8 at f4555102f3da3057700d19cddc6e19a78ac897aa.
+UI/branding changes are on `feature/rc2-ui-branding`; native/graphical acceptance
+is blocked, so they must not be represented as an accepted release.
+
+The annotated RC1 screenshot was inspected. Scoped white backgrounds cover the
+Knowledge/chat/shortcut panels, footer and assistant icon containers. Existing
+project palette resolution and semantic green controls are unchanged. Generation
+uses #e5e7eb with full opacity despite the disabled send button, retaining the
+original mascot SVG, alternating stars, dimensions and reduced-motion CSS.
+No new cancel control is claimed; existing transport cancellation remains covered
+by the Phase 1 suite. Actual generation/cancellation UI acceptance is pending.
+
+The checked-in original `src/app/icon.svg` (hand and green stars) is the only
+source artwork. The old S PNG/ICO are replaced and ICNS added. Reproducible conversion
+and SHA-256 provenance are checked in. Electron window/taskbar identity, macOS dock,
+platform packaging icons and packaged branding resources are connected. The new
+read-only `icons:verify-windows` command inspects all PE icon groups of a supplied
+packaged executable; it has NOT been run on a Windows build here.
+
+| Executed check | Status | Scope |
+| --- | --- | --- |
+| `npm test` | PASS | 165/165, including 3 artwork and 1 Windows identity unit tests |
+| `npm run typecheck` | PASS | No diagnostics |
+| `npm run icons:check` | PASS | Original SVG → exact PNG/ICO/ICNS bytes and hashes |
+| `npm run desktop:build` | PASS | Next standalone + parser bundle |
+| `npm run desktop:prepare` | PASS | Private Linux Node 24.22.1 and resources prepared |
+| electron-builder `--linux --dir --publish never` | PASS | Linux x64 unpacked application; not a release asset |
+| Prepared + packaged branding byte comparison | PASS | All four branding files equal checked-in originals |
+| `npm run test:distribution` | PASS | 16/16; simulated release/runtime/update/rollback fixtures |
+| Structured API | PASS | HTTP/SQLite/import/evidence; simulated Ollama |
+| Knowledge API | PASS | Local import/index/download/link lifecycle; simulated embeddings |
+| Actions API | PASS | Persistence/scope/instructions; simulated Ollama |
+| Chat API | PASS | Ordinary chat/RAG/tools/history; simulated Ollama |
+| Real Ollama | BLOCKED | `ECONNREFUSED 127.0.0.1:11434` |
+| Playwright visual assertions | BLOCKED | Chromium executable missing; download retries return invalid ZIP archives |
+| Linux packaged launch | BLOCKED | Electron fatal `socket() failed: Operation not permitted (1)` before window |
+| Windows package, PE icon, taskbar and install/update/rollback | BLOCKED | No Windows runtime/host available |
+| macOS package/dock/launch | NOT RUN | No macOS host available |
+| RC2 tag, manifest/assets, anonymous download verification | NOT RUN | Publication withheld because critical gates remain blocked |
+
+Logs are preserved in `docs/evidence/rc2-phase3/`. They use synthetic fixtures;
+no private document or annotated user screenshot is committed. The initial suite
+failed two identity test fixtures because their VM omitted `process`; the fixture
+now supplies an explicit platform and checks Windows AppUserModelID, without
+relaxing profile isolation assertions. The final suite passes all 165 tests.
+
+No actual application screenshot or Windows executable acceptance is claimed.
+Prepared Playwright checks cover three palettes, switching projects, white panels,
+hidden advanced controls, semantic controls, idle/generating/disabled states, full
+mascot bounds and reduced motion. These checks remain unexecuted past browser launch.
+The exact RC1 planner-unavailable trigger remains unresolved on real Qwen3 CPU.
+
+### Italiano: stato e vincoli
+
+Implementati i pannelli bianchi e il pulsante grigio durante la generazione,
+conservando palette del progetto e mascotte originale. Rigenerate le icone dai
+vettori ufficiali e collegate a finestra e pacchetto Electron. Passano 165 test,
+controlli TypeScript, build, preparazione e packaging Linux e regressioni API.
+I test API usano Ollama simulato. L'avvio grafico Linux è bloccato da un divieto sui
+socket; Chromium non è installabile dagli archivi ricevuti; Ollama reale e Windows
+non sono disponibili. Le verifiche visive e dell'eseguibile Windows NON sono PASS.
+RC2 non va pubblicata finché questi gate non passano. Nessun tag RC2, manifest RC2
+o asset pubblico è stato creato; nessuna modifica a main, release stabile o sito.
+La checklist dedicata è `docs/windows-rc2-testing.md`.

@@ -31,7 +31,7 @@ module.exports = {
   mac: {
     target: ["dmg", "zip"],
     category: "public.app-category.productivity",
-    icon: "build/icon.png",
+    icon: "build/icon.icns",
     hardenedRuntime: true,
     entitlements: "build/entitlements.mac.plist",
     entitlementsInherit: "build/entitlements.mac.plist",

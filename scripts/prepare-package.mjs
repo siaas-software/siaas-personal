@@ -55,6 +55,9 @@ await build({
   ],
   legalComments: "eof",
 });
+await mkdir(".desktop/resources/branding", { recursive: true });
+for (const icon of ["icon.png", "icon.ico", "icon.icns", "icon-provenance.json"])
+  await cp(join("build", icon), join(".desktop/resources/branding", icon));
 await mkdir(".desktop/resources/helpers", { recursive: true });
 await cp(
   "scripts/backup-desktop.cjs",
