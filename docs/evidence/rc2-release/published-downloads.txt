@@ -1,0 +1,14 @@
+PASS anonymous download: install-rc.ps1 5985 bytes sha256:dcd64f5c4261800c244690c3396c8973ba6e14422087846d4bb9fb7957fefc24
+PASS anonymous download: install-rc.sh 5464 bytes sha256:d54e23d62b23e6d2f5a8e0d114d175dbdb2d0965a4d0deef2e2ae9327548a08c
+PASS anonymous download: install-siaas.ps1 5576 bytes sha256:bd563fcf65b26ac51a1a3fd4c1d4d007876f995dbf0db0dbfd37e95b3220ccf7
+PASS anonymous download: install-siaas.sh 5018 bytes sha256:da57e1652bd371126ae836346a81bdf70a6118e4ecff00dbd7064bcbb1b660e3
+PASS anonymous download: rc-manifests.json 4053 bytes sha256:63f28858e5fc0c5c9e25be81730b4beb898489d856bef9e15cf2203e01c42305
+PASS anonymous download: rc-manifests.tsv 2488 bytes sha256:e793d47fc28984e9287ccce6ab89916783222c13b9e564af579e9292564a6425
+PASS anonymous download: READINESS.md 6049 bytes sha256:b09bb7476922af2d39ef80ff1353dfccfbd7836bd7c608519af91d50042de8dd
+PASS anonymous download: RELEASE_NOTES.md 6357 bytes sha256:51e649b8ca3efdce3d5a79cac73e80011c023fc80921e4b8282a521d4d127768
+PASS anonymous download: SHA256SUMS.txt 950 bytes sha256:7cc6fbe3fb5267415b7d0b5421b02ef2e1b1d4d75386833cd725284bbda64fb1
+PASS anonymous download: SIAAS-Personal-1.1.0-rc.2-install.json 80 bytes sha256:8af8fd8c789c9cf02d5887ff2b1c2719e94fbe1a51c4466bce5770c37bcdaab7
+PASS anonymous download: SIAAS-Personal-1.1.0-rc.2-source.zip 960426 bytes sha256:d567f74b92831e77d0764368619df0382768b2f5eeeb86d4e5690d26024d131e
+PASS anonymous download: WINDOWS_TESTING.md 8287 bytes sha256:8c0f4ffcfebc310116b2e4f3d934cf3433a528cc47433718255aeb05796b2d50
+PASS public prerelease https://github.com/siaas-software/siaas-personal/releases/tag/v1.1.0-rc.2; stable Latest v1.0.0
+PASS v1.1.0-rc.2: 12 payloads, SHA-256, source commit/version, six platform manifests and official runtime hashes; published bytes verified anonymously.
