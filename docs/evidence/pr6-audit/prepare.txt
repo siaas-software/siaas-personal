@@ -1,0 +1,6 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> siaas-personal@1.1.0-rc.2 desktop:prepare
+> node scripts/prepare-package.mjs
+
+Packaged private Node 24.22.1 (linux/x64), compiled server, and Ollama setup helper.
