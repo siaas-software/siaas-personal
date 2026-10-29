@@ -23,6 +23,7 @@ import { AssistantMascot } from "./assistant-mascot";
 import { Overview } from "./overview";
 import { ProjectActions } from "./project-actions";
 import type { ProjectTemplate } from "@/lib/templates";
+import { templateCardStyle } from "@/lib/template-presentation";
 import { DesktopUpdatesPanel } from "./desktop-updates";
 import { QuoteDemo } from "./quote-demo";
 import { agentToolLabel } from "@/lib/agent-steps";
@@ -1209,10 +1210,7 @@ export function Workspace() {
                       <article
                         className="panel model-card"
                         key={template.id}
-                        style={{
-                          backgroundColor: template.color,
-                          color: projectForeground(template.color),
-                        }}
+                        style={templateCardStyle(template)}
                       >
                         <span className="eyebrow">PROJECT TEMPLATE</span>
                         <h2>{template.name}</h2>
