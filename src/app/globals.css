@@ -2261,3 +2261,21 @@ textarea::placeholder {
   background-color: #e5e7eb;
   opacity: 1;
 }
+
+/* Palette text is shared by cards and previews; accent is for borders/focus only. */
+.project-template-card .button,
+.project-template-card .button:hover:not(:disabled) {
+  color: inherit;
+  background: transparent;
+  border-color: var(--template-accent);
+}
+.project-template-card .button:hover:not(:disabled) {
+  box-shadow: inset 0 0 0 1px var(--template-accent);
+}
+.project-template-card .button:focus-visible {
+  outline-color: var(--template-accent);
+}
+.project-template-card p,
+.project-template-card .eyebrow {
+  color: inherit;
+}

@@ -1,4 +1,9 @@
 import { z } from "zod";
+import {
+  isProjectPaletteKey,
+  resolvePaletteColor,
+  type ProjectPaletteKey,
+} from "./project-colors";
 import { publicWebURL } from "./research";
 import builtinTemplates from "../generated/builtin-templates.json";
 
@@ -36,15 +41,20 @@ export const templateAssistantSchema = z.object({
     .optional()
     .transform(() => null),
 });
-export const templateProjectSchema = z.object({
-  name: z.string().trim().min(1).max(100),
-  description: z.string().trim().max(500).default(""),
-  color: z
-    .string()
-    .regex(/^#[0-9a-f]{6}$/i)
-    .default("#FFFFFF"),
-  assistants: z.array(templateAssistantSchema).max(50),
-});
+export const templateProjectSchema = z
+  .object({
+    name: z.string().trim().min(1).max(100),
+    description: z.string().trim().max(500).default(""),
+    color: z
+      .string()
+      .regex(/^#[0-9a-f]{6}$/i)
+      .default("#FFFFFF"),
+    palette: z
+      .custom<ProjectPaletteKey>(isProjectPaletteKey, "Unknown project palette")
+      .optional(),
+    assistants: z.array(templateAssistantSchema).max(50),
+  })
+  .transform(resolvePaletteColor);
 export const templateBundleSchema = z.object({
   format: z.literal("siaas-project-v1"),
   project: templateProjectSchema,

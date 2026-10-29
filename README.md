@@ -353,9 +353,37 @@ Production Planning and Personal Finance templates. No Docker, Python or externa
 database server is required. See [the guide](docs/structured-data-analysis.md)
 for limits, formula handling, privacy and examples.
 
-The template sync configuration may specify `templateIds` to adopt an explicit subset
-of the pinned upstream catalog. Omit it to import the whole catalog; unknown or
-duplicate IDs fail synchronization. This keeps unrelated template additions separate
-from palette updates. Legacy official Production Planning and Personal Finance
-default colors are resolved from the current snapshot when templates are read,
-without rewriting saved template rows or existing projects. Custom colors remain intact.
+## Six official templates and semantic palettes
+
+The pinned snapshot adopts Computer Science Study (`sky`), Production Planning
+(`slate`), Personal Finance (`mint`), Construction Cost Analysis (`peach`), Technical
+Documentation (`lavender`), and Materials & Procurement (`aqua`). The source is
+`siaas-software/siaas-templates`; `templates-source.json` records its immutable SHA,
+explicit adopted IDs, raw catalog SHA-256 and generated output SHA-256. Synchronize
+with `npm run templates:sync -- --ref <sha> --catalog <checkout>/catalog.json`, then
+run `npm run templates:check`. The local catalog must come from that exact commit.
+Repeated synchronization produces identical output. Unknown/duplicate selected IDs
+and unknown palette keys fail before replacing the snapshot. Omit `templateIds`
+to adopt a whole catalog.
+
+`project.palette` is an optional, validated extension to `siaas-project-v1`.
+`PROJECT_PALETTES` in `src/lib/project-colors.ts` remains the sole palette-value
+registry. A semantic key takes precedence over the required legacy hex fallback
+when importing, displaying, exporting or instantiating a template. Cards and the
+New project preview share a resolver; text and secondary labels use foreground,
+while button borders and focus indicators use accent. Custom hex backgrounds get
+a contrasting foreground without replacing their stored color.
+
+Legacy bundles without a semantic key remain importable. Saved built-ins without
+one gain it on read only when their color matches the current official default or
+the historical Production Planning/Personal Finance defaults. Other custom colors,
+assistant settings, Knowledge URLs and deletion tombstones remain intact. There
+are no database migrations or saved-row rewrites: the existing SQLite JSON body
+can store the optional template field. Startup seeds only missing built-ins.
+
+New projects store the resolved background hex, without a palette key. Existing
+projects retain their exact stored colors and configurations; the ordinary palette
+selector and existing project display behavior are unchanged. Saving/exporting a
+project uses its current hex, so later color edits cannot be overridden by an old
+template key. Template exports retain both the semantic key and a resolved legacy
+hex for older consumers.

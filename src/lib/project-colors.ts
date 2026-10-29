@@ -42,3 +42,27 @@ export function resolveProjectPalette(color?: string | null) {
 export function projectForeground(color: string) {
   return resolveProjectPalette(color).foreground;
 }
+
+export type ProjectPaletteKey = (typeof PROJECT_PALETTES)[number]["id"];
+
+export function isProjectPaletteKey(value: unknown): value is ProjectPaletteKey {
+  return PROJECT_PALETTES.some(palette => palette.id === value);
+}
+
+export function projectPaletteByKey(key?: ProjectPaletteKey) {
+  return PROJECT_PALETTES.find(palette => palette.id === key);
+}
+
+/** Semantic keys take precedence in templates; legacy hex-only bundles stay intact. */
+export function resolvePaletteColor<T extends { color: string; palette?: ProjectPaletteKey }>(config: T): T {
+  const palette = projectPaletteByKey(config.palette);
+  return palette ? { ...config, color: palette.background } : config;
+}
+
+/** Foreground for an actual (possibly custom) background, without recoloring it. */
+export function colorForeground(background: string) {
+  const foreground = projectForeground(background);
+  if (contrastRatio(background, foreground) >= 4.5) return foreground;
+  return contrastRatio(background, "#FFFFFF") > contrastRatio(background, "#000000")
+    ? "#FFFFFF" : "#000000";
+}

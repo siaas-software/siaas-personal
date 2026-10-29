@@ -3,7 +3,7 @@
 import { chromium } from "playwright";
 import { createServer } from "node:http";
 import { spawn } from "node:child_process";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, mkdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import assert from "node:assert/strict";
@@ -138,6 +138,46 @@ try {
       "#E5F7EE",
     ],
   ];
+  expected.push(
+    [
+      "construction-cost-analysis",
+      "Construction Cost Analysis",
+      "rgb(252, 237, 228)",
+      "rgb(117, 64, 41)",
+      "#FCEDE4",
+    ],
+    [
+      "technical-documentation",
+      "Technical Documentation",
+      "rgb(240, 234, 254)",
+      "rgb(75, 50, 124)",
+      "#F0EAFE",
+    ],
+    [
+      "materials-procurement",
+      "Materials & Procurement",
+      "rgb(225, 245, 244)",
+      "rgb(25, 88, 91)",
+      "#E1F5F4",
+    ],
+  );
+  assert.equal(templates.length, 6);
+  const contrast = (a, b) => {
+    const luminance = (color) => {
+      const [r, g, b] = color
+        .match(/\d+/g)
+        .slice(0, 3)
+        .map(Number)
+        .map((n) => {
+          const v = n / 255;
+          return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+        });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const x = luminance(a),
+      y = luminance(b);
+    return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+  };
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1100 });
     for (const [key, name, background, foreground, original] of expected) {
@@ -149,42 +189,162 @@ try {
         text: getComputedStyle(element).color,
         label: getComputedStyle(element.querySelector(".eyebrow")).color,
         muted: getComputedStyle(element.querySelector(".muted")).color,
+        description: getComputedStyle(element.querySelector("p")).color,
       }));
       assert.deepEqual(colors, {
         background,
         text: foreground,
         label: foreground,
         muted: foreground,
+        description: foreground,
       });
       assert(
         await card
           .getByRole("button", { name: "Use template", exact: true })
           .isEnabled(),
       );
+      for (const text of [
+        colors.text,
+        colors.label,
+        colors.muted,
+        colors.description,
+      ])
+        assert(
+          contrast(background, text) >= 4.5,
+          `${key}: normal/secondary text`,
+        );
+      for (const button of await card.locator(".button").all()) {
+        for (const state of ["normal", "hover", "focus"]) {
+          await page.mouse.move(0, 0);
+          await button.evaluate((el) => el.blur());
+          if (state === "hover") await button.hover();
+          if (state === "focus") {
+            await page.keyboard.press("Tab");
+            await button.focus();
+          }
+          await page.waitForTimeout(180);
+          const actual = await button.evaluate((el) => {
+            const css = getComputedStyle(el);
+            return {
+              text: css.color,
+              background: css.backgroundColor,
+              border: css.borderColor,
+              outline: css.outlineColor,
+              outlineStyle: css.outlineStyle,
+            };
+          });
+          const buttonBackground =
+            actual.background === "rgba(0, 0, 0, 0)"
+              ? background
+              : actual.background;
+          assert(
+            contrast(buttonBackground, actual.text) >= 4.5,
+            `${key}: ${state} button text`,
+          );
+          assert(
+            contrast(background, actual.border) >= 3,
+            `${key}: ${state} border`,
+          );
+          if (state === "focus") {
+            assert.notEqual(
+              actual.outlineStyle,
+              "none",
+              `${key}: visible keyboard focus`,
+            );
+            assert(
+              contrast(background, actual.outline) >= 3,
+              `${key}: focus outline`,
+            );
+          }
+        }
+      }
       const template = templates.find((item) => item.builtin_key === key);
       const bundle = await api(
         "/api/templates/" + encodeURIComponent(template.id),
       );
       assert.equal(bundle.project.color, original);
+      assert.equal(bundle.project.palette, template.palette);
+      await card
+        .getByRole("button", { name: "Use template", exact: true })
+        .click();
+      const preview = page.getByRole("region", { name: "Template preview" });
+      assert.deepEqual(
+        await preview.evaluate((el) => ({
+          background: getComputedStyle(el).backgroundColor,
+          text: getComputedStyle(el).color,
+        })),
+        { background, text: foreground },
+      );
+      for (const paragraph of await preview.locator("p").all()) {
+        const text = await paragraph.evaluate(
+          (el) => getComputedStyle(el).color,
+        );
+        assert.equal(text, foreground);
+        assert(contrast(background, text) >= 4.5);
+      }
+      assert.equal(
+        await page.locator('select[name="template_id"]').inputValue(),
+        template.id,
+      );
+      if (process.env.TEST_ARTIFACT_DIR) {
+        await mkdir(process.env.TEST_ARTIFACT_DIR, { recursive: true });
+        await page.screenshot({
+          path: join(process.env.TEST_ARTIFACT_DIR, `${key}-${width}.png`),
+          fullPage: true,
+        });
+      }
+      await page.getByRole("button", { name: "Cancel", exact: true }).click();
     }
   }
-  for (const [key, , , , color] of expected) {
-    const project = await api("/api/projects", "POST", { template_id: key });
+  // Create each project through the actual modal, then inspect HTTP/SQLite results.
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  for (const [key, name, background, foreground, color] of expected) {
+    await page.getByRole("button", { name: "Templates", exact: true }).click();
+    const card = page
+      .locator("article")
+      .filter({ has: page.getByRole("heading", { name, exact: true }) });
+    await card
+      .getByRole("button", { name: "Use template", exact: true })
+      .click();
+    await page
+      .getByRole("button", { name: "Create project", exact: true })
+      .click();
+    await until(async () =>
+      (await api("/api/workspace")).projects.some((p) => p.name === name),
+    );
+    const project = (await api("/api/workspace")).projects.find(
+      (p) => p.name === name,
+    );
     assert.equal(project.color, color);
+    await page.locator("main.project-detail").waitFor();
+    await until(
+      async () =>
+        (await page
+          .locator("main.project-detail")
+          .evaluate((el) => getComputedStyle(el).backgroundColor)) ===
+        background,
+    );
+    const title = page.locator("main.project-detail h1");
+    assert.equal(
+      await title.evaluate((el) => getComputedStyle(el).color),
+      foreground,
+    );
+    const exported = await api(`/api/project/export?project=${project.id}`);
+    assert.equal(exported.project.color, color);
   }
-  const finance = page.locator("article").filter({
-    has: page.getByRole("heading", { name: "Personal Finance", exact: true }),
+  const customProject = (await api("/api/workspace")).projects[0];
+  await api(`/api/projects/${customProject.id}`, "PATCH", {
+    name: customProject.name,
+    color: "#123456",
   });
-  await finance
-    .getByRole("button", { name: "Use template", exact: true })
-    .click();
-  assert.match(
-    await page.locator('select[name="template_id"]').inputValue(),
-    /personal-finance/,
-  );
+  const beforeRestart = (await api("/api/workspace")).projects;
+  await stop();
+  await start();
+  assert.deepEqual((await api("/api/workspace")).projects, beforeRestart);
+  assert.deepEqual(await api("/api/templates"), templates);
   assert.deepEqual(errors, []);
   console.log(
-    "PASS: rendered Sky/Slate/Mint backgrounds, text and secondary labels at desktop/mobile widths; aligned exports, instantiated project colors and Use template selection.",
+    "PASS: all six cards/previews, normal/hover/focus contrast at 1440/390px, browser project creation, template/project exports and HTTP/SQLite restart persistence.",
   );
 } finally {
   await browser?.close();

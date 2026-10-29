@@ -165,6 +165,9 @@ test("new built-ins replace retired catalog entries without changing existing pr
       "computer-science-study",
       "production-planning",
       "personal-finance",
+      "construction-cost-analysis",
+      "technical-documentation",
+      "materials-procurement",
     ]);
     const old = db.put("project_templates", {
       tenant_id: LOCAL_USER_ID,
@@ -183,13 +186,18 @@ test("new built-ins replace retired catalog entries without changing existing pr
       db,
       LOCAL_USER_ID,
     );
-    assert.equal(rows.length, 3);
+    assert.equal(rows.length, 6);
     assert.equal(db.get("projects", project.project.id)?.template_id, old.id);
-    for (const row of rows.filter(r => !["production-planning", "personal-finance"].includes(r.builtin_key ?? ""))) {
-      assert.equal(row.assistants.length, 3);
-      assert(row.assistants.every((a) => a.sources.length === 1));
+    for (const row of rows) {
+      assert(row.assistants.length > 0);
+      if (row.builtin_key === "computer-science-study") {
+        assert.equal(row.assistants.length, 3);
+        assert(row.assistants.every(a => a.sources.length === 1));
+      }
+      const sourceCount = row.assistants.reduce((n, a) => n + a.sources.length, 0);
       const imported = importLocalTemplate(db, row);
-      assert.equal(imported.documents.length, 3);
+      assert.equal(imported.documents.length, sourceCount);
+      if (!row.assistants[0].sources.length) continue;
       const manifest = JSON.parse(
         readFileSync(
           join(db.assistantDirectory(imported.assistantIds[0]), "sources.json"),
