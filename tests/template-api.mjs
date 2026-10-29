@@ -40,7 +40,7 @@ try {
     await new Promise(r => setTimeout(r, 100));
   }
   const presets = await api('/api/templates');
-  assert.deepEqual(presets.map(t => t.name), ['Computer Science Study', 'Home Gardening', 'Software Engineering']);
+  assert.deepEqual(presets.map(t => t.name), ['Computer Science Study', 'Production Planning', 'Personal Finance']);
   const project = await api('/api/projects', 'POST', { template_id: presets[0].id });
   const workspace = await api('/api/workspace');
   assert.match(workspace.version, /^\d+\.\d+\.\d+/);

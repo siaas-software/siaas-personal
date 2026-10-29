@@ -352,3 +352,10 @@ relationships, then ask Chat for traceable deterministic analysis. Includes
 Production Planning and Personal Finance templates. No Docker, Python or external
 database server is required. See [the guide](docs/structured-data-analysis.md)
 for limits, formula handling, privacy and examples.
+
+The template sync configuration may specify `templateIds` to adopt an explicit subset
+of the pinned upstream catalog. Omit it to import the whole catalog; unknown or
+duplicate IDs fail synchronization. This keeps unrelated template additions separate
+from palette updates. Legacy official Production Planning and Personal Finance
+default colors are resolved from the current snapshot when templates are read,
+without rewriting saved template rows or existing projects. Custom colors remain intact.

@@ -1,5 +1,6 @@
 import { localWorkspace, fail, HttpError } from "@/lib/http";
-import { templateBundle } from "@/lib/templates";
+import { resolveTemplateColor } from "@/lib/template-store";
+import { templateProjectSchema, templateBundle } from "@/lib/templates";
 
 async function ownedTemplate(req: Request, params: Promise<{ id: string }>) {
   const { db, tenantId } = await localWorkspace(req);
@@ -12,7 +13,7 @@ async function ownedTemplate(req: Request, params: Promise<{ id: string }>) {
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { template } = await ownedTemplate(req, params);
-    return new Response(JSON.stringify(templateBundle(template), null, 2), { headers: {
+    return new Response(JSON.stringify(templateBundle(resolveTemplateColor({ ...templateProjectSchema.parse(template), builtin_key: template.builtin_key })), null, 2), { headers: {
       "Content-Type": "application/json; charset=utf-8", "Cache-Control": "private, no-store",
       "Content-Disposition": 'attachment; filename="siaas-template.json"',
     } });

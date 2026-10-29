@@ -11,11 +11,11 @@ import { importLocalTemplate } from "../src/lib/local/template-project";
 import { listTemplates } from "../src/lib/template-store";
 import { LOCAL_USER_ID } from "../src/lib/runtime";
 
-// Verified against siaas-public-site@9e4995a and siaas-templates@82b9d41.
+// Approved palettes from SIAAS Personal PR #15.
 const cases = [
   ["computer-science-study", "#E9F0FA", "#E9F0FA", "#1C416C"],
-  ["production-planning", "#173D35", "#E9EDF1", "#344453"],
-  ["personal-finance", "#244C78", "#E5F7EE", "#174B35"],
+  ["production-planning", "#E9EDF1", "#E9EDF1", "#344453"],
+  ["personal-finance", "#E5F7EE", "#E5F7EE", "#174B35"],
 ] as const;
 
 for (const [key, original, background, foreground] of cases) {
@@ -68,6 +68,63 @@ test("card presentation preserves persisted templates and projects across restar
     for (const project of projects) {
       assert.equal(db.get("projects", project.id)?.color, project.color);
     }
+  } finally {
+    db.close();
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("legacy official templates create aligned projects without recoloring saved projects or configurations", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "siaas-upgrade-palettes-"));
+  let db = new LocalDatabase(directory);
+  try {
+    const seeded = await listTemplates(db, LOCAL_USER_ID);
+    const legacy = ["#E9F0FA", "#173D35", "#244C78"];
+    const existing = [];
+    for (const [index, [key]] of cases.entries()) {
+      const template = seeded.find((t) => t.builtin_key === key)!;
+      await db
+        .from("project_templates")
+        .update({ color: legacy[index] })
+        .eq("id", template.id);
+      existing.push(
+        importLocalTemplate(db, { ...template, color: legacy[index] }).project,
+      );
+    }
+    const savedTemplates = db.rows("project_templates");
+    const custom = importLocalTemplate(db, {
+      ...seeded[0],
+      color: "#123456",
+    }).project;
+    existing.push(custom);
+    for (const template of await listTemplates(db, LOCAL_USER_ID)) {
+      const { project } = importLocalTemplate(db, template);
+      assert.equal(
+        String(project.color),
+        templateCardStyle(template).backgroundColor,
+      );
+      assert.equal(
+        projectForeground(project.color),
+        templateCardStyle(template).color,
+      );
+    }
+    assert.deepEqual(db.rows("project_templates"), savedTemplates);
+    db.close();
+    db = new LocalDatabase(directory);
+    await listTemplates(db, LOCAL_USER_ID);
+    for (const project of existing)
+      assert.deepEqual(db.get("projects", project.id), project);
+    assert.deepEqual(db.rows("project_templates"), savedTemplates);
+    const finance = seeded.find((t) => t.builtin_key === "personal-finance")!;
+    await db
+      .from("project_templates")
+      .update({ color: "#123456" })
+      .eq("id", finance.id);
+    assert.equal(
+      (await listTemplates(db, LOCAL_USER_ID)).find((t) => t.id === finance.id)
+        ?.color,
+      "#123456",
+    );
   } finally {
     db.close();
     rmSync(directory, { recursive: true, force: true });

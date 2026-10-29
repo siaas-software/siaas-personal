@@ -66,13 +66,20 @@ if (args.includes("--check")) {
     assert(["Education", "Hobby", "Work"].includes(template.listing.category));
   }
   assert(["app", "site"].includes(config.target));
+  // Keep adoption explicit when the upstream catalog adds unrelated templates.
+  const selected = config.templateIds
+    ? catalog.templates.filter(({ id }) => config.templateIds.includes(id))
+    : catalog.templates;
+  if (config.templateIds) {
+    assert.deepEqual(selected.map(({ id }) => id).sort(), [...config.templateIds].sort(), "Unknown or duplicate templateIds");
+  }
   const data = config.target === "app"
-    ? Object.fromEntries(catalog.templates.map(({ id, project }) => [id, project]))
-    : catalog.templates.map(({ id, project, listing }) => ({ id, name: project.name, description: listing.description, agents: project.assistants.length, color: project.color, category: listing.category, sources: project.assistants.reduce((n, a) => n + a.sources.length, 0), assistants: project.assistants.map(a => a.name), bundle: { format: "siaas-project-v1", project } }));
+    ? Object.fromEntries(selected.map(({ id, project }) => [id, project]))
+    : selected.map(({ id, project, listing }) => ({ id, name: project.name, description: listing.description, agents: project.assistants.length, color: project.color, category: listing.category, sources: project.assistants.reduce((n, a) => n + a.sources.length, 0), assistants: project.assistants.map(a => a.name), bundle: { format: "siaas-project-v1", project } }));
   const output = JSON.stringify(data, null, 2) + "\n";
   await mkdir(dirname(outputPath), { recursive: true });
   await writeFile(outputPath + ".tmp", output);
   await rename(outputPath + ".tmp", outputPath);
   await writeFile(configPath, JSON.stringify({ ...config, ref, catalogSha256: hash(raw), outputSha256: hash(output) }, null, 2) + "\n");
-  console.log(`Synced ${catalog.templates.length} templates from ${config.repository}@${ref}`);
+  console.log(`Synced ${selected.length} templates from ${config.repository}@${ref}`);
 }

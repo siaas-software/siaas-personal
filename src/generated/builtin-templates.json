@@ -36,7 +36,7 @@
   "production-planning": {
     "name": "Production Planning",
     "description": "Analyze local production orders, inventory, materials and operational data with traceable calculations.",
-    "color": "#173D35",
+    "color": "#E9EDF1",
     "assistants": [
       {
         "name": "Production Planning Analyst",
@@ -50,7 +50,7 @@
   "personal-finance": {
     "name": "Personal Finance",
     "description": "Analyze local transactions, budgets and savings with traceable calculations and currency safeguards.",
-    "color": "#244C78",
+    "color": "#E5F7EE",
     "assistants": [
       {
         "name": "Personal Finance Analyst",
