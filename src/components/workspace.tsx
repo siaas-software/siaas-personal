@@ -1208,7 +1208,7 @@ export function Workspace() {
                   <div className="assistant-grid">
                     {templates.map((template) => (
                       <article
-                        className="panel model-card"
+                        className="panel model-card project-template-card"
                         key={template.id}
                         style={templateCardStyle(template)}
                       >
@@ -1721,6 +1721,13 @@ export function Workspace() {
                 ))}
               </select>
             </label>
+            {templates.filter(t => t.id === projectTemplateId).map(template => (
+              <section key={template.id} className="panel project-template-card" aria-label="Template preview" style={templateCardStyle(template)}>
+                <strong>{template.name}</strong>
+                <p>{template.description}</p>
+                <p className="muted">{template.assistants.length} preconfigured assistants</p>
+              </section>
+            ))}
             <p className="field-help">
               Assistant names, descriptions and instructions are preconfigured.
               Choose the recommended models. Template web sources are indexed

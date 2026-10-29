@@ -40,7 +40,7 @@ try {
     await new Promise(r => setTimeout(r, 100));
   }
   const presets = await api('/api/templates');
-  assert.deepEqual(presets.map(t => t.name), ['Computer Science Study', 'Production Planning', 'Personal Finance']);
+  assert.deepEqual(presets.map(t => t.name), ['Computer Science Study', 'Production Planning', 'Personal Finance', 'Construction Cost Analysis', 'Technical Documentation', 'Materials & Procurement']);
   const project = await api('/api/projects', 'POST', { template_id: presets[0].id });
   const workspace = await api('/api/workspace');
   assert.match(workspace.version, /^\d+\.\d+\.\d+/);
@@ -84,7 +84,26 @@ try {
   const oldAssistant = (await api('/api/workspace')).assistants.find(a => a.project_id === old.id);
   assert.equal(oldAssistant.model_id, null);
   assert.equal((await api(`/api/documents?assistant=${oldAssistant.id}`)).length, 0);
-  console.log('PASS: actual desktop APIs, version metadata, assistant/model persistence, removed export endpoint, 3 presets, source ownership/toggles, portable exports, saved templates, import and legacy compatibility with simulated Ollama discovery.');
+  for (const preset of presets) {
+    const bundle = await api(`/api/templates/${encodeURIComponent(preset.id)}`);
+    const importedTemplate = await api('/api/templates', 'POST', {
+      ...bundle, project: { ...bundle.project, color: '#123456' },
+    });
+    assert.equal(importedTemplate.palette, preset.palette);
+    assert.equal(importedTemplate.color, preset.color);
+    const created = await api('/api/projects', 'POST', { template_id: importedTemplate.id });
+    assert.equal(created.color, preset.color);
+    assert.equal(created.palette, undefined);
+    const updated = await api(`/api/projects/${created.id}`, 'PATCH', { name: created.name, color: '#123456' });
+    assert.equal(updated.color, '#123456');
+    const customExport = await api(`/api/project/export?project=${created.id}`);
+    assert.equal(customExport.project.color, '#123456');
+    assert.equal(customExport.project.palette, undefined);
+  }
+  assert.equal((await request('/api/templates', 'POST', {
+    format: 'siaas-project-v1', project: { name: 'Bad key', palette: 'unknown', assistants: [] },
+  })).status, 400);
+  console.log('PASS: actual desktop APIs, version metadata, assistant/model persistence, removed export endpoint, 6 presets, source ownership/toggles, portable exports, saved templates, import and legacy compatibility with simulated Ollama discovery.');
 } finally {
   server.kill('SIGKILL'); await new Promise(r => server.once('exit', r));
   await new Promise(resolve => ollama.close(resolve));

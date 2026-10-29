@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { isProjectPaletteKey } from "../src/lib/project-colors.ts";
 import { createHash } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
@@ -61,7 +62,9 @@ if (args.includes("--check")) {
       }
       assert.deepEqual(Object.keys(assistant).sort(), ["description", "instructions", "model", "name", "sources"]);
     }
-    assert.deepEqual(Object.keys(template.project).sort(), ["assistants", "color", "description", "name"]);
+    if (template.project.palette !== undefined)
+      assert(isProjectPaletteKey(template.project.palette), "Unknown project palette");
+    assert.deepEqual(Object.keys(template.project).filter(key => key !== "palette").sort(), ["assistants", "color", "description", "name"]);
     assert(template.listing.description.en && template.listing.description.it);
     assert(["Education", "Hobby", "Work"].includes(template.listing.category));
   }

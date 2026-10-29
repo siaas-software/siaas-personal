@@ -21,7 +21,8 @@ export function importLocalTemplate(
       throw new Error(
         "Import into an empty project to preserve existing assistants.",
       );
-    const { assistants, ...fields } = config;
+    // Projects store the resolved hex only, so later palette selection remains independent.
+    const { assistants, palette: _palette, ...fields } = config;
     const project = db.put(
       "projects",
       {

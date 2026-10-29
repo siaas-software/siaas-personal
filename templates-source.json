@@ -1,14 +1,17 @@
 {
   "repository": "siaas-software/siaas-templates",
-  "ref": "cf3b8b5441f1070aafdcb2a5cd7496df066d9a55",
+  "ref": "f99813cf3799ea91a5d32ccce8521e054bb11c52",
   "path": "catalog.json",
   "target": "app",
   "output": "src/generated/builtin-templates.json",
-  "catalogSha256": "cf6055a215c6cb1218d5341fa39b5ed4d6da5b54ead58ff9f2450983cf124190",
-  "outputSha256": "b559fabae1bb7964af1428f2dabe4abcf3587bcae046f1ed5180ce2028f07099",
+  "catalogSha256": "64e9966cbdbfd4f1d3f0229912819d46a98e278374ed7371c50bb3dfcdc60391",
+  "outputSha256": "a74ca2eb6ac40ddd376f044b8f5cbc92679b21d23b3d1093c9275e453e5ec99e",
   "templateIds": [
     "computer-science-study",
     "production-planning",
-    "personal-finance"
+    "personal-finance",
+    "construction-cost-analysis",
+    "technical-documentation",
+    "materials-procurement"
   ]
 }
