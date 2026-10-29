@@ -128,14 +128,14 @@ try {
       "Production Planning",
       "rgb(233, 237, 241)",
       "rgb(52, 68, 83)",
-      "#173D35",
+      "#E9EDF1",
     ],
     [
       "personal-finance",
       "Personal Finance",
       "rgb(229, 247, 238)",
       "rgb(23, 75, 53)",
-      "#244C78",
+      "#E5F7EE",
     ],
   ];
   for (const width of [1440, 390]) {
@@ -168,6 +168,10 @@ try {
       assert.equal(bundle.project.color, original);
     }
   }
+  for (const [key, , , , color] of expected) {
+    const project = await api("/api/projects", "POST", { template_id: key });
+    assert.equal(project.color, color);
+  }
   const finance = page.locator("article").filter({
     has: page.getByRole("heading", { name: "Personal Finance", exact: true }),
   });
@@ -180,7 +184,7 @@ try {
   );
   assert.deepEqual(errors, []);
   console.log(
-    "PASS: rendered Sky/Slate/Mint backgrounds, text and secondary labels at desktop/mobile widths; unchanged exports and Use template selection.",
+    "PASS: rendered Sky/Slate/Mint backgrounds, text and secondary labels at desktop/mobile widths; aligned exports, instantiated project colors and Use template selection.",
   );
 } finally {
   await browser?.close();
