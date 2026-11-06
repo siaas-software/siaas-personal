@@ -1,10 +1,11 @@
 # Electron test infrastructure — Phase 1 report
 
-Date: 2026-11-06. Verdict: **PARTIAL**. The Templates/Settings sidebar failure is
-resolved with a test-only correction supported by source, documentation and history.
-Aggregate UI smoke still fails later at the obsolete `Project color` selector.
-Native Electron, Windows cleanup and real inference remain unverified. Phase 1 is
-not complete; PR #20 remains draft. No Phase 2 work is included.
+Date: 2026-11-06. Verdict: **PARTIAL — existing UI smoke reconciliation complete**.
+Aggregate `npm run test:ui` now passes guest, the entire project workflow and
+workbench (exit 0). Sidebar, palette, model-guidance and downstream template
+expectations are reconciled with source, documentation and history. Native Electron,
+Windows cleanup and real inference remain unverified; PR #20 stays draft.
+No application changes or Phase 2 work are included.
 
 ## Initial baseline and audit (historical evidence retained)
 
@@ -125,7 +126,7 @@ passed; they do not prove Windows taskkill behavior or actual native Electron
 cleanup. The smoke test is designed to read back native userData and SQLite paths,
 but those assertions were not executed here.
 
-## Sidebar investigation and correction — 2026-11-06
+## Sidebar investigation and correction — 2026-11-06 (historical follow-up)
 
 Work continued on the existing feature branch at
 `a2fcf460465e5d188a0bafd1f2603ae9cd16abdf`, preserving both infrastructure commits.
@@ -239,12 +240,107 @@ Follow-up changed files: `tests/project-flows.mjs`, this report,
 `docs/electron-testing.md` (current blocker and Linux verification instructions),
 and `docs/evidence/electron-phase1-sidebar-resolution.zip`.
 
+## Complete existing UI smoke reconciliation — 2026-11-06
+
+Validated test and evidence commit:
+[`a541c305cd7a0a5522a155100aad5a65c42faa28`](https://github.com/siaas-software/siaas-personal/commit/a541c305cd7a0a5522a155100aad5a65c42faa28).
+The following report/guide commit changes documentation only.
+
+Continued from `8686df67ceefc93964201d12012c1a22b5d324eb` on the same feature
+branch and PR #20, under explicit authorization to reconcile the entire existing
+project scenario. This supersedes the previous follow-up's deferred palette/model
+test maintenance and red aggregate result; its logs and archives remain unchanged.
+Fresh remote reads found `develop` unchanged at `741b531376c93262c5d15354faf14747fbcf97cc`
+and `main` at `04bd232d27cbbaa8317a3ba8444ddedaa0e92a1e` (merged README alignment
+PR #19). Neither branch was modified. One initial fetch returned HTTP 503; the
+retry succeeded. The feature branch retained the existing infrastructure and sidebar fix.
+
+### Root causes, independent evidence and exact corrections
+
+| Mismatch | Intended behavior and evidence | Test correction and coverage |
+| --- | --- | --- |
+| `Project color` text input and arbitrary `#18283c` expectation | `workspace.tsx:1825–1855` exposes eight named palette radio buttons; `project-colors.ts` defines Slate as `#E9EDF1`. `tests/project-palettes.test.ts` covers the palette contract; the developer reference documents ordinary palette editing. This implementation already exists in initial snapshot `39e1666`. | Select the Slate radio, assert exact persisted color and description, wait for its exact rendered background, and retain exact matching export/import color checks. Project configuration still runs through the UI. |
+| Recommended/best-installed badges and `.model-recommendation` count | `hardware-advisor.tsx:141–191` presents Lightweight/Balanced/Advanced compatible-size profiles, not ranked models. `model-catalog.tsx` renders `ModelHardwareNote` per model. `hardware.ts` and `tests/hardware.test.ts` establish conservative FP16 estimates when quantization is unknown, separate RAM/disk constraints, and compatible-size semantics. The developer reference places hardware advice and model selection in Models. All these guidance behaviors are present at `39e1666`; no later removal commit exists in the imported history. | Check all three profile names, the seven exact bundled Qwen 2.5 catalog IDs, per-model compatibility text and warning class, and agreement with the Lightweight size display. Exercise 16 → 8 → 4 → 16 GB RAM. Verify all profiles have no compatible sizes/counts at 4 GB. Keep installed status independent of fit. Search, pagination, model selection, instruction preservation, configuration edits, reload and selected-model persistence remain exercised. |
+| Zero documents after template import | README Templates and `tests/template-api.mjs` specify portable public website URLs, excluding private documents. `templateAssistantSchema` explicitly permits `sources` and strips unknown document fields; `importLocalTemplate` registers each URL as an assistant-owned document. The import behavior and public URLs are present at `39e1666`. The observed extra document was the configured public source, not a leaked file. | Compare exported sources to the selected original template by assistant name. For every assistant after both import paths, require the exact source URL set, correct ownership and enabled state, and absence of private/injected content. Keep export privacy checks and injected `documents` fields; assert all exported models reset to null and exactly three assistants are created. |
+| Fixed total of three templates after project deletion | `listTemplates` seeds the pinned built-ins and preserves user-saved templates; project deletion does not delete them. The count was last edited in `59de009`. `e35eeaa` adopted six official templates, recorded in `templates-source.json`, README and template API tests. The scenario then creates two custom templates. | Require initial catalog count + two, exact preservation of every original built-in ID, and the two exact custom template names. Existing built-in/custom deletion, project survival, deleted-template rejection and restart tombstone checks remain. This detects unexpected additions and losses without retaining an obsolete catalog total. |
+| White rendered project card | `POST /api/projects` still stores `#FFFFFF` for an empty project. `workspace.tsx:947–955` deliberately renders `resolveProjectPalette(color).background`; the palette resolver's stated contract and `tests/project-palettes.test.ts` preserve stored legacy colors while mapping their display. Both behaviors date to `39e1666`. The nearest palette for white is Lavender, `#F0EAFE`. | Keep the exact persisted-white assertion, expect exact Lavender RGB on the card, and recheck that rendering did not mutate stored white. Keep empty-assistant count, responsive layout and importing into the empty project. |
+
+The bundled Qwen entries have no quantization metadata. Their documented FP16
+RAM budgets are 7.5 GB (0.5B), 10.4 GB (1.5B) and 14.7 GB (3B): all three fit
+16 GB, only 0.5B fits 8 GB, none fit 4 GB. At the fixture's 100 GB free disk,
+32B/72B require 155/347 GB, so their exact warning is insufficient **disk**, which
+takes precedence over RAM. The first reconciliation attempt incorrectly expected
+RAM for those two sizes; its failure is retained and the test expectation was
+corrected against the documented budgets. No production helper is imported to
+compute expected UI answers, and the real bundled catalog/API is still exercised.
+
+No genuine application regression was found in these mismatches. The test
+changes do not mock additional application routes, skip scenarios, suppress
+exceptions, loosen deadlines or change application code. Remaining actions now
+execute through the end: cancel/confirm assistant deletion; sibling isolation;
+project deletion with conversation/file cleanup; empty-project creation and import;
+built-in/custom template deletion; invalid color rejection; server restart; saved
+template survival and deleted-template absence. Added equality checks verify all
+remaining project and assistant records survive restart unchanged. Both 1440px
+and 390px layout checks and their screenshots are retained.
+
+### Current execution results
+
+Environment: Debian 13 x64, Node 24.19.0, npm 11.9.0, system Chromium
+154.0.8037.57. Browser runs used `CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium`.
+Locked `npm ci` and the desktop build completed before the checks below. No
+dependency or lockfile change. Mock Ollama supports discovery; browser/server/SQLite
+operations are real, but none of these results proves real model inference.
+
+Evidence: [complete UI reconciliation archive](evidence/electron-phase1-ui-reconciliation.zip).
+`logs/` contains command logs, exit codes/times, source-history evidence and cleanup
+verification. `test-results/` retains failed-attempt traces/screenshots and final
+successful screenshots, renderer/server logs and fixture JSON. Successful runs
+discard traces by the existing helper's policy; their screenshots and logs remain.
+Both earlier evidence archives are untouched.
+
+| Command / attempt | Outcome | Evidence and limit |
+| --- | --- | --- |
+| `npm ci --cache /workspace/work/npm-cache` | PASS | `logs/npm-ci.log`; 586 packages, exit 0 |
+| `npm run desktop:build` | PASS | `logs/build.log`, command JSON; includes template snapshot validation and parser bundling |
+| `npm run typecheck` | PASS | `logs/typecheck.log`; exit 0 |
+| `npm test` | PASS | `logs/unit.log`; 175 passed, 0 failed/skipped |
+| `npm run test:infrastructure` | PASS | `logs/infrastructure.log`; 6 passed, 0 failed/skipped |
+| `npm run test:installer` | PASS | `logs/installer.log`; 4 passed, 0 failed/skipped; not a native install |
+| Project attempt: palette/guidance | FAIL, corrected | `logs/project-guidance.log`; initial new expectation missed disk-priority warnings |
+| Project attempt: guidance/disk corrected | FAIL, corrected | `logs/project-guidance-disk.log`; exposes obsolete zero-document assertion after import |
+| Project attempt: import/catalog corrected | FAIL, corrected | `logs/project-import.log`; exposes obsolete rendered-white expectation |
+| `node tests/project-flows.mjs`, final | PASS | `logs/project-complete.log`; complete workflow and restart, exit 0 |
+| `npm run test:ui`, final | **PASS** | `logs/ui-final.log`; guest, project-flows and workbench all execute in the aggregate, exit 0 |
+| `node tests/template-api.mjs` | PASS | `logs/template-api.log`; six presets, source ownership, privacy, portable exports/imports and legacy compatibility |
+| `npm run test:desktop:smoke` | BLOCKED | `logs/desktop-smoke.log`; no graphical session, exit 2; Electron never launched |
+| `npm run ollama:check` | BLOCKED | `logs/ollama-check.log`; discovery exits 1, real service unreachable and required models absent |
+| `test:desktop` / `test:desktop:real`, `ollama:test` | NOT RUN in this follow-up | Missing native display and real Ollama prerequisites; earlier native preflight failures remain historical evidence |
+| Native Windows/macOS, packaged installation acceptance | NOT RUN | No corresponding host/package; no release/package operation performed |
+| `git diff --check`, changed Markdown links, evidence archive integrity | PASS | Verified before commit |
+
+Final aggregate artifacts:
+
+- `guest-ui-1793998170007-a84d9294`: PASS.
+- `project-flows-1793998174589-3de614ec`: PASS, two standalone server processes
+  (before/after restart), seven workflow screenshots.
+- `workbench-ui-1793998190140-8b7532f8`: PASS.
+
+Each final fixture reports successful teardown, exited owned server processes and
+removed temporary profiles. The cleanup verification also checks these directories
+are absent; it does not infer native Windows cleanup from Linux results.
+
+This follow-up changes only `tests/project-flows.mjs`, this report,
+`docs/electron-testing.md` and the new evidence archive. PR #20 remains draft with
+**Phase 1 PARTIAL** because native Windows/Linux and real-Ollama acceptance are
+still incomplete. The existing browser/UI baseline is now green. No merge, RC2
+change, workflow activation, publication or Phase 2 work was performed.
+
 ## Risks, blockers and Phase 2 prerequisites
 
-1. The sidebar mismatch is resolved. Aggregate smoke remains red at the later
-   project-palette selector; the diagnostic run also exposed model-advice drift.
-   Review and reconcile those expectations separately without removing scenarios,
-   then execute the complete project workflow and aggregate UI smoke.
+1. The entire existing aggregate UI smoke now passes, with the original failures
+   retained as historical evidence. This resolves the browser baseline gate only;
+   it does not establish native Electron or real-model acceptance.
 2. Execute native mock smoke and lifecycle tests on Windows and graphical Linux,
    including interactive cancellation and process/profile cleanup. Native Windows
    taskkill and file-lock behavior remain unverified. macOS is also unverified.
@@ -259,7 +355,7 @@ and `docs/evidence/electron-phase1-sidebar-resolution.zip`.
 6. CI remains disabled by repository policy. A future runner needs separate
    authorization; no paid tool or new dependency is necessary.
 
-Phase 2 requires the first two blockers resolved with retained evidence, agreement
+Phase 2 requires the remaining native gates resolved with retained evidence, agreement
 on a focused functional scenario list and expected behavior, and a separate real
 inference acceptance environment where required. This PR is reviewable Phase 1
 infrastructure, not a claim that every Phase 1/native acceptance criterion passed.

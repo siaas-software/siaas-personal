@@ -2,8 +2,8 @@
 
 Phase 1 uses the existing Playwright dependency and Node test runner. See the
 [baseline and execution report](electron-phase1-report.md) for current evidence.
-This is Phase 1 infrastructure work with a source-backed correction to existing
-sidebar coverage; it includes no planner change or Phase 2 scenario suite.
+This is Phase 1 infrastructure work with source-backed reconciliation of the
+existing project UI smoke; it includes no planner change or Phase 2 scenario suite.
 
 ## Commands and prerequisites
 
@@ -104,17 +104,17 @@ npm.cmd run test:desktop:smoke
 if ($LASTEXITCODE -ne 0) { throw 'Native infrastructure smoke did not pass' }
 ```
 
-Run UI smoke separately and record its exit code: the Templates/Settings sidebar
-assertion is corrected, but the project suite currently stops at the later obsolete
-`Project color` selector (see report). Workbench can be run independently when
-that failure stops the aggregate. Do not change assertions simply to obtain PASS.
+Run the full UI smoke and record its exit code. Sidebar, palette, model guidance
+and template expectations have been reconciled, and the Linux browser aggregate
+now passes all three existing suites (see report). Windows must execute its own
+run; Linux results do not establish Windows acceptance. Do not change assertions
+simply to obtain PASS.
 
 ```powershell
 npm.cmd run test:ui
 $SiaasUiExit = $LASTEXITCODE
-node tests/workbench-ui.mjs
-$SiaasWorkbenchExit = $LASTEXITCODE
-"UI=$SiaasUiExit; Workbench=$SiaasWorkbenchExit"
+"UI=$SiaasUiExit"
+if ($SiaasUiExit -ne 0) { throw 'Full UI smoke did not pass; retain test-results' }
 ```
 
 For real inference, start the installed Ollama application/service. Model downloads
@@ -183,7 +183,7 @@ mock smoke (Linux with Xvfb), retaining `test-results` on failure. Real inferenc
 must stay a separate opt-in acceptance job with known local models/hardware.
 
 Before Phase 2, obtain passing native smoke and lifecycle evidence on Windows and
-Linux, resolve/review the remaining project UI baseline failures, establish a known-good
+Linux, retain the passing full UI baseline, establish a known-good
 real-model environment when inference coverage is intended, and agree on the
 functional scenario list and acceptance criteria. Native/macOS/package checks
 remain distinct. No CLI Lifecycle, planner, research/Docker or release work is
