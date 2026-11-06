@@ -14,7 +14,8 @@ computer. Use it to study, prepare reports and organize the information you need
 everyday work. Spreadsheet analysis is available in the release candidate,
 as explained below.
 
-[Get started](https://siaas.vercel.app/get-started) ·
+[Get started from source](#getting-started) ·
+[Installation from releases](#installation-from-releases) ·
 [English documentation](https://siaas.vercel.app/documentation/en/introduction) ·
 [Documentazione italiana](https://siaas.vercel.app/documentation/it/introduction) ·
 [Latest stable release](https://github.com/siaas-software/siaas-personal/releases/latest)
@@ -32,7 +33,7 @@ as explained below.
 - **Stay in control.** Choose models that fit your computer, inspect supporting
   sources and customize reusable templates. The code is available under MIT.
 
-## Main features
+## Main Features
 
 This README introduces **stable v1.0.0**, the latest published stable release.
 The stable installer and updater exclude prereleases. Features in RC2 or
@@ -75,21 +76,12 @@ your confirmation. Ollama interprets the question; a bounded local engine
 performs validated calculations and returns source evidence. This is separate
 from semantic document retrieval and is not available in stable v1.0.0.
 
-<a id="funzionalità-sperimentali-opzionali"></a>
-<a id="funzionalita-sperimentali-opzionali"></a>
-<a id="optional-experimental-features"></a>
-
-**Advanced Reasoning (Beta)** and **Advanced Web Research (Beta)** are independent,
-optional modules, off by default. Their supported stacks require Docker; web
-discovery also requires consent for the individual assistant. Both require an
-accessible Linux-container Docker Engine 20.10+ and Compose v2
-on x64/arm64. See the [research guide](docs/research-en.md) before enabling them.
-Normal chat, local Knowledge and configured website consultation work without Docker.
+See [Optional Components](#optional-components) for the Docker-based Betas.
 
 AI answers can be wrong. Review cited sources, data assumptions and important
 conclusions; local execution does not guarantee answer quality.
 
-## How it works
+## How It Works
 
 **Project → Assistants → Optional Knowledge → Chat**
 
@@ -105,15 +97,144 @@ a separate local embedding model; adding Knowledge does not retrain your chat
 model. Once the required software and models are ready, local chat and document
 retrieval can work offline.
 
+<a id="supported-platforms"></a>
+
+## Requirements
+
+### Platforms and hardware
+
+The source distribution targets **Windows, macOS and Linux**, on **x64 and arm64**.
+A graphical desktop is required for the Electron application. Platform support
+is a distribution target, not a claim that every native OS/architecture
+combination has passed acceptance testing; consult the selected release's notes.
+
+Start with about **8 GB RAM and 10 GB free disk space** for small models; these
+are practical starting recommendations, not guaranteed minimums for every model.
+Larger models, source builds and optional modules can need more memory and disk.
+A dedicated GPU is optional. Internet access is needed to install dependencies
+and download runtimes, Ollama and models.
+
+### Source development prerequisites
+
+- **Node.js and npm:** [package.json](package.json) declares Node.js **>=22.16.0**.
+  Use **Node.js 24.22.0**, the runtime pinned in [runtime.json](runtime.json), to
+  match the distribution environment. Desktop packaging requires **Node.js 24+**
+  for Zstandard support. Install npm with Node.js; no separate npm version is
+  pinned by this repository.
+- **Git:** required to clone the repository and select a branch or release tag.
+- **Electron/native dependencies:** Linux needs Electron's system libraries and
+  a graphical session. Dependencies that build native code may require your
+  operating system's compiler toolchain. Follow normal OS security controls;
+  do not bypass Gatekeeper, TLS verification or PowerShell execution policy.
+- **Release bootstrap tools:** Windows uses PowerShell 5.1+ and archive tools;
+  macOS/Linux use Bash, curl, tar, unzip and sha256sum or shasum. The managed
+  release installer provisions its own Node.js/npm and does not require Git.
+
+### Ollama and models
+
+Local inference requires a compatible **Ollama 0.11.10 or later**, as recorded in
+[the Ollama manifest](desktop/ollama-assets.json). SIAAS checks for an existing
+local service and can offer a managed installation if Ollama is missing; you do
+not need to preinstall it on architectures with a managed download or download
+models before the first desktop launch. Managed downloads cover only the targets
+listed in the manifest; other targets need a compatible external Ollama installation.
+Choose a chat model for each assistant and allow its download to finish.
+Document retrieval prepares a separate local embedding model when needed.
+Model size and capabilities determine memory needs and available assistant tools.
+
+## Optional Components
+
+**Docker is not required** for ordinary local AI, document retrieval, configured
+website consultation or standard assistants.
+
+<a id="funzionalità-sperimentali-opzionali"></a>
+<a id="funzionalita-sperimentali-opzionali"></a>
+<a id="optional-experimental-features"></a>
+
+**Advanced Reasoning (Beta)** and **Advanced Web Research (Beta)** are independent,
+optional components, both **disabled by default**. Their supported execution
+stacks require a running, accessible Linux-container **Docker Engine 20.10+**,
+**Compose v2** and the Docker CLI on x64/arm64. Windows/macOS can use Docker
+Desktop with the required virtualization/Linux-container setup; Linux can use
+Docker Engine plus Compose.
+
+Enable each component explicitly in **Settings → Experimental Features** after
+checking prerequisites and service health. Refreshing status does not enable
+anything. Advanced Web Research also requires consent in the individual
+assistant's research panel; its assistant switch does not enable the global
+service. Service setup can download container images and additional models and
+needs disk space, memory and network access beyond the basic recommendations.
+
+Read the research guides ([EN](docs/research-en.md) / [IT](docs/research-it.md))
+for setup, resource considerations, privacy and troubleshooting. Native and real
+Docker acceptance remain separate from automated tests; inclusion of these Betas
+does not certify their execution on every supported platform.
+
 <a id="quick-start"></a>
+<a id="development"></a>
 
-## Getting started
+## Getting Started
 
-Use the [installation guide](https://siaas.vercel.app/documentation/en/installation)
-and [first conversation walkthrough](https://siaas.vercel.app/documentation/en/quickstart).
-Start with one assistant and a small set of documents. Knowledge is optional.
+### From source
 
-### Installation
+With the [requirements](#requirements) installed, clone, build and launch the
+desktop application:
+
+```bash
+git clone --branch develop https://github.com/siaas-software/siaas-personal.git
+cd siaas-personal
+npm ci
+npm run desktop:dev
+```
+
+**develop contains unreleased changes**, including the six-template catalog and
+semantic palettes. For the exact stable v1.0.0 code, run
+`git switch --detach v1.0.0` after cloning and **before** `npm ci` and
+`npm run desktop:dev`. The release matrix above describes which features are
+included in each channel. Keep development test data separate from valuable work.
+
+`desktop:dev` builds the desktop runtime and launches Electron. It is not a
+hot-reload server: run it again after source changes. **`npm run dev` alone is
+not the Electron application**; the web-only entry point does not provide the
+desktop workspace.
+
+A manual source checkout uses your development tools. A managed release
+installation downloads a published source release, provisions its own runtime
+and builds it for you; a manual checkout does not inherit that managed update
+setup. See [Installation from Releases](#installation-from-releases) for that
+workflow.
+
+For everyday use, follow the [first conversation walkthrough](https://siaas.vercel.app/documentation/en/quickstart).
+Start with one assistant and a small set of documents; Knowledge is optional.
+
+### Development checks
+
+For application changes, run:
+
+```bash
+npm test
+npm run typecheck
+npm run build
+npm run desktop:build
+```
+
+Run the relevant targeted regressions as well. For changes to real local AI
+behavior, use `npm run ollama:test` with a working local Ollama service and the
+required models. Documentation-only changes need Markdown, link and factual
+consistency checks; application builds are unnecessary.
+
+Automated tests can use simulated inference and services; passing them does not
+establish native installation, real-model or Docker Beta acceptance. Those checks
+need their actual environments. Maintainer details, including template
+synchronization, are in [the develop developer reference](https://github.com/siaas-software/siaas-personal/blob/develop/docs/developer-reference.md);
+it describes development code, not the stable release.
+
+<a id="installation"></a>
+
+## Installation from Releases
+
+For the managed release workflow, see [Get started](https://siaas.vercel.app/get-started)
+and the [installation guide](https://siaas.vercel.app/documentation/en/installation).
 
 The supported public distribution is a **source installer**: it downloads verified
 release files, provisions an application-managed Node.js runtime, builds the app
@@ -157,13 +278,6 @@ verify its published SHA-256 digest, and explicitly set
 select RC2, even when downloaded from its release page. The default RC installation
 and data profile are separate from stable; do not override them to share stable
 data. Inspect and back up an existing RC before updating it.
-
-**Stable source checkout:** developers can clone the exact stable tag with
-`git clone --branch v1.0.0 --single-branch https://github.com/siaas-software/siaas-personal.git`,
-then run `npm ci` and `npm run desktop:dev` inside the checkout using Node.js
-24.22.0 and the platform prerequisites below. This manual route is separate from
-the managed installer; a source checkout does not inherit its managed update setup.
-See [Development](#development) for unreleased builds.
 
 ### Updates and existing workspaces
 
@@ -219,7 +333,7 @@ of financial or construction decisions.
 
 <a id="local-ai-and-models"></a>
 
-## Privacy and local AI
+## Privacy and Local AI
 
 Local inference, embeddings and workspace storage run on your computer. No paid
 cloud inference provider is required. Protect your operating-system account and
@@ -235,21 +349,6 @@ anonymization; avoid confidential questions when enabling discovery.
 For the distinction between saved web sources, configured websites and optional
 discovery, read [sources and research](docs/research-en.md). For backups, see
 [local data](https://siaas.vercel.app/documentation/en/data).
-
-## Supported platforms
-
-The source distribution targets **Windows, macOS and Linux**, on **x64 and arm64**.
-Platform support is a distribution target, not a claim that every native
-OS/architecture combination has passed acceptance testing; consult the selected
-release's notes and testing limitations.
-
-- Start with about **8 GB RAM and 10 GB free disk space** for small models; larger
-  models and optional modules require more. A dedicated GPU is optional.
-- Windows needs PowerShell 5.1 or later and archive tools.
-- macOS/Linux need Bash, curl, tar, unzip and sha256sum or shasum. Linux also needs
-  a graphical desktop and Electron's system libraries. Native builds may need
-  compiler tools.
-- Internet is needed for installation and initial model downloads.
 
 ## Documentation
 
@@ -271,39 +370,16 @@ Repository guides can retain historical prelaunch and validation notes; those
 are not a live service-status report. Check the selected release's notes for
 availability, especially when website guides discuss newer features.
 
-## Open source and contributing
+<a id="open-source-and-contributing"></a>
+
+## Contributing and License
 
 Bug reports, documentation improvements and code contributions are welcome.
 Include your OS, application version, reproduction steps and a sanitized error
 message when [reporting a problem](https://github.com/siaas-software/siaas-personal/issues).
 See [CONTRIBUTING.md](CONTRIBUTING.md) for GitFlow and pull request requirements.
 
-## Development
-
-Development builds follow `develop` and may contain unreleased application changes,
-including the six-template catalog and semantic palettes. They are separate from
-stable installation and updates. Use a separate checkout and workspace for testing.
-
-From a computer with Git, a graphical desktop and Node.js 24.22.0 (the pinned
-distribution runtime; see [runtime.json](runtime.json) and
-[package.json](package.json)):
-
-```bash
-git clone --branch develop https://github.com/siaas-software/siaas-personal.git siaas-personal-develop
-cd siaas-personal-develop
-npm ci
-npm run desktop:dev
-```
-
-`desktop:dev` builds and launches Electron; run it again after source changes.
-The web-only `npm run dev` entry point does not provide the desktop workspace.
-For application changes run `npm test`, `npm run typecheck`, `npm run build` and
-`npm run desktop:build`, plus relevant regressions. For documentation changes,
-check Markdown, links and factual consistency. Maintainer details, including
-template synchronization, are in [the develop developer reference](https://github.com/siaas-software/siaas-personal/blob/develop/docs/developer-reference.md);
-that document describes development code, not the stable release.
-
-## License
+### License
 
 Original SIAAS Personal code is licensed under the [MIT License](LICENSE).
 Copyright © 2026 Davide Abbatiello. Third-party components, model weights and
