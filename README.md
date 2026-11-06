@@ -155,8 +155,8 @@ Docker is not required for normal chat, local Knowledge or standard assistants.
 For configuration, prerequisites, privacy and troubleshooting, see the official
 research guides:
 
-- [Research guide — English](https://github.com/siaas-software/siaas-personal/blob/docs/stable-readme-alignment-20261106/docs/research-en.md)
-- [Guida alla ricerca — Italiano](https://github.com/siaas-software/siaas-personal/blob/docs/stable-readme-alignment-20261106/docs/research-it.md)
+- [Research guide — English](docs/research-en.md)
+- [Guida alla ricerca — Italiano](docs/research-it.md)
 
 <a id="quick-start"></a>
 <a id="development"></a>
