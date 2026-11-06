@@ -2,13 +2,15 @@
 // Only Ollama model discovery is simulated; no personal data or installed app is used.
 import { chromium } from 'playwright';
 import { createServer } from 'node:http';
-import { spawn } from 'node:child_process';
-import { mkdtemp, mkdir, readFile, rm, access } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile, access } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import assert from 'node:assert/strict';
 
-const directory = await mkdtemp(join(tmpdir(), 'siaas-project-flows-'));
+import { runTest, requireBuild, freePort, waitForReady, cleanEnv, launchBrowser, stopChild } from './helpers/runtime.mjs';
+
+await runTest('project-flows', async run => {
+await requireBuild();
+const directory = await run.tempDir();
 const ollama = createServer((req, res) => {
   if (req.url === "/api/show") { res.setHeader("Content-Type", "application/json"); res.end(JSON.stringify({ capabilities: ["completion"] })); return; }
   res.setHeader('Content-Type', 'application/json');
@@ -18,18 +20,15 @@ const ollama = createServer((req, res) => {
     { name: 'embeddinggemma:latest', digest: 'b'.repeat(64) },
   ] }));
 });
-await new Promise(r => ollama.listen(0, '127.0.0.1', r));
-const probe = createServer();
-await new Promise(r => probe.listen(0, '127.0.0.1', r));
-const port = probe.address().port;
-await new Promise(r => probe.close(r));
+await run.server(ollama);
+const port = await freePort();
 const origin = `http://127.0.0.1:${port}`;
 const key = 'isolated-project-flows-test-key-000000';
 const headers = { 'Content-Type': 'application/json', origin, 'x-siaas-desktop-key': key };
 let server, browser, logs = '';
 const pageErrors = [];
 async function request(path, method = 'GET', body) {
-  return fetch(origin + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
+  return fetch(origin + path, { method, headers, signal: AbortSignal.timeout(30000), body: body === undefined ? undefined : JSON.stringify(body) });
 }
 async function api(path, method = 'GET', body) {
   const r = await request(path, method, body); const text = await r.text();
@@ -45,26 +44,21 @@ async function until(check) {
   throw new Error('Condition timed out');
 }
 async function start() {
-  server = spawn(process.execPath, [resolve('.next/standalone/server.js')], {
-    env: { ...process.env, NODE_ENV: 'production', HOSTNAME: '127.0.0.1', PORT: String(port),
+  server = run.child(process.execPath, [resolve('.next/standalone/server.js')], {
+    env: cleanEnv({ NODE_ENV: 'production', HOSTNAME: '127.0.0.1', PORT: String(port),
       SIAAS_RUNTIME: 'desktop', SIAAS_DESKTOP_DEV: '1', SIAAS_DESKTOP_KEY: key,
       SIAAS_DESKTOP_ORIGIN: origin, SIAAS_DATA_DIR: join(directory, 'data'), VERCEL: '0',
-      OLLAMA_BASE_URL: `http://127.0.0.1:${ollama.address().port}`, NEXT_TELEMETRY_DISABLED: '1' },
+      OLLAMA_BASE_URL: `http://127.0.0.1:${ollama.address().port}`, NEXT_TELEMETRY_DISABLED: '1' }),
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   server.stdout.on('data', d => logs += d); server.stderr.on('data', d => logs += d);
-  await until(async () => { try { return (await request('/')).ok; } catch { return false; } });
+  await waitForReady(origin, { child: server, headers });
 }
-async function stop() {
-  if (server && server.exitCode === null) {
-    server.kill('SIGTERM'); await new Promise(r => server.once('exit', r));
-  }
-}
-try {
+async function stop() { await stopChild(server); }
   await start();
-  browser = await chromium.launch({ headless: true, args: ['--no-sandbox'],
-    ...(process.env.CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH } : {}) });
+  browser = await launchBrowser(run, chromium);
   const page = await browser.newPage({ viewport: { width: 1440, height: 1100 }, extraHTTPHeaders: { 'x-siaas-desktop-key': key } });
+  await run.context(page.context());
   page.on('pageerror', e => pageErrors.push(e.message));
   await page.route('**/api/local/hardware', route => route.fulfill({ json: {
     hardware: { ram: 16, gpu: 'cpu', vram: 0, disk: 100 },
@@ -103,8 +97,8 @@ try {
   await config.getByRole('button', { name: 'Save project' }).click();
   await page.getByRole('heading', { name: 'Evento aggiornato.' }).waitFor();
   await until(async () => await page.locator('main').evaluate(el => getComputedStyle(el).backgroundColor) === 'rgb(24, 40, 60)');
-  await mkdir('test-results/project-flows', { recursive: true });
-  await page.screenshot({ path: 'test-results/project-flows/detail.png', fullPage: true });
+
+  await page.screenshot({ path: join(run.out, 'detail.png'), fullPage: true });
   const a = assistants[0];
   await page.locator('.resource-card').filter({ has: page.getByRole('heading', { name: a.name, exact: true }) }).locator('.assistant-card').click();
   await page.getByRole('tab', { name: 'Configuration', exact: true }).click();
@@ -123,10 +117,10 @@ try {
     assert.equal(await section.getByText(recommended, { exact: true }).count(), 1);
     assert.equal(await section.getByText(installedRecommended, { exact: true }).count(), 1);
   }
-  await page.screenshot({ path: 'test-results/project-flows/assistant-config-desktop.png', fullPage: true });
+  await page.screenshot({ path: join(run.out, 'assistant-config-desktop.png'), fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-  await page.screenshot({ path: 'test-results/project-flows/assistant-config-mobile.png', fullPage: true });
+  await page.screenshot({ path: join(run.out, 'assistant-config-mobile.png'), fullPage: true });
   await page.setViewportSize({ width: 1440, height: 1100 });
   await advisor.getByLabel('Total RAM (GB)', { exact: true }).fill('8');
   for (const section of [advisor, catalog]) {
@@ -157,7 +151,7 @@ try {
   await page.getByRole('tab', { name: 'Models', exact: true }).click();
   await page.locator('.assistant-models .model-tag').filter({ hasText: /qwen2.5-coder|Qwen 2.5 Coder/i }).waitFor();
   assert.equal(await page.getByRole('tab', { name: 'Models', exact: true }).getAttribute('aria-selected'), 'true');
-  await page.screenshot({ path: 'test-results/project-flows/model-config.png', fullPage: true });
+  await page.screenshot({ path: join(run.out, 'model-config.png'), fullPage: true });
   await page.getByRole('button', { name: 'All assistants', exact: true }).click();
   const doc = await api('/api/documents', 'POST', { assistant_id: a.id, title: 'Private.txt', kind: 'txt', byte_size: 15 });
   const uploaded = await fetch(origin + `/api/local/files/${doc.id}`, { method: 'PUT', headers: { ...headers, 'Content-Type': 'text/plain' }, body: 'PRIVATE CONTENT' });
@@ -225,10 +219,10 @@ try {
   const whiteCard = page.locator('.project-card').filter({ hasText: 'Project bianco' });
   assert.equal(await whiteCard.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(255, 255, 255)');
   assert.match(await whiteCard.innerText(), /ASSISTANTS\s*0/);
-  await page.screenshot({ path: 'test-results/project-flows/projects.png', fullPage: true });
+  await page.screenshot({ path: join(run.out, 'projects.png'), fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-  await page.screenshot({ path: 'test-results/project-flows/mobile.png', fullPage: true });
+  await page.screenshot({ path: join(run.out, 'mobile.png'), fullPage: true });
   await page.setViewportSize({ width: 1440, height: 1100 });
   await page.getByRole('button', { name: 'Open project Project bianco', exact: true }).click();
   await page.getByRole('button', { name: 'Project actions', exact: true }).click();
@@ -242,7 +236,7 @@ try {
   assert.equal(importedInto.color, '#18283c');
   assert.equal((await api('/api/workspace')).assistants.filter(a => a.project_id === importedInto.id).length, 3);
   await page.getByRole('button', { name: 'Project actions', exact: true }).click();
-  await page.screenshot({ path: 'test-results/project-flows/project-menu.png', fullPage: true });
+  await page.screenshot({ path: join(run.out, 'project-menu.png'), fullPage: true });
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Templates', exact: true }).click();
   page.once('dialog', d => d.accept());
@@ -260,10 +254,4 @@ try {
   assert((await api('/api/templates')).some(t => t.name === 'Evento riutilizzabile'));
   assert.equal(pageErrors.length, 0, pageErrors.join('\n'));
   console.log('PASS: real desktop UI/API/SQLite; template configuration, private-data exclusion, named export/import, deletion and restart, real cards, white default, sidebar, project editing/background, no project-list Ollama banner.');
-} catch (error) {
-  console.error(logs); throw error;
-} finally {
-  await browser?.close(); await stop(); ollama.closeAllConnections();
-  await new Promise(r => ollama.close(r));
-  await rm(directory, { recursive: true, force: true });
-}
+});
