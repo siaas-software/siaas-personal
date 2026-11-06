@@ -1,209 +1,203 @@
 <p align="center">
-  <strong>SIAAS Personal</strong>
+  <img src="src/app/icon.svg" alt="SIAAS Personal logo" width="100">
 </p>
 
 <h1 align="center">SIAAS Personal</h1>
 
 <p align="center">
-  <strong>Build and use local AI agents without needing the technical knowledge to set up a local AI environment.</strong>
+  <strong>Your projects, your knowledge, your local AI assistants.</strong>
 </p>
 
-<p align="center">
-  <a href="#quick-start">Quick Start</a> &middot;
-  <a href="#product-principles">Product principles</a> &middot;
-  <a href="#how-it-works">How it works</a> &middot;
-  <a href="#local-ai-and-models">Local AI</a> &middot;
-  <a href="#development">Development</a> &middot;
-  <a href="https://siaas.vercel.app/documentation">User guide</a>
-</p>
+SIAAS Personal is a free, open-source, privacy-first desktop AI assistant platform.
+It brings local AI models, documents and conversations into one workspace on your
+computer. Use it to study, prepare reports and organize the information you need for
+everyday work. Spreadsheet analysis is available in the release candidate,
+as explained below.
 
----
+[Get started from source](#getting-started) ·
+[Installation from releases](#installation-from-releases) ·
+[English documentation](https://siaas.vercel.app/documentation/en/introduction) ·
+[Documentazione italiana](https://siaas.vercel.app/documentation/it/introduction) ·
+[Latest stable release](https://github.com/siaas-software/siaas-personal/releases/latest)
 
-SIAAS Personal gives you a **ready-to-use local environment for AI agents** without asking you to understand or manually configure models, runtimes, embeddings or RAG infrastructure.
+<a id="product-principles"></a>
 
-Create a project for your role or activity, add specialized assistants, give them your knowledge and start using them. SIAAS Personal takes care of the local AI environment behind the scenes: it detects the computer capabilities, manages Ollama, helps choose suitable models and downloads what is needed.
+## Why SIAAS?
 
-**Project → Assistants → Optional knowledge → Use**
+- **Keep your workspace local.** Your documents, conversations and retrieval data
+  are stored on your computer. Local models run through Ollama.
+- **Build around your tasks.** Give each assistant a purpose, instructions, its
+  own model and the sources it needs.
+- **Start without an account.** Normal use requires no SIAAS account, paid AI API
+  or Docker installation.
+- **Stay in control.** Choose models that fit your computer, inspect supporting
+  sources and customize reusable templates. The code is available under MIT.
 
-No paid AI API is required for normal Personal usage. AI execution, documents, conversations and RAG data stay on the user's computer.
+## Main Features
 
-Every assistant uses a unified local-documents → configured-websites workflow. Websites are consulted on demand only when deterministic source routing calls for them. Advanced Reasoning (Beta) and Advanced Web Research (Beta) are independent optional Docker-based features, both off by default in Settings → Experimental Features. Normal chat, local knowledge, selected websites and standard agents work without Docker. See the [research guide](docs/research-en.md).
+This README introduces **stable v1.0.0**, the latest published stable release.
+The stable installer and updater exclude prereleases. Features in RC2 or
+`develop` do not become stable simply because they appear in this repository's
+documentation.
 
-## Product principles
+### Release availability
 
-### Local-first privacy
+| Capability | Stable v1.0.0 | Published v1.1.0-rc.2 | Current develop (unreleased changes) |
+| --- | --- | --- | --- |
+| Projects, Assistants, local Ollama chat, Actions and Data Cell | Available | Available | Retained |
+| Local document retrieval, embeddings and public web sources | Available | Available | Retained |
+| Structured Data Analysis with bounded, deterministic calculations | Not included | Available | Retained |
+| Automatic preparation of clear CSV/XLSX files | Not included | Available; ambiguities need confirmation | Retained |
+| Bundled official templates | Computer Science Study, Home Gardening, Software Engineering | Computer Science Study, Production Planning, Personal Finance | Six templates listed below |
+| Semantic template palette keys and compatibility handling | Not included | Not included | Integrated after RC2 |
+| Optional Advanced Reasoning and Advanced Web Research Betas | Included; off by default, Docker required | Retained as optional Betas | Retained as optional Betas |
 
-SIAAS Personal is designed to run locally. AI execution, workspace data, assistants, documents, RAG data and conversations stay on the user's computer.
+See the [stable release notes](https://github.com/siaas-software/siaas-personal/releases/tag/v1.0.0)
+and [RC2 release notes](https://github.com/siaas-software/siaas-personal/releases/tag/v1.1.0-rc.2)
+for the exact published scope and testing limitations. The current development
+reference is [the develop README](https://github.com/siaas-software/siaas-personal/blob/develop/README.md).
+Availability does not mean native, real-model or Docker acceptance has passed.
 
-SIAAS Personal has no user account or cloud authentication. Updates use official GitHub Releases. Optional web research makes outbound queries and page requests as described below.
+The following everyday features are included in **stable v1.0.0**:
 
-### Knowledge and local RAG
+| Feature | What you can do |
+| --- | --- |
+| Projects and Assistants | Organize a course, activity or project into assistants with distinct roles, instructions and conversations. |
+| Knowledge and local retrieval | Import PDF, DOCX, TXT or Markdown, connect a folder, and ask questions supported by relevant passages. Scanned PDFs need OCR first. |
+| Chat and AI assistance | Draft, explain, summarize and explore ideas with a local model. Compatible tool-capable models can also search sources and prepare reports. |
+| Actions and Data Cell | Reuse instructions for reports, mind maps, flashcards and quizzes, or create custom Actions. Data Cell / Data table is a separate chat tool for requesting a table; it is not a spreadsheet calculation engine. |
+| Templates | Start with prepared assistants, then personalize the project and select suitable models. |
+| Models and Overview | Choose and download local models, see which are loaded, and inspect available computer resource readings. |
 
-Assistants can use PDF, DOCX, TXT and Markdown sources. SIAAS Personal stores and indexes them locally, creates embeddings and retrieves relevant passages when an assistant needs them.
+**In RC2**, you can also import CSV/XLSX in Knowledge and ask for totals,
+comparisons or grouped results. Clear spreadsheets are prepared automatically;
+ambiguous values, cached formula results and cross-file relationships can require
+your confirmation. Ollama interprets the question; a bounded local engine
+performs validated calculations and returns source evidence. This is separate
+from semantic document retrieval and is not available in stable v1.0.0.
 
-Knowledge remains isolated according to the configured assistant/project context, and sources used in answers remain inspectable.
+See [Optional Components](#optional-components) for the Docker-based Betas.
 
-### Templates
+AI answers can be wrong. Review cited sources, data assumptions and important
+conclusions; local execution does not guarantee answer quality.
 
-Templates are reusable starting points for recognizable roles or concrete activities.
+## How It Works
 
-A Template can define a project structure with multiple specialized assistants, their roles, instructions, configuration, project color and model references.
+**Project → Assistants → Optional Knowledge → Chat**
 
-The model belongs to the individual assistant. Portable templates keep the `siaas-project-v1` format and export only project name, description, color and assistant name, description, instructions, public web `sources` (URL strings) and `model: null`. Models are recommended on the destination computer. Assistant colors and `listing` are ignored when importing legacy files. Missing `sources` defaults to an empty list.
+1. Create a project for an activity, or start from a template.
+2. Give each assistant a role and instructions.
+3. Open **Models**, select a suitable local model and allow any download to finish.
+4. Optionally add files, a folder or public web sources in **Knowledge**.
+5. Ask a question in **Chat** and inspect the evidence used in the answer.
 
-Files, linked folders, local paths, downloaded text, embeddings, chats and indexing metadata never travel in a project template. Exporting leaves the original workspace and local folder updates unchanged. All registered web URLs, including disabled sources, are exported; imported sources start enabled. Adding a template to the catalog stores its configuration only. Creating a project from it (or importing into an empty project) registers each assistant’s URLs immediately and starts local extraction/indexing in the background. Offline or without an embedding model, sources stay pending and can be retried from Knowledge.
+SIAAS checks for a compatible Ollama service and reuses it where possible. If
+Ollama is missing, it can offer a managed installation. Document retrieval uses
+a separate local embedding model; adding Knowledge does not retrain your chat
+model. Once the required software and models are ready, local chat and document
+retrieval can work offline.
 
-Each assistant can add, refresh, enable/disable and remove its own web sources. Disabled sources are excluded from new RAG retrieval and agent document tools; existing chat messages remain unchanged. Refresh replaces the previous index without duplicates, and removing a source removes its chunks. Only readable public HTML/text pages are supported; sign-in, JavaScript-only pages and website restrictions can prevent extraction.
+<a id="supported-platforms"></a>
 
-## Quick Start
+## Requirements
 
-### Install the application
+### Platforms and hardware
 
-Visit [Get started](https://siaas.vercel.app/get-started) for source installation on Windows, macOS and Linux. The PowerShell and Bash bootstraps provision official Node.js 24.22.0 LTS in an application-managed directory, verify runtime and release checksums, build the desktop package and create a launcher. No global Node.js, npm, Git or NVM changes are required. A published stable source release is required; no user account or cloud configuration is needed.
+The source distribution targets **Windows, macOS and Linux**, on **x64 and arm64**.
+A graphical desktop is required for the Electron application. Platform support
+is a distribution target, not a claim that every native OS/architecture
+combination has passed acceptance testing; consult the selected release's notes.
 
-SIAAS Personal runs entirely in **guest mode**. Projects, assistants, chats, local Knowledge, templates, Overview, model downloads and application updates require no account. Use **Settings → Application updates** to check the latest stable release. Local work remains available offline; use separate OS profiles for separate workspaces.
+Start with about **8 GB RAM and 10 GB free disk space** for small models; these
+are practical starting recommendations, not guaranteed minimums for every model.
+Larger models, source builds and optional modules can need more memory and disk.
+A dedicated GPU is optional. Internet access is needed to install dependencies
+and download runtimes, Ollama and models.
 
-The source manager keeps the current installation when it is already up to date and stages newer versions separately. On first launch, the shared Ollama manager reuses a compatible service or starts a stopped installation, preserving existing models. It offers a managed download only if Ollama is absent; incompatible installations are reported, never silently replaced. Missing models are downloaded when needed.
+### Source development prerequisites
 
-### Source development requirements
+- **Node.js and npm:** [package.json](package.json) declares Node.js **>=22.16.0**.
+  Use **Node.js 24.22.0**, the runtime pinned in [runtime.json](runtime.json), to
+  match the distribution environment. Desktop packaging requires **Node.js 24+**
+  for Zstandard support. Install npm with Node.js; no separate npm version is
+  pinned by this repository.
+- **Git:** required to clone the repository and select a branch or release tag.
+- **Electron/native dependencies:** Linux needs Electron's system libraries and
+  a graphical session. Dependencies that build native code may require your
+  operating system's compiler toolchain. Follow normal OS security controls;
+  do not bypass Gatekeeper, TLS verification or PowerShell execution policy.
+- **Release bootstrap tools:** Windows uses PowerShell 5.1+ and archive tools;
+  macOS/Linux use Bash, curl, tar, unzip and sha256sum or shasum. The managed
+  release installer provisions its own Node.js/npm and does not require Git.
 
-- Git
-- Node.js 22.16+ with npm (the packaging workflow uses Node 24)
-- Repository access for source development
-- Windows, macOS or Linux with a graphical desktop
+### Ollama and models
 
-A dedicated GPU is optional. As a practical starting point, use a machine with at least 8 GB RAM and around 10 GB free disk space.
+Local inference requires a compatible **Ollama 0.11.10 or later**, as recorded in
+[the Ollama manifest](desktop/ollama-assets.json). SIAAS checks for an existing
+local service and can offer a managed installation if Ollama is missing; you do
+not need to preinstall it on architectures with a managed download or download
+models before the first desktop launch. Managed downloads cover only the targets
+listed in the manifest; other targets need a compatible external Ollama installation.
+Choose a chat model for each assistant and allow its download to finish.
+Document retrieval prepares a separate local embedding model when needed.
+Model size and capabilities determine memory needs and available assistant tools.
 
-### Clone and run
+## Optional Components
+
+<a id="funzionalità-sperimentali-opzionali"></a>
+<a id="funzionalita-sperimentali-opzionali"></a>
+<a id="optional-experimental-features"></a>
+
+Advanced Reasoning (Beta) and Advanced Web Research (Beta) are independent optional
+features, disabled by default. Both require Docker and additional resources.
+Docker is not required for normal chat, local Knowledge or standard assistants.
+
+For configuration, prerequisites, privacy and troubleshooting, see the official
+research guides:
+
+- [Research guide — English](docs/research-en.md)
+- [Guida alla ricerca — Italiano](docs/research-it.md)
+
+<a id="quick-start"></a>
+<a id="development"></a>
+
+## Getting Started
+
+### From source
+
+With the [requirements](#requirements) installed, clone, build and launch the
+desktop application:
 
 ```bash
-git clone https://github.com/siaas-software/siaas-personal.git
+git clone --branch develop https://github.com/siaas-software/siaas-personal.git
 cd siaas-personal
 npm ci
 npm run desktop:dev
 ```
 
-`desktop:dev` is a build-and-launch command, not a hot-reload server. Run it again after source changes.
+**develop contains unreleased changes**, including the six-template catalog and
+semantic palettes. For the exact stable v1.0.0 code, run
+`git switch --detach v1.0.0` after cloning and **before** `npm ci` and
+`npm run desktop:dev`. The release matrix above describes which features are
+included in each channel. Keep development test data separate from valuable work.
 
-`desktop:dev` builds the desktop runtime and starts Electron. No `.env.local`, cloud configuration, manual Ollama installation or pre-downloaded chat models are required. Electron supplies the local server origin and per-launch access key. The web-only `npm run dev` entrypoint displays desktop startup guidance; it does not expose the local database. Updates use official stable GitHub Releases without a user account.
+`desktop:dev` builds the desktop runtime and launches Electron. It is not a
+hot-reload server: run it again after source changes. **`npm run dev` alone is
+not the Electron application**; the web-only entry point does not provide the
+desktop workspace.
 
-## How it works
+A manual source checkout uses your development tools. A managed release
+installation downloads a published source release, provisions its own runtime
+and builds it for you; a manual checkout does not inherit that managed update
+setup. See [Installation from Releases](#installation-from-releases) for that
+workflow.
 
-### 1. Create a project
+For everyday use, follow the [first conversation walkthrough](https://siaas.vercel.app/documentation/en/quickstart).
+Start with one assistant and a small set of documents; Knowledge is optional.
 
-Create a space dedicated to your role or activity.
+### Development checks
 
-### 2. Create your assistants
-
-Add specialized assistants for the different tasks that are part of that role or activity. Each assistant has its own purpose, instructions, configuration and AI model.
-
-### 3. Connect your documents when useful
-
-In an assistant’s **Knowledge** section, choose **Import files** to create local managed copies or **Connect folder** to use documents in their existing location. Imported originals are never moved. Folder selection supports a native picker, a pasted absolute path, optional subfolders and a preview before confirmation. Knowledge remains optional.
-
-Connected folders are checked when opening a project; **Refresh now** also checks changes and processes pending documents when the local embedding model is ready. The opening check marks new and changed files for processing without silently starting model work. Deleted source files are removed from retrieval. An unavailable folder is clearly marked and stops contributing to answers until it is reconnected and processed. You can update its path after moving it or reconnecting a disk. There is no continuous background watcher in this version.
-
-Supported files: PDF, DOCX, TXT and Markdown, up to 10 MB each and 100 documents per assistant. Hidden files, symbolic links and unsupported files are excluded. Scanned PDFs need OCR first. Identical imported content is deduplicated within an assistant; same-name files with different content receive separate document directories. Overlapping folder links within one assistant are rejected.
-
-#### Local filesystem organization
-
-The **Settings → Documents on this PC** panel shows the data directory and opens it in the system file manager. The packaged app uses Electron’s user-data directory; a directly started desktop server may use `SIAAS_DATA_DIR` or `~/.siaas`.
-
-| Relative path | Contents |
-| --- | --- |
-| `projects/<project-id>/assistants/<assistant-id>/documents/<document-id>/file-<name>` | Managed copies, preserving readable names without collisions |
-| `projects/<project-id>/assistants/<assistant-id>/sources.json` | Folder links and document metadata |
-| `projects/<project-id>/assistants/<assistant-id>/knowledge/index.json` | Rebuildable extracted passages and index metadata |
-| `siaas.sqlite` | Authoritative records, embeddings and conversations, isolated by assistant |
-
-Run `npm run desktop:build && npm run test:knowledge` to exercise the real desktop API with temporary files, SQLite and a deterministic Ollama fixture.
-
-IDs keep paths stable when projects or assistants are renamed. Existing imported files migrate on startup without changing document IDs or indexed content; interrupted migrations keep the original path usable and retry on restart. JSON manifests are rebuilt from SQLite.
-
-Removing a source also removes its searchable index. For imported files, a separate unchecked option deletes the managed copy; otherwise that copy remains in the data directory. Removing an individual linked document excludes it from subsequent folder refreshes. Disconnecting a folder never deletes originals. Deleting an assistant or project removes its managed copies and derived data, while linked originals remain untouched.
-
-### 4. Use your assistants
-
-Chat with the right assistant using its instructions, selected model, conversation history and relevant local knowledge.
-
-## Local AI and models
-
-SIAAS Personal uses Ollama to run AI models locally, but the user does not need to configure the local AI stack manually.
-
-The desktop runtime checks for a compatible Ollama installation and can reuse it or configure a managed local copy.
-
-Chat models are selected per assistant. SIAAS Personal can recommend a suitable model using the assistant's task and the computer's available resources. If the selected model is missing, it is downloaded from the application when needed.
-
-EmbeddingGemma is used for local document retrieval and is prepared when local knowledge requires it. It is infrastructure, not the chat model assigned to an assistant.
-
-SIAAS Personal does not fine-tune or retrain model weights.
-
-### Local agent mode
-
-Desktop assistants automatically use agent mode when Ollama confirms at least **8B parameters** and support for tool calling. Smaller models, models without tool support and models with unknown size keep normal chat. The mode is shown in chat and settings.
-
-The agent can search its own documents, read source passages and create downloadable Markdown reports. Conversations and reports stay in SQLite on the computer. This first version limits each response to eight tool operations and three reports, and does not automatically resume an interrupted tool workflow.
-
-### Overview dashboard
-
-**Overview** appears in the left sidebar alongside Projects. It monitors all installed local Ollama models, including embeddings and models with no assigned assistant. It shows loaded models, SIAAS Personal requests, linked assistants/projects and available CPU, RAM, GPU/VRAM and other resource readings.
-
-Computer-wide load is not attributed to individual models. Missing sensors are shown as unavailable, and disconnected Ollama data is marked stale. Local request history contains metrics, not prompt or response content.
-
-### Assistant research
-
-Every assistant can use **both local indexed documents and configured websites**, including standard chat models. Local retrieval comes first; websites are consulted when meaningful-term coverage is below 80% or current/website information is requested. Greetings and explicit local-only requests skip external consultation. This routing rule is deterministic and is not a correctness check. Imported Knowledge Sources are persistent; configured websites are read on demand without automatic import. Advanced Reasoning (Beta) and Advanced Web Research (Beta) require Docker and explicit, independent opt-in in **Settings → Experimental Features**. Both are off by default; legacy settings do not enable them. Controls remain disabled without a running, accessible Linux-container Docker Engine 20.10+ (x64/arm64) and Compose v2. Refresh Status never enables a feature automatically. Backend checks prevent activation and advanced requests when prerequisites fail. Standard chat, selected websites and agents need no Docker. Advanced Web Research also requires the OFF-by-default assistant toggle in its research panel. Legacy Advanced configurations migrate with this toggle OFF; legacy document-only configurations with inactive saved URLs require confirmation before website consultation. URLs, budgets and conversation evidence are preserved. Discovery queries use only the current public question; no query is generated from local documents or history.
-
-With Docker Desktop (Windows/macOS) or Engine plus Compose (Linux) already running:
-
-```bash
-docker --version
-docker compose version
-docker info
-npm run research:setup -- reasoning
-npm run research:setup -- web
-npm run research:status
-npm run research:start -- web
-npm run research:stop -- web
-```
-
-Use the Settings switches for normal activation. These optional troubleshooting commands manage only the named service and do not change the saved opt-in. They never delete volumes or unrelated containers. See research [English](docs/research-en.md) / [Italiano](docs/research-it.md), and installation [English](docs/installation-en.md) / [Italiano](docs/installation-it.md) for OS prerequisites, troubleshooting, privacy and current limitations.
-
-
-## Architecture
-
-| Layer | Technology |
-|---|---|
-| Desktop | Electron |
-| Application | Next.js + React |
-| Local database | SQLite |
-| Local AI runtime | Ollama |
-| Local agent | LangChain JS `createAgent` / LangGraph + ChatOllama |
-| Local RAG | EmbeddingGemma + local document chunks |
-| Optional research | Independent Advanced Reasoning (Beta) and Advanced Web Research (Beta), both off by default; Docker required |
-| Online services | Official releases/updates and optional web research |
-
-The local server binds to `127.0.0.1` on a random port and uses a per-session key. Host and origin checks apply in guest mode too. The renderer has no Node access. Guest mode does not create an anonymous cloud account; the local OS profile owns the workspace.
-
-### Public installation and account-free updates
-
-- `GET /api/desktop/downloads?platform=win32&arch=x64` retains validated public installer metadata, when a matching stable binary release exists.
-- The desktop checks official GitHub Releases without a login. Source installations support **Update now**, with native confirmation before shutdown and activation through the independent source manager.
-- The source manager stages the tagged version, builds it, creates launchers and switches the active version only after validation. Rollback changes application binaries, not local data.
-- An unavailable release or offline connection produces an update error without locking the workspace. No authenticated update-ticket service is required.
-- See [Migration and compatibility](docs/migration-en.md) for preserved data locations and validation limits.
-
-## Development
-
-The normal developer workflow is the Quick Start above: `npm ci` followed by `npm run desktop:dev`.
-
-For work limited to the Next.js layer, use:
-
-```bash
-npm run dev
-```
-
-For application code changes, run:
+For application changes, run:
 
 ```bash
 npm test
@@ -212,127 +206,170 @@ npm run build
 npm run desktop:build
 ```
 
-For changes involving real local AI behavior, also run `npm run ollama:test`.
+Run the relevant targeted regressions as well. For changes to real local AI
+behavior, use `npm run ollama:test` with a working local Ollama service and the
+required models. Documentation-only changes need Markdown, link and factual
+consistency checks; application builds are unnecessary.
 
-For documentation-only changes, check links, commands and consistency with current behavior. Installer generation is not part of ordinary development.
+Automated tests can use simulated inference and services; passing them does not
+establish native installation, real-model or Docker Beta acceptance. Those checks
+need their actual environments. Maintainer details, including template
+synchronization, are in [the develop developer reference](https://github.com/siaas-software/siaas-personal/blob/develop/docs/developer-reference.md);
+it describes development code, not the stable release.
 
-## Releases and updates
+<a id="installation"></a>
 
-Desktop installers are generated only for real releases, manually or from version tags such as `v1.3.0`.
+## Installation from Releases
 
-```text
-merge → version tag → desktop build → release → in-app update
+For the managed release workflow, see [Get started](https://siaas.vercel.app/get-started)
+and the [installation guide](https://siaas.vercel.app/documentation/en/installation).
+
+The supported public distribution is a **source installer**: it downloads verified
+release files, provisions an application-managed Node.js runtime, builds the app
+and creates a launcher. There is no separate published EXE or DMG installer.
+You do not need a global Node.js, npm or Git installation for this route.
+
+Stable v1.0.0 publishes PowerShell/Bash scripts, a named source ZIP, an installation
+specification and SHA-256 checksums. Use these named release assets rather than
+GitHub's automatically generated source archives. The installer provisions the
+pinned Node.js 24.22.0 runtime without changing global Node.js or NVM.
+
+Review the official script before running it. Use a normal terminal and follow
+your operating system's security controls.
+
+**Windows — PowerShell:**
+
+```powershell
+irm https://siaas.vercel.app/install.ps1 | iex
 ```
 
-Normal website or documentation changes do not trigger desktop packaging.
+**macOS or Linux — Terminal:**
 
-## User guide
-
-The public [Personal documentation](https://siaas.vercel.app/documentation) contains searchable English and Italian guides for installation, everyday use, Knowledge, backup, guest mode and updates, architecture and development. The website generates its English technical reference from this README using `docs:sync`; the app repository keeps this README as its in-repository documentation.
-
-This repository contains the **Personal application**. Its README is the in-repository guide for users and contributors.
-
-## Shared template catalog
-
-Template definitions are maintained in [siaas-templates](https://github.com/siaas-software/siaas-templates). This repository consumes a generated snapshot pinned in `templates-source.json`; edit the source repository, not `src/generated/`. The app preserves users’ saved templates and deletions. The website displays summaries and downloadable JSON from the same catalog. The current presets are Computer Science Study, Home Gardening and Software Engineering, each with three assistants and their own public sources. Retired built-in presets are hidden from the catalog; existing projects and user-saved templates are preserved.
-
-To adopt a catalog commit:
-
-```sh
-npm run templates:sync -- --ref <full-commit-sha>
-npm run templates:check
+```bash
+curl -fsSL https://siaas.vercel.app/install.sh -o install-siaas.sh
+bash install-siaas.sh
 ```
 
-For the private repository, configure `SIAAS_TEMPLATES_TOKEN` in the maintainer's environment (read-only repository access), or use an authenticated local checkout:
+Open **SIAAS Personal** from the Windows Start menu or Linux application menu.
+On macOS, open `~/Applications/SIAAS Personal.command`.
 
-```sh
-npm run templates:sync -- --ref <full-commit-sha> --catalog ../siaas-templates/catalog.json
-```
+These commands select the **stable channel** through the public website's
+download service. They need Internet access and a reachable service. If that
+service is unavailable, consult the [v1.0.0 assets and notes](https://github.com/siaas-software/siaas-personal/releases/tag/v1.0.0);
+do not disable integrity checks or substitute automatic source archives.
 
-Commit the generated file and `templates-source.json` together. Builds verify the snapshot locally. No GitHub credentials or network access are needed by the running app or public site. New upstream commits are adopted explicitly with the command above.
+**Release candidate:** follow the instructions attached to
+[v1.1.0-rc.2](https://github.com/siaas-software/siaas-personal/releases/tag/v1.1.0-rc.2).
+Download and inspect `install-rc.ps1` (Windows) or `install-rc.sh` (macOS/Linux),
+verify its published SHA-256 digest, and explicitly set
+`SIAAS_RELEASE_TAG=v1.1.0-rc.2` before running it. Stable install scripts do not
+select RC2, even when downloaded from its release page. The default RC installation
+and data profile are separate from stable; do not override them to share stable
+data. Inspect and back up an existing RC before updating it.
 
-### Knowledge and chat workspace
+### Updates and existing workspaces
 
-Open an assistant to see **Knowledge** on the left and **Chat** on the right.
-Conversations are available from the expandable history above chat. On narrow
-screens, Knowledge stacks above Chat. Some interface labels are localized; fixed
-section names such as Projects, Actions, Templates and Knowledge are retained.
+Use **Settings → Application updates** for stable updates. Back up the complete
+data directory with the app closed, and back up linked originals separately.
+Rollback restores an application version, not an earlier database. The supplied
+uninstall scripts remove launcher registration while preserving versions and data.
+See [installation and recovery](docs/installation-en.md) and the
+[migration guide](docs/migration-en.md) for existing installations.
 
-Alongside local files, text and linked folders, **Web sources** accepts public
-HTTP/HTTPS URIs. SIAAS Personal reads an HTML or plain-text page, saves its text locally
-for that assistant and indexes it with the document model. Indexed snapshots
-remain usable offline and retain their URI and retrieval date in citations.
-Use **Refresh** to fetch changes, **Index** to retry indexing, or remove the
-source to remove its knowledge. Refresh failures preserve the last saved copy.
-Login-only pages, private network addresses, PDFs at web URLs and pages that
-require JavaScript are not supported by this importer; import local PDF files
-through the existing file workflow. Adding a URI contacts that website.
+The previous repository's v1.2.0 updater does not switch to this repository.
+Follow the migration guide for a separate v1.0.0 installation and preserve your
+data backup; never run both installations against the same profile.
 
-The chat action column contains **Data Cell / Data table**, followed by built-in
-and custom **Actions**. Built-in Actions cover Mind map, Report, Flashcards and
-Quiz. Selecting an Action applies its Markdown instructions to the typed message,
-or to relevant assistant knowledge and conversation context when the input is
-empty. Successful sends clear the input; failed sends restore it. **Data table**
-uses a separate modal for the topic, columns and filters and preserves any chat
-draft. Results appear in chat.
+## Templates
 
-In assistant detail, **Configuration** edits the assistant's
-instructions and research settings. The adjacent **Models** tab contains
-model selection, installed models, hardware advice and downloads. Model choices
-persist independently of configuration edits. Website configuration appears above
-file management in Knowledge; use **Import files** for PDF, DOCX, TXT and Markdown.
-The installed application version appears below Settings in the main sidebar,
-using Electron's current version with package metadata as the browser fallback.
-Project template import/export remains available from the project actions.
+Stable v1.0.0 bundles **Computer Science Study**, **Home Gardening** and
+**Software Engineering**. RC2 instead bundles **Computer Science Study**,
+**Production Planning** and **Personal Finance**.
 
-Developer checks: `npm test`, `npm run typecheck` and `npm run desktop:build`.
-After the desktop build, `npm run test:ui` runs the guest, project and workbench
-flows against temporary SQLite stores (requires Playwright Chromium).
-`node tests/template-api.mjs` and `npm run test:knowledge` verify the API flows
-without a browser; Ollama responses are simulated in these tests.
+### Six-template development catalog
 
-## License
+The [official catalog](https://github.com/siaas-software/siaas-templates) provides
+these six starting points. The complete bundled catalog and semantic palette
+support below require a **development build**; they are not included in stable
+v1.0.0 or published RC2:
 
-Original SIAAS Personal code is available under the [MIT License](LICENSE).
-Copyright (c) 2026 Davide Abbatiello. Commercial use and modification are permitted
-under the license terms. Third-party components and model weights keep their own
-licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
+| Template | Useful for | Palette |
+| --- | --- | --- |
+| Computer Science Study | Learning programming, algorithms and TypeScript with focused tutors. | Sky |
+| Production Planning | Comparing orders, inventory, bills of materials and material requirements. | Slate |
+| Personal Finance | Reviewing transactions, budgets and savings while keeping currencies separate. | Mint |
+| Construction Cost Analysis | Comparing construction estimates, bills of quantities and cost variances. | Peach |
+| Technical Documentation | Finding evidence in technical documents and drafting reports or site minutes for review. | Lavender |
+| Materials & Procurement | Comparing material lists, supplier quotations and procurement gaps. | Aqua |
 
-The canonical source repository is
-[siaas-personal](https://github.com/siaas-software/siaas-personal).
-The public website remains [siaas.vercel.app](https://siaas.vercel.app).
+In your installed version, open **Templates**, choose **Use template**, then select
+the models for its assistants and add your own sources. You can also import an
+official downloadable template file or save and share your own project
+configuration. No JSON editing is needed.
 
-For compatibility with existing installations, internal `SIAAS_*` environment
-variables, the `siaas-project-v1` template format, `siaas.sqlite`, and the Electron
-user-data folder named `SIAAS` keep their existing names. The displayed product
-name is SIAAS Personal; upgrading must reuse the same local workspace.
+Templates include instructions and any configured public website addresses; they
+do not include your documents, conversations or installed models. Review text and
+URLs before sharing. Existing projects and customized templates are preserved
+when the bundled catalog changes. Importing a newer template does not add its
+required application features:
+stable v1.0.0 cannot perform Structured Data Analysis. Older releases use fallback
+hex colors rather than the new semantic palette keys.
 
-## Managed source distribution
+These presets help organize and analyze your inputs. They do not supply missing
+data, optimize production schedules automatically, or replace professional review
+of financial or construction decisions.
 
-`runtime.json` pins the official Node.js runtime for installed builds. Installation, startup, updates and rollback use explicit application-managed runtime paths without changing global Node.js or NVM. Current and previous compatible managed installations are retained. Legacy installations without runtime metadata require migration through the new installer and cannot be activated by managed rollback.
+<a id="local-ai-and-models"></a>
 
-`npm run release:source` creates local source ZIP and installation-specification assets from a clean committed checkout; it never publishes a GitHub Release. A public stable release with these assets and SHA-256 digests is required for public installation. The public manifest no longer needs a private proxy or credentials. Prelaunch and release publication remain separate decisions.
+## Privacy and Local AI
 
-<a id="funzionalità-sperimentali-opzionali"></a>
-<a id="funzionalita-sperimentali-opzionali"></a>
+Local inference, embeddings and workspace storage run on your computer. No paid
+cloud inference provider is required. Protect your operating-system account and
+backups: local storage is not a promise of encrypted storage.
 
-### Optional experimental features
+Network access still occurs when you install or update software, download models,
+import or refresh a web source, or consult configured websites. Some study
+templates include public URLs that are fetched when their sources are prepared.
+Optional Advanced Web Research sends search queries derived from the current
+question to external search services. Its privacy filters are not guaranteed
+anonymization; avoid confidential questions when enabling discovery.
 
-In **Settings → Experimental Features**, Advanced Reasoning (Beta) and Advanced Web Research (Beta) are independent and off by default. Both require a running, accessible and compatible Docker installation. Web discovery also requires consent in each assistant's research panel; documents and configured websites share a standard workflow without exclusive modes. **Refresh Status** never activates a feature automatically. Chat, local knowledge, configured websites and standard agents work without Docker. Existing preferences, websites and conversations are preserved. See the [English research guide](docs/research-en.md).
+For the distinction between saved web sources, configured websites and optional
+discovery, read [sources and research](docs/research-en.md). For backups, see
+[local data](https://siaas.vercel.app/documentation/en/data).
 
-## Actions
+## Documentation
 
-Reusable local Markdown instructions with built-in Actions and a guided Ollama builder. Read the [English guide](docs/actions-en.md) or [Italian guide](docs/actions-it.md). Data Cell / Data table remains a separate native chat feature.
+- **User guides:** [English](https://siaas.vercel.app/documentation/en/introduction)
+  and [Italiano](https://siaas.vercel.app/documentation/it/introduction).
+- **Installation and troubleshooting:** [public guide](https://siaas.vercel.app/documentation/en/installation)
+  and [troubleshooting](https://siaas.vercel.app/documentation/en/troubleshooting).
+- **Stable feature details:** Actions ([EN](docs/actions-en.md) / [IT](docs/actions-it.md))
+  and optional research ([EN](docs/research-en.md) / [IT](docs/research-it.md)).
+- **Installation and migration:** installation ([EN](docs/installation-en.md) /
+  [IT](docs/installation-it.md)) and migration ([EN](docs/migration-en.md) /
+  [IT](docs/migration-it.md)).
+- **RC2 spreadsheet analysis:** [release-specific guide](https://github.com/siaas-software/siaas-personal/blob/v1.1.0-rc.2/docs/structured-data-analysis.md).
+  It describes prerelease functionality, not stable v1.0.0.
+- **Release availability:** [stable release](https://github.com/siaas-software/siaas-personal/releases/latest)
+  and [all releases and candidates](https://github.com/siaas-software/siaas-personal/releases).
 
-Open **Actions → ellipsis menu next to the title → Models** to choose one installed
-global model for creating and editing custom Actions. The choice persists locally;
-the builder is blocked if its model is missing or unavailable. Running an Action
-in chat always uses that assistant's model. Built-in Actions are read-only and
-cannot be deleted. See the [documentation language policy](docs/documentation-language.md)
-for terminology and translation rules.
+Repository guides can retain historical prelaunch and validation notes; those
+are not a live service-status report. Check the selected release's notes for
+availability, especially when website guides discuss newer features.
 
-Run `npm run test:actions` for Actions unit tests. After `npm run desktop:build`, run `npm run test:actions:api` for the compiled HTTP/SQLite regression suite (Ollama fixture, not a real model).
+<a id="open-source-and-contributing"></a>
 
-## Migration from the previous release series
+## Contributing and License
 
-Existing v1.2.0 installations need a separate installation of SIAAS Personal v1.0.0; the old updater does not cross repositories. See the [English migration guide](docs/migration-en.md) or [Italian migration guide](docs/migration-it.md). Existing desktop data is preserved.
+Bug reports, documentation improvements and code contributions are welcome.
+Include your OS, application version, reproduction steps and a sanitized error
+message when [reporting a problem](https://github.com/siaas-software/siaas-personal/issues).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for GitFlow and pull request requirements.
+
+### License
+
+Original SIAAS Personal code is licensed under the [MIT License](LICENSE).
+Copyright © 2026 Davide Abbatiello. Third-party components, model weights and
+referenced websites retain their own terms; see [third-party notices](THIRD_PARTY_NOTICES.md)
+and [open-source licenses](docs/open-source-licenses.md).
