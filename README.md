@@ -144,31 +144,19 @@ Model size and capabilities determine memory needs and available assistant tools
 
 ## Optional Components
 
-**Docker is not required** for ordinary local AI, document retrieval, configured
-website consultation or standard assistants.
-
 <a id="funzionalità-sperimentali-opzionali"></a>
 <a id="funzionalita-sperimentali-opzionali"></a>
 <a id="optional-experimental-features"></a>
 
-**Advanced Reasoning (Beta)** and **Advanced Web Research (Beta)** are independent,
-optional components, both **disabled by default**. Their supported execution
-stacks require a running, accessible Linux-container **Docker Engine 20.10+**,
-**Compose v2** and the Docker CLI on x64/arm64. Windows/macOS can use Docker
-Desktop with the required virtualization/Linux-container setup; Linux can use
-Docker Engine plus Compose.
+Advanced Reasoning (Beta) and Advanced Web Research (Beta) are independent optional
+features, disabled by default. Both require Docker and additional resources.
+Docker is not required for normal chat, local Knowledge or standard assistants.
 
-Enable each component explicitly in **Settings → Experimental Features** after
-checking prerequisites and service health. Refreshing status does not enable
-anything. Advanced Web Research also requires consent in the individual
-assistant's research panel; its assistant switch does not enable the global
-service. Service setup can download container images and additional models and
-needs disk space, memory and network access beyond the basic recommendations.
+For configuration, prerequisites, privacy and troubleshooting, see the official
+research guides:
 
-Read the research guides ([EN](docs/research-en.md) / [IT](docs/research-it.md))
-for setup, resource considerations, privacy and troubleshooting. Native and real
-Docker acceptance remain separate from automated tests; inclusion of these Betas
-does not certify their execution on every supported platform.
+- [Research guide — English](https://siaas.vercel.app/documentation/en/research)
+- [Guida alla ricerca — Italiano](https://siaas.vercel.app/documentation/it/research)
 
 <a id="quick-start"></a>
 <a id="development"></a>
