@@ -2,7 +2,8 @@
 
 Phase 1 uses the existing Playwright dependency and Node test runner. See the
 [baseline and execution report](electron-phase1-report.md) for current evidence.
-This is infrastructure work; it adds no functional UI scenario or planner change.
+This is Phase 1 infrastructure work with a source-backed correction to existing
+sidebar coverage; it includes no planner change or Phase 2 scenario suite.
 
 ## Commands and prerequisites
 
@@ -103,8 +104,9 @@ npm.cmd run test:desktop:smoke
 if ($LASTEXITCODE -ne 0) { throw 'Native infrastructure smoke did not pass' }
 ```
 
-Run UI smoke separately and record its exit code: the baseline project-sidebar
-assertion currently fails (see report). Workbench can be run independently when
+Run UI smoke separately and record its exit code: the Templates/Settings sidebar
+assertion is corrected, but the project suite currently stops at the later obsolete
+`Project color` selector (see report). Workbench can be run independently when
 that failure stops the aggregate. Do not change assertions simply to obtain PASS.
 
 ```powershell
@@ -146,6 +148,30 @@ user process to make this check pass. Repeat native smoke with Ctrl+C to verify
 interactive Windows teardown; the portable fault test exercises the signal handler
 synthetically on Windows because `process.kill` forcibly terminates there.
 
+## Remaining Linux native verification
+
+Use a normal non-root Linux desktop session with Electron and its OS libraries
+installed, or an existing Xvfb installation. Keep Electron sandboxing enabled.
+From the same feature checkout, run `npm ci`, `npm run desktop:build`,
+`npm run test:infrastructure`, and `npm run test:ui`, recording each outcome.
+Then run native mock smoke in the graphical session:
+
+```sh
+npm run test:desktop:smoke
+# Alternative only where Xvfb is already provisioned:
+xvfb-run -a npm run test:desktop:smoke
+```
+
+Retain native `result.json` and logs, verify the actual temporary Electron
+userData/SQLite paths, restart persistence, unauthorized API rejection, exited
+owned processes and removed profiles. Repeat with interactive Ctrl+C to check
+cancellation. Once a real Ollama service and the required models are available,
+run `npm run ollama:check`, `npm run ollama:test` and `npm run test:desktop:real`.
+Record actual outcomes; successful browser tests and installer unit tests do not
+replace these native checks. Windows must additionally verify taskkill tree cleanup
+and profile removal despite native file locks, using the Windows steps above.
+macOS and packaged installation acceptance remain separate and unverified.
+
 ## CI and Phase 2 boundary
 
 `AGENTS.md` and `CONTRIBUTING.md` require GitHub Actions to remain disabled. All four
@@ -157,7 +183,7 @@ mock smoke (Linux with Xvfb), retaining `test-results` on failure. Real inferenc
 must stay a separate opt-in acceptance job with known local models/hardware.
 
 Before Phase 2, obtain passing native smoke and lifecycle evidence on Windows and
-Linux, resolve/review the existing UI baseline mismatch, establish a known-good
+Linux, resolve/review the remaining project UI baseline failures, establish a known-good
 real-model environment when inference coverage is intended, and agree on the
 functional scenario list and acceptance criteria. Native/macOS/package checks
 remain distinct. No CLI Lifecycle, planner, research/Docker or release work is

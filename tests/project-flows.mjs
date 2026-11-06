@@ -67,9 +67,15 @@ async function stop() { await stopChild(server); }
   await page.goto(origin);
   await page.getByRole('heading', { name: 'Your projects.' }).waitFor();
   assert.equal(await page.getByText('Check Ollama', { exact: true }).count(), 0);
-  assert.equal(await page.locator('.sidebar-bottom button').first().innerText(), 'Templates');
-  await page.getByRole('button', { name: 'Templates', exact: true }).click();
+  const templatesNav = page.locator('.sidebar nav').getByRole('button', { name: 'Templates', exact: true });
+  const settingsNav = page.locator('.sidebar-bottom').getByRole('button', { name: 'Settings', exact: true });
+  await settingsNav.click();
+  await page.getByRole('heading', { name: 'Settings.', exact: true }).waitFor();
+  assert.match(await settingsNav.getAttribute('class'), /\bactive\b/);
+  await templatesNav.click();
   await page.getByRole('heading', { name: 'Templates.' }).waitFor();
+  assert.match(await templatesNav.getAttribute('class'), /\bactive\b/);
+  assert.doesNotMatch(await settingsNav.getAttribute('class'), /\bactive\b/);
   const eventCard = page.locator('article').filter({ has: page.getByRole('heading', { name: 'Computer Science Study', exact: true }) });
   await eventCard.getByRole('button', { name: 'Use template' }).click();
   assert.match(await page.locator('select[name="template_id"]').inputValue(), /computer-science-study/);
@@ -238,7 +244,7 @@ async function stop() { await stopChild(server); }
   await page.getByRole('button', { name: 'Project actions', exact: true }).click();
   await page.screenshot({ path: join(run.out, 'project-menu.png'), fullPage: true });
   await page.keyboard.press('Escape');
-  await page.getByRole('button', { name: 'Templates', exact: true }).click();
+  await templatesNav.click();
   page.once('dialog', d => d.accept());
   await page.getByRole('button', { name: 'Delete template Computer Science Study', exact: true }).click();
   await until(async () => !(await api('/api/templates')).some(t => t.builtin_key === 'computer-science-study'));
