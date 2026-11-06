@@ -65,6 +65,7 @@ Changed files:
 - `docs/electron-testing.md`
 - `docs/electron-phase1-report.md`
 - `docs/developer-reference.md`
+- `docs/evidence/electron-phase1.zip` (execution logs and synthetic failure artifacts)
 
 ## Actual execution
 
@@ -76,7 +77,7 @@ permission. No DISPLAY/WAYLAND_DISPLAY, Xvfb or installed Electron binary was
 available. Ollama at localhost:11434 was unreachable. A system-browser run does
 not verify the default downloaded Playwright browser installation path.
 
-Logs are included in the delivered evidence archive under `logs/`; unique fixture
+Logs are included in the [evidence archive](evidence/electron-phase1.zip) under `logs/`; unique fixture
 artifacts are under `test-results/`. Commands ran at the repository root. Repeated
 runs after helper edits had the same results; final logs are retained.
 
