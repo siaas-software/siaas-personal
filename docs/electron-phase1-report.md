@@ -1,11 +1,12 @@
 # Electron test infrastructure — Phase 1 report
 
-Date: 2026-11-07. Verdict: **PARTIAL — Linux native acceptance BLOCKED**.
+Date: 2026-11-07. Verdict: **PARTIAL — early-launch cleanup corrected; native acceptance BLOCKED**.
 Aggregate `npm run test:ui` now passes guest, the entire project workflow and
 workbench (exit 0). Sidebar, palette, model-guidance and downstream template
 expectations are reconciled with source, documentation and history. A real Linux
 Electron launch now reaches the executable but aborts on its sandbox prerequisite.
-Native lifecycle cleanup also has an unresolved early-launch failure path.
+The early-launch failure path is corrected and covered by deterministic regression
+tests, including the real Playwright launcher with a non-Electron executable.
 Windows/macOS and real inference remain unverified; PR #20 stays draft.
 No application changes or Phase 2 work are included.
 
@@ -470,6 +471,138 @@ verification. macOS and native packaged installation remain unverified. Real
 inference remains BLOCKED. No application functionality, RC2, main, workflow,
 release or Phase 2 work changed.
 
+## Early Electron launch failure cleanup — 2026-11-07 follow-up
+
+Baseline: `fbb04d9f9134c148965e2deac4c160160d2c6daf`. This follow-up corrects only
+test infrastructure, adds regression tests and retains its evidence in
+[the early-launch archive](evidence/electron-phase1-early-launch-cleanup.zip).
+The preceding native failure and manual cleanup remain historical evidence; no
+previous archive was replaced. Infrastructure/evidence commit:
+`60136571b564743a072e63acc03fb9e3e3664fd2`. Application code, browser assertions,
+package manifests and the lockfile are unchanged.
+
+### Root cause and correction
+
+Playwright 1.63.0 starts four `waitForLine` promises in its Electron launcher:
+X display failure, Node debugger endpoint, Chromium debugger endpoint and debugger
+disconnect. It first awaits the Node endpoint. On immediate child exit all four
+can reject, but some sibling handlers are attached only after that first await.
+An unhandled sibling rejection terminates the in-process Node driver before the
+awaited API rejection reaches `runTest`'s catch/finalization. Adding another catch
+around the same `electron.launch()` call alone cannot fix this race.
+
+The retained negative control invokes the original installed Playwright launcher
+with Node as an intentionally invalid Electron executable under
+`--unhandled-rejections=strict`. Node rejects Electron's CLI argument and exits;
+the launcher then reproduces `Process failed to launch!`, absent `result.json`
+and an empty leaked profile. Only that negative-control profile needed manual
+removal. No native Electron was used for this reproduction.
+
+The minimal launcher correction is one inserted, scoped `Promise.allSettled`
+observer for the three sibling promises, attached before the first await. Every
+original endpoint await, launch rejection/rethrow and Playwright-owned process
+kill remains in place. The real launcher now completes its failure cleanup and
+rejects back to the shared runner. Rejections are still FAIL, not converted into
+success. No process-level exception/rejection handler or suppression is installed.
+
+`tests/helpers/playwright-electron.mjs` applies that insertion in memory using
+Node's synchronous module-load hook only while loading the Electron test adapter.
+It requires pinned Playwright 1.63.0 and one exact source anchor, and fails with a
+normal recorded error if the version/source differs or Playwright was already
+loaded. The hook is removed in `finally`. Installed dependency files are untouched
+(before/after SHA256 checked), and browser suites keep their normal imports.
+This narrowly scoped dependency workaround is explicit technical debt: revalidate
+or remove it when an upstream-fixed Playwright version is adopted. It avoids a
+dependency upgrade, an on-disk patch and a broad test-worker redesign. Native
+success remains unverified on this host.
+
+`launchElectron` now records executable, owned profile, sandbox setting and each
+launch outcome/error. Playwright's failure log includes the launched PID, arguments,
+stderr and process exit/cleanup; Playwright owns that child until launch resolves.
+After resolution the shared runner tracks the child as before. A test-only injected
+launcher exercises failures without requiring Electron. `chromiumSandbox: true`
+and all application security settings remain unchanged.
+
+The shared runner writes its FAIL report before diagnostics/teardown, then writes
+the completed cleanup report. Diagnostic exceptions are recorded without aborting
+resource cleanup. Errors from individual cleanup callbacks remain FAIL and do not
+prevent subsequent directory removal/reporting. Child records include command,
+arguments, PID and exit state, with duplicate registration prevented. A rejection
+without an Error value is also FAIL rather than accidentally passing. Only
+registered children and directories created by this run are cleaned; no broad
+process-name termination or inherited data-directory deletion is introduced.
+
+The report guarantee applies to handled failures while Node can execute and write
+the artifact directory; SIGKILL, host loss and unwritable storage cannot be made
+recoverable by this runner. Such conditions must never be reported as PASS.
+
+### Regression coverage and automatic cleanup evidence
+
+`tests/fixtures/electron-launch-failure.mjs` runs eight deterministic fault modes,
+each repeated three times in separate strict-rejection subprocesses:
+
+1. Failure after creating a temporary profile and synthetic database file.
+2. Launch rejection before any process or page exists.
+3. Launch rejection with no Error value.
+4. Launch rejection with a registered, live owned child.
+5. Failure before page creation after an application connection is returned.
+6. A synchronous diagnostic failure during finalization.
+7. A failing cleanup callback, with later profile deletion still required.
+8. The actual Playwright launch path using Node as an invalid Electron executable.
+
+All 24 final fault invocations exit 1 and produce completed **FAIL** JSON reports,
+as expected. Assertions verify unique profiles, removed owned directories, stopped
+owned children, process logs, recorded launch errors, preserved sandbox options,
+and byte-for-byte preservation of unrelated SQLite and profile sentinel files.
+For the real-launcher fault, the PID in Playwright's log must no longer be running.
+The explicitly injected cleanup callback error remains recorded as FAIL; it does
+not prevent subsequent cleanup. No corrected fault run requires manual cleanup.
+The six pre-existing readiness/lifecycle tests also remain and pass.
+
+These are Node/process fault-injection checks, **not native Electron acceptance**.
+No Electron renderer/page exists in them, so no native screenshot or trace can be
+produced. Their `result.json` and child/launch logs are retained. Browser smoke
+screenshots and result files are retained separately in the same archive. The
+unpatched negative-control failure and its missing artifact are explicitly listed
+in the manifest; no replacement native result was fabricated.
+
+### Validation and verdict
+
+Environment remains Debian 13.6 x64 / Node 24.19.0 / npm 11.9.0, using the locked
+dependencies installed in the previous follow-up. Loopback networking was permitted
+for test servers. Command timestamps and exit codes accompany the logs.
+
+| Command / check | Actual outcome |
+| --- | --- |
+| `npm run typecheck` | PASS, exit 0 |
+| `npm test` | PASS, exit 0; 175 passed, none failed/skipped |
+| `npm run test:infrastructure` | PASS, exit 0; 14 passed, none failed/skipped, including 24 repeated early-launch fault invocations |
+| `npm run desktop:build` | PASS, exit 0; template validation and parser bundling included |
+| `npm run test:ui` | PASS, exit 0; full guest/project/workbench aggregate |
+| `npm run test:installer` | PASS, exit 0; 4 unit tests |
+| Unpatched Playwright negative control | FAIL, exit 1 as expected; original unhandled rejection and leak reproduced/retained |
+| Corrected synthetic fault invocations | Expected FAIL, exit 1; automated assertions of artifacts/cleanup PASS |
+| Installed Playwright bundle hash before/after adapter load | PASS; unchanged on disk, adapter reusable |
+| Native `test:desktop:smoke` | NOT RUN this follow-up; acceptance remains BLOCKED by unchanged host sandbox prerequisites |
+| Native Windows/macOS, real-model acceptance | NOT RUN; previous prerequisites/limitations remain |
+
+No further native launch was attempted: the existing Electron helper is still
+user-owned/mode 0755, `NoNewPrivs=1` and seccomp mode 2 remain, and `unshare -Ur true`
+still fails on the read-only `/proc/self/uid_map`. No display is inherited. The
+previous real native stderr identifies the SUID sandbox prerequisite; changing
+only test error handling does not make this host suitable for native acceptance.
+No sandbox/host setting, model, inference service or installed dependency file was
+changed in this follow-up.
+
+**Phase 1 remains PARTIAL; PR #20 remains draft.** The early-launch cleanup defect
+is resolved for the reproduced dependency failure and deterministic fault cases.
+Native Linux startup/restart, authentication/SQLite isolation, normal shutdown,
+Ctrl+C and profile/process cleanup must still be run on a sandbox-capable host.
+Windows additionally needs taskkill/tree and file-lock verification; macOS and
+real Ollama inference remain unverified. Real inference still needs a compatible
+local service, `embeddinggemma:latest` and a supported Qwen 2.5 chat model. No merge,
+RC2/main/workflow/release modification or Phase 2 work occurred.
+
 ## Risks, blockers and Phase 2 prerequisites
 
 1. The entire existing aggregate UI smoke now passes, with the original failures
@@ -488,9 +621,9 @@ release or Phase 2 work changed.
    Ephemeral port reservation has a small bind race; errors fail with diagnostics.
 6. CI remains disabled by repository policy. A future runner needs separate
    authorization; no paid tool or new dependency is necessary.
-7. The Linux native attempt above proves a sandbox prerequisite failure and an
-   early-launch cleanup/reporting gap. Resolve and validate that failure path as
-   Phase 1 infrastructure; do not infer native cleanup from the passing Node tests.
+7. The early-launch cleanup/reporting gap is corrected with deterministic evidence
+   above. The pinned, test-only Playwright adapter needs revalidation on dependency
+   upgrades; its passing Node tests do not establish native lifecycle acceptance.
 
 Phase 2 requires the remaining native gates resolved with retained evidence, agreement
 on a focused functional scenario list and expected behavior, and a separate real

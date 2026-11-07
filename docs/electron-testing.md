@@ -177,12 +177,24 @@ replace these native checks. Windows must additionally verify taskkill tree clea
 and profile removal despite native file locks, using the Windows steps above.
 macOS and packaged installation acceptance remain separate and unverified.
 
-Known early-launch limitation: the observed Playwright launch abort exited before
-the runner could write `result.json` or remove its temporary profile. Treat absent
-diagnostics as a failure to investigate. Preserve stdout/stderr and inspect only
-the exact owned PIDs/paths before manual cleanup; manual cleanup is not an
-automatic-teardown PASS. Normal shutdown and interactive cancellation still need
-native execution on a suitable host.
+The observed early-launch rejection race is now covered by deterministic strict
+fault tests: the corrected path writes FAIL JSON and removes owned profiles even
+before a page exists. `tests/helpers/playwright-electron.mjs` observes Playwright
+1.63.0's sibling launch promises immediately via a test-only in-memory source
+insertion. Original awaits, rethrows and owned-process cleanup are preserved;
+there is no global rejection handler or installed-package modification. Version,
+source-anchor and import-order guards fail explicitly. Load Electron through the
+shared helper, and revalidate/remove this workaround when updating Playwright.
+
+`npm run test:infrastructure` includes eight early-launch fault modes repeated
+three times, plus the original six lifecycle/readiness tests. These are synthetic
+Node checks, including a real Playwright launcher with an invalid non-Electron
+executable; they do not prove native acceptance. Reports retain launch errors,
+paths, child information and cleanup outcomes. Diagnostic failures cannot bypass
+teardown; an injected cleanup failure is still recorded as FAIL. Absent diagnostics
+remain a failure to investigate. No runner can guarantee cleanup after SIGKILL,
+host loss or an unwritable artifact directory. Normal shutdown and interactive
+cancellation still need native execution on a suitable host.
 
 ## CI and Phase 2 boundary
 
