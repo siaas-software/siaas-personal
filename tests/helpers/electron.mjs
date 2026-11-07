@@ -22,6 +22,7 @@ export async function electronPrerequisites() {
 export async function launchElectron(run, { executablePath, profile, ollamaURL }) {
   const app = await electron.launch({
     executablePath,
+    chromiumSandbox: true, // Playwright otherwise adds --no-sandbox on Linux.
     args: [resolve('desktop/main.cjs'), `--user-data-dir=${profile}`],
     env: cleanEnv({
       SIAAS_NODE_EXECUTABLE: process.execPath,
