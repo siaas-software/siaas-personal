@@ -1,7 +1,7 @@
 import { createRequire } from 'node:module';
 import { readFile, access } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
-import { _electron as electron } from 'playwright';
+import { getElectron } from './playwright-electron.mjs';
 import { cleanEnv, requireBuild, requireDisplay, PrerequisiteError, bounded, stopChild } from './runtime.mjs';
 const require = createRequire(import.meta.url);
 
@@ -19,17 +19,28 @@ export async function electronPrerequisites() {
     throw new PrerequisiteError('Electron binary missing: run npx --no-install install-electron --no before testing.');
   }
 }
-export async function launchElectron(run, { executablePath, profile, ollamaURL }) {
-  const app = await electron.launch({
-    executablePath,
-    chromiumSandbox: true, // Playwright otherwise adds --no-sandbox on Linux.
-    args: [resolve('desktop/main.cjs'), `--user-data-dir=${profile}`],
-    env: cleanEnv({
-      SIAAS_NODE_EXECUTABLE: process.execPath,
-      OLLAMA_BASE_URL: ollamaURL,
-    }),
-    timeout: 60000,
-  });
+export async function launchElectron(run, { executablePath, profile, ollamaURL }, launch = options => getElectron().launch(options)) {
+  const attempt = { executablePath, profile, chromiumSandbox: true, status: 'LAUNCHING' };
+  (run.metadata.electronLaunches ??= []).push(attempt);
+  let app;
+  try {
+    app = await launch({
+      executablePath,
+      chromiumSandbox: true, // Playwright otherwise adds --no-sandbox on Linux.
+      args: [resolve('desktop/main.cjs'), `--user-data-dir=${profile}`],
+      env: cleanEnv({
+        SIAAS_NODE_EXECUTABLE: process.execPath,
+        OLLAMA_BASE_URL: ollamaURL,
+      }),
+      timeout: 60000,
+    });
+  } catch (error) {
+    attempt.status = 'FAIL';
+    attempt.error = error?.stack || String(error); // Playwright includes launch args, PID and stderr.
+    throw error;
+  }
+  attempt.status = 'LAUNCHED';
+  attempt.pid = app.process().pid;
   run.trackChild(app.process()); // Playwright launches a separate process group on POSIX.
   run.defer('Electron connection', async () => {
     // On Windows taskkill needs a living parent to identify the owned backend tree.

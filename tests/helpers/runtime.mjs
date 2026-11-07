@@ -108,6 +108,7 @@ export async function runTest(name, body, { timeout = 180000, mode = 'mocked-oll
   const out = resolve('test-results', `${name}-${Date.now()}-${randomUUID().slice(0, 8)}`);
   await mkdir(out, { recursive: true });
   const resources = [], directories = [], children = [], contexts = [];
+  const trackedChildren = new WeakSet();
   const metadata = { name, mode, node: process.version, platform: process.platform, arch: process.arch, started: new Date().toISOString(), status: 'RUNNING', directories, children, cleanup: [] };
   let finished, closing, interrupted = false, pageIndex = 0;
   const log = (file, text) => writeFile(join(out, file), text);
@@ -133,8 +134,10 @@ export async function runTest(name, body, { timeout = 180000, mode = 'mocked-oll
       return child;
     },
     trackChild(child) {
+      if (trackedChildren.has(child)) return;
+      trackedChildren.add(child);
       let output = '';
-      const record = { pid: child.pid, exited: false };
+      const record = { pid: child.pid, command: child.spawnfile, args: child.spawnargs, exited: false };
       children.push(record);
       child.on('error', error => { child.spawnError = error; output += error.stack; });
       child.stdout?.on('data', data => { output = (output + data).slice(-262144); });
@@ -168,17 +171,28 @@ export async function runTest(name, body, { timeout = 180000, mode = 'mocked-oll
       page.on('pageerror', error => { messages += `${error.stack}\n`; });
       run.defer('renderer log', () => log(`renderer-${index}.log`, messages));
     },
-    async finish(error) {
+    async finish(...errors) {
       if (closing) return closing;
+      const failed = errors.length > 0, [error] = errors;
       closing = (async () => {
-        metadata.status = error ? error instanceof PrerequisiteError ? 'BLOCKED' : 'FAIL' : 'PASS';
-        if (error) { metadata.error = error.stack; console.error(error.stack); }
+        metadata.status = failed ? error instanceof PrerequisiteError ? 'BLOCKED' : 'FAIL' : 'PASS';
+        if (failed) { metadata.error = error?.stack || String(error); console.error(metadata.error); }
+        // Persist the failure before diagnostics/cleanup. Final outcomes overwrite it.
+        // A failed screenshot/trace must never prevent resource teardown or JSON.
+        if (failed) await log('result.json', JSON.stringify(metadata, null, 2) + '\n').catch(writeError => {
+          (metadata.diagnosticErrors ??= []).push(`Initial result write: ${writeError.message}`);
+        });
         // Capture before closing pages; bounded operations cannot prevent teardown.
         for (const [i, context] of contexts.entries()) {
-          if (error) for (const [j, page] of context.pages().entries()) {
-            await page.screenshot({ path: join(out, `failure-${i}-${j}.png`), timeout: 3000 }).catch(() => {});
+          try {
+            if (failed) for (const [j, page] of context.pages().entries()) {
+              await bounded(Promise.resolve().then(() => page.screenshot({ path: join(out, `failure-${i}-${j}.png`), timeout: 3000 })), 3500, 'screenshot');
+            }
+            await bounded(Promise.resolve().then(() => context.tracing.stop(failed ? { path: join(out, `trace-${i}.zip`) } : {})), 5000, 'trace');
+          } catch (diagnosticError) {
+            metadata.status = 'FAIL';
+            (metadata.diagnosticErrors ??= []).push(diagnosticError?.stack || String(diagnosticError));
           }
-          await bounded(context.tracing.stop(error ? { path: join(out, `trace-${i}.zip`) } : {}), 5000, 'trace').catch(e => { metadata.diagnosticError = e.message; });
         }
         for (const { label, close } of resources.reverse()) {
           try { await bounded(Promise.resolve().then(close), 10000, label); metadata.cleanup.push({ label, result: 'PASS' }); }
