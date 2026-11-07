@@ -1,10 +1,12 @@
 # Electron test infrastructure — Phase 1 report
 
-Date: 2026-11-06. Verdict: **PARTIAL — existing UI smoke reconciliation complete**.
+Date: 2026-11-07. Verdict: **PARTIAL — Linux native acceptance BLOCKED**.
 Aggregate `npm run test:ui` now passes guest, the entire project workflow and
 workbench (exit 0). Sidebar, palette, model-guidance and downstream template
-expectations are reconciled with source, documentation and history. Native Electron,
-Windows cleanup and real inference remain unverified; PR #20 stays draft.
+expectations are reconciled with source, documentation and history. A real Linux
+Electron launch now reaches the executable but aborts on its sandbox prerequisite.
+Native lifecycle cleanup also has an unresolved early-launch failure path.
+Windows/macOS and real inference remain unverified; PR #20 stays draft.
 No application changes or Phase 2 work are included.
 
 ## Initial baseline and audit (historical evidence retained)
@@ -336,6 +338,138 @@ This follow-up changes only `tests/project-flows.mjs`, this report,
 still incomplete. The existing browser/UI baseline is now green. No merge, RC2
 change, workflow activation, publication or Phase 2 work was performed.
 
+## Linux native acceptance attempt — 2026-11-07
+
+Tested application baseline: `70a8ee8dce9929b23d77b1801d459e21310a0db8`, on the
+existing feature branch. The only executable change in this follow-up is
+`chromiumSandbox: true` in `tests/helpers/electron.mjs`. Infrastructure/evidence
+commit: `e873b31d9f853d75a262aead4fd2fe93ac6a0f2f`. The
+[native evidence archive](evidence/electron-phase1-native-linux.zip) retains the
+actual attempts. All previous evidence archives and UI assertions remain unchanged.
+
+### Environment and justified infrastructure correction
+
+- Debian 13.6, Linux 6.18.57 x86_64, Node 24.19.0, npm 11.9.0; ordinary UID 1000.
+  Locked `npm ci` completed on November 6 before the environment resumed on
+  November 7; dependencies and checkout persisted. Subsequent commands and their
+  UTC times/exits are retained in `logs/*.command.json`.
+- Electron 44.9.3 was initially missing its executable. The existing
+  `npx --no-install install-electron --no` command installed the locked runtime
+  through the configured proxy with normal checksum/TLS verification. The first
+  network-restricted attempt failed (`fetch failed`, exit 1); the approved network
+  retry passed (exit 0). No package manifest or lockfile changed.
+- `ldd node_modules/electron/dist/electron` exits 0 with no missing library.
+  NSS, GTK3, GBM, ALSA and X11 libraries are present. Xvfb, sudo and the scoped
+  system-package installer are absent; no system package was installed.
+- No inherited DISPLAY or Wayland session was available. The managed desktop
+  capability reports enabled/state unknown, but no desktop JS tool is exposed
+  for environment `ccarenv_b64_Y2NhcmVudl84YWZlMTcyN2JjOTg4MTkxYTRlM2Y0MjFhNjEwNzZhMA`.
+  The existing Xorg dummy driver provided a real temporary X11 display `:91`;
+  `xdpyinfo` succeeded. It used a private Xauthority cookie and `-nolisten tcp`.
+  The server and authentication file were removed after each attempt.
+- The command environment has `NoNewPrivs: 1`, seccomp mode 2 and no effective
+  capabilities. `unshare -Ur true` fails: `cannot open /proc/self/uid_map:
+  Read-only file system`. The installed `chrome-sandbox` is UID 1000/mode 0755.
+  No privilege, setuid, namespace, kernel or sandbox setting was changed.
+
+Source inspection found that Playwright 1.63.0's Electron launcher
+(`node_modules/playwright-core/lib/coreBundle.js`, around line 44250) prepends
+`--no-sandbox` on Linux unless `options.chromiumSandbox` is true. The shared helper
+did not set it. Explicitly enabling it is necessary to honor the requested native
+sandbox policy; merely checking non-root UID and the application's BrowserWindow
+`sandbox: true` does not prevent that command-line default. The diagnostic launch
+log proves the corrected arguments contain no `--no-sandbox`. No production code,
+functional assertion, dependency, timeout or failure handling was changed.
+
+### Actual command results
+
+| Command / attempt | Outcome | Evidence / exit code |
+| --- | --- | --- |
+| `npm ci --cache /workspace/work/npm-cache` | PASS | `npm-ci.log`, 586 packages, exit 0 |
+| `npm run typecheck` | PASS | `typecheck.log`, exit 0 |
+| `npm run desktop:build` | PASS | `desktop-build.log`, exit 0; template check/parser bundle included |
+| `npm test`, initial restricted attempt | FAIL | `unit.log`, exit 1; loopback-dependent tests failed |
+| `npm run test:infrastructure`, initial restricted attempt | FAIL | `infrastructure.log`, exit 1 |
+| `npm run test:installer`, initial restricted attempt | FAIL | `installer.log`, exit 1; direct diagnostic confirms `listen EPERM 127.0.0.1` |
+| `npm test`, with permitted loopback networking | PASS | `unit-network.log`, exit 0; 175 passed, 0 failed/skipped |
+| `npm run test:infrastructure`, with permitted loopback networking | PASS | `infrastructure-network.log`, exit 0; 6 passed, 0 failed/skipped |
+| `npm run test:installer`, with permitted loopback networking | PASS | `installer-network.log`, exit 0; 4 passed, 0 failed/skipped; unit tests only |
+| `npm run test:ui` | **PASS** | `ui.log`, exit 0; guest, complete project workflow and workbench; Chromium override `/usr/bin/chromium` |
+| `npm run test:desktop:smoke` on authenticated Xorg | **FAIL (command); native acceptance BLOCKED** | `desktop-smoke.log`, exit 1; executable aborts before window/readiness |
+| Same native command with `DEBUG=pw:browser` | **FAIL (command); native acceptance BLOCKED** | `desktop-smoke-diagnostic.log`, exit 1; exact native sandbox error and executable arguments |
+| `node --check tests/helpers/electron.mjs` | PASS | `helper-syntax.log`, exit 0 |
+| Existing `realOllamaPrerequisites()` | BLOCKED | `ollama-prerequisites.log`, exit 2; loopback service unreachable |
+| `npm run ollama:check` | BLOCKED | `ollama-check.log`, exit 1; discovery only, service unreachable |
+| `npm run ollama:test`, `npm run test:desktop:real` | NOT RUN | Real-service/model prerequisites unavailable; native launch also blocked |
+| Native Windows/macOS, packaged installation | NOT RUN | No corresponding host/package; no release operation |
+
+The failing native process emitted:
+
+> FATAL:sandbox/linux/suid/client/setuid_sandbox_host.cc:166: The SUID sandbox
+> helper binary was found, but is not configured correctly. Rather than run
+> without sandboxing I'm aborting now. You need to make sure that
+> /workspace/siaas-personal/node_modules/electron/dist/chrome-sandbox is owned
+> by root and has mode 4755.
+
+This is an actual Electron executable attempt (diagnostic PID 3481), not a
+Chromium substitute. It does **not** establish application startup. The test's
+exit 1 is retained as FAIL; the acceptance blocker is the host's unavailable
+Electron sandbox setup. No attempt was made to disable sandboxing or reconfigure
+the host after this evidence. Xvfb would not resolve this sandbox failure.
+
+### Cleanup evidence and limits
+
+The early Electron abort also exposed an infrastructure defect: Playwright's
+launch path raises an unhandled `Process failed to launch!` rejection before the
+shared runner finishes. Both native artifact directories are empty: no native
+`result.json`, screenshot or trace was generated. There was no page/context to
+capture. This absence is retained explicitly in the archive manifest and must
+not be interpreted as successful teardown. The two suite commands really exited
+1; no synthetic PASS or replacement native result was written.
+
+Automatic early-launch cleanup **FAILS** in this case: two empty profiles remained
+(`/tmp/siaas-desktop-smoke-acbvQG` and `/tmp/siaas-desktop-smoke-zFTPQK`). After
+confirming they were empty and belonged to these attempts, only those exact
+directories were removed with `rmdir`. `logs/cleanup-observation.json` records
+their removal, no remaining live processes from this Electron installation,
+the diagnostic Electron PID gone, both owned Xorg PIDs gone, and deleted display
+authentication. No unrelated user-data directory was supplied to cleanup.
+Manual removal does not count as automatic native cleanup acceptance. Hardening
+this early-launch failure path remains a Phase 1 follow-up; no global rejection
+handler, swallowed failure or dependency patch was introduced here.
+
+Native startup, restart, actual `app.getPath('userData')`, SQLite creation/isolation,
+authenticated readiness, unauthorized API rejection, normal shutdown and
+interactive SIGINT/Ctrl+C are **NOT RUN past the launch blocker**. They must be
+verified on a host supporting Electron's sandbox. The six passing Node lifecycle
+tests separately exercise timeout/throw/signal cleanup, owned child termination
+and preservation of an unrelated SQLite sentinel; they are not native evidence.
+
+The three successful browser fixtures retain their real `result.json` files,
+server/renderer logs and screenshots in this archive. Their reported temporary
+paths were checked absent after teardown. Successful browser traces are discarded
+by the unchanged helper policy. Existing historical failure traces remain in the
+older archives. Nothing from a personal profile/database was archived.
+
+### Remaining acceptance and verdict
+
+Real Ollama was not found on PATH and no service answered at
+`http://127.0.0.1:11434`. Installed models cannot be established through an
+unreachable service. Later execution needs an existing compatible local Ollama,
+`embeddinggemma:latest`, and at least one of `qwen2.5:1.5b`, `qwen2.5:7b` or
+`qwen2.5:14b`, with sufficient hardware/disk. Run `ollama:check`, then
+`ollama:test` and `test:desktop:real`; no inference service or model was installed.
+
+**Phase 1 remains PARTIAL; PR #20 stays draft.** The browser baseline is green.
+Linux native acceptance is BLOCKED, with a separately recorded automatic
+early-launch cleanup failure. A suitable sandbox-capable Linux desktop/Xvfb host
+must execute native startup/restart and interactive cancellation, retain native
+JSON/logs, and verify owned processes and profile/database deletion plus unrelated
+data preservation. Windows needs its own native runs, taskkill/tree and file-lock
+verification. macOS and native packaged installation remain unverified. Real
+inference remains BLOCKED. No application functionality, RC2, main, workflow,
+release or Phase 2 work changed.
+
 ## Risks, blockers and Phase 2 prerequisites
 
 1. The entire existing aggregate UI smoke now passes, with the original failures
@@ -354,6 +488,9 @@ change, workflow activation, publication or Phase 2 work was performed.
    Ephemeral port reservation has a small bind race; errors fail with diagnostics.
 6. CI remains disabled by repository policy. A future runner needs separate
    authorization; no paid tool or new dependency is necessary.
+7. The Linux native attempt above proves a sandbox prerequisite failure and an
+   early-launch cleanup/reporting gap. Resolve and validate that failure path as
+   Phase 1 infrastructure; do not infer native cleanup from the passing Node tests.
 
 Phase 2 requires the remaining native gates resolved with retained evidence, agreement
 on a focused functional scenario list and expected behavior, and a separate real

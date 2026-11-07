@@ -152,6 +152,11 @@ synthetically on Windows because `process.kill` forcibly terminates there.
 
 Use a normal non-root Linux desktop session with Electron and its OS libraries
 installed, or an existing Xvfb installation. Keep Electron sandboxing enabled.
+The shared helper explicitly sets Playwright's `chromiumSandbox: true`; otherwise
+Playwright adds `--no-sandbox` on Linux. Do not remove that setting to make a
+restricted host pass. A working display alone is insufficient: the host must
+support Electron's sandbox. The November 7 managed-host attempt reached Electron
+but aborted with a SUID sandbox-helper error; see the report for exact evidence.
 From the same feature checkout, run `npm ci`, `npm run desktop:build`,
 `npm run test:infrastructure`, and `npm run test:ui`, recording each outcome.
 Then run native mock smoke in the graphical session:
@@ -171,6 +176,13 @@ Record actual outcomes; successful browser tests and installer unit tests do not
 replace these native checks. Windows must additionally verify taskkill tree cleanup
 and profile removal despite native file locks, using the Windows steps above.
 macOS and packaged installation acceptance remain separate and unverified.
+
+Known early-launch limitation: the observed Playwright launch abort exited before
+the runner could write `result.json` or remove its temporary profile. Treat absent
+diagnostics as a failure to investigate. Preserve stdout/stderr and inspect only
+the exact owned PIDs/paths before manual cleanup; manual cleanup is not an
+automatic-teardown PASS. Normal shutdown and interactive cancellation still need
+native execution on a suitable host.
 
 ## CI and Phase 2 boundary
 
