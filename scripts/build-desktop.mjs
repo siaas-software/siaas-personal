@@ -23,6 +23,10 @@ for (const file of [
   ".env.production.local",
 ])
   rmSync(join(".next/standalone", file), { force: true });
+// File tracing can collect previous release artifacts on repeated local builds.
+// Remove only the generated app-root copies; dependency dist directories are required.
+for (const directory of ["dist", "dist-source"])
+  rmSync(join(".next/standalone", directory), { recursive: true, force: true });
 cpSync(".next/static", ".next/standalone/.next/static", { recursive: true });
 if (existsSync("public"))
   cpSync("public", ".next/standalone/public", { recursive: true });

@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.1.0-rc.3 (unreleased)
+
+- Package the functionality integrated on develop at
+  `741b531376c93262c5d15354faf14747fbcf97cc`; no new product features.
+- Include six official templates and centralized semantic palettes, preserving
+  custom colors and existing project data.
+- Retain explicit RC source installation, isolated profiles and the 12-asset
+  source distribution contract. Native installer testing uses disposable VMs.
+- Omit previous release artifacts from repeated standalone desktop builds while
+  retaining dependency output directories.
+- Exclude unmerged draft PRs #20 and #21.
+
+See [RC3 notes](docs/releases/1.1.0-rc.3.md),
+[readiness](docs/releases/1.1.0-rc.3-readiness.md) and
+[native testing](docs/releases/1.1.0-rc.3-windows.md).
+No tag, release publication or stable promotion is implied.
+
 ## 1.1.0-rc.2
 
 - Ground structured answers in validated calculations and source evidence; keep
