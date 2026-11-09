@@ -1,0 +1,405 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.siaas.invalid/installer-adapter/1.0/error.schema.json",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "code": {
+          "enum": [
+            "INVALID_REQUEST",
+            "UNSUPPORTED_CONTRACT",
+            "UNSUPPORTED_CAPABILITY",
+            "UNSUPPORTED_PLATFORM"
+          ]
+        },
+        "exitCode": {
+          "const": 2
+        },
+        "phase": {
+          "enum": [
+            "parse",
+            "validate",
+            "prepare",
+            "commit",
+            "activate",
+            "inspect",
+            "recover",
+            "receipt"
+          ]
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "recoveryRequired": {
+          "type": "boolean"
+        },
+        "diagnosticId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "code",
+        "exitCode",
+        "phase",
+        "retryable",
+        "recoveryRequired",
+        "diagnosticId"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "code": {
+          "enum": [
+            "INPUT_INTEGRITY_FAILED",
+            "INSTALLED_INTEGRITY_FAILED",
+            "UNTRUSTED_PATH"
+          ]
+        },
+        "exitCode": {
+          "const": 3
+        },
+        "phase": {
+          "enum": [
+            "parse",
+            "validate",
+            "prepare",
+            "commit",
+            "activate",
+            "inspect",
+            "recover",
+            "receipt"
+          ]
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "recoveryRequired": {
+          "type": "boolean"
+        },
+        "diagnosticId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "code",
+        "exitCode",
+        "phase",
+        "retryable",
+        "recoveryRequired",
+        "diagnosticId"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "code": {
+          "enum": [
+            "BUSY",
+            "GENERATION_CONFLICT",
+            "OPERATION_ID_CONFLICT",
+            "PROFILE_CONFLICT",
+            "NOT_INSTALLED"
+          ]
+        },
+        "exitCode": {
+          "const": 4
+        },
+        "phase": {
+          "enum": [
+            "parse",
+            "validate",
+            "prepare",
+            "commit",
+            "activate",
+            "inspect",
+            "recover",
+            "receipt"
+          ]
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "recoveryRequired": {
+          "type": "boolean"
+        },
+        "diagnosticId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "code",
+        "exitCode",
+        "phase",
+        "retryable",
+        "recoveryRequired",
+        "diagnosticId"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "code": {
+          "enum": [
+            "BUILD_POLICY_UNAVAILABLE",
+            "BUILD_FAILED",
+            "DOWNLOAD_DENIED",
+            "PREREQUISITE_MISSING"
+          ]
+        },
+        "exitCode": {
+          "const": 5
+        },
+        "phase": {
+          "enum": [
+            "parse",
+            "validate",
+            "prepare",
+            "commit",
+            "activate",
+            "inspect",
+            "recover",
+            "receipt"
+          ]
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "recoveryRequired": {
+          "type": "boolean"
+        },
+        "diagnosticId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "code",
+        "exitCode",
+        "phase",
+        "retryable",
+        "recoveryRequired",
+        "diagnosticId"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "code": {
+          "enum": [
+            "ACTIVATION_FAILED",
+            "RECOVERY_REQUIRED",
+            "RECEIPT_WRITE_FAILED"
+          ]
+        },
+        "exitCode": {
+          "const": 6
+        },
+        "phase": {
+          "enum": [
+            "parse",
+            "validate",
+            "prepare",
+            "commit",
+            "activate",
+            "inspect",
+            "recover",
+            "receipt"
+          ]
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "recoveryRequired": {
+          "type": "boolean"
+        },
+        "diagnosticId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "code",
+        "exitCode",
+        "phase",
+        "retryable",
+        "recoveryRequired",
+        "diagnosticId"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "code": {
+          "enum": [
+            "CANCELLED"
+          ]
+        },
+        "exitCode": {
+          "const": 7
+        },
+        "phase": {
+          "enum": [
+            "parse",
+            "validate",
+            "prepare",
+            "commit",
+            "activate",
+            "inspect",
+            "recover",
+            "receipt"
+          ]
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "recoveryRequired": {
+          "type": "boolean"
+        },
+        "diagnosticId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "code",
+        "exitCode",
+        "phase",
+        "retryable",
+        "recoveryRequired",
+        "diagnosticId"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "code": {
+          "enum": [
+            "INTERNAL_ERROR"
+          ]
+        },
+        "exitCode": {
+          "const": 1
+        },
+        "phase": {
+          "enum": [
+            "parse",
+            "validate",
+            "prepare",
+            "commit",
+            "activate",
+            "inspect",
+            "recover",
+            "receipt"
+          ]
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "recoveryRequired": {
+          "type": "boolean"
+        },
+        "diagnosticId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "code",
+        "exitCode",
+        "phase",
+        "retryable",
+        "recoveryRequired",
+        "diagnosticId"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

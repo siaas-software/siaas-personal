@@ -1,0 +1,38 @@
+{
+  "protocol": "siaas.personal.installer-adapter",
+  "schemaVersion": "1.0",
+  "contractVersion": "1.0",
+  "operation": "invalid",
+  "operationId": null,
+  "installationId": null,
+  "transactionId": null,
+  "state": "failed",
+  "lastDurableState": "none",
+  "generation": null,
+  "activeGeneration": 0,
+  "revision": 0,
+  "changed": false,
+  "guiStarted": false,
+  "integrity": "not-checked",
+  "installedManifestSha256": null,
+  "paths": null,
+  "effects": {
+    "generationCommitted": false,
+    "pointerSwitched": false,
+    "launcherReplaced": false,
+    "profileDataModified": false
+  },
+  "error": {
+    "schemaVersion": "1.0",
+    "code": "INVALID_REQUEST",
+    "exitCode": 2,
+    "phase": "parse",
+    "retryable": false,
+    "recoveryRequired": false,
+    "diagnosticId": null
+  },
+  "recovery": {
+    "actions": [],
+    "automatic": false
+  }
+}

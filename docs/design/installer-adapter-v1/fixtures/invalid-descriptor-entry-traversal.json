@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0",
+  "protocol": "siaas.personal.installer-adapter",
+  "product": "siaas-personal",
+  "supportedVersions": [
+    "1.0"
+  ],
+  "target": {
+    "product": "siaas-personal",
+    "version": "1.2.0-rc.1",
+    "commit": "1111111111111111111111111111111111111111",
+    "channel": "candidate",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "sourceSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "entryPoint": "../evil",
+  "entryPointSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "buildPolicySha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "capabilities": [
+    "install-only",
+    "explicit-paths",
+    "isolated-channels",
+    "durable-receipts",
+    "installed-integrity",
+    "journal-recovery",
+    "prepared-archives",
+    "build-network-consent"
+  ]
+}

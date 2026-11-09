@@ -1,0 +1,536 @@
+[
+  {
+    "file": "valid-request-prepare.json",
+    "schema": "request",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-request-commit.json",
+    "schema": "request",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-request-activate.json",
+    "schema": "request",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-request-install.json",
+    "schema": "request",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-request-inspect.json",
+    "schema": "request",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-request-recover.json",
+    "schema": "request",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-target-linux-x64.json",
+    "schema": "request",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-target-linux-arm64.json",
+    "schema": "request",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-target-win32-x64.json",
+    "schema": "request",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-target-win32-arm64.json",
+    "schema": "request",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-target-darwin-x64.json",
+    "schema": "request",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-target-darwin-arm64.json",
+    "schema": "request",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-descriptor.json",
+    "schema": "descriptor",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-capabilities.json",
+    "schema": "capabilities",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-capabilities-blocked.json",
+    "schema": "capabilities",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-invalid_request.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-unsupported_contract.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-unsupported_capability.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-unsupported_platform.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-input_integrity_failed.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-installed_integrity_failed.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-untrusted_path.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-busy.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-generation_conflict.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-operation_id_conflict.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-profile_conflict.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-not_installed.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-build_policy_unavailable.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-build_failed.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-download_denied.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-prerequisite_missing.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-activation_failed.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-recovery_required.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-receipt_write_failed.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-cancelled.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-error-internal_error.json",
+    "schema": "error",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-receipt-prepared.json",
+    "schema": "receipt",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-receipt-committed.json",
+    "schema": "receipt",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-receipt-activated.json",
+    "schema": "receipt",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-receipt-failed-after-activation.json",
+    "schema": "receipt",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-receipt-restored.json",
+    "schema": "receipt",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-receipt-malformed-request.json",
+    "schema": "receipt",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-integrity.json",
+    "schema": "integrity",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-journal.json",
+    "schema": "journal",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-unknown-field.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-unknown-nested-field.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-unknown-capability.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-rollback-operation.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-missing-runtime.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-wrong-version.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-uuid.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-relative-path.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-negative-cas.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-inspect-mutating-fields.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-commit-prepared.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-missing-transaction.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-bad-recovery.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-channel.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-architecture.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-source-hash.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-descriptor-entry-traversal.json",
+    "schema": "descriptor",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-blocked-advertises-operations.json",
+    "schema": "capabilities",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-error-exit.json",
+    "schema": "error",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-gui-started.json",
+    "schema": "receipt",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-success-with-error.json",
+    "schema": "receipt",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-false-durable-state.json",
+    "schema": "receipt",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-integrity-file-hash.json",
+    "schema": "integrity",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-integrity-traversal.json",
+    "schema": "integrity",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-journal-negative-sequence.json",
+    "schema": "journal",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "malformed-truncated.txt",
+    "schema": "request",
+    "valid": false,
+    "layer": "parser"
+  },
+  {
+    "file": "malformed-duplicate.txt",
+    "schema": "request",
+    "valid": false,
+    "layer": "parser"
+  },
+  {
+    "file": "malformed-nan.txt",
+    "schema": "request",
+    "valid": false,
+    "layer": "parser"
+  },
+  {
+    "file": "malformed-trailing.txt",
+    "schema": "request",
+    "valid": false,
+    "layer": "parser"
+  },
+  {
+    "file": "malformed-comment.txt",
+    "schema": "request",
+    "valid": false,
+    "layer": "parser"
+  },
+  {
+    "file": "malformed-oversized.txt",
+    "schema": "request",
+    "valid": false,
+    "layer": "parser"
+  },
+  {
+    "file": "invalid-hash-newline.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-path-newline.json",
+    "schema": "request",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-restored-install.json",
+    "schema": "receipt",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "invalid-inspect-changed.json",
+    "schema": "receipt",
+    "valid": false,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-receipt-activate.json",
+    "schema": "receipt",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-receipt-inspect.json",
+    "schema": "receipt",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "valid-request-restore-previous.json",
+    "schema": "request",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "malformed-bom.txt",
+    "schema": "request",
+    "valid": false,
+    "layer": "parser"
+  },
+  {
+    "file": "malformed-depth.txt",
+    "schema": "request",
+    "valid": false,
+    "layer": "parser"
+  },
+  {
+    "file": "malformed-infinity.txt",
+    "schema": "request",
+    "valid": false,
+    "layer": "parser"
+  },
+  {
+    "file": "malformed-utf8.txt",
+    "schema": "request",
+    "valid": false,
+    "layer": "parser"
+  },
+  {
+    "file": "valid-request-limit.json",
+    "schema": "request",
+    "valid": true,
+    "layer": "schema"
+  },
+  {
+    "file": "malformed-surrogate.txt",
+    "schema": "request",
+    "valid": false,
+    "layer": "parser"
+  },
+  {
+    "file": "malformed-output-limit.txt",
+    "schema": "receipt",
+    "valid": false,
+    "layer": "parser"
+  }
+]

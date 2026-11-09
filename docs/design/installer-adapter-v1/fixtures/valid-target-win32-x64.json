@@ -1,0 +1,62 @@
+{
+  "protocol": "siaas.personal.installer-adapter",
+  "schemaVersion": "1.0",
+  "contractVersion": "1.0",
+  "operation": "install",
+  "operationId": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+  "installationId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  "paths": {
+    "installRoot": "C:\\Users\\example\\PersonalCandidate",
+    "launcher": {
+      "kind": "cmd",
+      "path": "C:\\Users\\example\\Launchers\\candidate.cmd"
+    },
+    "profile": "C:\\Users\\example\\Profiles\\Candidate",
+    "receipt": "C:\\Users\\example\\Private\\receipt.json"
+  },
+  "requiredCapabilities": [
+    "install-only",
+    "explicit-paths",
+    "isolated-channels",
+    "durable-receipts",
+    "installed-integrity",
+    "journal-recovery",
+    "prepared-archives",
+    "build-network-consent"
+  ],
+  "target": {
+    "product": "siaas-personal",
+    "version": "1.2.0-rc.1",
+    "commit": "1111111111111111111111111111111111111111",
+    "channel": "candidate",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "expectedGeneration": 0,
+  "prepared": {
+    "source": {
+      "path": "C:\\Users\\example\\Prepared\\source",
+      "size": 1234,
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "runtime": {
+      "path": "C:\\Users\\example\\Prepared\\runtime",
+      "size": 1234,
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "manifest": {
+      "path": "C:\\Users\\example\\Prepared\\manifest",
+      "size": 1234,
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "buildPolicy": {
+      "path": "C:\\Users\\example\\Prepared\\buildPolicy",
+      "size": 1234,
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  },
+  "buildConsent": {
+    "policySha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "consentId": "cccccccc-cccc-4ccc-8ccc-cccccccccccc"
+  }
+}

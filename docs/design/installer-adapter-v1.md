@@ -1,6 +1,7 @@
-# Installer Adapter Contract v1 — proposal
+# Installer Adapter Contract v1 — normative design
 
-Status: design review only, 2026-11-09. **Not implemented in RC3.**
+Status: normative design for review, 2026-11-09. **Implementation BLOCKED; not implemented in RC3.**
+Schemas are testable design artifacts, not evidence of runtime/platform conformance.
 See the [separation audit](../audits/personal-cli-separation.md) and
 [compatibility/roadmap](installer-adapter-v1-roadmap.md). “MUST” specifies future
 conformance, not existing behavior. This is a local, same-user process protocol,
@@ -22,189 +23,178 @@ without opening Electron, the backend, a browser, Ollama or research services. �
 means filesystem/launcher selection is consistent, never graphical or service readiness.
 No start/stop/doctor/model/research/release commands belong to adapter v1.
 
+## Minimum protocol and scope
+
+Installation produces and retains a verified application generation. Activation selects
+that generation and registers its launcher. Startup executes the GUI/backend and may
+open user data; it is a separate, explicitly excluded action. Future lifecycle management
+includes stop/restart, uninstall, profile migration/restore and adoption. None is a v1
+operation. The minimum consists of discovery plus prepare, commit, activate, install,
+inspect and recover. Every advertised supported platform MUST implement all seven.
+
+Application rollback is **DEFERRED**, requiring a separately negotiated future protocol
+and capability: retained-generation integrity, read-only schema compatibility evidence,
+quiescence and explicit user choice. v1 rejects rollback as UNSUPPORTED_CAPABILITY,
+including an attempted rollback request; it never falls back to RC3's toggle behavior.
+Recovery restore-previous compensates only the still-incomplete transaction while its
+activation gate prevents startup. It is not post-startup downgrade or data restoration.
+
+## Normative artifacts and versioning
+
+The [schema directory](installer-adapter-v1/schemas/request.schema.json) contains JSON
+Schema Draft 2020-12 documents. Schema IDs use the reserved `schemas.siaas.invalid`
+namespace as stable offline identifiers; implementations MUST resolve the local registry,
+not fetch schemas over the network. All schema objects are closed. No future response
+field is silently accepted in 1.0; new fields require a separately negotiated version.
+Protocol is `siaas.personal.installer-adapter`; contractVersion and schemaVersion are
+`1.0`. Artifact manifests' schemaVersion=1 in RC3 is unrelated. Discovery descriptors
+list supported contract versions; unknown major OR minor is UNSUPPORTED_CONTRACT.
+
+| Artifact | Normative schema | Valid example |
+| --- | --- | --- |
+| Release descriptor | [descriptor](installer-adapter-v1/schemas/descriptor.schema.json) | [descriptor fixture](installer-adapter-v1/fixtures/valid-descriptor.json) |
+| Capability response | [capabilities](installer-adapter-v1/schemas/capabilities.schema.json) | [blocked response](installer-adapter-v1/fixtures/valid-capabilities-blocked.json) |
+| Requests | [request](installer-adapter-v1/schemas/request.schema.json) | [install](installer-adapter-v1/fixtures/valid-request-install.json) |
+| Completion receipts | [receipt](installer-adapter-v1/schemas/receipt.schema.json) | [failure after activation](installer-adapter-v1/fixtures/valid-receipt-failed-after-activation.json) |
+| Errors | [error](installer-adapter-v1/schemas/error.schema.json) | [policy unavailable](installer-adapter-v1/fixtures/valid-error-build_policy_unavailable.json) |
+| Installed generation | [integrity](installer-adapter-v1/schemas/integrity.schema.json) | [integrity metadata](installer-adapter-v1/fixtures/valid-integrity.json) |
+| Journal record | [journal](installer-adapter-v1/schemas/journal.schema.json) | [initial intent](installer-adapter-v1/fixtures/valid-journal.json) |
+| Shared scalar/path definitions | [common](installer-adapter-v1/schemas/common.schema.json) | Used by all dependent schemas |
+
+The schemas define required fields, types, enums and per-operation exclusions; fields
+not in `required` are optional (v1 records deliberately use explicit nulls instead).
+The prose additionally defines filesystem, provenance, equality and ordering requirements
+that JSON Schema cannot express. Fixtures with placeholder hashes demonstrate shape,
+not authentic archives. See [validation and semantic obligations](installer-adapter-v1/validation.md).
+No schema validation result authorizes execution or establishes ownership.
+
 ## Discovery and transport
 
-Proposed entry point inside a future verified Personal source release:
+Proposed future commands (these files/commands do not exist in RC3):
 
 ```sh
 "/verified/node/bin/node" "/verified/personal/scripts/installer-adapter.mjs" capabilities --json
 "/verified/node/bin/node" "/verified/personal/scripts/installer-adapter.mjs" execute --request "/private/install-request.json"
 ```
 
-These are proposed invocations, not RC3 commands. Windows uses verified `node.exe`
-and absolute Windows paths with the same argument array; callers MUST NOT concatenate
-shell commands. The verified source tree supplies the adapter and imports, so discovery
-itself executes trusted release code. It MUST need no npm install, GUI, network, root
-creation, profile access or other mutation. Do not probe old source-manager with novel
-flags: RC3 ignores options it does not parse. Absence of a trusted descriptor/entry
-point means unsupported, never fallback to legacy install that launches the GUI.
+Pass argument arrays, never concatenate a shell command. Windows uses verified node.exe
+and native absolute paths. CLI MUST verify the external release descriptor, source ZIP,
+runtime and extracted adapter/imports before discovery executes code. The descriptor is
+an external, integrity-covered sidecar, not embedded in the archive whose digest it
+contains (avoids self-hash recursion). Trusted immutable-release metadata binds sidecar,
+source digest, target commit/version and policy digest. Sidecar hash alone is not provenance.
+Descriptor entryPoint is a safe relative path within verified source; its digest must match.
 
-Future releases include an integrity-covered descriptor binding product, source digest,
-relative entry point, supported majors and capabilities. CLI must verify that descriptor
-as part of the trusted release before executing; a mutable file from an unknown origin
-is not a trust anchor. Runtime discovery must agree with the descriptor and actual OS.
+Discovery is read-only/offline and does not install npm packages, create roots, touch
+profiles or run a build. It returns capabilities only after checking the platform's
+accepted enforcement backend and matching the verified descriptor. Missing or unaccepted
+backend yields availability=blocked, empty operations/capabilities and structured blockers.
+A descriptor describes potential support; it does not override local readiness. A malformed
+or untrusted descriptor must not be executed. Missing descriptor/entry point means unsupported;
+never probe legacy manager with ignored flags or launch it as fallback.
 
-Example capability response (illustrative future Linux x64 implementation):
+Input, capability output, descriptor, error, request and receipt each have a 65,536-byte
+UTF-8 limit, measured before parsing, including whitespace. Reject BOM, invalid UTF-8,
+duplicate keys at any nesting, comments, NaN/Infinity, lone Unicode surrogates, trailing content and depth >32.
+Integers must fit 0..9007199254740991 (positive where specified). UUIDs are canonical
+lowercase RFC 4122 variant/version 4 strings; identities are not authentication tokens.
+Digest strings are 64 lowercase hex; commits are 40 lowercase hex. Accepted platform/arch
+pairs are linux/win32/darwin × x64/arm64; reject cross-build or translated host ambiguity.
+Journal records also have a 64 KiB limit; integrity metadata is bounded to 64 MiB and
+100,000 entries, depth 32. Implementations must reject limits, never silently truncate.
 
-```json
-{
-  "protocol": "siaas.personal.installer-adapter",
-  "supportedVersions": ["1.0"],
-  "product": "siaas-personal",
-  "platform": "linux",
-  "arch": "x64",
-  "operations": ["prepare", "commit", "activate", "install", "inspect", "recover", "rollback"],
-  "capabilities": ["install-only", "explicit-paths", "isolated-channels", "durable-receipts", "installed-integrity", "journal-recovery", "prepared-archives", "build-network-consent"],
-  "unsupportedCapabilities": ["gui-start", "offline-build", "profile-restore", "cross-build", "native-installer"]
-}
-```
+stdout contains one response JSON object and a newline, no subprocess output. Progress
+and bounded, redacted build logs use stderr (16 MiB total per transaction; truncation is
+marked). Secrets, user content and raw exception/environment dumps are prohibited.
+Discovery outputs the capability schema, or a standalone structured error for invalid
+invocation/unavailable trustworthy identity; execute outputs a receipt. An unparseable request
+uses operation=invalid and null identities/paths, never echoes untrusted IDs or writes the
+supplied receipt path. Classify unsupported version/capability/platform before generic
+schema failure where parsable; otherwise INVALID_REQUEST. Unknown fields fail closed.
 
-Unknown major/minor versions, operations, required capabilities and request keys MUST
-fail before install-root creation or other mutations. Discovery and completion JSON are bounded to 64 KiB; logs must not be interleaved on stdout. Version 1.0 has closed request
-objects; future minor requests require explicit discovery, not silent interpretation.
-Responses may add noncritical fields within a negotiated major; required semantics
-cannot change. No operation may advertise a capability until its target platform passes
-conformance. Platform naming: win32/darwin/linux, x64/arm64; reject host mismatch.
+## Request semantics and ownership
 
-## Request schema and example
+Every execution request includes protocol/schema/contract version, operation, UUID
+operationId and installationId, explicit paths and requiredCapabilities. prepare/install
+also require target, expectedGeneration, four prepared file records (source, runtime,
+manifest, buildPolicy) and buildConsent. commit/activate/recover require target,
+expectedGeneration and transactionId, but reject prepared inputs/consent: those are
+persisted and hash-bound to the original transaction. recover additionally requires
+recoveryAction=resume or restore-previous. inspect rejects all mutation-only fields.
+All requiredCapabilities must be known and currently advertised; none may be ignored.
 
-UTF-8 JSON, maximum 64 KiB, no duplicate keys, NaN, comments or trailing content.
-All objects closed. Paths are absolute native paths, no URLs. UUIDs identify operations
-and installations. Digests are 64 lowercase hexadecimal characters; commit is 40 hex;
-sizes are positive safe integers. Missing required fields fail validation.
+The target binds Personal product, release commit/version/channel and host platform.
+Stable semantic versions cannot contain -rc.N; candidate versions must. Caller paths are
+installRoot, launcher kind/path, profile and receipt; no implicit defaults or overrides
+from environment. Launcher kind is desktop-entry on Linux, cmd on Windows, command on
+macOS. Request, descriptor, verified manifest and installed metadata identities MUST agree.
+The manifest's provenance and source/runtime content remain independently verified.
 
-| Field | Required type / constraint |
-| --- | --- |
-| protocol, contractVersion | Exact strings `siaas.personal.installer-adapter`, `1.0` |
-| operation | Enum from discovered operations |
-| operationId, installationId | UUID strings; durable request binding, stable installation identity |
-| requiredCapabilities | Unique string array; every entry must be advertised |
-| target | `{product, version, commit, channel, platform, arch}`; product exact; channel stable/candidate; stable semver or explicit rc.N consistent with channel |
-| paths | `{installRoot, launcher, profile, receipt}`; launcher is `{kind, path}`; kind desktop-entry/command/cmd matching OS; no implicit defaults |
-| prepared | For prepare/install only: `{source, runtime, manifest}`; each `{path, size, sha256}` identifies a local regular file; manifest binds source/runtime identity and target |
-| buildPolicy | For prepare/install only: `{mode, policyId, policySha256, consentId}`; mode `approved-network`; no permissive default |
-| transactionId | Required for commit/activate/recover, optional nowhere else; opaque Personal-issued UUID from a receipt |
-| expectedGeneration | Required integer >=0 for every mutation, including prepare/install; compare-and-swap precondition, 0 for absent installation |
-| rollbackTarget | Required only for rollback: `{generation, installedManifestSha256}`; explicit retained selection, not “previous” toggle |
-| recoveryAction | Required only for recover: `resume` or `restore-previous`; no force unlock |
+Lexical path schemas are only a first filter. Native validation MUST use directory/file
+handles to validate and operate without symlink/junction/reparse races, reject root/device/
+UNC/alternate stream paths in v1, traversal, control characters, case/normalization aliases,
+unsupported volumes and unexpected ownership/ACLs. No path may escape a declared owned
+root through a link. Prepared input files are regular files, never live mutable trees.
+Receipt must not overlap any input, launcher, staging, generation or profile. Profile must
+not be inside replaceable generation storage. Source/input locations are read-only.
+Install root/profile/launcher ownership is bound to installationId and OS principal;
+check channel bindings before any change. Stable and candidate cannot share roots,
+profiles or launcher registrations, including alias paths. Unmarked existing installations
+or populated profiles are rejected, not adopted. Explicit new owned empty profile directory
+creation is allowed; no profile database is opened or migrated.
 
-inspect requires protocol/version/operation/operationId/installationId/paths only;
-all other operations require target, requiredCapabilities and expectedGeneration too.
-commit/activate/recover use the persisted, hash-bound original target/paths and cannot
-substitute inputs or build policy. rollback uses an explicit retained generation.
-These field rules plus the scalar constraints above are the proposed normative schema;
-machine-readable JSON Schemas and golden vectors are acceptance deliverables before
-implementation integration, not existing release assets.
+## States, receipts and errors
 
-Example install request (digests are syntactically valid placeholders, never usable
-verification values; replace from verified artifacts for a future adapter release):
-
-```json
-{
-  "protocol": "siaas.personal.installer-adapter",
-  "contractVersion": "1.0",
-  "operation": "install",
-  "operationId": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
-  "installationId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-  "requiredCapabilities": ["install-only", "explicit-paths", "installed-integrity", "journal-recovery"],
-  "target": {"product": "siaas-personal", "version": "1.2.0-rc.1", "commit": "1111111111111111111111111111111111111111", "channel": "candidate", "platform": "linux", "arch": "x64"},
-  "paths": {
-    "installRoot": "/home/example/.local/share/personal-candidate",
-    "launcher": {"kind": "desktop-entry", "path": "/home/example/.local/share/applications/personal-candidate.desktop"},
-    "profile": "/home/example/.local/share/personal-candidate-data",
-    "receipt": "/home/example/private/install-receipt.json"
-  },
-  "prepared": {
-    "source": {"path": "/home/example/private/source.zip", "size": 1234, "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
-    "runtime": {"path": "/home/example/private/node.tar.gz", "size": 5678, "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"},
-    "manifest": {"path": "/home/example/private/manifest.json", "size": 987, "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"}
-  },
-  "buildPolicy": {"mode": "approved-network", "policyId": "personal-build-v1", "policySha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "consentId": "local-consent-001"},
-  "expectedGeneration": 0
-}
-```
-
-CLI resolves all paths explicitly. Personal canonicalizes existing ancestors and rejects
-relative paths, traversal, symlink/junction/reparse escapes, dangerous roots, unexpected
-owners/ACLs, aliases/case collisions, source/profile/launcher/receipt overlaps and another
-installation's registration. A profile cannot be nested in replaceable version/staging
-storage. Stable/candidate must have distinct roots, profiles and launchers; sharing or
-channel conversion is unsupported v1. Existing unmarked profiles/launchers require a
-separate future adoption flow; never silently claim ownership. No chmod/ACL relaxation,
-elevation, global PATH modification or writing outside declared owned destinations.
-
-## States, receipts and exits
-
-prepare validates and copies inputs into private staging, builds and verifies output;
-commit moves a verified generation into retained storage without selecting it;
-activate switches the selected generation and owned launcher; install composes all
-three. No step launches the app or opens/migrates its SQLite profile. Profile selection
-is recorded, with owned directory creation only where authorized. inspect reads receipts,
-journal and integrity without creating directories or invoking a migrating constructor.
-
-| State | Durable fact | Allowed next step |
+| Operation | Preconditions | Durable completion |
 | --- | --- | --- |
-| prepared | Verified staged build and installed-file manifest; active generation unchanged | commit or recover/discard owned uncommitted staging |
-| committed | Complete immutable-by-convention generation retained; not necessarily current | activate or recover |
-| activated | Selected generation, launcher, dispatcher and profile binding agree and are reverified | inspect; explicit install/rollback transaction |
-| failed | Operation failed; last durable state and actual effects included | inspect/recover as indicated; never assume untouched installation |
+| prepare | Verified request/inputs/policy; exclusive locks; matching revision | prepared: built staging and integrity manifest flushed, active generation unchanged |
+| commit | Same transaction in prepared state; reverified staging; matching revision | committed: verified generation moved to retained storage; not selected |
+| activate | Same transaction committed; active app absent; matching revision | activated: pointer, dispatcher, launcher and binding consistent, gate safely released |
+| install | Same requirements as prepare | Composes prepare → commit → activate; never starts Personal |
+| inspect | Valid explicit owned selection; no mutation | Observed durable state/integrity; missing installation is failed/NOT_INSTALLED |
+| recover | Exclusive transaction ownership; intact journal; no app ever started through incomplete activation | resume incomplete steps, or restore-previous compensation; no data restoration |
 
-stdout contains exactly one bounded JSON completion receipt, including validation errors;
-subprocess/progress output goes to stderr with redaction. Atomically persist the same
-receipt at the validated caller path and an authoritative copy in the owned transaction
-journal; do not write to an unvalidated receipt path. A killed process may emit nothing:
-CLI treats EOF/timeout/missing receipt as unknown and invokes inspect, not success/retry.
-Receipt-write failure is nonzero even if activation succeeded; journal is recovery truth.
-Receipt fields below are required; transactionId/installedManifestSha256 may be null
-before a transaction exists; error is null on success. paths has the request's exact schema.
+Failure is an operation result, not a durable installed state. Receipt state=failed
+includes lastDurableState=none/prepared/committed/activated, actual effects and error.
+Recovery compensation succeeds with state=restored, the last durable forward state and
+actual prior activeGeneration. An identical activated retry reports changed=false only
+after integrity verification. No GUI/backend/service launch is permitted in any operation.
+`effects.profileDataModified` and `guiStarted` are always false. User-data bytes stay intact.
+`revision` records selection CAS revision; `generation` identifies the transaction's built
+generation and may be null before allocation. activeGeneration=0 means absent.
 
-```json
-{
-  "protocol": "siaas.personal.installer-adapter",
-  "contractVersion": "1.0",
-  "operationId": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
-  "installationId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-  "transactionId": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
-  "state": "failed",
-  "lastDurableState": "committed",
-  "generation": 3,
-  "activeGeneration": 2,
-  "changed": true,
-  "guiStarted": false,
-  "integrity": "verified",
-  "installedManifestSha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-  "paths": {
-    "installRoot": "/home/example/.local/share/personal-candidate",
-    "launcher": {"kind": "desktop-entry", "path": "/home/example/.local/share/applications/personal-candidate.desktop"},
-    "profile": "/home/example/.local/share/personal-candidate-data",
-    "receipt": "/home/example/private/install-receipt.json"
-  },
-  "effects": {"generationCommitted": true, "pointerSwitched": false, "launcherReplaced": false, "profileDataModified": false},
-  "error": {"code": "ACTIVATION_FAILED", "phase": "activate", "retryable": false, "recoveryRequired": true},
-  "recovery": {"actions": ["resume", "restore-previous"], "automatic": false}
-}
-```
+Prepared/committed/activated success receipts require matching lastDurableState and
+verified installedManifestSha256. On restored success, the compensated selection is
+verified; installedManifestSha256 can identify the retained transaction generation or
+be null if no generation was built. `changed` describes effects of this invocation, not
+whether an installation exists. inspect never changes state, so changed=false. Effect
+flags describe effects reached in this transaction (even if later compensated), not a
+claim that every effect remains selected; activeGeneration/revision are authoritative.
 
-Success receipts use state and lastDurableState prepared/committed/activated, error=null,
-and accurate effects. A verified identical reinstall reports activated, changed=false,
-without rebuilding or rewriting launchers. `integrity` is verified/failed/not-checked;
-lastDurableState additionally allows none. activeGeneration may be null. inspect returns
-the observed state with changed=false; absent installation uses failed/none and NOT_INSTALLED.
+Mutation success requires durable journal completion and external receipt persistence.
+Persist authoritative completion record first, atomically replace caller receipt second,
+then emit stdout. If external persistence fails after activation, emit failed with
+lastDurableState=activated, actual effects and RECEIPT_WRITE_FAILED, exit 6; keep the
+journal's activated fact. Never downgrade it to “not installed”. inspect is read-only:
+it emits a receipt on stdout but never writes the caller path or repairs journal. recover
+or an identical mutating retry can persist a recovered receipt. Missing stdout, EOF or
+cancellation without receipt means unknown; CLI must inspect, not assume failure/no effects.
 
-| Exit | Stable codes / meaning |
+| Exit | Codes (normative error schema binds each code to this exit) |
 | --- | --- |
-| 0 | Requested durable state reached, persisted receipt and integrity verified |
+| 0 | Verified requested durable state; error=null |
 | 2 | INVALID_REQUEST, UNSUPPORTED_CONTRACT, UNSUPPORTED_CAPABILITY, UNSUPPORTED_PLATFORM |
 | 3 | INPUT_INTEGRITY_FAILED, INSTALLED_INTEGRITY_FAILED, UNTRUSTED_PATH |
 | 4 | BUSY, GENERATION_CONFLICT, OPERATION_ID_CONFLICT, PROFILE_CONFLICT, NOT_INSTALLED |
 | 5 | BUILD_POLICY_UNAVAILABLE, BUILD_FAILED, DOWNLOAD_DENIED, PREREQUISITE_MISSING |
-| 6 | ACTIVATION_FAILED, RECOVERY_REQUIRED, ROLLBACK_INCOMPATIBLE, RECEIPT_WRITE_FAILED |
-| 7 | CANCELLED before next durable boundary; receipt still reports actual durable state |
-| 1 | INTERNAL_ERROR; redacted diagnostic reference, no raw secret-bearing exception |
+| 6 | ACTIVATION_FAILED, RECOVERY_REQUIRED, RECEIPT_WRITE_FAILED |
+| 7 | CANCELLED, with actual durable state |
+| 1 | INTERNAL_ERROR, redacted diagnostic UUID only |
 
-Never return 0 on a partial launcher write or executable spawn alone. No fallback on
-unsupported capability. Retryable describes whether the same request may be retried
-without policy changes; recoveryRequired takes precedence and requires inspect/recover.
+Retryable never overrides recoveryRequired. Empty recovery.actions means no safe automatic
+recovery is known. The adapter must not guess a repair from damaged/unowned metadata.
+Unsupported lifecycle operations are UNSUPPORTED_CAPABILITY; malformed unknown operation
+strings are INVALID_REQUEST. Neither causes any mutation.
 
 ## Trust boundary: prepared inputs do not mean a trusted/offline build
 
@@ -251,55 +241,150 @@ types, sizes, SHA-256, executable modes, safe link targets, runtime/npm/build to
 source/lockfile/policy digests, version/commit and platform. Define platform-specific
 metadata (ACL ownership, executable signature/quarantine policy) without hashing volatile
 user data. Profile, logs and caches live outside immutable application content. Verify
-all covered app/manager/runtime files and owned launcher contents on inspect/reinstall,
-activation, launch and rollback; executable existence is insufficient.
+all covered app/manager/runtime files and owned launcher contents on inspect, activation
+and reinstall; future startup/rollback contracts must also verify them. Executable
+existence is insufficient.
 
 Local hashes detect drift against a protected installation record, not a hostile user
 who can rewrite both files and receipts. Authenticate release inputs independently and
 protect records with same-user permissions; do not claim attestation or bit-reproducible
 builds. Changes to receipt/manifest ownership or unsupported filesystem semantics fail.
 
-Each invocation gets its own operationId; retries reuse that ID, while commit/activate use new IDs and the same transactionId. Resolve an existing identical journal entry before testing a now-stale expectedGeneration, then revalidate the observed generation; unrelated generation changes still fail closed. Bind operationId to a canonical JSON request digest (RFC 8785), excluding only operationId
-and paths.receipt, and a stable installation identity. Reuse with different inputs fails.
-An identical replay rechecks installed content and reconciles journal state; it does not
-blindly trust a previous receipt. A fresh operation selecting the same generation/inputs
-can also return unchanged after full verification. Corruption returns
-INSTALLED_INTEGRITY_FAILED; no silent success or destructive repair. Generations are
-monotonic, and each mutation verifies expectedGeneration under an exclusive root lock.
-Protect a shared launcher with an ownership lock too, so different roots cannot race.
+Each mutation gets a unique operationId; exact retries reuse it. Bind the entire request
+(including receipt path) to RFC 8785 canonical JSON SHA-256, excluding only operationId.
+Reusing an ID with a different path/body is OPERATION_ID_CONFLICT. commit/activate/recover
+use fresh operation IDs and the transactionId issued by prepare/install. Transaction
+target, paths, input/policy hashes and installation identity cannot be changed between
+steps. Validate a known identical retry before rejecting a stale CAS value, but reverify
+journal, current revision and integrity; it succeeds only if the current selection still
+matches the transaction's completed result. Never replay over an unrelated selection.
 
-## Interruptions, activation and rollback
+`expectedGeneration` is the historical field name for the **selection revision CAS**,
+not a directory generation ID. Revision starts at 0 and increases only after verified
+activation completion; failed/uncompleted transactions keep their base revision. Generation
+IDs are separately monotonic, allocated under the root lock, never reused (gaps allowed).
+prepare/commit/activate retain the same expectedGeneration until activation completes.
+recover uses the transaction's base revision; receipt recovery after completed activation
+is allowed only when current revision/result match that transaction. A fresh identical
+install can return unchanged only with the current revision and full content/launcher
+verification. Revision overflow or inconsistent metadata is RECOVERY_REQUIRED, not wrap.
 
-Use a durable write-ahead journal with transaction/owner identity, request digest,
-phase intent/completion, old/new generation, exact previous launcher/dispatcher bytes,
-profile binding and touched paths. Flush data and journal before atomic renames; record
-filesystem/platform durability guarantees. Stage on the same volume as generation
-storage; reject unsupported atomicity rather than assuming cross-volume rename works.
-Launcher and root may live on different volumes: activation is a recoverable multi-step
-transaction, never described as a single atomic filesystem operation.
+## Transaction journal and activation ordering
 
-Acquire locks before mutations; readers/launchers must refuse or reconcile an incomplete
-activation, not run a mixed generation. No PID-only stale-lock deletion: use OS-backed
-locking plus transaction and process-start identity, with recovery only after exclusive
-ownership is proven. If an installed app is running, v1 refuses BUSY; it does not kill
-unrelated processes or implement stop. Graceful quiescence is later explicit Personal
-lifecycle work. Network downloads/build subprocesses are cancellable and bounded; clean
-up only owned children and paths. After SIGKILL/power loss, inspect reports the last
-durable boundary and pending effects, never assumes a finally block executed.
+The [journal schema](installer-adapter-v1/schemas/journal.schema.json) defines bounded
+append-only intent/done records. Sequence starts at 0, increases by one; each record hashes
+the preceding canonical JSON record (first previousRecordSha256=null). Verify the chain,
+installation/transaction/request binding and OS owner before use. The immutable requestSnapshot stores the full validated request
+bytes privately, with matching digest; it supplies original prepared/policy bindings for
+recovery, never an alternate command or executable hook. A journal directory is
+private, same-volume with generations, locked and not writable by build children.
+Backup objects reference private, hash-verified original pointer/launcher/dispatcher bytes;
+null means the registration was absent. Never store secrets or profile data in the journal.
 
-| Interruption point | Required recovery |
+Portable code can validate schema/hash chain, request equality, transition order, manifest
+content and deterministic recovery decisions. It cannot promise crash durability, native
+ACL/handle safety, flush semantics or containment without platform acceptance. Truncated
+last record is ignored only when every earlier record is complete and its intent permits
+reconciliation of actual owned files; any ambiguous/missing backup or chain mismatch
+fails closed with RECOVERY_REQUIRED. It must not guess that the interrupted action failed.
+
+1. Validate without writes; acquire OS-backed root and launcher ownership locks in canonical
+   order. Check root principal/installationId, revision and channel. Prove the selected app
+   is not running; otherwise BUSY. PID alone is insufficient. Persist transaction intent
+   and owner process-start identity before staging; no PID-only forced lock removal.
+2. Copy verified inputs into owned staging, rehash/extract safely, run contained build.
+   Verify the entire generated tree, manifest and toolchain; flush files and parent
+   directories, persist prepared completion. Active selection remains untouched.
+3. Journal commit intent, rename generation within the accepted same-volume filesystem,
+   flush directory, reverify and persist committed completion. Cross-volume commit is
+   unsupported. Keep previous and transaction generations; no automatic GC in minimum v1.
+4. Journal activation intent and backup hashes, install a durable activation gate that all
+   adapter-owned launchers/dispatchers honor, and recheck quiescence under ownership locks.
+   An attempt to run while gated refuses; it must not execute a mixed generation.
+5. Stage and flush new launcher/dispatcher registrations under ownership locks, then replace
+   each with per-file intent/done records and native safe replacement. Write current pointer
+   with the generation/profile binding while gate stays closed. These are distinct writes
+   across potentially different volumes, **not one atomic filesystem transaction**.
+6. Re-read pointer, launcher/dispatcher, ownership and installed manifest. Record activated
+   completion and increment revision durably; then release the gate durably. On a crash
+   before gate removal, recovery validates completion and only removes that owned gate.
+7. Persist caller receipt and emit completion. Receipt failure cannot undo a completed
+   activation fact. Keep journal/backups for explicit recovery; no cleanup that destroys
+   recovery inputs. Never launch Personal.
+
+| Last verified journal fact | Recovery decision |
 | --- | --- |
-| Input copy/build before prepared | Active installation untouched; discard only verified owned staging, or restart prepare with input revalidation |
-| Prepared or committed, before selection | Keep old active generation; resume next step after full revalidation; committed generation may be retained |
-| Current pointer switched, launcher/dispatcher incomplete | Prevent launches; complete matching registrations or restore saved pointer and registrations; preserve journal until verified |
-| Activation complete, receipt missing | inspect reconstructs a verified activated receipt from journal; no second build or launch |
-| Recovery itself interrupted | Replay idempotently from journal; fail closed on missing/corrupt journal or ambiguous ownership |
+| Build intent, no prepared completion | Active unchanged; inspect hashes/owned staging, resume prepare with original inputs/policy or restore-previous by discarding owned staging |
+| Prepared | Reverify, resume commit or compensate without touching active selection |
+| Committed | Reverify, resume activation or compensate while retaining generation for diagnosis |
+| Activation intent, partial launcher/pointer writes | Gate stays closed; reconcile each intent against old/new verified bytes, complete or restore every owned registration |
+| Activated completion, gate or receipt pending | Reverify selected result; release gate/persist receipt only; no restore-previous after gate release/startup possible |
+| Corrupt chain, missing backup, changed owner or unrelated revision | Refuse automatic recovery; RECOVERY_REQUIRED and preserve evidence |
 
-Rollback is an explicit transaction selecting a retained generation and its matching
-runtime/manager/launcher. Verify it and profile-schema compatibility first; reject unknown
-compatibility. It never toggles blindly and never rolls back application data. Installation
-v1 does not open/migrate profiles; after later GUI startup, schema compatibility must be
-checked without invoking migrating constructors. Future profile backup/restore is a
-separate consented contract, not implied by rollback. Retain previous verified generation
-and recovery records until activation and receipt are durable; never garbage-collect a
-transaction's recovery inputs. Uninstall/purge and automatic data restore are out of v1.
+restore-previous is allowed only before activated completion/gate release and only for
+this transaction's saved selection, with no profile changes. After activated completion,
+recover may only finalize gate/receipt. Compensating an initially absent installation
+removes only transaction-created registrations/pointer, retains user data and records
+activeGeneration=0. Compensation writes its own intent/done records, so repeated crashes
+resume compensation. It is never a general rollback or automatic profile restoration.
+
+Cancellation before commit terminates only owned contained child trees and leaves the
+prior installation active. During activation, first reach a verified compensation or
+completion boundary with gate closed, then emit CANCELLED with actual effects. SIGKILL,
+power loss and receipt loss require inspection; no finally-block guarantee is assumed.
+Native process groups/job handles and child escape prevention require platform evidence.
+A busy application or inability to prove quiescence fails BUSY, not forced termination.
+
+## Platform enforcement feasibility and mandatory refusal
+
+No native enforcement prototype was run in this documentation task. These are candidate
+mechanisms and acceptance requirements, not established support. All six targets remain
+BLOCKED for implementation readiness until the roadmap's security/transaction gates pass.
+
+| Target | Mechanism to evaluate | What remains unproven / mandatory response |
+| --- | --- | --- |
+| Linux x64 | User/mount/PID/network namespaces, cgroup-owned child trees, deny egress except a digest-verifying broker; private filesystem view and no GUI sockets | Kernel/user-namespace availability, seccomp/namespace escape resistance, exec/download broker, fsync+rename and desktop launcher locks: BUILD_POLICY_UNAVAILABLE or RECOVERY_REQUIRED |
+| Linux arm64 | Same design with native arm64 toolchain/binaries | All x64 gates plus architecture-specific package/download coverage; x64 fixtures are not evidence |
+| Windows x64 | Restricted token/AppContainer or equivalent audited broker, Job Object with kill-on-close and breakaway denied, ACL/handle-based filesystem access, WFP/broker-enforced egress | Job Object alone does not restrict network/files; npm/Electron compatibility, reparse races, FlushFileBuffers/replacement/file sharing and launcher locks unverified; fail closed |
+| Windows arm64 | Same native containment with arm64-aware tools | Native execution/download/signature coverage and emulation ambiguity unverified; no x64 acceptance inheritance |
+| macOS x64 | Supported sandboxed helper or isolated VM/build service with mediated downloads, restricted filesystem/GUI access and owned process cancellation | No assumed stable public sandbox-exec solution; npm/build/signing compatibility, durable APFS replacements and launcher registration unverified; fail closed |
+| macOS arm64 | Same supported helper/VM approach with native arm64 toolchain | Entitlements, translated-process rejection, quarantine/signing and APFS recovery unverified; Intel results insufficient |
+
+A broker must verify content against policy digests before making downloads available,
+block direct sockets/DNS/proxy escape, and prevent arbitrary fetch-execute or GUI/backend
+startup by build descendants. A domain allowlist or consent receipt cannot enforce this.
+The exact execution allow policy for build tools vs generated app entry points is a BLOCKER;
+absence of DISPLAY alone is insufficient. No untrusted build child can write the journal,
+active generation, launcher or profile. If the platform cannot enforce these properties,
+prepare fails BUILD_POLICY_UNAVAILABLE before running dependency scripts.
+
+Native acceptance must justify filesystem durability on supported local volumes (not
+network shares), handle-based ownership and symlink checks, safe launcher replacement,
+process quiescence and cancellation. No relaxation of TLS, Electron sandbox, OS security
+or release controls is permitted. Application rollback, startup and data migration stay
+outside these minimum guarantees.
+
+## Integrity metadata and build policy completeness
+
+The integrity schema's files list covers the complete generation-relative application,
+manager/imports and private runtime/npm tree. v1 generations own their runtime content;
+shared mutable runtime caches cannot be trusted as installed content. List is sorted by
+Unicode codepoint of normalized slash-relative paths, with no duplicate/aliased entries,
+unlisted executable files or out-of-tree links. Directories and link targets are included;
+user profile/cache/log content is excluded and must live outside the generation. mode is
+the normalized four-digit POSIX mode on POSIX; Windows uses 0000 and validated ACL policy
+hashes instead. Executable status must agree with target semantics. Launcher is separately
+hashed and ownership checked. Hash the canonical integrity record externally in the journal
+and receipts; it cannot contain its own digest. SignaturePolicySha256 identifies the
+reviewed target policy, not proof that verification ran.
+
+The verified buildPolicy input must bind target, source/lockfile/toolchain digests, allowed
+package lifecycle/build commands and executable hashes, registries and every additional
+binary-download digest, private writable paths, env allowlist, cancellation policy and
+maximum compressed/expanded bytes, entries, CPU/memory/process/time/log limits. The release
+must supply finite limits compatible with the protocol caps; absent or unenforceable
+limits are BUILD_POLICY_UNAVAILABLE. The policy must cover archive extraction before
+any subprocess can see extracted files. An implementation-specific policy schema and
+broker/backend are G1 deliverables; no opaque policy hash alone satisfies this requirement.
+ConsentId is an orchestration reference to prior explicit consent, not a credential or
+authentication proof. All policy/input bytes must match it and the release descriptor.
