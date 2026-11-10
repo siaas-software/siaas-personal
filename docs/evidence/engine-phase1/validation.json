@@ -1,0 +1,104 @@
+{
+  "dateUTC": "2026-11-10",
+  "baselineCommit": "17202c5964d9282efd4a1991c548612287c65dbb",
+  "branch": "refactor/personal-installation-engine-phase1",
+  "environment": {
+    "os": "linux",
+    "arch": "x64",
+    "node": "24.22.0"
+  },
+  "scope": "Legacy behavior-preserving extraction only; no Installer Adapter v1 implementation",
+  "checks": [
+    {
+      "name": "typecheck",
+      "command": "npm run typecheck -- --incremental false",
+      "baseline": "PASS",
+      "refactored": "PASS",
+      "exitCodeBaseline": 0,
+      "exitCodeRefactored": 0
+    },
+    {
+      "name": "application",
+      "command": "npm test",
+      "baseline": "PASS",
+      "refactored": "PASS",
+      "exitCodeBaseline": 0,
+      "exitCodeRefactored": 0,
+      "testsPerRun": 175,
+      "skippedPerRun": 0
+    },
+    {
+      "name": "distribution",
+      "command": "npm run test:distribution",
+      "baseline": "PASS",
+      "refactored": "PASS",
+      "exitCodeBaseline": 0,
+      "exitCodeRefactored": 0,
+      "testsPerRun": 16,
+      "skippedPerRun": 0
+    },
+    {
+      "name": "installer",
+      "command": "npm run test:installer",
+      "baseline": "PASS",
+      "refactored": "PASS",
+      "exitCodeBaseline": 0,
+      "exitCodeRefactored": 0,
+      "testsPerRun": 4,
+      "skippedPerRun": 0
+    },
+    {
+      "name": "characterization",
+      "command": "node --test tests/source-manager-characterization.test.mjs",
+      "baseline": "PASS",
+      "refactored": "PASS",
+      "exitCodeBaseline": 0,
+      "exitCodeRefactored": 0,
+      "testsPerRun": 7,
+      "skippedPerRun": 0
+    },
+    {
+      "name": "desktop-build",
+      "command": "npm run desktop:build",
+      "baseline": "PASS",
+      "refactored": "PASS",
+      "exitCodeBaseline": 0,
+      "exitCodeRefactored": 0
+    }
+  ],
+  "supplementaryChecks": [
+    {
+      "name": "module imports and context construction without installation root creation",
+      "result": "PASS"
+    },
+    {
+      "name": "moved function bodies and remaining orchestration versus original",
+      "result": "PASS",
+      "method": "Exact text comparison allowing only function nesting indentation and replacement of inline build block by buildSource call"
+    }
+  ],
+  "blocked": [
+    {
+      "command": "npm run test:ui",
+      "status": "BLOCKED",
+      "reason": "Harnesses explicitly disable sandbox. Matching Playwright browser absent; actual system Chromium probe with chromiumSandbox:true aborts on SUID sandbox helper configuration."
+    },
+    {
+      "command": "npm run test:desktop",
+      "status": "BLOCKED",
+      "reason": "Electron binary prerequisite failed (fetch failed); current harness does not explicitly request Chromium sandbox and requires real models."
+    },
+    {
+      "scope": "Native Windows/macOS and Linux arm64 install/GUI/wrapper acceptance",
+      "status": "NOT RUN",
+      "reason": "No native host execution; simulated platform branches are not native acceptance."
+    },
+    {
+      "scope": "Live network source bootstrap and full Electron packaging/install/launch",
+      "status": "NOT RUN",
+      "reason": "Disposable source-manager fixtures replace npm, electron-builder and the application executable; no real installation performed."
+    }
+  ],
+  "verdict": "PARTIAL",
+  "verdictReason": "Extraction and available regressions complete; native GUI and wrapper acceptance outstanding."
+}

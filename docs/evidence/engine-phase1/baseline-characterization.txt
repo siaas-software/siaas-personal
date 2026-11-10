@@ -1,0 +1,15 @@
+✔ legacy transcript, launch/build arguments, metadata and retained dispatchers match pinned baseline (12370.949085ms)
+✔ interrupted legacy build leaves lock/stage and refuses retry without changing metadata (6730.435298ms)
+✔ platform launcher paths and profile selection match legacy without native app execution (24748.349857ms)
+✔ default roots and status side effects remain unchanged on simulated platforms (4262.47953ms)
+✔ separate stable and candidate roots preserve both registrations and user data (7396.708759ms)
+✔ corrupt prepared inputs fail before build and preserve the active generation (6273.387958ms)
+✔ launcher registration failure restores metadata and leaves the built generation as legacy does (6524.951167ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 68526.018533
