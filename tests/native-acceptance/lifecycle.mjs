@@ -1,0 +1,81 @@
+// Executable test scenarios, independent of host commands. Never fabricates versions.
+import assert from 'node:assert/strict';
+import { Blocked, versionOrder } from './safety.mjs';
+export const scenarioIds = ['legacy-install', 'automatic-gui-startup', 'sandboxed-smoke', 'profile-metadata',
+  'launcher-execution', 'repeat-install', 'real-update', 'rollback', 'retained-manager',
+  'stable-rc-isolation', 'stable-launcher', 'uninstall', 'unrelated-data',
+  'invalid-source', 'exclusive-lock', 'interruption', 'adapter-rejection', 'cleanup'];
+export const initialScenarios = () => scenarioIds.map(id => ({ id, status: 'NOT RUN', reason: 'NOT_EXECUTED' }));
+export async function exerciseLifecycle(driver, scenarios, persist = () => {}) {
+  const step = async (id, body) => {
+    const row = scenarios.find(x => x.id === id);
+    try { await body(); row.status = 'PASS'; row.reason = 'ASSERTIONS_COMPLETED'; }
+    catch (error) { row.status = error instanceof Blocked ? 'BLOCKED' : 'FAIL';
+      row.reason = error instanceof Blocked ? 'NATIVE_PREREQUISITE_UNAVAILABLE' : 'SCENARIO_ASSERTION_FAILED'; throw error; }
+    finally { persist(); }
+  };
+  // History must be explicitly authorized, genuinely older, and of the right channel.
+  const { target, previous, stable } = driver.generations;
+  if (!previous || !stable) throw new Blocked('HISTORICAL_REVISION_NOT_APPROVED');
+  assert(versionOrder(previous.version, target.version) < 0, 'UPDATE_REQUIRES_OLDER_VERSION');
+  assert(previous.sha !== target.sha && stable.sha !== target.sha, 'DISTINCT_GENERATIONS_REQUIRED');
+  assert(previous.version.includes('-rc.') && target.version.includes('-rc.') && !stable.version.includes('-'), 'CHANNEL_MISMATCH');
+  await driver.sentinels();
+  await step('legacy-install', async () => {
+    await driver.install('fresh', target, 'install');
+    await driver.verify('fresh', target);
+  });
+  await step('automatic-gui-startup', async () => { await driver.observe('fresh'); await driver.stop(); });
+  await step('sandboxed-smoke', () => driver.smoke('fresh'));
+  await step('profile-metadata', async () => { await driver.metadata('fresh', target); await driver.profile('fresh'); });
+  await step('launcher-execution', async () => { await driver.launcher('fresh'); await driver.observe('fresh'); await driver.stop(); });
+  await step('repeat-install', async () => {
+    const before = await driver.snapshot('fresh');
+    await driver.install('fresh', target, 'install');
+    assert.deepEqual(await driver.snapshot('fresh'), before, 'REPEAT_CHANGED_METADATA');
+    await driver.noApplication(); // Existing same-version behavior: no extra GUI launch.
+  });
+  await step('real-update', async () => {
+    await driver.install('upgrade', previous, 'install');
+    await driver.observe('upgrade'); await driver.stop();
+    await driver.userSentinel('upgrade');
+    await driver.install('upgrade', target, 'update');
+    await driver.verify('upgrade', target);
+    await driver.previous('upgrade', previous);
+    await driver.observe('upgrade'); await driver.stop();
+    await driver.checkUserSentinel('upgrade');
+  });
+  await step('rollback', async () => {
+    await driver.wrapper('upgrade', 'rollback');
+    await driver.verify('upgrade', previous);
+    await driver.checkUserSentinel('upgrade');
+    await driver.noApplication();
+  });
+  await step('retained-manager', async () => {
+    await driver.dispatcher('upgrade', previous);
+    await driver.launcher('upgrade'); await driver.observe('upgrade'); await driver.stop();
+  });
+  await step('stable-rc-isolation', async () => {
+    const candidate = await driver.snapshot('fresh');
+    await driver.install('stable', stable, 'install');
+    await driver.verify('stable', stable); await driver.observe('stable'); await driver.stop();
+    assert.deepEqual(await driver.snapshot('fresh'), candidate, 'STABLE_CHANGED_CANDIDATE');
+    await driver.isolation('stable', 'fresh');
+  });
+  await step('stable-launcher', async () => { await driver.launcher('stable'); await driver.observe('stable'); await driver.stop(); });
+  await step('uninstall', async () => {
+    for (const root of ['fresh', 'upgrade', 'stable']) {
+      await driver.userSentinel(root);
+      const before = await driver.retained(root);
+      await driver.wrapper(root, 'uninstall');
+      await driver.uninstalled(root, before);
+      await driver.checkUserSentinel(root);
+    }
+  });
+  await step('unrelated-data', () => driver.checkSentinels());
+  await step('invalid-source', () => driver.invalidSource());
+  await step('exclusive-lock', () => driver.exclusiveLock());
+  await step('interruption', () => driver.interruption());
+  await step('adapter-rejection', () => driver.rejectAdapter());
+  // The outer runner performs cleanup even after a failure, then sets this row.
+}
