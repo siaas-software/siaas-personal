@@ -1,0 +1,247 @@
+{
+  "observedAtUTC": "2026-11-10T11:26:19.058313+00:00",
+  "repository": "siaas-software/siaas-personal",
+  "visibility": "public",
+  "defaultBranch": "main",
+  "repositoryRoleMetadata": {
+    "admin": true,
+    "maintain": true,
+    "push": true,
+    "triage": true,
+    "pull": true
+  },
+  "branch": "refactor/personal-installation-engine-phase1",
+  "startingHead": "1dd07a24717006631861d82a4ad1dd8f7de321a7",
+  "develop": "17202c5964d9282efd4a1991c548612287c65dbb",
+  "main": "04bd232d27cbbaa8317a3ba8444ddedaa0e92a1e",
+  "workingTreeInitiallyClean": true,
+  "apiChecks": [
+    {
+      "command": [
+        "gh",
+        "api",
+        "repos/siaas-software/siaas-personal/actions/permissions/selected-actions"
+      ],
+      "exitCode": 1,
+      "response": {
+        "message": "Resource not accessible by integration",
+        "documentation_url": "https://docs.github.com/rest/actions/permissions#get-allowed-actions-and-reusable-workflows-for-a-repository",
+        "status": "403"
+      },
+      "stderr": "gh: Resource not accessible by integration (HTTP 403)\n"
+    },
+    {
+      "command": [
+        "gh",
+        "api",
+        "repos/siaas-software/siaas-personal/actions/permissions/workflow"
+      ],
+      "exitCode": 1,
+      "response": {
+        "message": "Resource not accessible by integration",
+        "documentation_url": "https://docs.github.com/rest/actions/permissions#get-default-workflow-permissions-for-a-repository",
+        "status": "403"
+      },
+      "stderr": "gh: Resource not accessible by integration (HTTP 403)\n"
+    },
+    {
+      "command": [
+        "gh",
+        "api",
+        "repos/siaas-software/siaas-personal/actions/permissions"
+      ],
+      "exitCode": 1,
+      "response": {
+        "message": "Resource not accessible by integration",
+        "documentation_url": "https://docs.github.com/rest/actions/permissions#get-github-actions-permissions-for-a-repository",
+        "status": "403"
+      },
+      "stderr": "gh: Resource not accessible by integration (HTTP 403)\n"
+    },
+    {
+      "command": [
+        "gh",
+        "api",
+        "repos/siaas-software/siaas-personal/actions/runners"
+      ],
+      "exitCode": 1,
+      "response": {
+        "message": "Resource not accessible by integration",
+        "documentation_url": "https://docs.github.com/rest/actions/self-hosted-runners#list-self-hosted-runners-for-a-repository",
+        "status": "403"
+      },
+      "stderr": "gh: Resource not accessible by integration (HTTP 403)\n"
+    },
+    {
+      "command": [
+        "gh",
+        "api",
+        "repos/siaas-software/siaas-personal/actions/workflows"
+      ],
+      "exitCode": 0,
+      "response": {
+        "total_count": 0,
+        "workflows": []
+      },
+      "stderr": ""
+    }
+  ],
+  "prSnapshot": {
+    "20": {
+      "head": "1496298a6619708e56bba1b1a2d08c0b542b2d80",
+      "updated_at": "2026-11-07T07:56:32Z",
+      "draft": true,
+      "base": "develop"
+    },
+    "21": {
+      "head": "9ea36d30c7b5adcfad0ce5c53ec5a3aee7d7c647",
+      "updated_at": "2026-11-07T13:01:47Z",
+      "draft": true,
+      "base": "develop"
+    },
+    "23": {
+      "head": "c3567cc0b574d77a95e13b48f19fde42045cab8d",
+      "updated_at": "2026-11-09T19:48:04Z",
+      "draft": true,
+      "base": "develop"
+    },
+    "24": {
+      "head": "6a15b7f067d0e44106763d9e90561498449e3e33",
+      "updated_at": "2026-11-09T20:12:59Z",
+      "draft": true,
+      "base": "develop"
+    },
+    "25": {
+      "head": "1dd07a24717006631861d82a4ad1dd8f7de321a7",
+      "updated_at": "2026-11-10T06:46:09Z",
+      "draft": true,
+      "base": "develop"
+    }
+  },
+  "workflowFilesOnMainAndPR": [
+    ".github/workflows/ci.yml.disabled",
+    ".github/workflows/desktop-release.yml.disabled",
+    ".github/workflows/release.yml.disabled",
+    ".github/workflows/verify.yml.disabled"
+  ],
+  "missingPR20Infrastructure": [
+    "tests/desktop-smoke.mjs",
+    "tests/helpers/electron.mjs",
+    "tests/helpers/playwright-electron.mjs",
+    "tests/helpers/runtime.mjs"
+  ],
+  "runnerCandidates": [
+    {
+      "target": "linux-x64",
+      "standardLabel": "ubuntu-24.04",
+      "catalogStatus": "DOCUMENTED",
+      "repositorySchedulingAndPolicy": "UNVERIFIED",
+      "nativeActionsAcceptance": "NOT RUN"
+    },
+    {
+      "target": "linux-arm64",
+      "standardLabel": "ubuntu-24.04-arm",
+      "catalogStatus": "DOCUMENTED",
+      "repositorySchedulingAndPolicy": "UNVERIFIED",
+      "nativeActionsAcceptance": "NOT RUN"
+    },
+    {
+      "target": "win32-x64",
+      "standardLabel": "windows-2022",
+      "catalogStatus": "DOCUMENTED",
+      "repositorySchedulingAndPolicy": "UNVERIFIED",
+      "nativeActionsAcceptance": "NOT RUN"
+    },
+    {
+      "target": "win32-arm64",
+      "standardLabel": "windows-11-arm",
+      "catalogStatus": "DOCUMENTED",
+      "repositorySchedulingAndPolicy": "UNVERIFIED",
+      "nativeActionsAcceptance": "NOT RUN"
+    },
+    {
+      "target": "darwin-x64",
+      "standardLabel": "macos-15-intel",
+      "catalogStatus": "DOCUMENTED",
+      "repositorySchedulingAndPolicy": "UNVERIFIED",
+      "nativeActionsAcceptance": "NOT RUN"
+    },
+    {
+      "target": "darwin-arm64",
+      "standardLabel": "macos-15",
+      "catalogStatus": "DOCUMENTED",
+      "repositorySchedulingAndPolicy": "UNVERIFIED",
+      "nativeActionsAcceptance": "NOT RUN"
+    }
+  ],
+  "sources": [
+    {
+      "repository": "github/docs",
+      "ref": "404a5f4de6cd5311e3ce2d5c076571291e0107d6",
+      "path": "data/reusables/actions/supported-github-runners.md",
+      "sha256": "9f4864b9dcaf78542035f42075446b1a87803e4c473630bc335681a72562d7a7"
+    },
+    {
+      "repository": "github/docs",
+      "ref": "404a5f4de6cd5311e3ce2d5c076571291e0107d6",
+      "path": "data/reusables/actions/workflow-dispatch.md",
+      "sha256": "2a5bd24cd8bd1253a4960e046ad6723c534ec641cc37ab3dad847db4a004f4ac"
+    },
+    {
+      "repository": "github/docs",
+      "ref": "404a5f4de6cd5311e3ce2d5c076571291e0107d6",
+      "path": "content/actions/how-tos/manage-workflow-runs/manually-run-a-workflow.md",
+      "sha256": "d65f9d416925af6852de989b7abd0cdc84846adc2f6dc752bc344e26c948cf69"
+    },
+    {
+      "repository": "github/docs",
+      "ref": "404a5f4de6cd5311e3ce2d5c076571291e0107d6",
+      "path": "content/actions/reference/runners/github-hosted-runners.md",
+      "sha256": "d76f3a324b2827ee6b56f41f54276d77539dfef0a7c2314ab7e3bca924194bd1"
+    },
+    {
+      "repository": "github/docs",
+      "ref": "404a5f4de6cd5311e3ce2d5c076571291e0107d6",
+      "path": "data/reusables/actions/actions-billing.md",
+      "sha256": "053cb2c0c97a339c36908c2f5917fdd6c2bf76f00e328bbc3616fb90e01f8f30"
+    },
+    {
+      "repository": "github/docs",
+      "ref": "404a5f4de6cd5311e3ce2d5c076571291e0107d6",
+      "path": "content/actions/reference/limits.md",
+      "sha256": "ab9c78e5fda12bdb825f38426b732f4830d9ac9aec1fae371773f790a9709569"
+    },
+    {
+      "repository": "actions/runner-images",
+      "ref": "741e4eb8ef5f51698d730ac16ede65cadb067522",
+      "path": "images/ubuntu/Ubuntu2404-Readme.md",
+      "sha256": "5993072a61c810a3bf5057bba6322e576a5d83307b87afc1c8600e05b811b124",
+      "catalogListsXvfb": true
+    },
+    {
+      "repository": "actions/runner-images",
+      "ref": "741e4eb8ef5f51698d730ac16ede65cadb067522",
+      "path": "images/ubuntu/Ubuntu2404-Arm64-Readme.md",
+      "sha256": "dd3993b0159f272833e7c564004ecf120c0657c30acc6c5bad9343f5ea8e3b50",
+      "catalogListsXvfb": true
+    }
+  ],
+  "workflowCreated": false,
+  "workflowPath": null,
+  "proposedFuturePath": ".github/workflows/personal-engine-native-acceptance.yml",
+  "proposedOnlyTrigger": "workflow_dispatch",
+  "dispatchAuthorized": false,
+  "dispatchAttempts": 0,
+  "nativeTestRunsThisFollowup": 0,
+  "runIDs": [],
+  "actionsArtifactURLs": [],
+  "repositorySettingsModified": false,
+  "paidInfrastructureProvisioned": false,
+  "verdict": "BLOCKED",
+  "blockers": [
+    "No eligible workflow on default main and zero registered workflows; branch-only dispatch definition does not meet documented prerequisite.",
+    "Actions policy, default token permissions, selected action allowlist and runner inventory requests return 403.",
+    "PR20 native helpers are absent from target branch; existing characterization is Linux fixture coverage, not six-platform native acceptance.",
+    "Explicit authorization for dispatch has not been supplied."
+  ]
+}

@@ -1,5 +1,9 @@
 # Phase 1 native regression acceptance — follow-up
 
+See the subsequent [GitHub Actions runner/dispatch audit](personal-installation-engine-phase1-actions.md)
+for hosted-runner candidates and the unresolved default-branch/authorization gate.
+It adds no native PASS results to the observations below.
+
 **Native acceptance: BLOCKED. Keep PR #25 Draft.** Linux x64 command-level
 checks pass, but Electron startup is blocked by the host before application
 readiness. None of the six targets has complete native installation acceptance.
