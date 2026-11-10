@@ -1,0 +1,32 @@
+[
+  {
+    "case": "status",
+    "status": "PASS",
+    "scope": "Native command/negative-path check only; not successful installation",
+    "sameExitAndOutput": true
+  },
+  {
+    "case": "capabilities",
+    "status": "PASS",
+    "scope": "Native command/negative-path check only; not successful installation",
+    "sameExitAndOutput": true
+  },
+  {
+    "case": "invalid-install",
+    "status": "PASS",
+    "scope": "Native command/negative-path check only; not successful installation",
+    "sameExitAndOutput": true
+  },
+  {
+    "case": "stable-relative-root",
+    "status": "PASS",
+    "scope": "Native command/negative-path check only; not successful installation",
+    "sameExitAndOutput": true
+  },
+  {
+    "case": "rc-missing-tag",
+    "status": "PASS",
+    "scope": "Native command/negative-path check only; not successful installation",
+    "sameExitAndOutput": true
+  }
+]

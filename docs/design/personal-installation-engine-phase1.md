@@ -1,5 +1,9 @@
 # Personal installation engine extraction — Phase 1
 
+Follow-up: [native regression acceptance](personal-installation-engine-phase1-native.md)
+records fresh sandbox-enabled Electron attempts and remaining host/platform blockers.
+The baseline results below remain the original extraction evidence.
+
 ## Scope and baseline
 
 This is a behavior-preserving extraction of the **legacy Personal source manager**.

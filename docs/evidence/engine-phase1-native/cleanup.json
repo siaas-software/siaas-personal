@@ -1,0 +1,30 @@
+{
+  "temporaryRoot": "/tmp/siaas-native-acceptance-ndea_d5r",
+  "temporaryRootRemoved": true,
+  "remainingOwnedGroupMembers": [
+    {
+      "pid": 11250,
+      "name": "electron",
+      "state": "Z",
+      "parent": 1,
+      "group": 11247
+    },
+    {
+      "pid": 11279,
+      "name": "electron",
+      "state": "Z",
+      "parent": 1,
+      "group": 11276
+    },
+    {
+      "pid": 11308,
+      "name": "electron",
+      "state": "Z",
+      "parent": 1,
+      "group": 11305
+    }
+  ],
+  "liveOwnedGroupMembers": [],
+  "completeProcessReaping": "BLOCKED",
+  "note": "Three exited Electron zygotes were reparented to PID 1. They are zombies, not running children; only the parent can reap them. No PID 1 or unrelated process was signalled."
+}

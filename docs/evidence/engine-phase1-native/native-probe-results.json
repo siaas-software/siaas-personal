@@ -1,0 +1,218 @@
+{
+  "baseline": "17202c5964d9282efd4a1991c548612287c65dbb",
+  "head": "71676c6cda1629b594b4cbca2be9941169de77f3",
+  "os": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "node": "v24.22.0",
+  "electron": "44.9.3",
+  "uid": 1000,
+  "temporaryRoot": "/tmp/siaas-native-acceptance-ndea_d5r",
+  "runs": [
+    {
+      "label": "baseline-electron",
+      "command": [
+        "/workspace/siaas-personal/node_modules/electron/dist/electron",
+        "/tmp/siaas-native-acceptance-ndea_d5r/baseline/desktop/main.cjs",
+        "--enable-sandbox",
+        "--user-data-dir=/tmp/siaas-native-acceptance-ndea_d5r/baseline/probe/profile"
+      ],
+      "cwd": "/tmp/siaas-native-acceptance-ndea_d5r/baseline",
+      "exitCode": -5,
+      "timedOut": false,
+      "pid": 11247,
+      "ownedProcessGroupGone": false,
+      "durationSeconds": 0.306,
+      "outputFile": "baseline-electron.log",
+      "requestedProfile": "/tmp/siaas-native-acceptance-ndea_d5r/baseline/probe/profile",
+      "profileCreated": true
+    },
+    {
+      "label": "baseline-status",
+      "command": [
+        "/workspace/rc3-toolchain/node-v24.22.0-linux-x64/bin/node",
+        "/tmp/siaas-native-acceptance-ndea_d5r/baseline/scripts/source-manager.mjs",
+        "status"
+      ],
+      "cwd": "/tmp/siaas-native-acceptance-ndea_d5r/baseline",
+      "exitCode": 0,
+      "timedOut": false,
+      "pid": 11251,
+      "ownedProcessGroupGone": true,
+      "durationSeconds": 0.05,
+      "outputFile": "baseline-status.log"
+    },
+    {
+      "label": "baseline-capabilities",
+      "command": [
+        "/workspace/rc3-toolchain/node-v24.22.0-linux-x64/bin/node",
+        "/tmp/siaas-native-acceptance-ndea_d5r/baseline/scripts/source-manager.mjs",
+        "capabilities"
+      ],
+      "cwd": "/tmp/siaas-native-acceptance-ndea_d5r/baseline",
+      "exitCode": 1,
+      "timedOut": false,
+      "pid": 11258,
+      "ownedProcessGroupGone": true,
+      "durationSeconds": 0.094,
+      "outputFile": "baseline-capabilities.log"
+    },
+    {
+      "label": "baseline-invalid-install",
+      "command": [
+        "/workspace/rc3-toolchain/node-v24.22.0-linux-x64/bin/node",
+        "/tmp/siaas-native-acceptance-ndea_d5r/baseline/scripts/source-manager.mjs",
+        "install",
+        "--manifest",
+        "/tmp/siaas-native-acceptance-ndea_d5r/baseline/probe/invalid-manifest.json"
+      ],
+      "cwd": "/tmp/siaas-native-acceptance-ndea_d5r/baseline",
+      "exitCode": 1,
+      "timedOut": false,
+      "pid": 11265,
+      "ownedProcessGroupGone": true,
+      "durationSeconds": 0.068,
+      "outputFile": "baseline-invalid-install.log",
+      "lockRemaining": false,
+      "metadataCreated": false
+    },
+    {
+      "label": "baseline-stable-relative-root",
+      "command": [
+        "bash",
+        "/tmp/siaas-native-acceptance-ndea_d5r/baseline/scripts/install.sh"
+      ],
+      "cwd": "/tmp/siaas-native-acceptance-ndea_d5r/baseline",
+      "exitCode": 1,
+      "timedOut": false,
+      "pid": 11272,
+      "ownedProcessGroupGone": true,
+      "durationSeconds": 0.009,
+      "outputFile": "baseline-stable-relative-root.log"
+    },
+    {
+      "label": "baseline-rc-missing-tag",
+      "command": [
+        "bash",
+        "/tmp/siaas-native-acceptance-ndea_d5r/baseline/scripts/install-rc.sh"
+      ],
+      "cwd": "/tmp/siaas-native-acceptance-ndea_d5r/baseline",
+      "exitCode": 1,
+      "timedOut": false,
+      "pid": 11275,
+      "ownedProcessGroupGone": true,
+      "durationSeconds": 0.003,
+      "outputFile": "baseline-rc-missing-tag.log"
+    },
+    {
+      "label": "refactored-electron",
+      "command": [
+        "/workspace/siaas-personal/node_modules/electron/dist/electron",
+        "/workspace/siaas-personal/desktop/main.cjs",
+        "--enable-sandbox",
+        "--user-data-dir=/tmp/siaas-native-acceptance-ndea_d5r/refactored/probe/profile"
+      ],
+      "cwd": "/workspace/siaas-personal",
+      "exitCode": -5,
+      "timedOut": false,
+      "pid": 11276,
+      "ownedProcessGroupGone": false,
+      "durationSeconds": 0.288,
+      "outputFile": "refactored-electron.log",
+      "requestedProfile": "/tmp/siaas-native-acceptance-ndea_d5r/refactored/probe/profile",
+      "profileCreated": true
+    },
+    {
+      "label": "refactored-status",
+      "command": [
+        "/workspace/rc3-toolchain/node-v24.22.0-linux-x64/bin/node",
+        "/workspace/siaas-personal/scripts/source-manager.mjs",
+        "status"
+      ],
+      "cwd": "/workspace/siaas-personal",
+      "exitCode": 0,
+      "timedOut": false,
+      "pid": 11280,
+      "ownedProcessGroupGone": true,
+      "durationSeconds": 0.063,
+      "outputFile": "refactored-status.log"
+    },
+    {
+      "label": "refactored-capabilities",
+      "command": [
+        "/workspace/rc3-toolchain/node-v24.22.0-linux-x64/bin/node",
+        "/workspace/siaas-personal/scripts/source-manager.mjs",
+        "capabilities"
+      ],
+      "cwd": "/workspace/siaas-personal",
+      "exitCode": 1,
+      "timedOut": false,
+      "pid": 11287,
+      "ownedProcessGroupGone": true,
+      "durationSeconds": 0.063,
+      "outputFile": "refactored-capabilities.log"
+    },
+    {
+      "label": "refactored-invalid-install",
+      "command": [
+        "/workspace/rc3-toolchain/node-v24.22.0-linux-x64/bin/node",
+        "/workspace/siaas-personal/scripts/source-manager.mjs",
+        "install",
+        "--manifest",
+        "/tmp/siaas-native-acceptance-ndea_d5r/refactored/probe/invalid-manifest.json"
+      ],
+      "cwd": "/workspace/siaas-personal",
+      "exitCode": 1,
+      "timedOut": false,
+      "pid": 11294,
+      "ownedProcessGroupGone": true,
+      "durationSeconds": 0.073,
+      "outputFile": "refactored-invalid-install.log",
+      "lockRemaining": false,
+      "metadataCreated": false
+    },
+    {
+      "label": "refactored-stable-relative-root",
+      "command": [
+        "bash",
+        "/workspace/siaas-personal/scripts/install.sh"
+      ],
+      "cwd": "/workspace/siaas-personal",
+      "exitCode": 1,
+      "timedOut": false,
+      "pid": 11301,
+      "ownedProcessGroupGone": true,
+      "durationSeconds": 0.008,
+      "outputFile": "refactored-stable-relative-root.log"
+    },
+    {
+      "label": "refactored-rc-missing-tag",
+      "command": [
+        "bash",
+        "/workspace/siaas-personal/scripts/install-rc.sh"
+      ],
+      "cwd": "/workspace/siaas-personal",
+      "exitCode": 1,
+      "timedOut": false,
+      "pid": 11304,
+      "ownedProcessGroupGone": true,
+      "durationSeconds": 0.003,
+      "outputFile": "refactored-rc-missing-tag.log"
+    },
+    {
+      "label": "electron-control",
+      "command": [
+        "/workspace/siaas-personal/node_modules/electron/dist/electron",
+        "/tmp/siaas-native-acceptance-ndea_d5r/control.cjs",
+        "--enable-sandbox",
+        "--user-data-dir=/tmp/siaas-native-acceptance-ndea_d5r/control-profile"
+      ],
+      "cwd": "/tmp/siaas-native-acceptance-ndea_d5r",
+      "exitCode": -5,
+      "timedOut": false,
+      "pid": 11305,
+      "ownedProcessGroupGone": false,
+      "durationSeconds": 0.29,
+      "outputFile": "electron-control.log"
+    }
+  ],
+  "temporaryRootRemoved": true
+}

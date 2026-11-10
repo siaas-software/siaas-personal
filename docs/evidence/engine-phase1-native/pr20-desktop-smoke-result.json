@@ -1,0 +1,14 @@
+{
+  "name": "desktop-smoke",
+  "mode": "native-electron/mocked-ollama",
+  "node": "v24.22.0",
+  "platform": "linux",
+  "arch": "x64",
+  "started": "2026-11-10T06:39:23.813Z",
+  "status": "BLOCKED",
+  "directories": [],
+  "children": [],
+  "cleanup": [],
+  "error": "Error: Electron requires a graphical session. Use an existing desktop or xvfb-run -a npm run test:desktop:smoke on Linux.\n    at requireDisplay (file:///workspace/engine-native-evidence/pr20/tests/helpers/runtime.mjs:51:11)\n    at electronPrerequisites (file:///workspace/engine-native-evidence/pr20/tests/helpers/electron.mjs:9:3)\n    at runTest.mode (file:///workspace/engine-native-evidence/pr20/tests/desktop-smoke.mjs:11:32)\n    at runTest (file:///workspace/engine-native-evidence/pr20/tests/helpers/runtime.mjs:231:11)\n    at async file:///workspace/engine-native-evidence/pr20/tests/desktop-smoke.mjs:10:1",
+  "finished": "2026-11-10T06:39:23.817Z"
+}
