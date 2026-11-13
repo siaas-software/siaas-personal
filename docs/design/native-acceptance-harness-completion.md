@@ -1,5 +1,8 @@
 # PR #27 harness completion — disabled, native acceptance still blocked
 
+Historical snapshot at `5334269bedb363eaa37567b539615b939d5a5fb3`.
+See the [native isolation/historical follow-up](native-isolation-historical-acceptance.md) for current proof and scenario changes.
+
 Input: `ee3644a09c0f1498c8d91caab3770c95bb62c56d`, clean branch
 `feature/isolated-native-acceptance-actions`, Draft #27 targeting main. Main remains
 `04bd232d27cbbaa8317a3ba8444ddedaa0e92a1e`; no develop commits are promoted.

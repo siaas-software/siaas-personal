@@ -14,7 +14,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 export class NativeDriver {
   constructor({ root, env, audit, report, config, trees, sha, vendor }) {
     Object.assign(this, { root, env, audit, report, config, trees, sha, vendor });
-    this.active = new Map(); this.userFiles = new Map(); this.profileProofs = new Set();
+    this.active = new Map(); this.userFiles = new Map(); this.profileProofs = new Set(); this.profilePreflights = new Set();
   }
   record(kind, expected, observed) { this.report.observations.push({ kind, expected: String(expected), observed: String(observed) }); }
   fact(kind, value) { if (kind.endsWith(':bootstrap')) return; this.record('behavior:' + kind, 'semantic-v1', JSON.stringify(value)); }
@@ -94,7 +94,9 @@ export class NativeDriver {
       ownedPath(this.root, this.stableProfile);
       const home = execFileSync(process.execPath, ['-p', 'require("node:os").homedir()'], { env: this.env, encoding: 'utf8', timeout: 10000 }).trim();
       assert.equal(home, this.env.HOME, 'NATIVE_HOME_MISMATCH');
-      this.profileProofs.add(this.sha);
+      // Generic Electron preflight is not an observation of Personal's actual
+      // userData, launcher or complete filesystem writes. It grants no proof.
+      this.profilePreflights.add(this.sha);
       this.record('native-home', this.env.HOME, home); this.record('native-appData', this.root, paths.appData);
     } catch (e) { if (e instanceof Blocked) throw e; throw new Blocked('SANDBOX_OR_PROFILE_PROBE_FAILED'); }
     finally { if (app) await bounded(app.close(), 5000, 'probe close').catch(() => {}); await this.audit.stop(); }

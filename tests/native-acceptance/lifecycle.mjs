@@ -30,6 +30,34 @@ export async function exerciseLifecycle(driver, scenarios, persist = () => {}) {
     assert.deepEqual(await driver.snapshot('fresh'), before, 'REPEAT_CHANGED_METADATA');
     await driver.noApplication(); // Existing same-version behavior: no extra GUI launch.
   });
+  await exerciseUpgrade(driver, scenarios, persist);
+  await exerciseCoexistence(driver, scenarios, persist);
+  await step('uninstall', async () => {
+    for (const root of ['fresh', 'upgrade', 'stable']) {
+      await driver.userSentinel(root);
+      const before = await driver.retained(root);
+      await driver.wrapper(root, 'uninstall');
+      await driver.uninstalled(root, before);
+      await driver.checkUserSentinel(root);
+    }
+  });
+  await step('unrelated-data', () => driver.checkSentinels());
+  await step('invalid-source', () => driver.invalidSource());
+  await step('exclusive-lock', () => driver.exclusiveLock());
+  await step('interruption', () => driver.interruption());
+  await step('adapter-rejection', () => driver.rejectAdapter());
+  // The runner executes the separate public bootstrap checks. Cross-job comparison
+  // is performed offline; a role cannot certify its own comparison row.
+  // The outer runner performs cleanup even after a failure, then sets this row.
+}
+
+// Scenario A can be characterized independently of the stable-generation fixture.
+export async function exerciseUpgrade(driver, scenarios, persist = () => {}) {
+  const { target, previous } = driver.generations;
+  if (!previous) throw new Blocked('HISTORICAL_REVISION_NOT_APPROVED');
+  assert(previous.sha !== target.sha && versionOrder(previous.version, target.version) < 0, 'UPDATE_REQUIRES_OLDER_VERSION');
+  assert(previous.version.includes('-rc.') && target.version.includes('-rc.'), 'CHANNEL_MISMATCH');
+  const step = (id, body) => runScenario(scenarios, id, body, persist);
   await step('real-update', async () => {
     await driver.install('upgrade', previous, 'install');
     await driver.verify('upgrade', previous);
@@ -51,6 +79,13 @@ export async function exerciseLifecycle(driver, scenarios, persist = () => {}) {
     await driver.dispatcher('upgrade', previous);
     await driver.launcher('upgrade'); await driver.observe('upgrade'); await driver.stop();
   });
+}
+// Scenario B assumes the caller has installed/verified the owned 'fresh' RC root.
+export async function exerciseCoexistence(driver, scenarios, persist = () => {}) {
+  const { target, stable } = driver.generations;
+  if (!stable) throw new Blocked('HISTORICAL_REVISION_NOT_APPROVED');
+  assert(stable.sha !== target.sha && !stable.version.includes('-') && target.version.includes('-rc.'), 'CHANNEL_MISMATCH');
+  const step = (id, body) => runScenario(scenarios, id, body, persist);
   await step('stable-rc-isolation', async () => {
     const candidate = await driver.snapshot('fresh');
     await driver.install('stable', stable, 'install');
@@ -59,21 +94,4 @@ export async function exerciseLifecycle(driver, scenarios, persist = () => {}) {
     await driver.isolation('stable', 'fresh');
   });
   await step('stable-launcher', async () => { await driver.launcher('stable'); await driver.observe('stable'); await driver.stop(); });
-  await step('uninstall', async () => {
-    for (const root of ['fresh', 'upgrade', 'stable']) {
-      await driver.userSentinel(root);
-      const before = await driver.retained(root);
-      await driver.wrapper(root, 'uninstall');
-      await driver.uninstalled(root, before);
-      await driver.checkUserSentinel(root);
-    }
-  });
-  await step('unrelated-data', () => driver.checkSentinels());
-  await step('invalid-source', () => driver.invalidSource());
-  await step('exclusive-lock', () => driver.exclusiveLock());
-  await step('interruption', () => driver.interruption());
-  await step('adapter-rejection', () => driver.rejectAdapter());
-  // The runner executes the separate public bootstrap checks. Cross-job comparison
-  // is performed offline; a role cannot certify its own comparison row.
-  // The outer runner performs cleanup even after a failure, then sets this row.
 }

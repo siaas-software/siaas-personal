@@ -3,7 +3,8 @@
 **Status: PARTIAL; reviewable test infrastructure, no native acceptance claimed.**
 Execution remains disabled. No merge, Actions run, release or settings change is
 authorized. This branch contains no application changes or develop ancestry.
-Current follow-up: [harness completion](native-acceptance-harness-completion.md).
+Current follow-up: [native isolation and historical compatibility](native-isolation-historical-acceptance.md).
+Prior implementation snapshot: [harness completion](native-acceptance-harness-completion.md).
 
 ## Baselines and authority
 

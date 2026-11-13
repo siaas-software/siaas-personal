@@ -1,0 +1,303 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-13",
+  "repository": "siaas-software/siaas-personal",
+  "pr": 27,
+  "inputHead": "5334269bedb363eaa37567b539615b939d5a5fb3",
+  "baseMain": "04bd232d27cbbaa8317a3ba8444ddedaa0e92a1e",
+  "branch": "feature/isolated-native-acceptance-actions",
+  "scope": "Test infrastructure and documentation only; deterministic local validation, not native acceptance",
+  "environment": {
+    "os": "Linux",
+    "architecture": "x86_64",
+    "kernel": "6.18.57",
+    "node": "24.22.0"
+  },
+  "baseline": {
+    "tests": 105,
+    "pass": 105,
+    "fail": 0,
+    "skipped": 0,
+    "tapSha256": "7549762adbfe20db28e1a8da95adcfcb9dd23fec73bf058540fe83c8f078e7a9"
+  },
+  "final": {
+    "tests": 147,
+    "pass": 147,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "tapSha256": "12f2611520cc58b2da943ab42041a1f25e1fa1724126cb160b5fc4545a0a5e57",
+    "testNames": [
+      "all six public bootstrap plans select exact published scripts with matching JSON/TSV/runtime identity",
+      "real config has no public bootstrap approval and stable mutable resolution is blocked",
+      "public bootstrap rejects untrusted tag",
+      "public bootstrap rejects untrusted draft",
+      "public bootstrap rejects untrusted entry",
+      "public bootstrap rejects untrusted manifest",
+      "public bootstrap rejects untrusted tsv",
+      "public bootstrap rejects untrusted url",
+      "public bootstrap rejects untrusted sha",
+      "public executor invokes downloaded entrypoint unchanged, never direct prepared-source command",
+      "closed gate and missing profile proof prevent even downloads",
+      "bootstrap resolver failure preserves partial stages and never claims GUI success",
+      "Windows bootstrap architecture is derived from matching native facts, never inherited emulation flags",
+      "bootstrap receipt rejects incomplete PASS, omitted stages and unknown fields",
+      "equivalent complete synthetic role receipts produce a comparison PASS, never self-attested role PASS",
+      "comparison rejects mismatched identity: repository",
+      "comparison rejects mismatched identity: target",
+      "comparison rejects mismatched identity: arch",
+      "comparison rejects mismatched identity: applicationSha",
+      "comparison rejects mismatched identity: workflowSha",
+      "comparison rejects mismatched identity: role",
+      "mandatory scenario prevents comparison PASS: FAIL",
+      "mandatory scenario prevents comparison PASS: BLOCKED",
+      "mandatory scenario prevents comparison PASS: NOT RUN",
+      "missing scenarios, duplicate rows, unknown fields and false cleanup cannot pass",
+      "observed profile/launcher/metadata differences are compared, not just status labels",
+      "environment differences block regression attribution",
+      "known application assertion failure is only a potential regression; shared failure is baseline evidence",
+      "missing, malformed and duplicate behavior observations cannot masquerade as equivalence",
+      "comparison receipt rejects forged PASS and altered row set",
+      "role cleanup failures and terminal process records block completion",
+      "a role cannot supply its own comparison PASS",
+      "semantic JSON field ordering is irrelevant to behavior equivalence",
+      "identical UNKNOWN runner images do not establish equivalent native environments",
+      "closed gate and historical approvals remain absent",
+      "every target gets separate baseline/candidate jobs, with no free runner input",
+      "reject input: branch",
+      "reject input: unapproved",
+      "reject input: uppercase",
+      "reject input: newline",
+      "reject input: swap",
+      "reject input: extra",
+      "reject input: prototype",
+      "reject input: paid",
+      "reject input: selfHosted",
+      "reject input: list",
+      "reject input: authorization",
+      "reject input: missing",
+      "reject context: {\"event\":\"push\"}",
+      "reject context: {\"repository\":\"untrusted/repo\"}",
+      "reject context: {\"hosted\":\"self-hosted\"}",
+      "reject context: {\"workflowSha\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\\n\"}",
+      "reject context: {\"ref\":\"refs/heads/develop\"}",
+      "history slots require distinct approved revisions and channel-specific versions",
+      "version ordering distinguishes a real upgrade from same-version reinstall",
+      "path ownership rejects traversal, prefix confusion and symlinks",
+      "child environments keep trust settings, remove inherited credentials and own HOME",
+      "credential-bearing proxy is rejected before child execution",
+      "installed file identity is checked against Git blob contents",
+      "profile snapshots detect content changes and reject linked files without starting an application",
+      "process parser preserves birth identity, parent and zombie state",
+      "ownership uses identity and ancestry, not command substrings or recycled PID",
+      "evidence refuses incomplete PASS, unknown fields and oversized payloads",
+      "artifact selection rejects unexpected files, symlinks and hardlinks",
+      "lifecycle schedules real different-version update before rollback, never cleanup PASS itself",
+      "same-version update and absent history fail before any installation call",
+      "blocked GUI observation stops dependent scenarios without hiding completed checks",
+      "closed native entry point only emits BLOCKED evidence; no application or download is started",
+      "A: RC2 seed verified before real RC3 update; rollback verifies original RC2 and dispatcher",
+      "A: absent/same/reversed/wrong-channel history is rejected: null",
+      "A: absent/same/reversed/wrong-channel history is rejected: {\"sha\":\"17202c5964d9282efd4a1991c548612287c65dbb\",\"version\":\"1.1.0-rc.2\"}",
+      "A: absent/same/reversed/wrong-channel history is rejected: {\"sha\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"version\":\"1.1.0-rc.3\"}",
+      "A: absent/same/reversed/wrong-channel history is rejected: {\"sha\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"version\":\"1.1.0-rc.4\"}",
+      "A: absent/same/reversed/wrong-channel history is rejected: {\"sha\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"version\":\"1.0.0\"}",
+      "A: failed old-source verification prevents the update and subsequent rollback",
+      "B: stable coexistence is separate from update and checks unchanged RC metadata plus both launchers/profiles",
+      "B: changed candidate metadata blocks stable launcher acceptance",
+      "C: role SHAs differ but RC3 version equivalence does not authorize an update or historical execution",
+      "identity-bound handle contract: linux",
+      "identity-bound handle contract: win32",
+      "macOS has no justified fallback and fabricated PID tokens are rejected",
+      "identity mismatch never signals: pid",
+      "identity mismatch never signals: birth",
+      "identity mismatch never signals: scope",
+      "unowned capture closes handle and cannot create an authorization token",
+      "identity changes during handle acquisition are rejected before registration",
+      "successful termination request without exit is BLOCKED and closes handle",
+      "permission failure has no PID fallback and finalizes exactly once",
+      "already exited is never signaled or called reaped",
+      "already zombie is never signaled or called reaped",
+      "concurrent timeout/cancellation callers join the same handle operation",
+      "reported isolation paths validate with explicit platform semantics: linux",
+      "reported isolation paths validate with explicit platform semantics: win32",
+      "reported isolation paths validate with explicit platform semantics: darwin",
+      "environment-only / generic Electron probe cannot grant native installation proof",
+      "incomplete/escaped native observation fails closed: d=>d.observer.droppedEvents++",
+      "incomplete/escaped native observation fails closed: d=>d.observer.treeComplete=false",
+      "incomplete/escaped native observation fails closed: d=>d.observer.startedBeforeSpawn=false",
+      "incomplete/escaped native observation fails closed: d=>d.observer.endedAfterExit=false",
+      "incomplete/escaped native observation fails closed: d=>d.observer.sandbox=false",
+      "incomplete/escaped native observation fails closed: d=>d.writes=[]",
+      "incomplete/escaped native observation fails closed: d=>d.writes[0].processIdentity='other'",
+      "incomplete/escaped native observation fails closed: d=>d.writes[1].path='/outside'",
+      "incomplete/escaped native observation fails closed: d=>d.canonicalPaths.launcher='/real/launcher'",
+      "incomplete/escaped native observation fails closed: d=>d.electronUserData='/unit/other'",
+      "Windows drive escapes and junction redirection are not hidden by environment strings",
+      "duplicate claim cannot close or reauthorize an already-owned handle",
+      "invalid deadlines never request termination and close failure cannot return exit success",
+      "ambiguous write ownership and Windows stream/path aliases are rejected",
+      "concurrent captures reserve handle before inspection and cannot double-close",
+      "timeout awaits termination and child close, then reports timeout rather than cleanup PASS",
+      "cancellation and concurrent repeated stop share one termination barrier",
+      "exit event alone is not a stream drain barrier",
+      "partial termination failure is awaited and prevents filesystem deletion",
+      "initial census failure starts no sampler; missing audit cannot claim checked cleanup",
+      "cleanup preserves ordering and accurate removal evidence on service failure",
+      "scenario attribution preserves timeout and persistence failures",
+      "native termination is blocked; no PID-only or Windows tree fallback exists",
+      "reused identity is never passed to the termination backend for an old observation",
+      "drain deadline cannot turn missing close into success",
+      "whole cleanup repeats share one barrier and never repeat disposal/removal",
+      "detached descendant birth identity remains owned and changed parent/executable are recorded",
+      "finalization drains outstanding command settlements even when termination fails",
+      "first spawn observation with another parent is not registered as an owned identity",
+      "child error still waits for close and the shared termination barrier",
+      "historical installation executes that generation manager; update executes the tested manager",
+      "a new owned live process in the final quiescence sample blocks cleanup",
+      "PID reuse cannot adopt a child born before the newly owned parent",
+      "cleanup removed must be a boolean: \"false\"",
+      "cleanup removed must be a boolean: \"true\"",
+      "cleanup removed must be a boolean: 1",
+      "cleanup removed must be a boolean: {}",
+      "process records reject a string PID",
+      "incomplete scenario prevents PASS: FAIL",
+      "incomplete scenario prevents PASS: BLOCKED",
+      "incomplete scenario prevents PASS: NOT RUN",
+      "unresolved process prevents PASS: UNATTRIBUTED_LIVE",
+      "unresolved process prevents PASS: UNRESOLVED_ZOMBIE",
+      "unresolved process prevents PASS: OWNED_LIVE_REMAINS",
+      "evidence cannot be substituted across roles, targets, architectures or workflow revisions",
+      "historical installation is blocked before commands without its own native profile proof",
+      "ambiguous ancestry is not a license to signal; ordered native timestamps permit attribution",
+      "artifact reader rejects malformed JSON and oversized files before accepting evidence",
+      "final cleanup classification: unattributed",
+      "final cleanup classification: newZombies",
+      "final cleanup classification: clear",
+      "reason codes reject scalar coercion and trailing newlines"
+    ]
+  },
+  "commands": [
+    "node --test --test-timeout=5000 --test-reporter=tap tests/native-acceptance/test/*.test.mjs",
+    "node tests/native-acceptance/validate-static.mjs",
+    "node tests/native-acceptance/verify-historical-sources.mjs",
+    "git diff --check"
+  ],
+  "static": {
+    "status": "PASS",
+    "scope": "static-only",
+    "nativeTestsExecuted": 0,
+    "yamlParsed": true,
+    "manualTriggerOnly": true,
+    "runnerTargets": 6,
+    "separateRevisionJobs": 12,
+    "comparisonJobsMaximum": 6,
+    "shellBlocks": 4,
+    "modules": 26,
+    "validPlatformSelections": 10,
+    "verifiedPR20Files": 4,
+    "localLinks": 28,
+    "executionEnabled": false,
+    "historicalApprovals": 0
+  },
+  "historicalSourceVerification": {
+    "status": "PASS",
+    "scope": "read-only Git blobs, not application execution",
+    "revisions": 4,
+    "files": 55,
+    "nativeTestsExecuted": 0
+  },
+  "diffCheck": "PASS",
+  "controls": {
+    "executionEnabled": false,
+    "historicalApprovals": 0,
+    "nativeExperimentsExecuted": 0,
+    "actionsDispatched": 0,
+    "productionFilesChanged": 0,
+    "workflowFilesChanged": 0,
+    "otherPRsModified": 0,
+    "draft": true
+  },
+  "native": {
+    "linux-x64": {
+      "status": "NOT RUN",
+      "backend": "BLOCKED: proposed handle contract only; native bridge/full-tree isolation unverified"
+    },
+    "linux-arm64": {
+      "status": "NOT RUN",
+      "backend": "BLOCKED: proposed handle contract only; native bridge/full-tree isolation unverified"
+    },
+    "windows-x64": {
+      "status": "NOT RUN",
+      "backend": "BLOCKED: proposed handle contract only; native bridge/full-tree isolation unverified"
+    },
+    "windows-arm64": {
+      "status": "NOT RUN",
+      "backend": "BLOCKED: proposed handle contract only; native bridge/full-tree isolation unverified"
+    },
+    "macos-x64": {
+      "status": "NOT RUN",
+      "backend": "BLOCKED: no justified identity-bound native backend"
+    },
+    "macos-arm64": {
+      "status": "NOT RUN",
+      "backend": "BLOCKED: no justified identity-bound native backend"
+    }
+  },
+  "scenarios": {
+    "A": "RC2 to RC3 to RC2: orchestration tests PASS, native NOT RUN, RC2 approval absent",
+    "B": "Stable 1.0.0 plus RC3: orchestration tests PASS, native NOT RUN, stable approval absent",
+    "C": "RC3 baseline versus PR25: comparison unit tests PASS, native NOT RUN"
+  },
+  "changedFiles": {
+    "docs/design/isolated-native-acceptance-actions.md": {
+      "sha256": "4ea16e195888b003e2902289d303dc04dd73333e6804811d2c99d22fe1c50399"
+    },
+    "docs/design/native-acceptance-harness-completion.md": {
+      "sha256": "d6b6c1f2e71d396303ca2b2253d9830c931e6ceadf6dbbd872d6f4673ecb081a"
+    },
+    "docs/design/native-isolation-historical-acceptance.md": {
+      "sha256": "790fa26ae94733ae30b6eb7a9e25f51b0deaf11db1eb79cdc6e99662597d2188"
+    },
+    "docs/evidence/isolated-native-acceptance/historical-source-review.json": {
+      "sha256": "43dc01cd6cc73e309c3ff67ff74fe30b2f8a56159a61eaf4e79b0e407ecce8ff"
+    },
+    "docs/evidence/isolated-native-acceptance/native-isolation-validation.json": {
+      "sha256": null,
+      "reason": "Self-referential validation record; integrity is provided by the containing Git commit"
+    },
+    "tests/native-acceptance/driver.mjs": {
+      "sha256": "0262adccc2d3343ae82cec9e9efe367f52a57ff81f5c9f4aac4ee9931e158858"
+    },
+    "tests/native-acceptance/identity-handles.mjs": {
+      "sha256": "b856289a9cdbab73c36065d4e8ee1e0c1f2907c0df025f408d428f0699726076"
+    },
+    "tests/native-acceptance/isolation-evidence.mjs": {
+      "sha256": "379ff575d5914242c4199adb4205f816107981b6fb7228649c749cc053827887"
+    },
+    "tests/native-acceptance/lifecycle.mjs": {
+      "sha256": "a071f445e2386bbc5adc1fbec148502c07b00a52a158202517e45522455fe2c7"
+    },
+    "tests/native-acceptance/test/historical-scenarios.test.mjs": {
+      "sha256": "085d11589dc550048debf52bdeb24ab6b40e026963d422b3c7a968eb75cd0080"
+    },
+    "tests/native-acceptance/test/identity-isolation.test.mjs": {
+      "sha256": "4d72ba1863de4d14d045d2dce463cc034acc85e7d38c145932c510025c1ec20c"
+    },
+    "tests/native-acceptance/validate-static.mjs": {
+      "sha256": "15c8bd512fb56b159699f3119dca5efe8403d3e36a0fd0e0c6733b98ba60c755"
+    },
+    "tests/native-acceptance/verify-historical-sources.mjs": {
+      "sha256": "52d760485e39601798dc68244178ebcc2edd7d5da2dc397493389fe049a1ea93"
+    }
+  },
+  "limitations": [
+    "Synthetic handles and receipts establish deterministic validation only, not OS ownership or authenticity.",
+    "Generic Electron profile preflight no longer grants install authorization; no trusted Personal observer supplies profileProofs.",
+    "Native creation, detachment, syscall termination, PID reuse and cleanup experiments require separate authorization and preventive isolation.",
+    "All six platforms require native containment, actual profile/known-folder/write evidence and sandbox/GUI acceptance.",
+    "Historical source review is not executable revision approval; published bootstrap acceptance remains separate.",
+    "No native process cleanup claim; the prior report records an executor PID 1 zombie-reaping limitation."
+  ],
+  "verdict": "PARTIAL"
+}

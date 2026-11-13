@@ -98,7 +98,7 @@ function syntax(dir) {
 }
 syntax(root);
 let localLinks = 0;
-for (const document of ['docs/design/isolated-native-acceptance-actions.md', 'docs/design/isolated-native-acceptance-review.md', 'docs/design/native-acceptance-harness-completion.md']) {
+for (const document of ['docs/design/isolated-native-acceptance-actions.md', 'docs/design/isolated-native-acceptance-review.md', 'docs/design/native-acceptance-harness-completion.md', 'docs/design/native-isolation-historical-acceptance.md']) {
 for (const match of readFileSync(document, 'utf8').matchAll(/\[[^\]]+\]\(([^)]+)\)/g)) {
   if (/^https?:/.test(match[1])) continue;
   assert(existsSync(resolve(dirname(document), match[1].split('#')[0])), `Missing link: ${match[1]}`); localLinks++;

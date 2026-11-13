@@ -1,0 +1,352 @@
+{
+  "scope": "Read-only source and tag/release inspection; no historical code imported or executed; not an allowlist",
+  "repository": "siaas-software/siaas-personal",
+  "revisions": {
+    "stable": {
+      "sha": "1bce852cabbefb2459aeafc5aa42146eabd6283b",
+      "version": "1.0.0",
+      "node": "24.22.0",
+      "electron": "44.5.1",
+      "historicalExecutionApproved": false,
+      "files": {
+        "package.json": {
+          "sha256": "d01ac28dd86bc48ceaf37e104db06ecea6d160d1e35d1ccd8640f69a6b01a80d",
+          "lines": {}
+        },
+        "package-lock.json": {
+          "sha256": "175c8c25db0a0126705547faa0bb3a5ded5d7b30adf2343b2318cb868fd8b004",
+          "lines": {}
+        },
+        "runtime.json": {
+          "sha256": "0d1160b06639d15be1f28eb88fa7580406507aeb1b22ecf23f5c27f03524bf8c",
+          "lines": {}
+        },
+        "desktop/main.cjs": {
+          "sha256": "6cbd3b7137690c0b1d955dd9d4d3a7f0de6da235ad08757e7ac5ded84ab014d0",
+          "lines": {
+            "profileSelection": 22
+          }
+        },
+        "scripts/source-manager.mjs": {
+          "sha256": "79ee04a43f70cb8439f7ffef0b3264a29e2d602ecf6c81aeb11df013cd251afd",
+          "lines": {
+            "launcher": 83,
+            "launch": 140,
+            "metadata": 296,
+            "rollback": 376,
+            "uninstall": 395,
+            "profilePreservation": 390
+          }
+        },
+        "scripts/lib/distribution.mjs": {
+          "sha256": "2a550c5d3b87dcd7fcc331aaf750b158005ce617b3fe2a48bc5e6add613494a1",
+          "lines": {
+            "manifestValidation": 141
+          }
+        },
+        "scripts/lib/managed-runtime.mjs": {
+          "sha256": "012c361f2311edfb57aca3765f7a546a272f702a6adb8eb50403c6f40401e8af",
+          "lines": {
+            "runtimeProvision": 140,
+            "runtimeVerification": 112,
+            "runtimeEnvironment": 74
+          }
+        },
+        "scripts/install.sh": {
+          "sha256": "da57e1652bd371126ae836346a81bdf70a6118e4ecff00dbd7064bcbb1b660e3",
+          "lines": {}
+        },
+        "scripts/install.ps1": {
+          "sha256": "bd563fcf65b26ac51a1a3fd4c1d4d007876f995dbf0db0dbfd37e95b3220ccf7",
+          "lines": {}
+        },
+        "scripts/rollback.sh": {
+          "sha256": "9d6359440731a762a6789c96ec62a9b6d58f166c93e1b1ad9e193f7437375fc2",
+          "lines": {}
+        },
+        "scripts/rollback.ps1": {
+          "sha256": "45f866a50c12ed6164b44541006d3bc4e4e74aba9e6cff9aa345ff72090023d2",
+          "lines": {}
+        },
+        "scripts/uninstall.sh": {
+          "sha256": "8ca591ba033db4dd3538ffcf37a376f46230f06521e485173b85c237684dd866",
+          "lines": {}
+        },
+        "scripts/uninstall.ps1": {
+          "sha256": "6290f576c8f914cddb82e74577b3f7b6635ef8cf7df2f39e565851712ed0c688",
+          "lines": {}
+        }
+      },
+      "release": {
+        "tag": "v1.0.0",
+        "tagCommit": "1bce852cabbefb2459aeafc5aa42146eabd6283b",
+        "id": 421455029,
+        "draft": false,
+        "prerelease": false,
+        "url": "https://github.com/siaas-software/siaas-personal/releases/tag/v1.0.0"
+      }
+    },
+    "rc2": {
+      "sha": "84a1ffab4e5f339519bc80844d88ddcd573f561f",
+      "version": "1.1.0-rc.2",
+      "node": "24.22.0",
+      "electron": "44.9.3",
+      "historicalExecutionApproved": false,
+      "files": {
+        "package.json": {
+          "sha256": "f8890ef98f3894146e37be8b30a2dc75ca8c8f47955792377f53c2ae17ad27b5",
+          "lines": {}
+        },
+        "package-lock.json": {
+          "sha256": "0e791bf0c19592f87de694d3829612bc184a3fd99c6342224cac239d77a9f808",
+          "lines": {}
+        },
+        "runtime.json": {
+          "sha256": "0d1160b06639d15be1f28eb88fa7580406507aeb1b22ecf23f5c27f03524bf8c",
+          "lines": {}
+        },
+        "desktop/main.cjs": {
+          "sha256": "1b5a69c7962c1e55e9d474ec5802218c8c0e7954229f0d8b5a9b230de616f0be",
+          "lines": {
+            "profileSelection": 22
+          }
+        },
+        "scripts/source-manager.mjs": {
+          "sha256": "7cdf5d24dc8808464562be419bf9ff4ca06a4e41ac0a1612e4642f1a7b2e680c",
+          "lines": {
+            "launcher": 83,
+            "launch": 141,
+            "metadata": 292,
+            "rollback": 373,
+            "uninstall": 392,
+            "profilePreservation": 387
+          }
+        },
+        "scripts/lib/distribution.mjs": {
+          "sha256": "8be74bbb756678aa9c225dae2c6bc800e84f07f8e406edc0ed44e1854cbf3ae2",
+          "lines": {
+            "manifestValidation": 152
+          }
+        },
+        "scripts/lib/managed-runtime.mjs": {
+          "sha256": "012c361f2311edfb57aca3765f7a546a272f702a6adb8eb50403c6f40401e8af",
+          "lines": {
+            "runtimeProvision": 140,
+            "runtimeVerification": 112,
+            "runtimeEnvironment": 74
+          }
+        },
+        "scripts/install.sh": {
+          "sha256": "da57e1652bd371126ae836346a81bdf70a6118e4ecff00dbd7064bcbb1b660e3",
+          "lines": {}
+        },
+        "scripts/install.ps1": {
+          "sha256": "bd563fcf65b26ac51a1a3fd4c1d4d007876f995dbf0db0dbfd37e95b3220ccf7",
+          "lines": {}
+        },
+        "scripts/rollback.sh": {
+          "sha256": "9d6359440731a762a6789c96ec62a9b6d58f166c93e1b1ad9e193f7437375fc2",
+          "lines": {}
+        },
+        "scripts/rollback.ps1": {
+          "sha256": "45f866a50c12ed6164b44541006d3bc4e4e74aba9e6cff9aa345ff72090023d2",
+          "lines": {}
+        },
+        "scripts/uninstall.sh": {
+          "sha256": "8ca591ba033db4dd3538ffcf37a376f46230f06521e485173b85c237684dd866",
+          "lines": {}
+        },
+        "scripts/uninstall.ps1": {
+          "sha256": "6290f576c8f914cddb82e74577b3f7b6635ef8cf7df2f39e565851712ed0c688",
+          "lines": {}
+        }
+      },
+      "release": {
+        "tag": "v1.1.0-rc.2",
+        "tagCommit": "84a1ffab4e5f339519bc80844d88ddcd573f561f",
+        "id": 426735035,
+        "draft": false,
+        "prerelease": true,
+        "url": "https://github.com/siaas-software/siaas-personal/releases/tag/v1.1.0-rc.2"
+      }
+    },
+    "rc3": {
+      "sha": "17202c5964d9282efd4a1991c548612287c65dbb",
+      "version": "1.1.0-rc.3",
+      "node": "24.22.0",
+      "electron": "44.9.3",
+      "historicalExecutionApproved": false,
+      "files": {
+        "package.json": {
+          "sha256": "43b845bb5c4e0c3f60cc35525b1f5f52f140e2078ca2d572598f951699d3000c",
+          "lines": {}
+        },
+        "package-lock.json": {
+          "sha256": "d206dbf7c293e773d8ba69bef3788656547bd238e1fbc46e3ba47c7ef7e10148",
+          "lines": {}
+        },
+        "runtime.json": {
+          "sha256": "0d1160b06639d15be1f28eb88fa7580406507aeb1b22ecf23f5c27f03524bf8c",
+          "lines": {}
+        },
+        "desktop/main.cjs": {
+          "sha256": "1b5a69c7962c1e55e9d474ec5802218c8c0e7954229f0d8b5a9b230de616f0be",
+          "lines": {
+            "profileSelection": 22
+          }
+        },
+        "scripts/source-manager.mjs": {
+          "sha256": "7cdf5d24dc8808464562be419bf9ff4ca06a4e41ac0a1612e4642f1a7b2e680c",
+          "lines": {
+            "launcher": 83,
+            "launch": 141,
+            "metadata": 292,
+            "rollback": 373,
+            "uninstall": 392,
+            "profilePreservation": 387
+          }
+        },
+        "scripts/lib/distribution.mjs": {
+          "sha256": "8be74bbb756678aa9c225dae2c6bc800e84f07f8e406edc0ed44e1854cbf3ae2",
+          "lines": {
+            "manifestValidation": 152
+          }
+        },
+        "scripts/lib/managed-runtime.mjs": {
+          "sha256": "012c361f2311edfb57aca3765f7a546a272f702a6adb8eb50403c6f40401e8af",
+          "lines": {
+            "runtimeProvision": 140,
+            "runtimeVerification": 112,
+            "runtimeEnvironment": 74
+          }
+        },
+        "scripts/install.sh": {
+          "sha256": "da57e1652bd371126ae836346a81bdf70a6118e4ecff00dbd7064bcbb1b660e3",
+          "lines": {}
+        },
+        "scripts/install.ps1": {
+          "sha256": "bd563fcf65b26ac51a1a3fd4c1d4d007876f995dbf0db0dbfd37e95b3220ccf7",
+          "lines": {}
+        },
+        "scripts/rollback.sh": {
+          "sha256": "9d6359440731a762a6789c96ec62a9b6d58f166c93e1b1ad9e193f7437375fc2",
+          "lines": {}
+        },
+        "scripts/rollback.ps1": {
+          "sha256": "45f866a50c12ed6164b44541006d3bc4e4e74aba9e6cff9aa345ff72090023d2",
+          "lines": {}
+        },
+        "scripts/uninstall.sh": {
+          "sha256": "8ca591ba033db4dd3538ffcf37a376f46230f06521e485173b85c237684dd866",
+          "lines": {}
+        },
+        "scripts/uninstall.ps1": {
+          "sha256": "6290f576c8f914cddb82e74577b3f7b6635ef8cf7df2f39e565851712ed0c688",
+          "lines": {}
+        }
+      },
+      "release": {
+        "tag": "v1.1.0-rc.3",
+        "tagCommit": "17202c5964d9282efd4a1991c548612287c65dbb",
+        "id": 438958111,
+        "draft": false,
+        "prerelease": true,
+        "url": "https://github.com/siaas-software/siaas-personal/releases/tag/v1.1.0-rc.3"
+      }
+    },
+    "candidate": {
+      "sha": "e7f8feb5185d4d64c23ace6a904b637c726b97ff",
+      "version": "1.1.0-rc.3",
+      "node": "24.22.0",
+      "electron": "44.9.3",
+      "historicalExecutionApproved": false,
+      "files": {
+        "package.json": {
+          "sha256": "43b845bb5c4e0c3f60cc35525b1f5f52f140e2078ca2d572598f951699d3000c",
+          "lines": {}
+        },
+        "package-lock.json": {
+          "sha256": "d206dbf7c293e773d8ba69bef3788656547bd238e1fbc46e3ba47c7ef7e10148",
+          "lines": {}
+        },
+        "runtime.json": {
+          "sha256": "0d1160b06639d15be1f28eb88fa7580406507aeb1b22ecf23f5c27f03524bf8c",
+          "lines": {}
+        },
+        "desktop/main.cjs": {
+          "sha256": "1b5a69c7962c1e55e9d474ec5802218c8c0e7954229f0d8b5a9b230de616f0be",
+          "lines": {
+            "profileSelection": 22
+          }
+        },
+        "scripts/source-manager.mjs": {
+          "sha256": "d36f844d3e995304e5c48ca9cb4c0bc175d0a40ae9412ae8fa508d5bde8cc450",
+          "lines": {
+            "metadata": 55,
+            "rollback": 136,
+            "uninstall": 155,
+            "profilePreservation": 150
+          }
+        },
+        "scripts/lib/distribution.mjs": {
+          "sha256": "8be74bbb756678aa9c225dae2c6bc800e84f07f8e406edc0ed44e1854cbf3ae2",
+          "lines": {
+            "manifestValidation": 152
+          }
+        },
+        "scripts/lib/managed-runtime.mjs": {
+          "sha256": "012c361f2311edfb57aca3765f7a546a272f702a6adb8eb50403c6f40401e8af",
+          "lines": {
+            "runtimeProvision": 140,
+            "runtimeVerification": 112,
+            "runtimeEnvironment": 74
+          }
+        },
+        "scripts/install.sh": {
+          "sha256": "da57e1652bd371126ae836346a81bdf70a6118e4ecff00dbd7064bcbb1b660e3",
+          "lines": {}
+        },
+        "scripts/install.ps1": {
+          "sha256": "bd563fcf65b26ac51a1a3fd4c1d4d007876f995dbf0db0dbfd37e95b3220ccf7",
+          "lines": {}
+        },
+        "scripts/rollback.sh": {
+          "sha256": "9d6359440731a762a6789c96ec62a9b6d58f166c93e1b1ad9e193f7437375fc2",
+          "lines": {}
+        },
+        "scripts/rollback.ps1": {
+          "sha256": "45f866a50c12ed6164b44541006d3bc4e4e74aba9e6cff9aa345ff72090023d2",
+          "lines": {}
+        },
+        "scripts/uninstall.sh": {
+          "sha256": "8ca591ba033db4dd3538ffcf37a376f46230f06521e485173b85c237684dd866",
+          "lines": {}
+        },
+        "scripts/uninstall.ps1": {
+          "sha256": "6290f576c8f914cddb82e74577b3f7b6635ef8cf7df2f39e565851712ed0c688",
+          "lines": {}
+        },
+        "scripts/lib/source-state.mjs": {
+          "sha256": "e5de3fa7d1035ec3d281886a535a7706219751fc455537da9bb05da622870d4a",
+          "lines": {}
+        },
+        "scripts/lib/source-build.mjs": {
+          "sha256": "b35599d1af3a03fb8387c55a18410830fd7d7494f70823eb6d94ae2638392a3d",
+          "lines": {}
+        },
+        "scripts/lib/source-desktop.mjs": {
+          "sha256": "74c2df577343959aa6c2f3b0b7344459d0ea0fb7dcfe5ea116da3cf6825700d3",
+          "lines": {
+            "launcher": 29,
+            "launch": 77
+          }
+        }
+      },
+      "pr25": {
+        "headRefOid": "e7f8feb5185d4d64c23ace6a904b637c726b97ff",
+        "isDraft": true,
+        "state": "OPEN"
+      }
+    }
+  }
+}
