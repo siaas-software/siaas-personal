@@ -1,0 +1,116 @@
+name: Personal native acceptance (preparation only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: Reviewed native target subset (availability unverified)
+        required: true
+        type: choice
+        default: linux-x64
+        options: [linux-x64, linux-arm64, windows-x64, windows-arm64, macos-x64, macos-arm64, linux, windows, macos, all]
+      baseline:
+        description: Exact reviewed baseline SHA; other revisions are rejected
+        required: true
+        type: string
+        default: 17202c5964d9282efd4a1991c548612287c65dbb
+      candidate:
+        description: Exact reviewed PR25 SHA; branch names are rejected
+        required: true
+        type: string
+        default: e7f8feb5185d4d64c23ace6a904b637c726b97ff
+      authorization:
+        description: Preparation does not authorize execution; code gate remains closed
+        required: true
+        type: choice
+        default: PREPARATION_ONLY
+        options: [PREPARATION_ONLY]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: personal-engine-native-acceptance
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.validate.outputs.matrix }}
+      baseline: ${{ steps.validate.outputs.baseline }}
+      candidate: ${{ steps.validate.outputs.candidate }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: siaas-software/siaas-personal
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24.22.0
+      - name: Validate reviewed inputs and enforce closed preparation gate
+        id: validate
+        shell: bash
+        env:
+          INPUT_PLATFORMS: ${{ inputs.platforms }}
+          INPUT_BASELINE: ${{ inputs.baseline }}
+          INPUT_CANDIDATE: ${{ inputs.candidate }}
+          INPUT_AUTHORIZATION: ${{ inputs.authorization }}
+        run: node tests/native-acceptance/prepare.mjs
+      - name: Preserve bounded plan diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: native-plan-${{ github.run_attempt }}
+          path: evidence/*.json
+          retention-days: 3
+          if-no-files-found: error
+          include-hidden-files: false
+
+  native:
+    needs: plan
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: siaas-software/siaas-personal
+          ref: ${{ github.workflow_sha }}
+          path: infrastructure
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: siaas-software/siaas-personal
+          ref: ${{ needs.plan.outputs.baseline }}
+          path: baseline
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: siaas-software/siaas-personal
+          ref: ${{ needs.plan.outputs.candidate }}
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24.22.0
+          architecture: ${{ matrix.arch }}
+      - name: Native baseline and candidate smoke (incomplete acceptance stays blocked)
+        shell: bash
+        env:
+          ACCEPTANCE_TARGET: ${{ matrix.target }}
+        run: node infrastructure/tests/native-acceptance/run.mjs
+      - name: Preserve scenario and cleanup summaries only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: native-${{ matrix.target }}-${{ github.run_attempt }}
+          path: evidence/*.json
+          retention-days: 3
+          if-no-files-found: error
+          include-hidden-files: false

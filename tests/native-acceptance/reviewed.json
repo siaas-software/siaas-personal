@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "executionEnabled": false,
+  "repository": "siaas-software/siaas-personal",
+  "baseline": "17202c5964d9282efd4a1991c548612287c65dbb",
+  "candidate": "e7f8feb5185d4d64c23ace6a904b637c726b97ff",
+  "node": "24.22.0",
+  "platforms": {
+    "linux-x64": { "runner": "ubuntu-24.04", "os": "linux", "arch": "x64" },
+    "linux-arm64": { "runner": "ubuntu-24.04-arm", "os": "linux", "arch": "arm64" },
+    "windows-x64": { "runner": "windows-2022", "os": "win32", "arch": "x64" },
+    "windows-arm64": { "runner": "windows-11-arm", "os": "win32", "arch": "arm64" },
+    "macos-x64": { "runner": "macos-15-intel", "os": "darwin", "arch": "x64" },
+    "macos-arm64": { "runner": "macos-15", "os": "darwin", "arch": "arm64" }
+  }
+}
