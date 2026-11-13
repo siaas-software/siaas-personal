@@ -1,41 +1,25 @@
-// Real Electron + SQLite + Ollama test. Requires two models and a graphical session.
-import { _electron as electron } from "playwright";
-import { createRequire } from "node:module";
-import { mkdtemp, mkdir, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { resolve, join } from "node:path";
+// Existing real-model acceptance scenarios; never substitute mocked inference.
 import assert from "node:assert/strict";
-const require = createRequire(import.meta.url);
-const profile = await mkdtemp(join(tmpdir(), "siaas-desktop-e2e-"));
-const out = resolve("test-results/desktop");
-await mkdir(out, { recursive: true });
-const errors = [];
-let app;
-async function launch() {
-  app = await electron.launch({
-    executablePath: require("electron"),
-    args: [
-      ...(process.getuid?.() === 0 ? ["--no-sandbox"] : []),
-      resolve("desktop/main.cjs"),
-    ],
-    env: {
-      ...process.env,
-      XDG_CONFIG_HOME: profile,
-      SIAAS_NODE_EXECUTABLE: process.execPath,
-    },
-    timeout: 60000,
-  });
-  const page = await app.firstWindow({ timeout: 60000 });
-  page.on("pageerror", (error) => errors.push(error.message));
-  page.setDefaultTimeout(30000);
-  await page.getByRole("heading", { name: "Your projects." }).waitFor();
-  return page;
-}
-try {
+import { join } from "node:path";
+import { runTest } from "./helpers/runtime.mjs";
+import { electronPrerequisites, launchElectron, closeElectron, realOllamaPrerequisites } from "./helpers/electron.mjs";
+
+await runTest('desktop-real', async run => {
+  const executablePath = await electronPrerequisites();
+  const ollamaURL = await realOllamaPrerequisites();
+  const profile = await run.tempDir();
+  const out = run.out, errors = [];
+  let app;
+  async function launch() {
+    const launched = await launchElectron(run, { executablePath, profile, ollamaURL });
+    app = launched.app;
+    launched.page.on('pageerror', error => errors.push(error.message));
+    return launched.page;
+  }
   let page = await launch();
   const origin = new URL(page.url()).origin;
   assert.equal(
-    (await fetch(origin + "/api/workspace")).status,
+    (await fetch(origin + "/api/workspace", { signal: AbortSignal.timeout(5000) })).status,
     403,
     "Local API must reject unrelated clients",
   );
@@ -146,7 +130,7 @@ try {
     0,
   );
   console.log("Local files and external handoff verified");
-  await app.close();
+  await closeElectron(app);
   app = null;
   page = await launch();
   await page.goto(new URL(conversationUrl, page.url()).href);
@@ -154,18 +138,5 @@ try {
   assert((await page.locator("main").innerText()).includes("ZAFFIRO-482"));
   assert.deepEqual(errors, []);
   console.log("Restart persistence verified; no renderer errors");
-} catch (error) {
-  if (app) {
-    const page = app.windows()[0];
-    if (page) {
-      await page
-        .screenshot({ path: join(out, "failure.png"), fullPage: true })
-        .catch(() => {});
-      console.error((await page.locator("body").innerText()).slice(-4000));
-    }
-  }
-  throw error;
-} finally {
-  if (app) await app.close();
-  await rm(profile, { recursive: true, force: true });
-}
+
+}, { timeout: 900000, mode: 'native-electron/real-ollama' });
