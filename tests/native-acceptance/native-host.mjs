@@ -62,86 +62,133 @@ export function selectOwned(rows, roots, known) {
   do { added = false; for (const p of rows) if (!owned.has(p.pid) && owned.has(p.ppid) && bornAfter(p.identity, owned.get(p.ppid).identity)) { owned.set(p.pid, p); added = true; } } while (added);
   return [...owned.values()];
 }
+// No portable Node primitive binds termination to the observed birth identity.
+// Do not fall back to kill(pid), taskkill /T, or a check-then-kill race.
+export async function nativeTerminate() { throw new Blocked('NATIVE_IDENTITY_TERMINATOR_UNVERIFIED'); }
 export class ProcessAudit {
-  constructor(roots, report) {
+  constructor(roots, report, backend = {}) {
+    this.host = { census, spawn, wait, setTimeout, clearTimeout, setInterval, clearInterval, terminate: nativeTerminate, ...backend };
+    this.commands = new Set(); this.stopping = null; this.finishing = null;
     this.roots = roots; this.report = report; this.known = new Set(); this.failure = null;
-    const initial = census(); this.initial = new Set(initial.map(processKey));
+    const initial = this.host.census(); this.initial = new Set(initial.map(processKey));
     this.initialZombies = new Set(initial.filter(p => p.state.startsWith('Z')).map(processKey));
-    this.last = new Map(); this.timer = setInterval(() => { try { this.sample(); } catch (e) { this.failure = e; } }, 250);
+    this.last = new Map(); this.timer = this.host.setInterval(() => { try { this.sample(); } catch (e) { this.failure = e; } }, 250);
   }
   sample() {
     if (this.failure) throw this.failure;
-    const rows = census(); const selected = selectOwned(rows, this.roots, this.known);
+    const rows = this.host.census(); const selected = selectOwned(rows, this.roots, this.known);
     for (const p of selected) {
       assert(p.identity, 'PROCESS_IDENTITY_UNAVAILABLE');
       const key = processKey(p); this.known.add(key);
-      if (this.last.get(key) !== p.state) {
+      const observation = JSON.stringify([p.ppid, p.executable, p.state]);
+      if (this.last.get(key) !== observation) {
         assert(this.report.processes.length < 1900, 'PROCESS_EVIDENCE_LIMIT');
         this.report.processes.push({ ...p, event: this.last.has(key) ? 'STATE' : 'OBSERVED' });
-        this.last.set(key, p.state);
+        this.last.set(key, observation);
       }
     }
     this.newZombies = rows.filter(p => p.state.startsWith('Z') && !this.initialZombies.has(processKey(p)));
     this.unattributed = unattributed(rows, this.initial, selected).filter(p => !p.state.startsWith('Z'));
     return selected;
   }
-  async command(label, exe, args, { cwd, env, timeout = 15 * 60_000, expected = 0, interruptOn } = {}) {
+  command(label, exe, args, options = {}) {
+    if (this.finishing) return Promise.reject(new Blocked('PROCESS_AUDIT_FINISHED'));
+    if (this.stopping) return Promise.reject(new Blocked('CLEANUP_IN_PROGRESS'));
+    const operation = this.runCommand(label, exe, args, options);
+    this.commands.add(operation);
+    void operation.finally(() => this.commands.delete(operation)).catch(() => {});
+    return operation;
+  }
+  async runCommand(label, exe, args, { cwd, env, timeout = 15 * 60_000, expected = 0, interruptOn, signal } = {}) {
+    if (signal?.aborted) throw new Blocked('COMMAND_CANCELLED');
     this.sample();
-    const child = spawn(exe, args, { cwd, env, shell: false, detached: process.platform !== 'win32',
+    const child = this.host.spawn(exe, args, { cwd, env, shell: false, detached: process.platform !== 'win32',
       windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
-    let text = '', interrupted = false, interrupting, expired = false;
+    let text = '', interrupted = false, stopping, stopError, failureReason, childError;
+    const requestStop = reason => {
+      failureReason ||= reason;
+      stopping ||= this.stop().catch(error => { stopError = error; });
+    };
     const consume = bytes => {
       text = (text + bytes.toString()).slice(-131072);
-      if (interruptOn && !interrupted && text.includes(interruptOn)) {
-        interrupted = true;
-        interrupting = this.stop().catch(e => { this.failure = e; });
-      }
+      if (interruptOn && !interrupted && text.includes(interruptOn)) { interrupted = true; requestStop(null); }
     };
-    child.stdout.on('data', consume); child.stderr.on('data', consume);
-    const outcome = new Promise((yes, no) => { child.once('error', no); child.once('exit', (code, signal) => yes({ code, signal })); });
-    // Attach rejection observation before awaiting process discovery.
+    // 'close', not 'exit': child exit alone does not establish stdout/descendant drain.
+    const outcome = new Promise(yes => {
+      child.once('error', error => { childError = error; requestStop(null); });
+      child.once('close', (code, signal) => yes({ code, signal }));
+    });
     void outcome.catch(() => {});
-    await new Promise(resolve => { if (child.pid) resolve(); else { child.once('spawn', resolve); child.once('error', resolve); } });
-    const identity = census().find(p => p.pid === child.pid);
-    if (identity) this.known.add(processKey(identity));
-    this.sample();
-    const timer = setTimeout(() => { expired = true; void this.stop().catch(e => { this.failure = e; }); }, timeout);
-    let result, deadline;
+    child.stdout.on('data', consume); child.stderr.on('data', consume);
+    const abort = () => requestStop('COMMAND_CANCELLED');
+    signal?.addEventListener('abort', abort, { once: true });
+    if (signal?.aborted) abort();
+    const timer = this.host.setTimeout(() => requestStop('COMMAND_TIMEOUT'), timeout);
+    let deadline, result, commandError, drainError;
+    const drained = Promise.race([outcome, new Promise((_, reject) => {
+      deadline = this.host.setTimeout(() => reject(new Blocked('COMMAND_DRAIN_UNVERIFIED')), timeout + 15000);
+    })]);
+    void drained.catch(() => {});
     try {
-      result = await Promise.race([outcome, new Promise((_, reject) => {
-        deadline = setTimeout(() => reject(new Blocked('COMMAND_TERMINATION_UNVERIFIED')), timeout + 15000);
-      })]);
-      if (interrupting) await interrupting;
-    } finally { clearTimeout(timer); clearTimeout(deadline); }
+      const identity = this.host.census().find(p => p.pid === child.pid);
+      if (!identity?.identity || identity.ppid !== process.pid) throw new Blocked('SPAWN_IDENTITY_UNVERIFIED');
+      this.known.add(processKey(identity));
+      this.sample();
+    } catch (error) { commandError = error; requestStop(null); }
+    try { result = await drained; }
+    catch (error) { drainError = error; requestStop(null); }
+    finally {
+      this.host.clearTimeout(timer); this.host.clearTimeout(deadline);
+      signal?.removeEventListener('abort', abort);
+      // Both barriers are awaited on success AND partial/spawn/observation failure.
+      if (stopping) await stopping;
+      child.stdout.removeListener('data', consume); child.stderr.removeListener('data', consume);
+    }
+    if (drainError) { this.failure = drainError; throw drainError; }
+    if (stopError) { this.failure = stopError; throw stopError; }
     if (this.failure) throw this.failure;
-    if (expired) throw new Blocked('COMMAND_TIMEOUT');
+    if (commandError) throw commandError;
+    if (childError) throw childError;
+    if (failureReason) throw new Blocked(failureReason);
     this.report.observations.push({ kind: 'command:' + label, expected: JSON.stringify({ exe, args, cwd }), observed: JSON.stringify(result) });
     if (interruptOn) assert(interrupted && (result.code !== 0 || result.signal), 'INTERRUPTION_NOT_OBSERVED');
     else assert.equal(result.code, expected, label + '_EXIT');
-    return text; // Private assertion input; raw stdout is never an evidence artifact.
+    return text;
   }
-  async stop() {
+  stop() {
+    if (this.stopping) return this.stopping;
+    const operation = this.terminateAndDrain();
+    this.stopping = operation;
+    void operation.finally(() => { if (this.stopping === operation) this.stopping = null; }).catch(() => {});
+    return operation;
+  }
+  async terminateAndDrain() {
     const rows = this.sample().filter(p => !p.state.startsWith('Z') && p.pid !== process.pid && p.pid > 1);
     // Only identities observed as owned. Never kill by image, command substring or PID 1.
     for (const item of rows.reverse()) {
-      const current = census().find(p => p.pid === item.pid);
+      const current = this.host.census().find(p => p.pid === item.pid);
       if (!current || processKey(current) !== processKey(item)) continue;
-      try {
-        if (process.platform === 'win32') output('taskkill', ['/PID', String(item.pid), '/T', '/F']);
-        else process.kill(item.pid, 'SIGTERM');
-      } catch (e) { if (census().some(p => processKey(p) === processKey(item) && !p.state.startsWith('Z'))) throw e; }
+      // Backend must atomically bind the signal to this identity, not just this PID.
+      await this.host.terminate(Object.freeze({ ...current }));
     }
     for (let n = 0; n < 40; n++) {
       if (!this.sample().some(p => !p.state.startsWith('Z'))) return;
-      await wait(100);
+      await this.host.wait(100);
     }
     // Do not silently call an unsuccessful forced/normal cleanup PASS.
     throw new Blocked('OWNED_LIVE_PROCESS_REMAINS');
   }
-  async finish() {
+  finish() {
+    if (!this.finishing) this.finishing = this.finishOnce();
+    return this.finishing;
+  }
+  async finishOnce() {
     try {
-      await this.stop();
-      await wait(500);
+      let terminationError;
+      try { await this.stop(); } catch (error) { terminationError = error; }
+      await Promise.allSettled([...(this.commands || [])]);
+      if (terminationError) throw terminationError;
+      await (this.host?.wait || wait)(500);
       const live = this.sample().filter(p => !p.state.startsWith('Z'));
       if (live.length) {
         for (const p of live.slice(0, 50)) this.report.processes.push({ ...p, event: 'OWNED_LIVE_REMAINS' });
@@ -156,7 +203,7 @@ export class ProcessAudit {
         throw new Blocked('UNEXPLAINED_NEW_ZOMBIES');
       }
     }
-    finally { clearInterval(this.timer); }
+    finally { (this.host?.clearInterval || clearInterval)(this.timer); }
   }
 }
 export async function visibleWindow(pids) {

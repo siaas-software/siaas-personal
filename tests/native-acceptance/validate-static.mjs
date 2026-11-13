@@ -14,8 +14,9 @@ const workflow = yaml.load(text);
 const config = JSON.parse(readFileSync(join(root, 'reviewed.json')));
 assert.deepEqual(Object.keys(workflow.on), ['workflow_dispatch']);
 assert.deepEqual(workflow.permissions, { contents: 'read' });
-assert.deepEqual(Object.keys(workflow.jobs), ['plan', 'native']);
+assert.deepEqual(Object.keys(workflow.jobs), ['plan', 'native', 'compare']);
 assert.equal(config.executionEnabled, false);
+assert.equal(config.publicBootstrapApprovals, undefined);
 assert.throws(() => requireHistory(config), /HISTORICAL_REVISION_NOT_APPROVED/);
 assert.equal(config.mainBaseline, '04bd232d27cbbaa8317a3ba8444ddedaa0e92a1e');
 assert.deepEqual(Object.values(config.platforms).map(p => p.runner),
@@ -32,7 +33,8 @@ assert.equal(workflow.jobs.native['timeout-minutes'], 120);
 assert(!/secrets\.|id-token|pull_request|workflow_run|schedule:|sudo\b|--no-sandbox/.test(text));
 const pins = new Set(['actions/checkout@11d5960a326750d5838078e36cf38b85af677262',
   'actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020',
-  'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02']);
+  'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02',
+  'actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093']);
 let shellBlocks = 0;
 for (const job of Object.values(workflow.jobs)) {
   assert(!job.permissions && !job.container && !job.environment && !job['continue-on-error']);
@@ -44,9 +46,14 @@ for (const job of Object.values(workflow.jobs)) {
       assert(['${{ github.workflow_sha }}', '${{ matrix.sha }}', '${{ needs.plan.outputs.stable }}', '${{ needs.plan.outputs.previous }}'].includes(step.with.ref));
     }
     if (step.uses?.startsWith('actions/upload-artifact@')) {
-      assert.equal(step.with.path, 'evidence-native/native.json'); assert.equal(step.with['retention-days'], 3);
+      assert.equal(step.with.path, job === workflow.jobs.compare ? 'comparison.json' : 'evidence-native/native.json'); assert.equal(step.with['retention-days'], 3);
       assert.equal(step.with['include-hidden-files'], false); assert.equal(step.with['if-no-files-found'], 'error');
-      assert.equal(step.if, "always() && steps.evidence.outcome == 'success'");
+      assert.equal(step.if, job === workflow.jobs.compare ? "always() && hashFiles('comparison.json') != ''" : "always() && steps.evidence.outcome == 'success'");
+    }
+    if (step.uses?.startsWith('actions/download-artifact@')) {
+      assert.deepEqual(Object.keys(step.with).sort(), ['name', 'path']);
+      assert(['comparison-input/baseline', 'comparison-input/candidate'].includes(step.with.path));
+      assert.equal(step.with.name, 'native-${{ matrix.target }}-' + step.with.path.split('/')[1] + '-${{ github.run_attempt }}');
     }
     if (step.id === 'evidence') assert.deepEqual(step.env, {
       ACCEPTANCE_TARGET: '${{ matrix.target }}', ACCEPTANCE_ROLE: '${{ matrix.role }}' });
@@ -56,6 +63,14 @@ for (const job of Object.values(workflow.jobs)) {
     }
   }
 }
+assert.deepEqual(workflow.jobs.compare.needs, ['plan', 'native']);
+assert.equal(workflow.jobs.compare.if, "always() && needs.plan.result == 'success'");
+assert.equal(workflow.jobs.compare['runs-on'], 'ubuntu-24.04');
+assert.equal(workflow.jobs.compare['timeout-minutes'], 5);
+assert.deepEqual(workflow.jobs.compare.strategy, { 'fail-fast': false, 'max-parallel': 1, matrix: { target: '${{ fromJSON(needs.plan.outputs.targets) }}' } });
+assert.equal(workflow.jobs.plan.outputs.targets, '${{ steps.validate.outputs.targets }}');
+assert(!readFileSync(join(root, 'native-host.mjs'), 'utf8').includes("output('taskkill'"));
+assert(!readFileSync(join(root, 'native-host.mjs'), 'utf8').includes('process.kill('));
 const inputs = workflow.on.workflow_dispatch.inputs;
 assert.deepEqual(Object.keys(inputs).sort(), ['authorization', 'baseline', 'candidate', 'platforms']);
 assert.equal(inputs.baseline.default, config.baseline); assert.equal(inputs.candidate.default, config.candidate);
@@ -83,13 +98,13 @@ function syntax(dir) {
 }
 syntax(root);
 let localLinks = 0;
-for (const document of ['docs/design/isolated-native-acceptance-actions.md', 'docs/design/isolated-native-acceptance-review.md']) {
+for (const document of ['docs/design/isolated-native-acceptance-actions.md', 'docs/design/isolated-native-acceptance-review.md', 'docs/design/native-acceptance-harness-completion.md']) {
 for (const match of readFileSync(document, 'utf8').matchAll(/\[[^\]]+\]\(([^)]+)\)/g)) {
   if (/^https?:/.test(match[1])) continue;
   assert(existsSync(resolve(dirname(document), match[1].split('#')[0])), `Missing link: ${match[1]}`); localLinks++;
 }
 }
 console.log(JSON.stringify({ status: 'PASS', scope: 'static-only', nativeTestsExecuted: 0,
-  yamlParsed: true, manualTriggerOnly: true, runnerTargets: 6, separateRevisionJobs: 12,
+  yamlParsed: true, manualTriggerOnly: true, runnerTargets: 6, separateRevisionJobs: 12, comparisonJobsMaximum: 6,
   shellBlocks, modules, validPlatformSelections: inputs.platforms.options.length,
   verifiedPR20Files: 4, localLinks, executionEnabled: false, historicalApprovals: 0 }, null, 2));

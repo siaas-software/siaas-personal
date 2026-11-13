@@ -9,7 +9,7 @@ import { ProcessAudit, selectOwned } from '../native-host.mjs';
 import { validateReport, validateJobBinding, validateArtifacts, maximumBytes } from '../evidence.mjs';
 import { initialScenarios } from '../lifecycle.mjs';
 const config = JSON.parse(readFileSync(new URL('../reviewed.json', import.meta.url)));
-const successful = () => ({ schemaVersion: 1, status: 'PASS', reason: 'UNIT_FIXTURE', target: 'linux-x64', role: 'baseline',
+const successful = () => ({ schemaVersion: 2, repository: config.repository, status: 'PASS', reason: 'UNIT_FIXTURE', target: 'linux-x64', role: 'baseline',
   applicationSha: config.baseline, workflowSha: 'a'.repeat(40), node: '24.22.0', os: 'UNIT', arch: 'x64', image: 'UNIT',
   scenarios: initialScenarios().map(row => ({ ...row, status: 'PASS', reason: 'UNIT' })), observations: [], processes: [],
   cleanup: [{ path: '/unit-only', removed: true, reason: 'UNIT' }] });

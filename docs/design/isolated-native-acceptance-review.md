@@ -1,5 +1,8 @@
 # PR #27 security and acceptance review
 
+Historical review snapshot at `ee3644a09c0f1498c8d91caab3770c95bb62c56d`.
+Current implementation status: [harness completion](native-acceptance-harness-completion.md).
+
 **Verdict: PARTIAL.** The corrections are ready for infrastructure review only.
 Native acceptance, merge and execution are not authorized or established.
 `executionEnabled` remains false; historical approvals remain null. No application,

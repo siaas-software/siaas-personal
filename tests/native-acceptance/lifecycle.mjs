@@ -1,19 +1,14 @@
 // Executable test scenarios, independent of host commands. Never fabricates versions.
 import assert from 'node:assert/strict';
 import { Blocked, versionOrder } from './safety.mjs';
+import { runScenario } from './cleanup.mjs';
 export const scenarioIds = ['legacy-install', 'automatic-gui-startup', 'sandboxed-smoke', 'profile-metadata',
   'launcher-execution', 'repeat-install', 'real-update', 'rollback', 'retained-manager',
   'stable-rc-isolation', 'stable-launcher', 'uninstall', 'unrelated-data',
-  'invalid-source', 'exclusive-lock', 'interruption', 'adapter-rejection', 'public-bootstrap', 'baseline-candidate-comparison', 'cleanup'];
+  'invalid-source', 'exclusive-lock', 'interruption', 'adapter-rejection', 'preparation', 'public-bootstrap', 'baseline-candidate-comparison', 'cleanup'];
 export const initialScenarios = () => scenarioIds.map(id => ({ id, status: 'NOT RUN', reason: 'NOT_EXECUTED' }));
 export async function exerciseLifecycle(driver, scenarios, persist = () => {}) {
-  const step = async (id, body) => {
-    const row = scenarios.find(x => x.id === id);
-    try { await body(); row.status = 'PASS'; row.reason = 'ASSERTIONS_COMPLETED'; }
-    catch (error) { row.status = error instanceof Blocked ? 'BLOCKED' : 'FAIL';
-      row.reason = error instanceof Blocked ? 'NATIVE_PREREQUISITE_UNAVAILABLE' : 'SCENARIO_ASSERTION_FAILED'; throw error; }
-    finally { persist(); }
-  };
+  const step = (id, body) => runScenario(scenarios, id, body, persist);
   // History must be explicitly authorized, genuinely older, and of the right channel.
   const { target, previous, stable } = driver.generations;
   if (!previous || !stable) throw new Blocked('HISTORICAL_REVISION_NOT_APPROVED');
@@ -78,7 +73,7 @@ export async function exerciseLifecycle(driver, scenarios, persist = () => {}) {
   await step('exclusive-lock', () => driver.exclusiveLock());
   await step('interruption', () => driver.interruption());
   await step('adapter-rejection', () => driver.rejectAdapter());
-  // Public bootstrap and cross-job comparison are not implemented: their rows
-  // remain NOT RUN and forbid an overall acceptance PASS.
+  // The runner executes the separate public bootstrap checks. Cross-job comparison
+  // is performed offline; a role cannot certify its own comparison row.
   // The outer runner performs cleanup even after a failure, then sets this row.
 }

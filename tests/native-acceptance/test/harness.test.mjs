@@ -20,7 +20,7 @@ const temporary = fn => {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'siaas-infrastructure-unit-')));
   try { return fn(root); } finally { rmSync(root, { recursive: true, force: true }); }
 };
-const report = () => ({ schemaVersion: 1, status: 'BLOCKED', reason: 'UNIT_FIXTURE', target: 'linux-x64', role: 'baseline', applicationSha: config.baseline,
+const report = () => ({ schemaVersion: 2, repository: config.repository, status: 'BLOCKED', reason: 'UNIT_FIXTURE', target: 'linux-x64', role: 'baseline', applicationSha: config.baseline,
   workflowSha: 'a'.repeat(40), node: '24.22.0', os: 'UNIT_FIXTURE', arch: 'x64', image: 'NO_NATIVE_RUN', scenarios: initialScenarios(), observations: [], processes: [], cleanup: [] });
 
 test('closed gate and historical approvals remain absent', () => {
@@ -135,8 +135,8 @@ function fakeDriver() {
 }
 test('lifecycle schedules real different-version update before rollback, never cleanup PASS itself', async () => {
   const driver = fakeDriver(), rows = initialScenarios(); await exerciseLifecycle(driver, rows);
-  assert(rows.filter(x => !['cleanup', 'public-bootstrap', 'baseline-candidate-comparison'].includes(x.id)).every(x => x.status === 'PASS'));
-  assert(rows.filter(x => ['cleanup', 'public-bootstrap', 'baseline-candidate-comparison'].includes(x.id)).every(x => x.status === 'NOT RUN'));
+  assert(rows.filter(x => !['cleanup', 'preparation', 'public-bootstrap', 'baseline-candidate-comparison'].includes(x.id)).every(x => x.status === 'PASS'));
+  assert(rows.filter(x => ['cleanup', 'preparation', 'public-bootstrap', 'baseline-candidate-comparison'].includes(x.id)).every(x => x.status === 'NOT RUN'));
   assert.deepEqual(driver.calls.filter(x => x[0] === 'install' && x[1] === 'upgrade'),
     [['install', 'upgrade', '1.1.0-rc.2', 'install'], ['install', 'upgrade', '1.1.0-rc.3', 'update']]);
   assert(driver.calls.some(x => x[0] === 'wrapper' && x[2] === 'rollback'));

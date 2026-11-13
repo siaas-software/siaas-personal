@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, lstatSync, renameSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, lstatSync, renameSync, openSync, closeSync, fstatSync, readSync, constants } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ownedPath } from './safety.mjs';
@@ -7,15 +7,16 @@ import { scenarioIds } from './lifecycle.mjs';
 export const maximumBytes = 1024 * 1024;
 const states = ['PASS', 'FAIL', 'BLOCKED', 'NOT RUN'];
 const reasonCode = value => typeof value === 'string' && /^[A-Z0-9_]{1,100}$(?![\s\S])/.test(value);
-const fields = ['schemaVersion', 'status', 'reason', 'target', 'role', 'applicationSha', 'workflowSha',
+const fields = ['schemaVersion', 'repository', 'status', 'reason', 'target', 'role', 'applicationSha', 'workflowSha',
   'node', 'os', 'arch', 'image', 'scenarios', 'observations', 'processes', 'cleanup'];
 export function validateReport(report) {
   assert(report && typeof report === 'object' && !Array.isArray(report), 'REPORT_OBJECT');
   assert.deepEqual(Object.keys(report).sort(), [...fields].sort(), 'REPORT_FIELDS');
-  assert.equal(report.schemaVersion, 1);
+  assert.equal(report.schemaVersion, 2);
+  assert.equal(report.repository, 'siaas-software/siaas-personal');
   assert(states.includes(report.status));
   assert(reasonCode(report.reason));
-  assert(/^(linux|windows|macos)-(x64|arm64)$/.test(report.target));
+  assert(typeof report.target === 'string' && /^(linux|windows|macos)-(x64|arm64)$(?![\s\S])/.test(report.target));
   assert(['baseline', 'candidate'].includes(report.role));
   for (const field of ['applicationSha', 'workflowSha']) assert(typeof report[field] === 'string' && /^[a-f0-9]{40}$/.test(report[field]) && report[field].length === 40);
   for (const field of ['node', 'os', 'arch', 'image']) assert(typeof report[field] === 'string' && report[field].length <= 300);
@@ -53,11 +54,18 @@ export function validateReport(report) {
 export function validateJobBinding(report, config, { role, target, workflowSha }) {
   assert(['baseline', 'candidate'].includes(role), 'JOB_ROLE');
   assert(Object.hasOwn(config.platforms, target), 'JOB_TARGET');
+  assert.equal(report.repository, config.repository, 'JOB_REPOSITORY_MISMATCH');
   assert.equal(report.role, role, 'JOB_ROLE_MISMATCH');
   assert.equal(report.target, target, 'JOB_TARGET_MISMATCH');
   assert.equal(report.applicationSha, config[role], 'JOB_REVISION_MISMATCH');
   assert.equal(report.workflowSha, workflowSha, 'WORKFLOW_REVISION_MISMATCH');
   assert.equal(report.arch, config.platforms[target].arch, 'JOB_ARCHITECTURE_MISMATCH');
+}
+export function roleReadyForComparison(report) {
+  return report.status === 'BLOCKED' && report.reason === 'AWAITING_COMPARISON' &&
+    report.scenarios.every(row => row.id === 'baseline-candidate-comparison' ? row.status === 'NOT RUN' : row.status === 'PASS') &&
+    report.cleanup.length > 0 && report.cleanup.every(row => row.removed === true) &&
+    !report.processes.some(row => ['UNRESOLVED_ZOMBIE', 'UNATTRIBUTED_LIVE', 'OWNED_LIVE_REMAINS'].includes(row.event));
 }
 export function writeReport(directory, report, workspace = resolve('.')) {
   validateReport(report);
@@ -77,7 +85,16 @@ export function validateArtifacts(directory, workspace = resolve('.')) {
   const path = ownedPath(base, join(base, 'native.json'));
   const stat = lstatSync(path);
   assert(stat.isFile() && stat.nlink === 1 && stat.size <= maximumBytes, 'ARTIFACT_TYPE_OR_SIZE');
-  return validateReport(JSON.parse(readFileSync(path, 'utf8')));
+  const fd = openSync(path, constants.O_RDONLY | (constants.O_NOFOLLOW || 0) | (constants.O_NONBLOCK || 0));
+  try {
+    const before = fstatSync(fd);
+    assert(before.isFile() && before.nlink === 1 && before.size <= maximumBytes && before.dev === stat.dev && before.ino === stat.ino, 'ARTIFACT_CHANGED');
+    const bytes = Buffer.alloc(maximumBytes + 1); let used = 0, count;
+    do { count = readSync(fd, bytes, used, bytes.length - used, null); used += count; } while (count > 0 && used < bytes.length);
+    const after = fstatSync(fd);
+    assert(used <= maximumBytes && used === before.size && after.size === before.size && after.mtimeMs === before.mtimeMs && after.nlink === 1, 'ARTIFACT_CHANGED');
+    return validateReport(JSON.parse(bytes.subarray(0, used).toString('utf8')));
+  } finally { closeSync(fd); }
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {

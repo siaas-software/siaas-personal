@@ -39,6 +39,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       matrix: ${{ steps.validate.outputs.matrix }}
+      targets: ${{ steps.validate.outputs.targets }}
       stable: ${{ steps.validate.outputs.stable }}
       previous: ${{ steps.validate.outputs.previous }}
     steps:
@@ -123,6 +124,50 @@ jobs:
         with:
           name: native-${{ matrix.target }}-${{ matrix.role }}-${{ github.run_attempt }}
           path: evidence-native/native.json
+          retention-days: 3
+          if-no-files-found: error
+          include-hidden-files: false
+
+  compare:
+    needs: [plan, native]
+    if: always() && needs.plan.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        target: ${{ fromJSON(needs.plan.outputs.targets) }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: siaas-software/siaas-personal
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24.22.0
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # reviewed v4; same run only
+        with:
+          name: native-${{ matrix.target }}-baseline-${{ github.run_attempt }}
+          path: comparison-input/baseline
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: native-${{ matrix.target }}-candidate-${{ github.run_attempt }}
+          path: comparison-input/candidate
+      - name: Compare validated native evidence
+        id: comparison
+        if: always()
+        shell: bash
+        env:
+          ACCEPTANCE_TARGET: ${{ matrix.target }}
+        run: node tests/native-acceptance/compare.mjs comparison-input/baseline comparison-input/candidate "$ACCEPTANCE_TARGET" comparison.json
+      - name: Upload bounded comparison receipt
+        if: always() && hashFiles('comparison.json') != ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: comparison-${{ matrix.target }}-${{ github.run_attempt }}
+          path: comparison.json
           retention-days: 3
           if-no-files-found: error
           include-hidden-files: false

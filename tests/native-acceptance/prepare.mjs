@@ -22,7 +22,7 @@ try {
       { redirect: 'error', signal: AbortSignal.timeout(15000), headers: { Accept: 'application/vnd.github+json' } });
     if (!response.ok || (await response.json()).sha !== revision) throw Error('REPOSITORY_REVISION_UNVERIFIED');
   }
-  appendFileSync(process.env.GITHUB_OUTPUT, `matrix=${JSON.stringify(plan.matrix)}\nstable=${history.stable.sha}\nprevious=${history.previousCandidate.sha}\n`);
+  appendFileSync(process.env.GITHUB_OUTPUT, `matrix=${JSON.stringify(plan.matrix)}\ntargets=${JSON.stringify([...new Set(plan.matrix.include.map(job => job.target))])}\nstable=${history.stable.sha}\nprevious=${history.previousCandidate.sha}\n`);
   writeFileSync(join(output, 'plan.json'), JSON.stringify({ ...plan, status: 'VALIDATED_PLAN',
     nativeAcceptance: 'NOT RUN' }, null, 2) + '\n');
 } catch (error) {

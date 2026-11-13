@@ -2,11 +2,12 @@
 // native runner may start an application.
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync, cpSync, statfsSync, lstatSync } from 'node:fs';
-import { join, dirname, resolve } from 'node:path';
+import { join, dirname, resolve, basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
 import { digest, ownedPath, within, sourceIndex, verifyInstalled, Blocked } from './safety.mjs';
+import { exercisePublicBootstrap } from './bootstrap.mjs';
 import { visibleWindow } from './native-host.mjs';
 import { bounded } from './vendor/pr20/helpers/runtime.mjs';
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -16,6 +17,7 @@ export class NativeDriver {
     this.active = new Map(); this.userFiles = new Map(); this.profileProofs = new Set();
   }
   record(kind, expected, observed) { this.report.observations.push({ kind, expected: String(expected), observed: String(observed) }); }
+  fact(kind, value) { if (kind.endsWith(':bootstrap')) return; this.record('behavior:' + kind, 'semantic-v1', JSON.stringify(value)); }
   path(name) { return ownedPath(this.root, join(this.root, 'installations', name)); }
   async initialize() {
     this.generations = {};
@@ -124,6 +126,8 @@ export class NativeDriver {
     const node = ownedPath(this.root, current.runtime.node);
     assert.equal(digest(readFileSync(node)), current.runtime.binarySha256, 'INSTALLED_RUNTIME_HASH');
     this.active.set(root, generation);
+    this.fact('metadata:' + root, { version: current.version, tag: current.tag, nodeVersion: current.runtime.version,
+      profile: current.profile ? 'candidate' : 'native-default', previousVersion: current.previous?.version || null });
     this.record('installed-source:' + root, generation.sha, generation.sha);
     this.record('installed-directory:' + root, this.path(root), directory);
   }
@@ -164,7 +168,7 @@ export class NativeDriver {
     for (let n = 0; n < 60; n++) {
       const rows = this.audit.sample().filter(p => p.executable && within(prefix, p.executable) && !p.state.startsWith('Z'));
       if (await visibleWindow(rows.map(p => p.pid)) && existsSync(join(this.profilePath(root), 'siaas.sqlite'))) {
-        await this.profile(root); this.record('visible-window:' + root, prefix, rows.map(p => p.pid).join(',')); return;
+        await this.profile(root); this.fact('gui:' + root, { visible: true, profile: this.current(root).profile ? 'candidate' : 'native-default' }); this.record('visible-window:' + root, prefix, rows.map(p => p.pid).join(',')); return;
       }
       await pause(1000);
     }
@@ -180,6 +184,7 @@ export class NativeDriver {
   async launcher(root) {
     const path = ownedPath(this.root, this.launcherPath(root)); assert(existsSync(path));
     const body = readFileSync(path, 'utf8'); assert(body.includes('source-manager.mjs') && body.includes('launch'));
+    this.fact('launcher:' + root, { name: basename(path), profile: this.current(root).profile ? 'candidate' : 'native-default' });
     this.record('launcher:' + root, this.root, path);
     if (process.platform === 'win32') await this.audit.command('CMD_LAUNCHER', 'cmd.exe', ['/d', '/c', `"${path}"`], { env: this.env, timeout: 60000 });
     else if (path.endsWith('.desktop')) await this.audit.command('DESKTOP_LAUNCHER', 'gio', ['launch', path], { env: this.env, timeout: 60000 });
@@ -245,10 +250,31 @@ export class NativeDriver {
       { interruptOn: 'Installing application dependencies with the managed runtime' });
     await this.stop(); assert(!existsSync(join(this.path('interrupted'), 'current.json')));
     const remnants = readdirSync(this.path('interrupted')).filter(p => p.startsWith('stage-') || p === '.operation-lock');
+    this.fact('interruption', { lock: remnants.includes('.operation-lock'), stages: remnants.filter(p => p.startsWith('stage-')).length });
     this.record('interruption-remnants', 'legacy behavior; no automatic repair promised', remnants.join(','));
     await this.checkSentinels();
   }
   async rejectAdapter() { const text = await this.command('unsupported', 'capabilities', [], { expected: 1 }); assert(text.includes('Expected install, update, check, launch, rollback, status or uninstall.')); }
+  async publicBootstrap() {
+    const role = this.sha === this.config.baseline ? 'baseline' : 'candidate';
+    const target = Object.keys(this.config.platforms).find(k => this.config.platforms[k].os === process.platform && this.config.platforms[k].arch === process.arch);
+    try {
+      const receipt = await exercisePublicBootstrap({ config: this.config, role, target, root: this.root, env: this.env,
+        audit: this.audit, profileProofs: this.profileProofs, checks: {
+          'installed-source-runtime': () => this.verify('bootstrap', this.generations.target),
+          'automatic-gui': async () => { await this.observe('bootstrap'); await this.stop(); },
+          launcher: async () => { await this.launcher('bootstrap'); await this.observe('bootstrap'); await this.stop(); },
+          'uninstall-preservation': async () => {
+            await this.userSentinel('bootstrap'); const before = await this.retained('bootstrap');
+            await this.wrapper('bootstrap', 'uninstall'); await this.uninstalled('bootstrap', before); await this.checkUserSentinel('bootstrap');
+          },
+        } });
+      this.record('public-bootstrap-receipt', this.sha, JSON.stringify(receipt));
+    } catch (error) {
+      if (error.bootstrapReceipt) this.record('public-bootstrap-receipt', this.sha, JSON.stringify(error.bootstrapReceipt));
+      throw error;
+    }
+  }
   async dispose() {
     await this.closeServices();
     if (this.harnessCopy) rmSync(ownedPath(this.trees.target, this.harnessCopy), { recursive: true, force: true });

@@ -3,6 +3,7 @@
 **Status: PARTIAL; reviewable test infrastructure, no native acceptance claimed.**
 Execution remains disabled. No merge, Actions run, release or settings change is
 authorized. This branch contains no application changes or develop ancestry.
+Current follow-up: [harness completion](native-acceptance-harness-completion.md).
 
 ## Baselines and authority
 
@@ -49,13 +50,15 @@ revision before any future dispatch; mutable branch selection alone is insuffici
 Each platform has separate baseline and candidate jobs/VMs. Each job checks out
 one tested revision and separately approved historical sources. There is no shared
 application build directory or dependency cache between comparison jobs.
-Maximum matrix size is twelve; `max-parallel: 1`, `fail-fast: false`, concurrency
+Maximum native matrix size is twelve; six separate comparison jobs have five-minute
+timeouts and run one at a time. The native jobs retain `max-parallel: 1`, `fail-fast: false`, concurrency
 cancellation disabled, plan timeout 5 minutes, native timeout 120 minutes, artifact
 retention 3 days. Full selection has a ceiling of 1,440 native runner-minutes plus
-plan time. This is a resource bound, not an execution or billing authorization.
+30 comparison minutes and plan time. This is a resource bound, not an execution or billing authorization.
 
 The runtime closure is the workflow; `reviewed.json`, `plan.mjs`, `prepare.mjs`,
-`run.mjs`, `safety.mjs`, `native-host.mjs`, `driver.mjs`, `lifecycle.mjs`, `evidence.mjs`;
+`run.mjs`, `safety.mjs`, `native-host.mjs`, `cleanup.mjs`, `driver.mjs`,
+`lifecycle.mjs`, `bootstrap.mjs`, `evidence.mjs`, `compare.mjs`;
 and the five files under `vendor/pr20/` (four helpers plus provenance). The validator,
 unit test, this document and local evidence support development/review only.
 All imports are local or Node built-ins until the native probe/smoke resolves the
@@ -105,8 +108,8 @@ verification and require investigation, not an allowlist relaxation.
 | Exclusive lock | Operation rejected without stealing/deleting existing lock | NOT RUN |
 | Interruption | Interrupt at dependency-install progress; no activation, preserve unrelated data, record legacy remnants | NOT RUN |
 | Adapter rejection | `capabilities` remains an unsupported legacy command | NOT RUN |
-| Public bootstrap | Not implemented; mandatory NOT RUN row prevents overall PASS | BLOCKED |
-| Baseline/candidate comparison | Cross-job comparison not implemented; mandatory NOT RUN row prevents overall PASS | BLOCKED |
+| Public bootstrap | Separate verified public RC entrypoint/manifest execution and driver checks; requires explicit published-revision approval | BLOCKED: approval/native evidence absent |
+| Baseline/candidate comparison | Offline strict receipt/scenario/semantic comparison; only comparison job can certify equivalence | Unit-tested; native inputs absent |
 | Cleanup | Process identities/census plus owned-root deletion verified; unknown processes/zombies block | NOT RUN |
 
 Both approved application revisions have version 1.1.0-rc.3. They cannot form a
@@ -125,8 +128,10 @@ The current preflight blocks the whole native suite without both histories. This
 avoids presenting a partial set as completed engine acceptance. No native execution
 is authorized by fixture SHAs used in scheduler unit tests.
 
-The suite does not fetch a public installer and claim it tested unpublished PR code.
-Positive public stable/RC download-bootstrap tests, Finder/Start-menu interaction,
+The prepared-source lifecycle does not count as public bootstrap acceptance. A
+separate public RC entrypoint executor is now implemented behind publication and
+profile gates; it cannot test the unpublished candidate using baseline release bytes.
+Stable mutable-resolution acceptance, Finder/Start-menu interaction,
 Electron's update-confirmation dialog, and manual stale-lock repair are additional
 acceptance gaps. macOS `.command` payload is executed through its shell, not Finder.
 Windows wrappers are run without execution-policy bypass. Denied script/GUI access
@@ -160,25 +165,23 @@ Missing tools/permissions block rather than changing sandbox/OS policy. macOS
 process birth timestamps have one-second precision; native race/PID reuse acceptance
 is not established. Sampling is diagnostic ownership tracking, not process containment.
 
-Cleanup rechecks observed identities before signaling. Windows taskkill `/T`
-can additionally traverse descendants not individually rechecked; its safety and
-POSIX check-to-signal races remain unresolved native blockers. It never kills by name,
-argument substring or PID 1. Previously unseen unattributed live processes and new
-zombies block cleanup; they are reported without being killed. A quiescence sample
-follows termination and rejects remaining owned live processes. Ancestry requires
-strictly ordered creation times; equal/unknown times do not authorize a signal.
-Windows taskkill and POSIX termination are explicit cleanup
-mechanisms; they are not evidence of a normal application-menu quit. Graceful close
-is separately exercised by the reused smoke. If cleanup cannot be established,
-owned install files are retained for job disposal rather than deleted under running
-processes. Job hard termination can prevent evidence or cleanup; missing results
-never count as PASS. Two role jobs must be compared before declaring compatibility.
+Cleanup is serialized and waits for command stream closure, then final census and
+owned-root deletion. Current portable termination is deliberately BLOCKED: no
+PID-only signal or Windows tree-kill fallback remains. A future native backend must
+bind termination to the observed birth identity. Unattributed new live processes
+and new zombies block cleanup without being killed. Equal/ambiguous parent birth
+times never authorize termination. Sampling remains diagnostic, not containment.
+Missing audit initialization cannot claim checked cleanup. Job hard termination
+can prevent evidence entirely; missing results never count as PASS. See the current
+completion report for native primitive requirements and the local executor reaping
+limitation observed during fixture development.
 
-[evidence.mjs](../../tests/native-acceptance/evidence.mjs) permits only native.json,
+[evidence.mjs](../../tests/native-acceptance/evidence.mjs) uses role schema version 2 with repository identity and permits only native.json,
 closed top-level/scenario/observation record fields, bounded arrays/strings and a
 1 MiB total file limit. Extra files, symlinks, hardlinks and canonical-path escapes
 are rejected before upload. A PASS requires every mandatory scenario and cleanup
-assertion. Upload occurs only after that validator succeeds; failed/blocked JSON
+assertion. Role receipts keep their own comparison row NOT RUN; only the explicit
+comparison stage produces an overall equivalence receipt from complete matched inputs. Upload occurs only after that validator succeeds; failed/blocked JSON
 is also valid diagnostic evidence. Raw stdout/environment, browser traces, request
 keys, profiles, dependencies and binaries are excluded. Target, role, architecture and application/workflow SHAs are bound to the
 expected matrix job and reviewed configuration before upload. This is not a cryptographic
@@ -208,7 +211,7 @@ as free, but storage quotas, scheduling and action permissions need confirmation
 With the existing locked development dependencies and Node 24.22.0:
 
 ```sh
-node --test tests/native-acceptance/test/*.test.mjs
+node --test --test-timeout=5000 tests/native-acceptance/test/*.test.mjs
 node tests/native-acceptance/validate-static.mjs
 git diff --check
 ```
@@ -222,7 +225,9 @@ Local temporary fixtures are removed. No application/native build was run here.
 The [initial validation](../evidence/isolated-native-acceptance/validation.json)
 is preserved as historical evidence for a68cf60, not as hashes/results for the
 current tree. See the [security review](isolated-native-acceptance-review.md) and
-[current review validation](../evidence/isolated-native-acceptance/review-validation.json).
+[review validation](../evidence/isolated-native-acceptance/review-validation.json), both
+historical snapshots. [Completion validation](../evidence/isolated-native-acceptance/completion-validation.json)
+records the current follow-up.
 
 Before activation: approve histories and the exact application/workflow revisions;
 review/fix native isolation and observer limitations; complete outstanding acceptance
