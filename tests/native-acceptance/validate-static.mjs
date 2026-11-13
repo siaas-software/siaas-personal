@@ -48,6 +48,8 @@ for (const job of Object.values(workflow.jobs)) {
       assert.equal(step.with['include-hidden-files'], false); assert.equal(step.with['if-no-files-found'], 'error');
       assert.equal(step.if, "always() && steps.evidence.outcome == 'success'");
     }
+    if (step.id === 'evidence') assert.deepEqual(step.env, {
+      ACCEPTANCE_TARGET: '${{ matrix.target }}', ACCEPTANCE_ROLE: '${{ matrix.role }}' });
     if (step.run) {
       assert.equal(step.shell, 'bash'); assert(!step.run.includes('${{'));
       assert.equal(spawnSync('bash', ['-n'], { input: step.run }).status, 0); shellBlocks++;
@@ -80,11 +82,12 @@ function syntax(dir) {
   }
 }
 syntax(root);
-const document = 'docs/design/isolated-native-acceptance-actions.md';
 let localLinks = 0;
+for (const document of ['docs/design/isolated-native-acceptance-actions.md', 'docs/design/isolated-native-acceptance-review.md']) {
 for (const match of readFileSync(document, 'utf8').matchAll(/\[[^\]]+\]\(([^)]+)\)/g)) {
   if (/^https?:/.test(match[1])) continue;
   assert(existsSync(resolve(dirname(document), match[1].split('#')[0])), `Missing link: ${match[1]}`); localLinks++;
+}
 }
 console.log(JSON.stringify({ status: 'PASS', scope: 'static-only', nativeTestsExecuted: 0,
   yamlParsed: true, manualTriggerOnly: true, runnerTargets: 6, separateRevisionJobs: 12,

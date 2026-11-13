@@ -1,4 +1,5 @@
-// Real legacy entry points only; this module is never invoked by local unit tests.
+// Real legacy entry points. Unit tests stub command execution; only the gated
+// native runner may start an application.
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync, cpSync, statfsSync, lstatSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
@@ -12,7 +13,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 export class NativeDriver {
   constructor({ root, env, audit, report, config, trees, sha, vendor }) {
     Object.assign(this, { root, env, audit, report, config, trees, sha, vendor });
-    this.active = new Map(); this.userFiles = new Map();
+    this.active = new Map(); this.userFiles = new Map(); this.profileProofs = new Set();
   }
   record(kind, expected, observed) { this.report.observations.push({ kind, expected: String(expected), observed: String(observed) }); }
   path(name) { return ownedPath(this.root, join(this.root, 'installations', name)); }
@@ -91,19 +92,23 @@ export class NativeDriver {
       ownedPath(this.root, this.stableProfile);
       const home = execFileSync(process.execPath, ['-p', 'require("node:os").homedir()'], { env: this.env, encoding: 'utf8', timeout: 10000 }).trim();
       assert.equal(home, this.env.HOME, 'NATIVE_HOME_MISMATCH');
+      this.profileProofs.add(this.sha);
       this.record('native-home', this.env.HOME, home); this.record('native-appData', this.root, paths.appData);
     } catch (e) { if (e instanceof Blocked) throw e; throw new Blocked('SANDBOX_OR_PROFILE_PROBE_FAILED'); }
     finally { if (app) await bounded(app.close(), 5000, 'probe close').catch(() => {}); await this.audit.stop(); }
   }
-  command(root, action, args = [], options = {}) {
+  command(root, action, args = [], options = {}, managerTree = this.trees.target) {
     return this.audit.command('MANAGER_' + action.toUpperCase(), process.execPath,
-      [join(this.trees.target, 'scripts/source-manager.mjs'), action, ...args],
-      { cwd: this.trees.target, env: { ...this.env, SIAAS_INSTALL_DIR: this.path(root) }, timeout: 25 * 60_000, ...options });
+      [join(managerTree, 'scripts/source-manager.mjs'), action, ...args],
+      { cwd: managerTree, env: { ...this.env, SIAAS_INSTALL_DIR: this.path(root) }, timeout: 25 * 60_000, ...options });
   }
   async install(root, generation, action) {
+    if (!this.profileProofs.has(generation.sha)) throw new Blocked('GENERATION_PROFILE_PROOF_UNAVAILABLE');
     const space = statfsSync(this.root);
     if (space.bavail * space.bsize < 2 * 1024 ** 3) throw new Blocked('INSTALL_DISK_HEADROOM_UNAVAILABLE');
-    const text = await this.command(root, action, ['--prepared', generation.prepared, '--manifest', join(generation.prepared, 'manifest.json')]);
+    const managerTree = action === 'install' ? generation.tree : this.trees.target;
+    this.record('manager-tree:' + action, managerTree, managerTree);
+    const text = await this.command(root, action, ['--prepared', generation.prepared, '--manifest', join(generation.prepared, 'manifest.json')], {}, managerTree);
     assert(text.includes('Activated SIAAS Personal ' + generation.version) || text.includes('Already installed: ' + generation.version), 'INSTALL_COMPLETION_MISSING');
     this.active.set(root, generation);
   }

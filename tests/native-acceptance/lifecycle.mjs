@@ -4,7 +4,7 @@ import { Blocked, versionOrder } from './safety.mjs';
 export const scenarioIds = ['legacy-install', 'automatic-gui-startup', 'sandboxed-smoke', 'profile-metadata',
   'launcher-execution', 'repeat-install', 'real-update', 'rollback', 'retained-manager',
   'stable-rc-isolation', 'stable-launcher', 'uninstall', 'unrelated-data',
-  'invalid-source', 'exclusive-lock', 'interruption', 'adapter-rejection', 'cleanup'];
+  'invalid-source', 'exclusive-lock', 'interruption', 'adapter-rejection', 'public-bootstrap', 'baseline-candidate-comparison', 'cleanup'];
 export const initialScenarios = () => scenarioIds.map(id => ({ id, status: 'NOT RUN', reason: 'NOT_EXECUTED' }));
 export async function exerciseLifecycle(driver, scenarios, persist = () => {}) {
   const step = async (id, body) => {
@@ -37,6 +37,7 @@ export async function exerciseLifecycle(driver, scenarios, persist = () => {}) {
   });
   await step('real-update', async () => {
     await driver.install('upgrade', previous, 'install');
+    await driver.verify('upgrade', previous);
     await driver.observe('upgrade'); await driver.stop();
     await driver.userSentinel('upgrade');
     await driver.install('upgrade', target, 'update');
@@ -77,5 +78,7 @@ export async function exerciseLifecycle(driver, scenarios, persist = () => {}) {
   await step('exclusive-lock', () => driver.exclusiveLock());
   await step('interruption', () => driver.interruption());
   await step('adapter-rejection', () => driver.rejectAdapter());
+  // Public bootstrap and cross-job comparison are not implemented: their rows
+  // remain NOT RUN and forbid an overall acceptance PASS.
   // The outer runner performs cleanup even after a failure, then sets this row.
 }

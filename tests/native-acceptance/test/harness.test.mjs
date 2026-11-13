@@ -135,8 +135,8 @@ function fakeDriver() {
 }
 test('lifecycle schedules real different-version update before rollback, never cleanup PASS itself', async () => {
   const driver = fakeDriver(), rows = initialScenarios(); await exerciseLifecycle(driver, rows);
-  assert(rows.filter(x => x.id !== 'cleanup').every(x => x.status === 'PASS'));
-  assert.equal(rows.at(-1).status, 'NOT RUN');
+  assert(rows.filter(x => !['cleanup', 'public-bootstrap', 'baseline-candidate-comparison'].includes(x.id)).every(x => x.status === 'PASS'));
+  assert(rows.filter(x => ['cleanup', 'public-bootstrap', 'baseline-candidate-comparison'].includes(x.id)).every(x => x.status === 'NOT RUN'));
   assert.deepEqual(driver.calls.filter(x => x[0] === 'install' && x[1] === 'upgrade'),
     [['install', 'upgrade', '1.1.0-rc.2', 'install'], ['install', 'upgrade', '1.1.0-rc.3', 'update']]);
   assert(driver.calls.some(x => x[0] === 'wrapper' && x[2] === 'rollback'));

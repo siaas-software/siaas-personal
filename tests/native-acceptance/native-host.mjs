@@ -48,11 +48,18 @@ export const unattributed = (rows, initial, selected) => {
   const keys = new Set(selected.map(processKey));
   return rows.filter(p => p.pid > 1 && !initial.has(processKey(p)) && !keys.has(processKey(p)));
 };
+// A recycled parent PID is not ancestry evidence. Ambiguous birth ordering is
+// left unattributed (and blocks cleanup); it must never authorize a signal.
+export function bornAfter(child, parent) {
+  if (/^\d+$/.test(child) && /^\d+$/.test(parent)) return BigInt(child) > BigInt(parent);
+  const a = Date.parse(child), b = Date.parse(parent);
+  return Number.isFinite(a) && Number.isFinite(b) && a > b;
+}
 export function selectOwned(rows, roots, known) {
   const owned = new Map(rows.filter(p => known.has(processKey(p)) ||
     (p.executable && roots.some(root => within(root, p.executable)))).map(p => [p.pid, p]));
   let added;
-  do { added = false; for (const p of rows) if (!owned.has(p.pid) && owned.has(p.ppid)) { owned.set(p.pid, p); added = true; } } while (added);
+  do { added = false; for (const p of rows) if (!owned.has(p.pid) && owned.has(p.ppid) && bornAfter(p.identity, owned.get(p.ppid).identity)) { owned.set(p.pid, p); added = true; } } while (added);
   return [...owned.values()];
 }
 export class ProcessAudit {
@@ -134,7 +141,12 @@ export class ProcessAudit {
   async finish() {
     try {
       await this.stop();
-      await wait(500); this.sample();
+      await wait(500);
+      const live = this.sample().filter(p => !p.state.startsWith('Z'));
+      if (live.length) {
+        for (const p of live.slice(0, 50)) this.report.processes.push({ ...p, event: 'OWNED_LIVE_REMAINS' });
+        throw new Blocked('OWNED_LIVE_PROCESS_REMAINS');
+      }
       if (this.unattributed.length) {
         for (const p of this.unattributed.slice(0, 50)) this.report.processes.push({ ...p, event: 'UNATTRIBUTED_LIVE' });
         throw new Blocked('UNATTRIBUTED_NEW_PROCESSES');

@@ -22,8 +22,8 @@ files selected from PR #26 were copied as files; its commit/history was not merg
 or cherry-picked. Its obsolete report/evidence were not copied as current results.
 Four vendor source files retain their exact PR #20 bytes and SHA-256 provenance.
 
-Main and develop still differ in 173 files, including application changes.
-The incoming diff of PR #26 against main would contain 186 files. This branch has
+At the initial preparation snapshot, main and develop differed in 173 files, including application changes.
+At that snapshot the incoming diff of PR #26 against main contained 186 files. This branch has
 main as its parent and excludes those changes. Root AGENTS.md, CONTRIBUTING.md,
 package manifests, production code and existing disabled workflows are unchanged.
 
@@ -105,6 +105,8 @@ verification and require investigation, not an allowlist relaxation.
 | Exclusive lock | Operation rejected without stealing/deleting existing lock | NOT RUN |
 | Interruption | Interrupt at dependency-install progress; no activation, preserve unrelated data, record legacy remnants | NOT RUN |
 | Adapter rejection | `capabilities` remains an unsupported legacy command | NOT RUN |
+| Public bootstrap | Not implemented; mandatory NOT RUN row prevents overall PASS | BLOCKED |
+| Baseline/candidate comparison | Cross-job comparison not implemented; mandatory NOT RUN row prevents overall PASS | BLOCKED |
 | Cleanup | Process identities/census plus owned-root deletion verified; unknown processes/zombies block | NOT RUN |
 
 Both approved application revisions have version 1.1.0-rc.3. They cannot form a
@@ -113,6 +115,11 @@ receive a separately approved full SHA, actual package version and approval
 reference through a reviewed code change. There is no user-supplied history ref.
 Same-version/downgrade histories fail before installation. Historical runtime and
 profile contracts must also be compatible; unfamiliar contracts fail closed.
+Historical seeding invokes that historical checkout's manager; update invokes the
+tested checkout's manager. The old installed source is verified before update.
+Each installed generation now requires its own native profile proof. Only the target
+probe is implemented; historical proof backends remain BLOCKED, not inferred from
+the target's Electron or environment variables.
 
 The current preflight blocks the whole native suite without both histories. This
 avoids presenting a partial set as completed engine acceptance. No native execution
@@ -153,10 +160,14 @@ Missing tools/permissions block rather than changing sandbox/OS policy. macOS
 process birth timestamps have one-second precision; native race/PID reuse acceptance
 is not established. Sampling is diagnostic ownership tracking, not process containment.
 
-Cleanup signals only currently matching owned identities. It never kills by name,
+Cleanup rechecks observed identities before signaling. Windows taskkill `/T`
+can additionally traverse descendants not individually rechecked; its safety and
+POSIX check-to-signal races remain unresolved native blockers. It never kills by name,
 argument substring or PID 1. Previously unseen unattributed live processes and new
 zombies block cleanup; they are reported without being killed. A quiescence sample
-follows termination. Windows taskkill and POSIX termination are explicit cleanup
+follows termination and rejects remaining owned live processes. Ancestry requires
+strictly ordered creation times; equal/unknown times do not authorize a signal.
+Windows taskkill and POSIX termination are explicit cleanup
 mechanisms; they are not evidence of a normal application-menu quit. Graceful close
 is separately exercised by the reused smoke. If cleanup cannot be established,
 owned install files are retained for job disposal rather than deleted under running
@@ -169,8 +180,8 @@ closed top-level/scenario/observation record fields, bounded arrays/strings and 
 are rejected before upload. A PASS requires every mandatory scenario and cleanup
 assertion. Upload occurs only after that validator succeeds; failed/blocked JSON
 is also valid diagnostic evidence. Raw stdout/environment, browser traces, request
-keys, profiles, dependencies and binaries are excluded. SHA/role is rebound to the
-reviewed configuration and workflow SHA before upload. This is not a cryptographic
+keys, profiles, dependencies and binaries are excluded. Target, role, architecture and application/workflow SHAs are bound to the
+expected matrix job and reviewed configuration before upload. This is not a cryptographic
 proof against malicious same-user code forging evidence; source/dependency review
 and ephemeral VM separation remain required trust assumptions.
 
@@ -197,7 +208,7 @@ as free, but storage quotas, scheduling and action permissions need confirmation
 With the existing locked development dependencies and Node 24.22.0:
 
 ```sh
-node --test tests/native-acceptance/test/harness.test.mjs
+node --test tests/native-acceptance/test/*.test.mjs
 node tests/native-acceptance/validate-static.mjs
 git diff --check
 ```
@@ -208,7 +219,10 @@ ordering/failure propagation. The scheduler fake models only the harness API; it
 not a simulated native PASS. The closed-entry-point test invokes only the disabled
 gate and verifies that it writes BLOCKED evidence without application execution.
 Local temporary fixtures are removed. No application/native build was run here.
-See [local validation](../evidence/isolated-native-acceptance/validation.json).
+The [initial validation](../evidence/isolated-native-acceptance/validation.json)
+is preserved as historical evidence for a68cf60, not as hashes/results for the
+current tree. See the [security review](isolated-native-acceptance-review.md) and
+[current review validation](../evidence/isolated-native-acceptance/review-validation.json).
 
 Before activation: approve histories and the exact application/workflow revisions;
 review/fix native isolation and observer limitations; complete outstanding acceptance

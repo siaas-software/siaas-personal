@@ -113,6 +113,9 @@ jobs:
         if: always()
         id: evidence
         shell: bash
+        env:
+          ACCEPTANCE_TARGET: ${{ matrix.target }}
+          ACCEPTANCE_ROLE: ${{ matrix.role }}
         run: node infrastructure/tests/native-acceptance/evidence.mjs evidence-native
       - name: Upload validated JSON only
         if: always() && steps.evidence.outcome == 'success'

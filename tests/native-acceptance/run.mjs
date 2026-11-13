@@ -61,6 +61,8 @@ try {
   persist();
   await driver.initialize();
   await exerciseLifecycle(driver, report.scenarios, persist);
+  if (report.scenarios.some(row => row.id !== 'cleanup' && row.status !== 'PASS'))
+    throw new Blocked('ACCEPTANCE_COVERAGE_INCOMPLETE');
   report.status = 'PASS'; report.reason = 'NATIVE_SCENARIOS_COMPLETED';
 } catch (error) {
   report.status = error instanceof Blocked ? 'BLOCKED' : 'FAIL';
