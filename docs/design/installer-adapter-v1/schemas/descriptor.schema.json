@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.siaas.invalid/installer-adapter/1.0/descriptor.schema.json",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "protocol": {
+      "const": "siaas.personal.installer-adapter"
+    },
+    "product": {
+      "const": "siaas-personal"
+    },
+    "supportedVersions": {
+      "const": [
+        "1.0"
+      ]
+    },
+    "target": {
+      "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/target"
+    },
+    "sourceSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$(?![\\s\\S])"
+    },
+    "entryPoint": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))[^\\\\:\\x00-\\x1f\\x7f]+$(?![\\s\\S])"
+    },
+    "entryPointSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$(?![\\s\\S])"
+    },
+    "buildPolicySha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$(?![\\s\\S])"
+    },
+    "capabilities": {
+      "const": [
+        "install-only",
+        "explicit-paths",
+        "isolated-channels",
+        "durable-receipts",
+        "installed-integrity",
+        "journal-recovery",
+        "prepared-archives",
+        "build-network-consent"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "protocol",
+    "product",
+    "supportedVersions",
+    "target",
+    "sourceSha256",
+    "entryPoint",
+    "entryPointSha256",
+    "buildPolicySha256",
+    "capabilities"
+  ],
+  "additionalProperties": false
+}

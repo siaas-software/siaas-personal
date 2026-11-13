@@ -1,0 +1,438 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.siaas.invalid/installer-adapter/1.0/request.schema.json",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "protocol": {
+          "const": "siaas.personal.installer-adapter"
+        },
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "contractVersion": {
+          "const": "1.0"
+        },
+        "operation": {
+          "const": "prepare"
+        },
+        "operationId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        },
+        "installationId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        },
+        "paths": {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/paths"
+        },
+        "requiredCapabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/capability"
+          },
+          "uniqueItems": true,
+          "maxItems": 8
+        },
+        "target": {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/target"
+        },
+        "expectedGeneration": {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/generation"
+        },
+        "prepared": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/artifact"
+            },
+            "runtime": {
+              "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/artifact"
+            },
+            "manifest": {
+              "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/artifact"
+            },
+            "buildPolicy": {
+              "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/artifact"
+            }
+          },
+          "required": [
+            "source",
+            "runtime",
+            "manifest",
+            "buildPolicy"
+          ],
+          "additionalProperties": false
+        },
+        "buildConsent": {
+          "type": "object",
+          "properties": {
+            "policySha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$(?![\\s\\S])"
+            },
+            "consentId": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+            }
+          },
+          "required": [
+            "policySha256",
+            "consentId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "protocol",
+        "schemaVersion",
+        "contractVersion",
+        "operation",
+        "operationId",
+        "installationId",
+        "paths",
+        "requiredCapabilities",
+        "target",
+        "expectedGeneration",
+        "prepared",
+        "buildConsent"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "protocol": {
+          "const": "siaas.personal.installer-adapter"
+        },
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "contractVersion": {
+          "const": "1.0"
+        },
+        "operation": {
+          "const": "commit"
+        },
+        "operationId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        },
+        "installationId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        },
+        "paths": {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/paths"
+        },
+        "requiredCapabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/capability"
+          },
+          "uniqueItems": true,
+          "maxItems": 8
+        },
+        "target": {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/target"
+        },
+        "expectedGeneration": {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/generation"
+        },
+        "transactionId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        }
+      },
+      "required": [
+        "protocol",
+        "schemaVersion",
+        "contractVersion",
+        "operation",
+        "operationId",
+        "installationId",
+        "paths",
+        "requiredCapabilities",
+        "target",
+        "expectedGeneration",
+        "transactionId"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "protocol": {
+          "const": "siaas.personal.installer-adapter"
+        },
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "contractVersion": {
+          "const": "1.0"
+        },
+        "operation": {
+          "const": "activate"
+        },
+        "operationId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        },
+        "installationId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        },
+        "paths": {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/paths"
+        },
+        "requiredCapabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/capability"
+          },
+          "uniqueItems": true,
+          "maxItems": 8
+        },
+        "target": {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/target"
+        },
+        "expectedGeneration": {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/generation"
+        },
+        "transactionId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        }
+      },
+      "required": [
+        "protocol",
+        "schemaVersion",
+        "contractVersion",
+        "operation",
+        "operationId",
+        "installationId",
+        "paths",
+        "requiredCapabilities",
+        "target",
+        "expectedGeneration",
+        "transactionId"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "protocol": {
+          "const": "siaas.personal.installer-adapter"
+        },
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "contractVersion": {
+          "const": "1.0"
+        },
+        "operation": {
+          "const": "install"
+        },
+        "operationId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        },
+        "installationId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        },
+        "paths": {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/paths"
+        },
+        "requiredCapabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/capability"
+          },
+          "uniqueItems": true,
+          "maxItems": 8
+        },
+        "target": {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/target"
+        },
+        "expectedGeneration": {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/generation"
+        },
+        "prepared": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/artifact"
+            },
+            "runtime": {
+              "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/artifact"
+            },
+            "manifest": {
+              "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/artifact"
+            },
+            "buildPolicy": {
+              "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/artifact"
+            }
+          },
+          "required": [
+            "source",
+            "runtime",
+            "manifest",
+            "buildPolicy"
+          ],
+          "additionalProperties": false
+        },
+        "buildConsent": {
+          "type": "object",
+          "properties": {
+            "policySha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$(?![\\s\\S])"
+            },
+            "consentId": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+            }
+          },
+          "required": [
+            "policySha256",
+            "consentId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "protocol",
+        "schemaVersion",
+        "contractVersion",
+        "operation",
+        "operationId",
+        "installationId",
+        "paths",
+        "requiredCapabilities",
+        "target",
+        "expectedGeneration",
+        "prepared",
+        "buildConsent"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "protocol": {
+          "const": "siaas.personal.installer-adapter"
+        },
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "contractVersion": {
+          "const": "1.0"
+        },
+        "operation": {
+          "const": "inspect"
+        },
+        "operationId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        },
+        "installationId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        },
+        "paths": {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/paths"
+        },
+        "requiredCapabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/capability"
+          },
+          "uniqueItems": true,
+          "maxItems": 8
+        }
+      },
+      "required": [
+        "protocol",
+        "schemaVersion",
+        "contractVersion",
+        "operation",
+        "operationId",
+        "installationId",
+        "paths",
+        "requiredCapabilities"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "protocol": {
+          "const": "siaas.personal.installer-adapter"
+        },
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "contractVersion": {
+          "const": "1.0"
+        },
+        "operation": {
+          "const": "recover"
+        },
+        "operationId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        },
+        "installationId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        },
+        "paths": {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/paths"
+        },
+        "requiredCapabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/capability"
+          },
+          "uniqueItems": true,
+          "maxItems": 8
+        },
+        "target": {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/target"
+        },
+        "expectedGeneration": {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/generation"
+        },
+        "transactionId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        },
+        "recoveryAction": {
+          "enum": [
+            "resume",
+            "restore-previous"
+          ]
+        }
+      },
+      "required": [
+        "protocol",
+        "schemaVersion",
+        "contractVersion",
+        "operation",
+        "operationId",
+        "installationId",
+        "paths",
+        "requiredCapabilities",
+        "target",
+        "expectedGeneration",
+        "transactionId",
+        "recoveryAction"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

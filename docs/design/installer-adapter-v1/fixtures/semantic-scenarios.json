@@ -1,0 +1,118 @@
+[
+  {
+    "id": "cas-conflict",
+    "operation": "prepare",
+    "context": {
+      "expectedRevision": 2,
+      "actualRevision": 3
+    },
+    "expected": "GENERATION_CONFLICT",
+    "status": "NOT RUN: requires implementation/native acceptance"
+  },
+  {
+    "id": "retry-different-request",
+    "operation": "install",
+    "context": {
+      "sameOperationId": true,
+      "sameRequestDigest": false
+    },
+    "expected": "OPERATION_ID_CONFLICT",
+    "status": "NOT RUN: requires implementation/native acceptance"
+  },
+  {
+    "id": "retry-completed-identical",
+    "operation": "install",
+    "context": {
+      "sameOperationId": true,
+      "sameRequestDigest": true,
+      "currentResultMatches": true,
+      "integrityVerified": true
+    },
+    "expected": "activated-unchanged",
+    "status": "NOT RUN: requires implementation/native acceptance"
+  },
+  {
+    "id": "recovery-after-gate-release",
+    "operation": "recover",
+    "context": {
+      "action": "restore-previous",
+      "activatedCompletion": true
+    },
+    "expected": "RECOVERY_REQUIRED",
+    "status": "NOT RUN: requires implementation/native acceptance"
+  },
+  {
+    "id": "launcher-other-owner",
+    "operation": "activate",
+    "context": {
+      "launcherOwnedBySelectedInstallation": false
+    },
+    "expected": "UNTRUSTED_PATH",
+    "status": "NOT RUN: requires implementation/native acceptance"
+  },
+  {
+    "id": "symlink-race",
+    "operation": "prepare",
+    "context": {
+      "ancestorReplacedAfterValidation": true
+    },
+    "expected": "UNTRUSTED_PATH",
+    "status": "NOT RUN: requires implementation/native acceptance"
+  },
+  {
+    "id": "no-containment",
+    "operation": "prepare",
+    "context": {
+      "policyPresent": true,
+      "enforcementAvailable": false
+    },
+    "expected": "BUILD_POLICY_UNAVAILABLE",
+    "status": "NOT RUN: requires implementation/native acceptance"
+  },
+  {
+    "id": "descriptor-mismatch",
+    "operation": "prepare",
+    "context": {
+      "descriptorManifestCommitEqual": false
+    },
+    "expected": "INPUT_INTEGRITY_FAILED",
+    "status": "NOT RUN: requires implementation/native acceptance"
+  },
+  {
+    "id": "receipt-failure",
+    "operation": "activate",
+    "context": {
+      "activationDurable": true,
+      "receiptWriteSucceeds": false
+    },
+    "expected": "RECEIPT_WRITE_FAILED",
+    "status": "NOT RUN: requires implementation/native acceptance"
+  },
+  {
+    "id": "corrupt-installed-file",
+    "operation": "inspect",
+    "context": {
+      "installedManifestMatches": false
+    },
+    "expected": "INSTALLED_INTEGRITY_FAILED",
+    "status": "NOT RUN: requires implementation/native acceptance"
+  },
+  {
+    "id": "busy-app",
+    "operation": "activate",
+    "context": {
+      "ownedAppQuiescent": false
+    },
+    "expected": "BUSY",
+    "status": "NOT RUN: requires implementation/native acceptance"
+  },
+  {
+    "id": "profile-alias",
+    "operation": "prepare",
+    "context": {
+      "candidateProfileAliasesStable": true
+    },
+    "expected": "PROFILE_CONFLICT",
+    "status": "NOT RUN: requires implementation/native acceptance"
+  }
+]

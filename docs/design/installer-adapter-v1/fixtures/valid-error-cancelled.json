@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "1.0",
+  "code": "CANCELLED",
+  "exitCode": 7,
+  "phase": "prepare",
+  "retryable": false,
+  "recoveryRequired": false,
+  "diagnosticId": null
+}
