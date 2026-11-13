@@ -1,0 +1,7 @@
+Error: Electron requires a graphical session. Use an existing desktop or xvfb-run -a npm run test:desktop:smoke on Linux.
+    at requireDisplay (file:///workspace/engine-native-evidence/pr20/tests/helpers/runtime.mjs:51:11)
+    at electronPrerequisites (file:///workspace/engine-native-evidence/pr20/tests/helpers/electron.mjs:9:3)
+    at runTest.mode (file:///workspace/engine-native-evidence/pr20/tests/desktop-smoke.mjs:11:32)
+    at runTest (file:///workspace/engine-native-evidence/pr20/tests/helpers/runtime.mjs:231:11)
+    at async file:///workspace/engine-native-evidence/pr20/tests/desktop-smoke.mjs:10:1
+BLOCKED: desktop-smoke (native-electron/mocked-ollama); artifacts: /workspace/siaas-personal/test-results/desktop-smoke-1794292763811-dad54d5a

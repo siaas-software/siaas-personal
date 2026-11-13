@@ -1,0 +1,3 @@
+Command: gh api repos/siaas-software/siaas-personal/actions/runners
+{"message":"Resource not accessible by integration","documentation_url":"https://docs.github.com/rest/actions/self-hosted-runners#list-self-hosted-runners-for-a-repository","status":"403"}gh: Resource not accessible by integration (HTTP 403)
+exit=1

@@ -1,0 +1,12 @@
+{
+  "command": "node node_modules/electron/install.js",
+  "exitCode": 0,
+  "node": "24.22.0",
+  "electron": "44.9.3",
+  "lockedElectron": "44.9.3",
+  "archive": "electron-v44.9.3-linux-x64.zip",
+  "archiveSha256": "6e7fd2d450d442507b846ace4ae6e2bd17e1b1653e86a033b5231abfc23e6df4",
+  "matchesLockedPackageChecksums": true,
+  "tlsVerificationDisabled": false,
+  "cache": "/workspace/engine-native-evidence/electron-cache"
+}

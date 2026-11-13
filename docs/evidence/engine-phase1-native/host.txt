@@ -1,0 +1,32 @@
+$ uname -srmo
+Linux 6.18.57 x86_64 GNU/Linux
+exit=0
+$ cat /etc/os-release
+PRETTY_NAME="Debian GNU/Linux 13 (trixie)"
+NAME="Debian GNU/Linux"
+VERSION_ID="13"
+VERSION="13 (trixie)"
+VERSION_CODENAME=trixie
+DEBIAN_VERSION_FULL=13.6
+ID=debian
+HOME_URL="https://www.debian.org/"
+SUPPORT_URL="https://www.debian.org/support"
+BUG_REPORT_URL="https://bugs.debian.org/"
+exit=0
+$ id
+uid=1000(agent) gid=1000(agent) groups=1000(agent)
+exit=0
+$ stat -c %n %U:%G %a node_modules/electron/dist/chrome-sandbox /usr/lib/chromium/chrome-sandbox
+node_modules/electron/dist/chrome-sandbox agent:agent 755
+/usr/lib/chromium/chrome-sandbox nobody:nogroup 4755
+exit=0
+$ unshare --user --map-root-user true
+unshare: cannot open /proc/self/uid_map: Read-only file system
+exit=1
+DISPLAY present=False
+WAYLAND_DISPLAY present=False
+Xvfb=None
+xvfb-run=None
+CapEff:	0000000000000000
+NoNewPrivs:	1
+Seccomp:	2
