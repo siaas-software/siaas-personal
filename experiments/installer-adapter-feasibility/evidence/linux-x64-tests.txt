@@ -1,0 +1,18 @@
+{"os": "Linux", "arch": "x86_64", "kernel": "6.18.57", "uid": 1000, "scope": "non-production fixtures only"}
+test_01_environment_allowlist (__main__.Spike.test_01_environment_allowlist) ... ok
+test_02_cooperative_group_cancel_and_escape (__main__.Spike.test_02_cooperative_group_cancel_and_escape) ... ok
+test_03_npm_lifecycle_environment_is_not_containment (__main__.Spike.test_03_npm_lifecycle_environment_is_not_containment) ... ok
+test_04_flock_exclusion_and_sigkill_release (__main__.Spike.test_04_flock_exclusion_and_sigkill_release) ... ok
+test_05_two_process_generation_cas (__main__.Spike.test_05_two_process_generation_cas) ... ok
+test_06_sigkill_at_nine_activation_boundaries (__main__.Spike.test_06_sigkill_at_nine_activation_boundaries) ... ok
+test_07_receipt_failure_preserves_activation (__main__.Spike.test_07_receipt_failure_preserves_activation) ... ok
+test_08_corrupt_and_truncated_journal_fail_closed (__main__.Spike.test_08_corrupt_and_truncated_journal_fail_closed) ... ok
+test_09_handle_relative_nofollow (__main__.Spike.test_09_handle_relative_nofollow) ... ok
+test_10_cross_volume_launcher (__main__.Spike.test_10_cross_volume_launcher) ... ok
+test_11_installed_generation_corruption_rejected (__main__.Spike.test_11_installed_generation_corruption_rejected) ... ok
+test_12_atomic_single_file_replace_readers (__main__.Spike.test_12_atomic_single_file_replace_readers) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 2.689s
+
+OK
