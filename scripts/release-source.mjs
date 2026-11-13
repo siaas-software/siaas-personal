@@ -48,7 +48,18 @@ writeFileSync(
 console.log(
   "Created local source.zip and install.json artifacts in dist-source. Publication follows the applicable release policy; this script does not publish.",
 );
-const assets = [prefix + "-source.zip", prefix + "-install.json"];
+// A future release can explicitly advertise the bounded CLI-managed bootstrap.
+// This is NOT the normative Installer Adapter v1 capability protocol.
+const cliMarker = "siaas-cli-install-v1.json";
+writeFileSync(join("dist-source",cliMarker),JSON.stringify({
+  schemaVersion: 1,
+  protocol: "siaas.personal.cli-bootstrap",
+  version: pkg.version,
+  installAction: "install-cli",
+  updateAction: "update-cli",
+  autoLaunch: false
+},null,2)+"\n");
+const assets = [prefix + "-source.zip", prefix + "-install.json", cliMarker];
 for (const extension of ["ps1", "sh"]) {
   const name = `install-siaas.${extension}`;
   copyFileSync(`scripts/install.${extension}`, join("dist-source", name));
