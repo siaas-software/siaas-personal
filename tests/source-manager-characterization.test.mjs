@@ -607,3 +607,61 @@ test(
     }
   },
 );
+
+test(
+  "CLI-managed install and update activate verified fixtures without launching GUI",
+  { skip: process.platform !== "linux" },
+  async () => {
+    const f = fixture();
+    try {
+      const first = f.run(["install-cli", ...f.prepared("1.7.0-rc.1")]);
+      assert.equal(first.status, 0, first.stdout + first.stderr);
+      assert.equal(f.state().version, "1.7.0-rc.1");
+      assert.match(first.stdout, /"launched":false/);
+      assert(existsSync(join(f.root, "launch-rc.sh")));
+      await delay(100);
+      assert.deepEqual(f.readEvents(f.launches), []);
+
+      const second = f.run(["update-cli", ...f.prepared("1.7.0-rc.2")]);
+      assert.equal(second.status, 0, second.stdout + second.stderr);
+      assert.equal(f.state().version, "1.7.0-rc.2");
+      assert.equal(f.state().previous.version, "1.7.0-rc.1");
+      await delay(100);
+      assert.deepEqual(f.readEvents(f.launches), []);
+      const repeat = f.run(["install-cli", ...f.prepared("1.7.0-rc.2")]);
+      assert.equal(repeat.status, 0, repeat.stdout + repeat.stderr);
+      assert.match(repeat.stdout, /Already installed/);
+      assert.deepEqual(f.readEvents(f.launches), []);
+
+      // Legacy entry point intentionally retains its old launch behavior.
+      const legacy = f.run(["install", ...f.prepared("1.7.0-rc.3")]);
+      assert.equal(legacy.status, 0, legacy.stdout + legacy.stderr);
+      await f.launched(1);
+      assert.equal(f.state().version, "1.7.0-rc.3");
+    } finally {
+      f.dispose();
+    }
+  },
+);
+
+test(
+  "CLI-managed preflight rejects unprepared requests and update without install",
+  { skip: process.platform !== "linux" },
+  () => {
+    const f = fixture();
+    try {
+      const invalid = f.run(["install-cli", "--manifest", "/unused", "--prepared", "/unused"]);
+      assert.equal(invalid.status, 1);
+      assert.match(invalid.stderr, /requires explicit prepared source and manifest/);
+      assert(!existsSync(join(f.root, "current.json")));
+
+      const missing = f.run(["update-cli", ...f.prepared("1.7.0")]);
+      assert.equal(missing.status, 1);
+      assert.match(missing.stderr, /No existing installation to update/);
+      assert(!existsSync(join(f.root, "current.json")));
+      assert.deepEqual(f.readEvents(f.launches), []);
+    } finally {
+      f.dispose();
+    }
+  },
+);
