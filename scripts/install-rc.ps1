@@ -53,7 +53,8 @@ try {
     [IO.File]::WriteAllText((Join-Path $stage 'manifest.json'), ($m | ConvertTo-Json -Depth 10), $utf8)
     Expand-Archive -LiteralPath $sourceZip -DestinationPath (Join-Path $stage 'source')
     $env:SIAAS_INSTALL_DIR = $root
-    & $node (Join-Path $stage 'source/scripts/source-manager.mjs') install --prepared $stage --manifest (Join-Path $stage 'manifest.json')
+    $action = if ($env:SIAAS_CLI_INSTALLATION -ceq '1') { 'install-cli' } else { 'install' }
+    & $node (Join-Path $stage 'source/scripts/source-manager.mjs') $action --prepared $stage --manifest (Join-Path $stage 'manifest.json')
     if ($LASTEXITCODE -ne 0) { throw 'Installation did not complete. The previous version and user data are preserved. Review the error above and retry.' }
 } catch {
     Write-Host ('SIAAS: ' + $_.Exception.Message) -ForegroundColor Red

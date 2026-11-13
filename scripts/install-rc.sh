@@ -48,4 +48,6 @@ const node=join(folder,'bin/node'),npm=join(folder,'lib/node_modules/npm/bin/npm
 writeFileSync(join(folder,'runtime.json'),JSON.stringify({folder,node,npm,version:nv,binarySha256:createHash('sha256').update(readFileSync(node)).digest('hex')}));
 writeFileSync(join(stage,'manifest.json'),JSON.stringify({schemaVersion:1,version,platform,arch,name,size:Number(size),sha256,downloadUrl,runtime:{version:nv,name:nn,sha256:nh,url:nu}}));
 JS
-env -u NODE_OPTIONS -u NODE_PATH "$node" "$stage/source/scripts/source-manager.mjs" install --prepared "$stage" --manifest "$stage/manifest.json"
+action=install
+[[ "${SIAAS_CLI_INSTALLATION:-}" == "1" ]] && action=install-cli
+env -u NODE_OPTIONS -u NODE_PATH "$node" "$stage/source/scripts/source-manager.mjs" "$action" --prepared "$stage" --manifest "$stage/manifest.json"
