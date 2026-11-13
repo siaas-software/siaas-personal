@@ -7,6 +7,8 @@ import { createSourceState } from "./lib/source-state.mjs";
 import { createSourceDesktop, executable } from "./lib/source-desktop.mjs";
 import { buildSource } from "./lib/source-build.mjs";
 const action = process.argv[2];
+// Explicit CLI-managed entry point; legacy install/update still launch the app.
+const cliInstallOnly = action === "install-cli" || action === "update-cli";
 const state = createSourceState();
 const { root, versions, current, lock, managerFile, installed, folder, atomicWrite, snapshot, cleanup } = state;
 const { launcherFile, launcher, launch } = createSourceDesktop(state);
@@ -88,12 +90,20 @@ try {
     }
     cleanup(next);
     emit("completed", "Activated SIAAS Personal " + manifest.version);
-    await launch(next);
+    if (!cliInstallOnly) await launch(next);
+    else console.log(JSON.stringify({ schemaVersion: 1, operation: action, version: manifest.version, launched: false }));
   } finally {
     rmSync(stage, { recursive: true, force: true });
   }
 }
 async function main() {
+  if (cliInstallOnly) {
+    const argv = process.argv.slice(3);
+    if (argv.length !== 4 || argv[0] !== "--prepared" || argv[2] !== "--manifest" || !argv[1] || !argv[3])
+      throw Error("CLI-managed installation requires explicit prepared source and manifest.");
+    if (action === "update-cli" && !installed())
+      throw Error("No existing installation to update.");
+  }
   mkdirSync(root, { recursive: true });
   if (action === "status") {
     console.log(JSON.stringify(installed()));
@@ -116,7 +126,7 @@ async function main() {
     return;
   }
   if (
-    !["install", "update", "update-detached", "rollback", "uninstall"].includes(
+    !["install", "update", "install-cli", "update-cli", "update-detached", "rollback", "uninstall"].includes(
       action,
     )
   )
