@@ -152,7 +152,9 @@ async function main() {
       return;
     }
     if (action === "uninstall") {
-      rmSync(launcherFile(), { force: true });
+      // Without an active record, launcherFile would select the global stable
+      // launcher even for an already-unregistered RC root. Do not infer ownership.
+      if (installed()) rmSync(launcherFile(), { force: true });
       rmSync(current, { force: true });
       console.log(
         "Launcher unregistered. Application versions and all user data are preserved.",
