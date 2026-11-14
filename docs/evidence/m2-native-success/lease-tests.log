@@ -1,0 +1,18 @@
+✔ known live owned process blocks regardless of arguments (4.846831ms)
+✔ reused PID and stale zombie never query unrelated executable (0.650562ms)
+✔ inaccessible known process fails closed; vanished process is stale (1.223256ms)
+✔ mismatched executable or invalid lease cannot authorize mutation (0.491505ms)
+✔ fresh claimed root does not enumerate any global processes; partial roots refuse (0.81996ms)
+✔ old managed generations without lease protocol fail closed (0.447869ms)
+✔ native Linux lease observes only its owned child and detects exit (308.219894ms)
+✔ managed launch refuses an existing operation lock and cleans its own lock (442.187466ms)
+✔ missing boot identity and numeric birth fields are ambiguous, not stale (1.528085ms)
+✔ cold backup preserves profile files and refuses links (2.495513ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 864.993502

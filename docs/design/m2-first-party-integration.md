@@ -1,3 +1,6 @@
+> Historical blocked attempt. See [current native success](m2-native-success.md)
+> for the corrected process scope and actual lifecycle results.
+
 # First-party M2 integration — native acceptance BLOCKED
 
 This branch retains PR29's repeated-uninstall correction and applies the

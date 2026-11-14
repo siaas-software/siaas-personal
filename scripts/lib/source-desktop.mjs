@@ -76,13 +76,13 @@ export function createSourceDesktop({ root, installed, folder }) {
   }
   async function launch(item) {
     if (!item) throw Error("SIAAS Personal is not installed.");
-    let locked = false;
+    let locked = false, releaseLock = true;
     if (item.cliManaged === 1) { mkdirSync(join(root,".operation-lock")); locked = true; }
     try {
     await verifyRuntime(item.runtime, item.runtime?.version);
     const manager = join(folder(item), "scripts", "source-manager.mjs");
     const child = spawn(executable(folder(item)), item.profile ? ["--user-data-dir=" + item.profile] : [], {
-      detached: true,
+      detached: item.cliManaged !== 1,
       stdio: "ignore",
       env: {
         ...runtimeEnv(item.runtime.node),
@@ -95,8 +95,19 @@ export function createSourceDesktop({ root, installed, folder }) {
       child.once("spawn", ok);
       child.once("error", no);
     });
-    child.unref();
-    } finally { if (locked) rmSync(join(root,".operation-lock"),{recursive:true}); }
+    if(item.cliManaged === 1) {
+      // Failure to establish a known child identity retains the operation lock.
+      releaseLock = false;
+      const {captureLease}=await import('./cli-quiescence.mjs');
+      const exited=new Promise(ok=>child.once('close',ok));
+      try {
+        const lease=captureLease(child.pid,executable(folder(item)));
+        writeFileSync(join(root,'instance.json'),JSON.stringify(lease),{mode:0o600});
+      } catch(e) { if(!['ENOENT','ESRCH'].includes(e.code))throw e; }
+      await exited;
+      releaseLock = true;
+    } else child.unref();
+    } finally { if (locked && releaseLock) rmSync(join(root,".operation-lock"),{recursive:true}); }
   }
   return { launcherFile, launcher, launch };
 }

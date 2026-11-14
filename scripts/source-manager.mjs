@@ -59,7 +59,7 @@ async function install() {
     renameSync(source, dest);
     const next = {
       version: manifest.version,
-      ...(cliInstallOnly ? {cliManaged:1} : {}),
+      ...(cliInstallOnly ? {cliManaged:1,instanceProtocol:1} : {}),
       ...((cliInstallOnly || old?.profile || manifest.version.includes("-rc.")) ? { profile: old?.profile || join(root, "profile") } : {}),
       tag: "v" + manifest.version,
       folder: id,
@@ -157,7 +157,8 @@ async function main() {
   try {
     if (cliManaged) {
       const { requireStopped } = await import("./lib/cli-quiescence.mjs");
-      requireStopped(root);
+      requireStopped(root,installed());
+      if(action==="update-cli"){const {coldBackup}=await import("./lib/cli-profile.mjs");coldBackup(root);}
     }
     if (action === "rollback") {
       const i = installed();
@@ -177,7 +178,19 @@ async function main() {
       );
       return;
     }
-    if (action === "uninstall" || action === "uninstall-cli") {
+    if (action === "uninstall-cli") {
+      // Linux permits unlinking this running private Node image. No profile or
+      // backup directory is in this explicit software-removal list.
+      if(installed()) {
+        rmSync(launcherFile(),{force:true});
+        for(const name of ['versions','runtimes','build-home'])rmSync(join(root,name),{recursive:true,force:true});
+        for(const name of ['source-manager.mjs','runtime-path','instance.json'])rmSync(join(root,name),{force:true});
+        rmSync(current,{force:true});
+      }
+      console.log('Owned Personal software removed; profiles and backups preserved.');
+      return;
+    }
+    if (action === "uninstall") {
       // Without an active record, launcherFile would select the global stable
       // launcher even for an already-unregistered RC root. Do not infer ownership.
       if (installed()) rmSync(launcherFile(), { force: true });
