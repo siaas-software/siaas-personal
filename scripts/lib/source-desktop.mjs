@@ -1,6 +1,6 @@
 // Internal legacy launcher registration and automatic application startup.
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, writeFileSync, readdirSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync, readdirSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { homedir } from "node:os";
 import { verifyRuntime, runtimeEnv } from "./managed-runtime.mjs";
@@ -76,6 +76,9 @@ export function createSourceDesktop({ root, installed, folder }) {
   }
   async function launch(item) {
     if (!item) throw Error("SIAAS Personal is not installed.");
+    let locked = false;
+    if (item.cliManaged === 1) { mkdirSync(join(root,".operation-lock")); locked = true; }
+    try {
     await verifyRuntime(item.runtime, item.runtime?.version);
     const manager = join(folder(item), "scripts", "source-manager.mjs");
     const child = spawn(executable(folder(item)), item.profile ? ["--user-data-dir=" + item.profile] : [], {
@@ -93,6 +96,7 @@ export function createSourceDesktop({ root, installed, folder }) {
       child.once("error", no);
     });
     child.unref();
+    } finally { if (locked) rmSync(join(root,".operation-lock"),{recursive:true}); }
   }
   return { launcherFile, launcher, launch };
 }

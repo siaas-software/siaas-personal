@@ -1,0 +1,28 @@
+✔ CLI quiescence refuses incomplete host process visibility (1.36141ms)
+✔ first-party descriptor is bounded to the candidate native target (1.095546ms)
+✔ all six platforms resolve validated public assets without authentication (34.779992ms)
+✔ missing public release and unsupported platform have actionable errors (0.969808ms)
+✔ manifest rejects tampered URLs, hashes, sizes and runtime target (3.438198ms)
+✔ child environment uses explicit runtime without changing global Node or NVM (0.289826ms)
+✔ corrupt or missing runtime fails before executing it (10.114783ms)
+✔ explicit RC versions validate while stable discovery rejects prereleases (1.569241ms)
+✔ Ollama compatibility and loopback policy (1.115758ms)
+✔ package support and archive path validation (0.395789ms)
+✔ download rejects corruption and unexpected origins before execution (41.754165ms)
+✔ existing compatible service is reused and never stopped; old service is preserved (40.809753ms)
+✔ legacy transcript, launch/build arguments, metadata and retained dispatchers match pinned baseline (7452.182234ms)
+✔ interrupted legacy build leaves lock/stage and refuses retry without changing metadata (2470.134916ms)
+✔ platform launcher paths and profile selection match legacy without native app execution (7237.21613ms)
+✔ default roots and status side effects remain unchanged on simulated platforms (3543.82629ms)
+✔ separate stable and candidate roots preserve both registrations and user data (3797.651557ms)
+✔ corrupt prepared inputs fail before build and preserve the active generation (2368.921853ms)
+✔ launcher registration failure restores metadata and leaves the built generation as legacy does (2238.443512ms)
+✔ managed source installation stages updates, retains matching rollback, and preserves state after failed builds (4574.871397ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29241.92708

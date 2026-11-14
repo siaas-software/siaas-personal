@@ -287,11 +287,13 @@ async function scenario(managerSource) {
       ),
     );
     assert.equal(capture("repeat uninstall", f.run(["uninstall"])).status, 0);
-    // Legacy fallback after current.json is removed selects the stable launcher.
-    assert(
-      !existsSync(
+    // The pinned legacy manager deletes the stable launcher here; the current
+    // manager deliberately fixes this one unsafe compatibility behavior.
+    assert.equal(
+      existsSync(
         join(f.base, ".local/share/applications/siaas-personal.desktop"),
       ),
+      managerSource === null,
     );
     assert.equal(
       readFileSync(join(f.root, "user-data-sentinel"), "utf8"),
@@ -519,6 +521,8 @@ test(
           "candidate sentinel",
         );
         assert.equal(candidate.run(["uninstall"]).status, 0);
+        // A repeated RC uninstall must never fall back to the stable launcher.
+        if (manager === null) assert.equal(candidate.run(["uninstall"]).status, 0);
         assert.equal(readFileSync(path, "utf8"), launcher);
         assert.deepEqual(stable.state(), state);
         assert.equal(

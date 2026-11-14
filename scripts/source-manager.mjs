@@ -7,6 +7,9 @@ import { createSourceState } from "./lib/source-state.mjs";
 import { createSourceDesktop, executable } from "./lib/source-desktop.mjs";
 import { buildSource } from "./lib/source-build.mjs";
 const action = process.argv[2];
+// Explicit CLI-managed entry point; legacy install/update still launch the app.
+const cliInstallOnly = action === "install-cli" || action === "update-cli";
+const cliManaged = cliInstallOnly || action === "uninstall-cli";
 const state = createSourceState();
 const { root, versions, current, lock, managerFile, installed, folder, atomicWrite, snapshot, cleanup } = state;
 const { launcherFile, launcher, launch } = createSourceDesktop(state);
@@ -31,6 +34,8 @@ async function install() {
       : await resolveManifest(process.platform, process.arch),
   );
   const old = installed();
+  if (cliInstallOnly && old && old.cliManaged !== 1) throw Error("Unmanaged installation; adoption refused.");
+  if (cliInstallOnly && old && old.version.includes("-rc.") !== manifest.version.includes("-rc.")) throw Error("Channel switch refused.");
   if (old && newer(old.version, manifest.version))
     throw Error(
       "The public release is older than the installed version. Use rollback explicitly; automatic downgrade is refused.",
@@ -54,7 +59,8 @@ async function install() {
     renameSync(source, dest);
     const next = {
       version: manifest.version,
-      ...((old?.profile || manifest.version.includes("-rc.")) ? { profile: old?.profile || join(root, "profile") } : {}),
+      ...(cliInstallOnly ? {cliManaged:1} : {}),
+      ...((cliInstallOnly || old?.profile || manifest.version.includes("-rc.")) ? { profile: old?.profile || join(root, "profile") } : {}),
       tag: "v" + manifest.version,
       folder: id,
       runtime,
@@ -88,12 +94,28 @@ try {
     }
     cleanup(next);
     emit("completed", "Activated SIAAS Personal " + manifest.version);
-    await launch(next);
+    if (!cliInstallOnly) await launch(next);
+    else console.log(JSON.stringify({ schemaVersion: 1, operation: action, version: manifest.version, launched: false }));
   } finally {
     rmSync(stage, { recursive: true, force: true });
   }
 }
 async function main() {
+  if (cliManaged) {
+    if (process.platform !== "linux" || process.arch !== "x64") throw Error("CLI lifecycle native acceptance unavailable on this target.");
+    if (action === "uninstall-cli") {
+      if (process.argv.length !== 3) throw Error("Unexpected uninstall arguments.");
+      const item = installed();
+      if (item && item.cliManaged !== 1) throw Error("Unmanaged installation; adoption refused.");
+    }
+  }
+  if (cliInstallOnly) {
+    const argv = process.argv.slice(3);
+    if (argv.length !== 4 || argv[0] !== "--prepared" || argv[2] !== "--manifest" || !argv[1] || !argv[3])
+      throw Error("CLI-managed installation requires explicit prepared source and manifest.");
+    if (action === "update-cli" && !installed())
+      throw Error("No existing installation to update.");
+  }
   mkdirSync(root, { recursive: true });
   if (action === "status") {
     console.log(JSON.stringify(installed()));
@@ -116,7 +138,7 @@ async function main() {
     return;
   }
   if (
-    !["install", "update", "update-detached", "rollback", "uninstall"].includes(
+    !["install", "update", "install-cli", "update-cli", "uninstall-cli", "update-detached", "rollback", "uninstall"].includes(
       action,
     )
   )
@@ -133,6 +155,10 @@ async function main() {
     );
   }
   try {
+    if (cliManaged) {
+      const { requireStopped } = await import("./lib/cli-quiescence.mjs");
+      requireStopped(root);
+    }
     if (action === "rollback") {
       const i = installed();
       if (!i?.previous) throw Error("No previous version is available.");
@@ -151,8 +177,10 @@ async function main() {
       );
       return;
     }
-    if (action === "uninstall") {
-      rmSync(launcherFile(), { force: true });
+    if (action === "uninstall" || action === "uninstall-cli") {
+      // Without an active record, launcherFile would select the global stable
+      // launcher even for an already-unregistered RC root. Do not infer ownership.
+      if (installed()) rmSync(launcherFile(), { force: true });
       rmSync(current, { force: true });
       console.log(
         "Launcher unregistered. Application versions and all user data are preserved.",
