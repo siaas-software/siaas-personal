@@ -1,0 +1,36 @@
+✔ known live owned process blocks regardless of arguments (3.450081ms)
+✔ reused PID and stale zombie never query unrelated executable (0.365406ms)
+✔ inaccessible known process fails closed; vanished process is stale (0.705356ms)
+✔ mismatched executable or invalid lease cannot authorize mutation (0.338381ms)
+✔ fresh claimed root does not enumerate any global processes; partial roots refuse (1.110356ms)
+✔ old managed generations without lease protocol fail closed (0.549655ms)
+✔ native Linux lease observes only its owned child and detects exit (307.036795ms)
+✔ managed launch refuses an existing operation lock and cleans its own lock (584.86236ms)
+✔ missing boot identity and numeric birth fields are ambiguous, not stale (2.318033ms)
+✔ cold backup preserves profile files and refuses links (3.000429ms)
+✔ all six platforms resolve validated public assets without authentication (30.957718ms)
+✔ missing public release and unsupported platform have actionable errors (0.822977ms)
+✔ manifest rejects tampered URLs, hashes, sizes and runtime target (1.061887ms)
+✔ child environment uses explicit runtime without changing global Node or NVM (0.240229ms)
+✔ corrupt or missing runtime fails before executing it (13.24841ms)
+✔ explicit RC versions validate while stable discovery rejects prereleases (1.21863ms)
+✔ Ollama compatibility and loopback policy (1.505072ms)
+✔ package support and archive path validation (0.461905ms)
+✔ download rejects corruption and unexpected origins before execution (47.679851ms)
+✔ existing compatible service is reused and never stopped; old service is preserved (44.235833ms)
+✔ legacy transcript, launch/build arguments, metadata and retained dispatchers match pinned baseline (10511.399075ms)
+✔ interrupted legacy build leaves lock/stage and refuses retry without changing metadata (3667.370186ms)
+✔ platform launcher paths and profile selection match legacy without native app execution (6620.465063ms)
+✔ default roots and status side effects remain unchanged on simulated platforms (1890.825279ms)
+✔ separate stable and candidate roots preserve both registrations and user data (3270.980985ms)
+✔ corrupt prepared inputs fail before build and preserve the active generation (3428.683068ms)
+✔ launcher registration failure restores metadata and leaves the built generation as legacy does (3245.485144ms)
+✔ managed source installation stages updates, retains matching rollback, and preserves state after failed builds (6795.424807ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 32857.983689

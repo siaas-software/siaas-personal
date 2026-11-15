@@ -1,0 +1,62 @@
+{
+  "scope": "Personal engine repeated-uninstall correction; not native CLI lifecycle acceptance",
+  "base": "da8988061b275444f4a02c869b7b22bc4df983a7",
+  "node": "24.22.0",
+  "os": "Linux",
+  "arch": "x86_64",
+  "baseline": {
+    "existingTests": "PASS after reuse of lock-identical dependencies",
+    "initialInstallerEnvironmentError": "MODULE_NOT_FOUND: yauzl; resolved by local dependency symlink",
+    "newRegressionBeforeFix": "FAIL as expected: second RC uninstall removed unrelated stable launcher, causing ENOENT"
+  },
+  "final": {
+    "targetedTests": 18,
+    "applicationTests": 175,
+    "fail": 0,
+    "skip": 0,
+    "typecheck": "PASS"
+  },
+  "commands": [
+    "node --test tests/source-manager-characterization.test.mjs tests/distribution.test.mjs tests/source-manager.test.mjs tests/installer.test.cjs",
+    "node node_modules/typescript/bin/tsc --noEmit --incremental false",
+    "node --import tsx --test tests/*.test.ts tests/*.test.cjs",
+    "git diff --check"
+  ],
+  "logs": {
+    "personal-regression.log": {
+      "sha256": "6c5bdfd853c6a31c372e9ee61ed74f24e1c40044f44369b39464426071454157",
+      "bytes": 1811
+    },
+    "personal-unit.log": {
+      "sha256": "651a1769ec915df393c3296ac195ea0728a8d0d9f1cdd8865bafd2786cf87f0a",
+      "bytes": 17331
+    },
+    "personal-typecheck.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "sourceHashes": {
+    "scripts/source-manager.mjs": "b323d147a4faa1f627dc6fe7375cdc83bf4674d61d9945c590c84d230c63e5cb",
+    "tests/source-manager-characterization.test.mjs": "b962bb53ed6f44246d49340b0c63adf67b74b8b02cbaf40432364dcf311fbc77"
+  },
+  "containmentProbe": {
+    "command": "timeout 10 unshare --user --map-root-user --mount --net --pid --fork /bin/true",
+    "exit": 1,
+    "stderr": "unshare: cannot open /proc/self/uid_map: Read-only file system\n",
+    "stdout": "",
+    "cgroupWritable": false,
+    "userBusPresent": false,
+    "status": "BLOCKED"
+  },
+  "nativeAcceptance": {
+    "linux-x64": "BLOCKED: safe execution backend and compatible release missing",
+    "linux-arm64": "NOT RUN",
+    "windows-x64": "NOT RUN",
+    "windows-arm64": "NOT RUN",
+    "macos-x64": "NOT RUN",
+    "macos-arm64": "NOT RUN"
+  },
+  "dataEvidence": "Actual temporary files verified; fake build/GUI, simulated home; MOCK ONLY for application lifecycle",
+  "verdict": "NO-GO for complete M2"
+}
