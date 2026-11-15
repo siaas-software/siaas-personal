@@ -1,0 +1,32 @@
+
+> siaas-personal@1.1.0-rc.4 test:ui
+> node tests/ui-smoke.mjs
+
+PASS: first guest load, actual SQLite write, account-free updates UI, preserved data, reload and local API protection.
+▲ Next.js 16.4.3
+- Local:         http://127.0.0.1:36171
+- Network:       http://127.0.0.1:36171
+✓ Ready in 0ms
+✓ Running next.config took 14ms
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'Insufficient disk space'
+- 'Insufficient RAM'
+                ^
+
+    at file:///workspace/siaas-personal/tests/project-flows.mjs:131:12 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'Insufficient disk space',
+  expected: 'Insufficient RAM',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.0

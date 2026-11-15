@@ -1,0 +1,6 @@
+  • electron-builder  version=26.15.3 os=6.18.57
+  • loaded configuration  file=/workspace/siaas-personal/electron-builder.cjs
+  • skipped dependencies rebuild  reason=npmRebuild is set to false
+  • packaging       platform=linux arch=x64 electron=44.9.3 appOutDir=dist/linux-unpacked
+  • downloaded      label=electron progress=100%
+  ⨯ EROFS: read-only file system, mkdir '/home/agent/.cache/electron'  failedTask=build stackTrace=Error: EROFS: read-only file system, mkdir '/home/agent/.cache/electron'

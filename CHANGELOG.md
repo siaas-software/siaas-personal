@@ -14,9 +14,11 @@
   stable/RC releases. Other platforms and published-release acceptance remain
   unverified.
 
-Real Linux x64 lifecycle acceptance passed with trusted local source fixtures,
-but RC4-specific packaging, mandatory release checks and published CLI acceptance
-are **NOT RUN**. See [RC4 notes](docs/releases/1.1.0-rc.4.md),
+RC4 local automated/type/build, API/SQLite, headless browser, Linux packaging and
+12-asset source-integrity validation passed after repairing stale browser tests.
+Earlier Linux x64 lifecycle acceptance with local fixtures remains separate;
+public CLI and native GUI acceptance remain **NOT RUN/BLOCKED**.
+See [RC4 notes](docs/releases/1.1.0-rc.4.md),
 [readiness](docs/releases/1.1.0-rc.4-readiness.md) and
 [native limitations](docs/releases/1.1.0-rc.4-windows.md).
 No tag, GitHub release or stable promotion is implied.

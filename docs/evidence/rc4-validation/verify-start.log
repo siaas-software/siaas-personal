@@ -1,0 +1,54 @@
+
+> siaas-personal@1.1.0-rc.4 release:verify-source
+> node scripts/verify-source-release.mjs
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Missing or unexpected release payloads
++ actual - expected
+
+  [
+-   'READINESS.md',
+-   'RELEASE_NOTES.md',
+-   'SHA256SUMS.txt',
+    'SIAAS-Personal-1.1.0-rc.4-install.json',
+    'SIAAS-Personal-1.1.0-rc.4-source.zip',
+-   'WINDOWS_TESTING.md',
+-   'install-rc.ps1',
+-   'install-rc.sh',
+    'install-siaas.ps1',
+    'install-siaas.sh',
+-   'rc-manifests.json',
+-   'rc-manifests.tsv'
+  ]
+
+    at file:///workspace/siaas-personal/scripts/verify-source-release.mjs:35:8 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [
+    'SIAAS-Personal-1.1.0-rc.4-install.json',
+    'SIAAS-Personal-1.1.0-rc.4-source.zip',
+    'install-siaas.ps1',
+    'install-siaas.sh'
+  ],
+  expected: [
+    'READINESS.md',
+    'RELEASE_NOTES.md',
+    'SHA256SUMS.txt',
+    'SIAAS-Personal-1.1.0-rc.4-install.json',
+    'SIAAS-Personal-1.1.0-rc.4-source.zip',
+    'WINDOWS_TESTING.md',
+    'install-rc.ps1',
+    'install-rc.sh',
+    'install-siaas.ps1',
+    'install-siaas.sh',
+    'rc-manifests.json',
+    'rc-manifests.tsv'
+  ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.0

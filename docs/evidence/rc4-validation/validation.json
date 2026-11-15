@@ -1,0 +1,522 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-15",
+  "startingCommit": "ba28d0156e8c7b5f452d8ac78405633d728bda16",
+  "testedCodeCommit": "2ad48291e8f56859348f93f2bd14c6d67bd68e08",
+  "releaseBranch": "release/1.1.0-rc.4",
+  "unchangedGitObjects": {
+    "src": "3d243b506c184d8376e991cbe973f2b8061533d2",
+    "desktop": "837bfeb01b37cfc4d50a13e88d6a6063b33dc8ca",
+    "scripts": "558c798db35021532a16e7c479ff0ee338de38fa",
+    "runtime.json": "af68a55c16d77fa5ddbee77874673b21658e57e6",
+    "package.json": "9a1505854be3863097af7f16262246a682311c2b",
+    "package-lock.json": "6beca3e88dc04921cd05b3f1d91d1b0a6e65f771"
+  },
+  "validationNode": "24.22.0",
+  "initialNpmCi": {
+    "node": "24.19.0",
+    "npm": "11.9.0",
+    "exitCode": 0,
+    "outcome": "PASS",
+    "log": "npm-ci.log"
+  },
+  "commands": [
+    {
+      "name": "typecheck",
+      "command": "npm run typecheck",
+      "exitCode": 0,
+      "seconds": 5.02,
+      "log": "typecheck.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "templates",
+      "command": "npm run templates:check",
+      "exitCode": 0,
+      "seconds": 0.56,
+      "log": "templates.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "web-build",
+      "command": "npm run build",
+      "exitCode": 0,
+      "seconds": 53.99,
+      "log": "web-build.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "morphic-deps",
+      "command": "npm ci --prefix services/morphic",
+      "exitCode": 0,
+      "seconds": 5.7,
+      "log": "morphic-deps.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "unit",
+      "command": "npm test",
+      "exitCode": 0,
+      "seconds": 64.89,
+      "log": "unit.log",
+      "outcome": "PASS",
+      "observedCounts": {
+        "tests": 175,
+        "pass": 175,
+        "fail": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "chromium-probe",
+      "command": "node --input-type=module -e 'import {chromium} from \"playwright\"; const b=await chromium.launch({executablePath:\"/usr/bin/chromium\",headless:true,args:[\"--no-sandbox\"]}); console.log(await b.version()); await b.close()'",
+      "exitCode": 0,
+      "seconds": 5.08,
+      "log": "chromium-probe.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "research",
+      "command": "npm run test:research",
+      "exitCode": 0,
+      "seconds": 17.83,
+      "log": "research.log",
+      "outcome": "PASS",
+      "observedCounts": {
+        "tests": 31,
+        "pass": 31,
+        "fail": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "experimental",
+      "command": "npm run test:experimental",
+      "exitCode": 0,
+      "seconds": 3.64,
+      "log": "experimental.log",
+      "outcome": "PASS",
+      "observedCounts": {
+        "tests": 20,
+        "pass": 20,
+        "fail": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "installer",
+      "command": "npm run test:installer",
+      "exitCode": 0,
+      "seconds": 1.76,
+      "log": "installer.log",
+      "outcome": "PASS",
+      "observedCounts": {
+        "tests": 4,
+        "pass": 4,
+        "fail": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "source-start",
+      "command": "npm run release:source",
+      "exitCode": 1,
+      "seconds": 2.41,
+      "log": "source-start.log",
+      "outcome": "BLOCKED",
+      "reason": "Direct Node DNS EAI_AGAIN; configured proxy resolves access",
+      "resolvedBy": "source-tested"
+    },
+    {
+      "name": "verify-start",
+      "command": "npm run release:verify-source",
+      "exitCode": 1,
+      "seconds": 2.11,
+      "log": "verify-start.log",
+      "outcome": "FAIL",
+      "reason": "Incomplete inventory after blocked generation",
+      "resolvedBy": "verify-tested"
+    },
+    {
+      "name": "distribution",
+      "command": "npm run test:distribution",
+      "exitCode": 0,
+      "seconds": 48.59,
+      "log": "distribution.log",
+      "outcome": "PASS",
+      "observedCounts": {
+        "tests": 16,
+        "pass": 16,
+        "fail": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "source-start-proxy",
+      "command": "NODE_USE_ENV_PROXY=1 npm run release:source",
+      "exitCode": 0,
+      "seconds": 7.98,
+      "log": "source-start-proxy.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "verify-start-proxy",
+      "command": "NODE_USE_ENV_PROXY=1 npm run release:verify-source",
+      "exitCode": 0,
+      "seconds": 3.41,
+      "log": "verify-start-proxy.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "desktop-build",
+      "command": "npm run desktop:build",
+      "exitCode": 0,
+      "seconds": 85.55,
+      "log": "desktop-build.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "ui",
+      "command": "npm run test:ui",
+      "exitCode": 1,
+      "seconds": 5.74,
+      "log": "ui.log",
+      "outcome": "BLOCKED",
+      "reason": "Playwright bundled browser missing; installed Chromium override added",
+      "resolvedBy": "ui-retained-default"
+    },
+    {
+      "name": "chat-api",
+      "command": "npm run test:chat",
+      "exitCode": 0,
+      "seconds": 11.42,
+      "log": "chat-api.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "knowledge-api",
+      "command": "npm run test:knowledge",
+      "exitCode": 0,
+      "seconds": 3.88,
+      "log": "knowledge-api.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "actions-api",
+      "command": "npm run test:actions:api",
+      "exitCode": 0,
+      "seconds": 9.91,
+      "log": "actions-api.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "structured-api",
+      "command": "npm run test:structured:api",
+      "exitCode": 0,
+      "seconds": 7.21,
+      "log": "structured-api.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "template-api",
+      "command": "node tests/template-api.mjs",
+      "exitCode": 0,
+      "seconds": 3.81,
+      "log": "template-api.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "ui-system-chromium",
+      "command": "npm run test:ui",
+      "exitCode": 1,
+      "seconds": 18.68,
+      "log": "ui-system-chromium.log",
+      "outcome": "FAIL",
+      "reason": "Outdated Templates navigation assertion",
+      "resolvedBy": "ui-retained-default"
+    },
+    {
+      "name": "experimental-api",
+      "command": "node tests/experimental-api.mjs",
+      "exitCode": 0,
+      "seconds": 4.45,
+      "log": "experimental-api.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "parser-bundle",
+      "command": "node tests/structured-bundle.test.mjs",
+      "exitCode": 0,
+      "seconds": 0.82,
+      "log": "parser-bundle.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "prepare",
+      "command": "NODE_USE_ENV_PROXY=1 npm run desktop:prepare",
+      "exitCode": 0,
+      "seconds": 5.03,
+      "log": "prepare.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "structured-ui",
+      "command": "npm run test:structured:ui",
+      "exitCode": 1,
+      "seconds": 45.78,
+      "log": "structured-ui.log",
+      "outcome": "FAIL",
+      "reason": "Outdated project-card selector",
+      "resolvedBy": "structured-ui-fixed"
+    },
+    {
+      "name": "packaged-structured-api",
+      "command": "SIAAS_TEST_SERVER_ROOT=.desktop/resources/server SIAAS_TEST_NODE=.desktop/resources/runtime/node node tests/structured-api.mjs",
+      "exitCode": 0,
+      "seconds": 6.5,
+      "log": "packaged-structured-api.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "project-ui",
+      "command": "npm run test:projects",
+      "exitCode": 1,
+      "seconds": 6.85,
+      "log": "project-ui.log",
+      "outcome": "FAIL",
+      "reason": "Outdated Templates navigation assertion",
+      "resolvedBy": "ui-retained-default"
+    },
+    {
+      "name": "source-regressions",
+      "command": "node --test tests/cli-quiescence.test.mjs tests/source-manager-characterization.test.mjs",
+      "exitCode": 0,
+      "seconds": 106.56,
+      "log": "source-regressions.log",
+      "outcome": "PASS",
+      "observedCounts": {
+        "tests": 17,
+        "pass": 17,
+        "fail": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "icons",
+      "command": "npm run icons:check",
+      "exitCode": 0,
+      "seconds": 0.91,
+      "log": "icons.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "workbench-ui",
+      "command": "CHROMIUM_PATH=/usr/bin/chromium node tests/workbench-ui.mjs",
+      "exitCode": 0,
+      "seconds": 18.36,
+      "log": "workbench-ui.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "linux-package",
+      "command": "ELECTRON_CACHE=/workspace/work/electron-cache ELECTRON_BUILDER_CACHE=/workspace/work/electron-builder-cache npx --no-install electron-builder --config electron-builder.cjs --linux --x64 --publish never",
+      "exitCode": 1,
+      "seconds": 17.61,
+      "log": "linux-package.log",
+      "outcome": "BLOCKED",
+      "reason": "Read-only home cache; explicit electronDownload.cache resolves it",
+      "resolvedBy": "linux-package-writable-cache"
+    },
+    {
+      "name": "template-ui",
+      "command": "node tests/template-palettes-ui.mjs",
+      "exitCode": 0,
+      "seconds": 44.45,
+      "log": "template-ui.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "licenses-ui",
+      "command": "CHROMIUM_PATH=/usr/bin/chromium node tests/licenses-integration.mjs --ui",
+      "exitCode": 1,
+      "seconds": 36.76,
+      "log": "licenses-ui.log",
+      "outcome": "FAIL",
+      "reason": "Exact wrapped-label selector did not locate combobox",
+      "resolvedBy": "licenses-ui-final"
+    },
+    {
+      "name": "hardware-ui",
+      "command": "CHROMIUM_PATH=/usr/bin/chromium node tests/hardware-finder-ui.mjs",
+      "exitCode": 0,
+      "seconds": 13.44,
+      "log": "hardware-ui.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "ui-current-contract",
+      "command": "npm run test:ui",
+      "exitCode": 1,
+      "seconds": 34.75,
+      "log": "ui-current-contract.log",
+      "outcome": "FAIL",
+      "reason": "Obsolete per-model recommendation expectation",
+      "resolvedBy": "ui-retained-default"
+    },
+    {
+      "name": "overview-ui",
+      "command": "node tests/overview-e2e.mjs",
+      "exitCode": 0,
+      "seconds": 18.85,
+      "log": "overview-ui.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "structured-ui-current-contract",
+      "command": "npm run test:structured:ui",
+      "exitCode": 1,
+      "seconds": 22.71,
+      "log": "structured-ui-current-contract.log",
+      "outcome": "FAIL",
+      "reason": "Palette hydration/transition race",
+      "resolvedBy": "structured-ui-fixed"
+    },
+    {
+      "name": "ui-regression-fixed",
+      "command": "npm run test:ui",
+      "exitCode": 1,
+      "seconds": 46.18,
+      "log": "ui-regression-fixed.log",
+      "outcome": "FAIL",
+      "reason": "Adaptation incorrectly assumed every filtered model failed RAM before disk",
+      "resolvedBy": "ui-retained-default"
+    },
+    {
+      "name": "structured-ui-fixed",
+      "command": "npm run test:structured:ui",
+      "exitCode": 0,
+      "seconds": 39.41,
+      "log": "structured-ui-fixed.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "ollama-availability",
+      "command": "npm run ollama:check",
+      "exitCode": 1,
+      "seconds": 5.28,
+      "log": "ollama-availability.log",
+      "outcome": "BLOCKED",
+      "reason": "Ollama unreachable and models absent; no inference PASS",
+      "resolvedBy": null
+    },
+    {
+      "name": "ui-current-hardware",
+      "command": "npm run test:ui",
+      "exitCode": 1,
+      "seconds": 62.78,
+      "log": "ui-current-hardware.log",
+      "outcome": "FAIL",
+      "reason": "Outdated assumption that public template URLs are absent after import",
+      "resolvedBy": "ui-retained-default"
+    },
+    {
+      "name": "licenses-ui-fixed",
+      "command": "CHROMIUM_PATH=/usr/bin/chromium node tests/licenses-integration.mjs --ui",
+      "exitCode": 1,
+      "seconds": 52.73,
+      "log": "licenses-ui-fixed.log",
+      "outcome": "FAIL",
+      "reason": "Mobile navigation not opened before Settings",
+      "resolvedBy": "licenses-ui-final"
+    },
+    {
+      "name": "linux-package-writable-cache",
+      "command": "ELECTRON_BUILDER_CACHE=/workspace/work/electron-builder-cache npx --no-install electron-builder --config electron-builder.cjs --config.electronDownload.cache=/workspace/work/electron-cache --linux --x64 --publish never",
+      "exitCode": 0,
+      "seconds": 268.26,
+      "log": "linux-package-writable-cache.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "ui-final",
+      "command": "npm run test:ui",
+      "exitCode": 1,
+      "seconds": 22.32,
+      "log": "ui-final.log",
+      "outcome": "FAIL",
+      "reason": "Adaptation assumed assistant query ordering matches export ordering",
+      "resolvedBy": "ui-retained-default"
+    },
+    {
+      "name": "licenses-ui-final",
+      "command": "CHROMIUM_PATH=/usr/bin/chromium node tests/licenses-integration.mjs --ui",
+      "exitCode": 0,
+      "seconds": 5.92,
+      "log": "licenses-ui-final.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "native-package-metadata",
+      "command": "dpkg-deb --info dist/SIAAS-Personal-1.1.0-rc.4-linux-amd64.deb && file dist/SIAAS-Personal-1.1.0-rc.4-linux-x86_64.AppImage && dist/linux-unpacked/resources/runtime/node --version",
+      "exitCode": 0,
+      "seconds": 0.17,
+      "log": "native-package-metadata.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "ui-public-source-ownership",
+      "command": "npm run test:ui",
+      "exitCode": 1,
+      "seconds": 21.28,
+      "log": "ui-public-source-ownership.log",
+      "outcome": "FAIL",
+      "reason": "Adaptation incorrectly assumed stored default color changed to mint",
+      "resolvedBy": "ui-retained-default"
+    },
+    {
+      "name": "ui-retained-default",
+      "command": "npm run test:ui",
+      "exitCode": 0,
+      "seconds": 34.54,
+      "log": "ui-retained-default.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "source-tested",
+      "command": "NODE_USE_ENV_PROXY=1 npm run release:source",
+      "exitCode": 0,
+      "seconds": 0.97,
+      "log": "source-tested.log",
+      "outcome": "PASS"
+    },
+    {
+      "name": "verify-tested",
+      "command": "NODE_USE_ENV_PROXY=1 npm run release:verify-source",
+      "exitCode": 0,
+      "seconds": 0.83,
+      "log": "verify-tested.log",
+      "outcome": "PASS"
+    }
+  ],
+  "otherPrerequisites": [
+    {
+      "command": "playwright install chromium --only-shell",
+      "outcome": "BLOCKED",
+      "reason": "HTTP 403 Domain forbidden; installed Chromium used",
+      "log": "playwright-install.log"
+    },
+    {
+      "check": "Actions permission setting",
+      "outcome": "NOT VERIFIED",
+      "reason": "GitHub API HTTP 403"
+    },
+    {
+      "check": "future release immutability setting",
+      "outcome": "NOT VERIFIED",
+      "reason": "Not directly exposed in available repository metadata; existing releases immutable=true"
+    }
+  ],
+  "unresolvedExecutableFailures": [],
+  "publication": "ON HOLD; expressly prohibited by current task",
+  "finalArtifactAttestation": "PR #31; regenerated and verified after evidence-only documentation commit"
+}

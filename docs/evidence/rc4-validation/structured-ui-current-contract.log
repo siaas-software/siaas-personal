@@ -1,0 +1,28 @@
+
+> siaas-personal@1.1.0-rc.4 test:structured:ui
+> node tests/structured-api.mjs --ui
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'rgba(0, 0, 0, 0)'
+- 'rgb(229, 247, 238)'
+      ^
+
+    at verifyRc2Visuals (file:///workspace/siaas-personal/tests/rc2-visual-checks.mjs:31:12)
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at process.processImmediate (node:internal/timers:541:9)
+    at async file:///workspace/siaas-personal/tests/structured-api.mjs:456:5 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'rgba(0, 0, 0, 0)',
+  expected: 'rgb(229, 247, 238)',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.0

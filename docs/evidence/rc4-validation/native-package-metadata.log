@@ -1,0 +1,22 @@
+ new Debian package, version 2.0.
+ size 156350592 bytes: control archive=77000 bytes.
+     454 bytes,    14 lines      control
+  347179 bytes,  2802 lines      md5sums
+    2909 bytes,    57 lines   *  postinst             #!/bin/bash
+    1101 bytes,    26 lines   *  postrm               #!/bin/bash
+ Package: siaas-personal
+ Version: 1.1.0~rc.4
+ License: MIT
+ Vendor: Davide Abbatiello
+ Architecture: amd64
+ Maintainer: Davide Abbatiello
+ Installed-Size: 495022
+ Depends: libgtk-3-0, libnotify4, libnss3, libxss1, libxtst6, xdg-utils, libatspi2.0-0, libuuid1, libsecret-1-0
+ Recommends: libappindicator3-1
+ Section: default
+ Priority: optional
+ Homepage: https://siaas.vercel.app
+ Description:
+   SIAAS Personal — local-first AI assistants with isolated knowledge
+dist/SIAAS-Personal-1.1.0-rc.4-linux-x86_64.AppImage: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.18, stripped
+v24.22.0

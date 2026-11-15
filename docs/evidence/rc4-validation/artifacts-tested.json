@@ -1,0 +1,67 @@
+{
+  "commit": "2ad48291e8f56859348f93f2bd14c6d67bd68e08",
+  "zipCommitComment": "2ad48291e8f56859348f93f2bd14c6d67bd68e08",
+  "scope": "local artifacts after browser-test corrections, before readiness-only documentation commit",
+  "assets": [
+    {
+      "name": "READINESS.md",
+      "size": 4237,
+      "sha256": "0999224407d3e73b8591833612464f5cfd510d444bea740b2682c771d5a8ac4b"
+    },
+    {
+      "name": "RELEASE_NOTES.md",
+      "size": 4182,
+      "sha256": "456114ad224f728aa56b92411d5e37c8cbe495f14cbc648a63a0e34a42ed8acf"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "size": 950,
+      "sha256": "6c7f397488cca8245caa7b607ce18a03e877ac85990e524b557a2f9c318cf9c9"
+    },
+    {
+      "name": "SIAAS-Personal-1.1.0-rc.4-install.json",
+      "size": 80,
+      "sha256": "e3653ec8001523d7fce83ac2e3dabe974f42ad1947797a5f8099449635adb066"
+    },
+    {
+      "name": "SIAAS-Personal-1.1.0-rc.4-source.zip",
+      "size": 1316728,
+      "sha256": "d0f1800fac736d33e1971e05dace46479e7ef1ec33fbff2623178804dd929679"
+    },
+    {
+      "name": "WINDOWS_TESTING.md",
+      "size": 2624,
+      "sha256": "eeff0edeccbc80c5dd4decb5ccaac7d6c7a36864616e8a62772190eccc244e24"
+    },
+    {
+      "name": "install-rc.ps1",
+      "size": 5985,
+      "sha256": "dcd64f5c4261800c244690c3396c8973ba6e14422087846d4bb9fb7957fefc24"
+    },
+    {
+      "name": "install-rc.sh",
+      "size": 5464,
+      "sha256": "d54e23d62b23e6d2f5a8e0d114d175dbdb2d0965a4d0deef2e2ae9327548a08c"
+    },
+    {
+      "name": "install-siaas.ps1",
+      "size": 5576,
+      "sha256": "bd563fcf65b26ac51a1a3fd4c1d4d007876f995dbf0db0dbfd37e95b3220ccf7"
+    },
+    {
+      "name": "install-siaas.sh",
+      "size": 5018,
+      "sha256": "da57e1652bd371126ae836346a81bdf70a6118e4ecff00dbd7064bcbb1b660e3"
+    },
+    {
+      "name": "rc-manifests.json",
+      "size": 4059,
+      "sha256": "b3afd9e1b8f1e1f388a63e1760e1318f3f5f6a8c87c7beb7803b741bfe5e44dd"
+    },
+    {
+      "name": "rc-manifests.tsv",
+      "size": 2494,
+      "sha256": "3df56df6902fa5f7c23e87d72f9c4584e43cbbc42935cbb48ec16c218b037ca5"
+    }
+  ]
+}
