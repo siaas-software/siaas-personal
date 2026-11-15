@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.1.0-rc.4 (release candidate preparation; not published)
+
+- Integrate the first-party, verified SIAAS CLI-managed Personal lifecycle on
+  **Linux x64 only**, without globally installed Node/npm or automatic GUI launch.
+- Install to separate owned stable/RC roots, reject unverified legacy adoption
+  and downgrades, and keep previous generations during supported updates.
+- Add managed process-lease/quiescence checks and a bounded cold profile backup;
+  refuse unreviewed persistence-code migrations.
+- Remove owned software/runtime/cache on CLI uninstall, preserving user profiles,
+  backups, sibling installations and optional external Ollama.
+- Preserve the existing source-only release inventory (12 assets) and historical
+  stable/RC releases. Other platforms and published-release acceptance remain
+  unverified.
+
+Real Linux x64 lifecycle acceptance passed with trusted local source fixtures,
+but RC4-specific packaging, mandatory release checks and published CLI acceptance
+are **NOT RUN**. See [RC4 notes](docs/releases/1.1.0-rc.4.md),
+[readiness](docs/releases/1.1.0-rc.4-readiness.md) and
+[native limitations](docs/releases/1.1.0-rc.4-windows.md).
+No tag, GitHub release or stable promotion is implied.
+
 ## 1.1.0-rc.3 (unreleased)
 
 - Package the functionality integrated on develop at
