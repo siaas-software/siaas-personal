@@ -440,15 +440,7 @@ try {
     await page.goto(origin);
     await page.getByRole("heading", { name: "Your projects." }).waitFor();
     await page
-      .locator(".resource-card")
-      .filter({
-        has: page.getByRole("heading", {
-          name: "Production Planning",
-          exact: true,
-        }),
-      })
-      .locator("button")
-      .first()
+      .getByRole("button", { name: "Open project Production Planning", exact: true })
       .click();
     await page
       .locator(".resource-card")
@@ -494,7 +486,7 @@ try {
     0,
   );
   console.log(
-    "PASS: standalone parser; XLSX/CSV without embeddings/Docker/Python; three-template catalog and both project creations; confirmed mappings and joins; exact shortage and multi-currency results; isolation and Origin guards; mocked Ollama JSON fallback, invalid plan and unsupported-request handling; persisted chat evidence/report; deletion.",
+    "PASS: standalone parser; XLSX/CSV without embeddings/Docker/Python; both template project creations; confirmed mappings and joins; exact shortage and multi-currency results; isolation and Origin guards; mocked Ollama JSON fallback, invalid plan and unsupported-request handling; persisted chat evidence/report; deletion.",
   );
 } finally {
   if (browser) await browser.close();

@@ -73,7 +73,8 @@ try {
   await page.goto(origin);
   await page.getByRole('heading', { name: 'Your projects.' }).waitFor();
   assert.equal(await page.getByText('Check Ollama', { exact: true }).count(), 0);
-  assert.equal(await page.locator('.sidebar-bottom button').first().innerText(), 'Templates');
+  assert.equal(await page.locator('.sidebar nav').getByRole('button', { name: 'Templates', exact: true }).count(), 1);
+  assert.equal(await page.locator('.sidebar-bottom button').first().innerText(), 'Settings');
   await page.getByRole('button', { name: 'Templates', exact: true }).click();
   await page.getByRole('heading', { name: 'Templates.' }).waitFor();
   const eventCard = page.locator('article').filter({ has: page.getByRole('heading', { name: 'Computer Science Study', exact: true }) });
@@ -99,10 +100,10 @@ try {
   const config = page.locator('.project-settings');
   await config.getByLabel('Name', { exact: true }).fill('Evento aggiornato');
   await config.getByLabel('Project description').fill('Organizza il lancio del prodotto');
-  await config.getByLabel('Project color', { exact: true }).fill('#18283c');
+  await config.getByRole('radio', { name: 'Peach', exact: true }).check();
   await config.getByRole('button', { name: 'Save project' }).click();
   await page.getByRole('heading', { name: 'Evento aggiornato.' }).waitFor();
-  await until(async () => await page.locator('main').evaluate(el => getComputedStyle(el).backgroundColor) === 'rgb(24, 40, 60)');
+  await until(async () => await page.locator('main').evaluate(el => getComputedStyle(el).backgroundColor) === 'rgb(252, 237, 228)');
   await mkdir('test-results/project-flows', { recursive: true });
   await page.screenshot({ path: 'test-results/project-flows/detail.png', fullPage: true });
   const a = assistants[0];
@@ -112,30 +113,22 @@ try {
   await page.getByRole('tab', { name: 'Models', exact: true }).click();
   const catalog = page.getByRole('region', { name: 'Model catalog' });
   await until(async () => (await catalog.locator('.hardware-card').count()) === 12);
-  // Advice stays consistent across the suggested cards and the searchable catalog.
+  // The current advisor groups compatible sizes; catalog notes track manual budgets.
   await page.getByRole('tab', { name: 'Models', exact: true }).click();
   const advisor = page.locator('section').filter({ has: page.getByRole('heading', { name: 'Find the right model', exact: true }) });
-  const recommended = 'RECOMMENDED FOR THIS PC';
-  const installedRecommended = 'BEST ALREADY INSTALLED';
   await catalog.getByLabel('Search models').fill('qwen2.5:');
-  await until(async () => await advisor.locator('.model-recommendation').count() === 2);
-  for (const section of [advisor, catalog]) {
-    assert.equal(await section.getByText(recommended, { exact: true }).count(), 1);
-    assert.equal(await section.getByText(installedRecommended, { exact: true }).count(), 1);
-  }
+  assert.equal(await advisor.locator('.hardware-card').count(), 3);
+  await until(async () => await catalog.locator('.model-hardware-note').count() > 0);
+  assert.equal(await catalog.locator('.model-hardware-note').first().innerText(), 'CPU · slower response; GPU offload may be partial');
   await page.screenshot({ path: 'test-results/project-flows/assistant-config-desktop.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   await page.screenshot({ path: 'test-results/project-flows/assistant-config-mobile.png', fullPage: true });
   await page.setViewportSize({ width: 1440, height: 1100 });
-  await advisor.getByLabel('Total RAM (GB)', { exact: true }).fill('8');
-  for (const section of [advisor, catalog]) {
-    await until(async () => await section.getByText(recommended, { exact: true }).count() === 1);
-    assert.equal(await section.getByText(installedRecommended, { exact: true }).count(), 0);
-    assert.match(await section.locator('.hardware-card').filter({ has: page.getByText(recommended, { exact: true }) }).innerText(), /1\.5[Bb]/);
-  }
   await advisor.getByLabel('Total RAM (GB)', { exact: true }).fill('4');
-  assert.equal(await page.locator('.model-recommendation').count(), 0);
+  await until(async () => await advisor.getByRole('heading', { name: 'No compatible sizes', exact: true }).count() === 3);
+  assert.equal(await catalog.locator('.hardware-card').filter({ has: page.locator('code').filter({ hasText: /^qwen2\.5:1\.5b$/ }) }).locator('.model-hardware-note').innerText(), 'Insufficient RAM');
+  assert.equal((await api('/api/workspace')).assistants.find(x => x.id === a.id).model_id, null);
   await advisor.getByLabel('Total RAM (GB)', { exact: true }).fill('16');
   await catalog.getByLabel('Search models').fill('');
   await catalog.getByRole('button', { name: 'Next', exact: true }).click();
@@ -175,7 +168,7 @@ try {
   const download = await downloading;
   const downloadPath = join(directory, 'template.json'); await download.saveAs(downloadPath);
   const raw = await readFile(downloadPath, 'utf8'); const bundle = JSON.parse(raw);
-  assert.equal(bundle.project.color, '#18283c');
+  assert.equal(bundle.project.color, '#FCEDE4');
   assert.equal(bundle.project.assistants.length, 3);
   assert(bundle.project.assistants.some(x => x.instructions === a.instructions && x.model === null));
   assert(!/PRIVATE CONTENT|Private.txt|storage_path|conversation_id|tenant_id|project_id|document_id/.test(raw));
@@ -191,9 +184,14 @@ try {
   const importedProject = workspace.projects.find(p => p.name === 'Template importato');
   const importedAssistants = workspace.assistants.filter(x => x.project_id === importedProject.id);
   assert(importedAssistants.every(x => x.model_id === null));
-  assert.equal(importedProject.color, '#18283c');
+  assert.equal(importedProject.color, '#FCEDE4');
   assert(importedAssistants.some(x => x.instructions === a.instructions));
-  assert.equal((await api(`/api/documents?assistant=${importedAssistants[0].id}`)).length, 0);
+  for (const assistant of importedAssistants) {
+    const importedDocs = await api(`/api/documents?assistant=${assistant.id}`);
+    assert.equal(importedDocs.length, 1);
+    assert.deepEqual(importedDocs.map(doc => doc.source_url), bundle.project.assistants.find(item => item.name === assistant.name).sources);
+    assert(!/PRIVATE CONTENT|Private.txt|MUST NOT IMPORT/.test(JSON.stringify(importedDocs)));
+  }
   // Cancel then confirm assistant deletion; siblings and unrelated projects survive.
   page.once('dialog', d => d.dismiss());
   await page.getByRole('button', { name: `Delete assistant ${importedAssistants[0].name}`, exact: true }).click();
@@ -214,7 +212,9 @@ try {
   assert(!workspace.assistants.some(x => x.project_id === project.id));
   assert.equal((await request(`/api/conversations/${conversation.id}`)).status, 404);
   await assert.rejects(access(join(directory, 'data', 'files', doc.storage_path)));
-  assert.equal((await api('/api/templates')).length, 3);
+  const retainedTemplates = await api('/api/templates');
+  assert.equal(retainedTemplates.filter(t => t.builtin_key).length, 6);
+  assert.deepEqual(retainedTemplates.filter(t => !t.builtin_key).map(t => t.name).sort(), ['Evento riutilizzabile', 'Template importato']);
   await page.getByRole('button', { name: 'New project', exact: true }).first().click();
   await page.getByLabel('Project name', { exact: true }).fill('Project bianco');
   await page.getByRole('button', { name: 'Create project', exact: true }).click();
@@ -223,7 +223,7 @@ try {
   await page.getByRole('button', { name: /^Projects/ }).click();
   assert.equal(await page.getByText('Check Ollama', { exact: true }).count(), 0);
   const whiteCard = page.locator('.project-card').filter({ hasText: 'Project bianco' });
-  assert.equal(await whiteCard.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(255, 255, 255)');
+  assert.equal(await whiteCard.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(240, 234, 254)');
   assert.match(await whiteCard.innerText(), /ASSISTANTS\s*0/);
   await page.screenshot({ path: 'test-results/project-flows/projects.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -239,7 +239,7 @@ try {
   await page.getByLabel('Import template into project', { exact: true }).setInputFiles({ name: 'template.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(importBundle)) });
   await page.getByRole('heading', { name: 'Importazione nel progetto.' }).waitFor();
   const importedInto = (await api('/api/workspace')).projects.find(p => p.name === 'Importazione nel progetto');
-  assert.equal(importedInto.color, '#18283c');
+  assert.equal(importedInto.color, '#FCEDE4');
   assert.equal((await api('/api/workspace')).assistants.filter(a => a.project_id === importedInto.id).length, 3);
   await page.getByRole('button', { name: 'Project actions', exact: true }).click();
   await page.screenshot({ path: 'test-results/project-flows/project-menu.png', fullPage: true });
@@ -259,7 +259,7 @@ try {
   assert(!(await api('/api/templates')).some(t => t.builtin_key === 'computer-science-study' || t.id === custom.id));
   assert((await api('/api/templates')).some(t => t.name === 'Evento riutilizzabile'));
   assert.equal(pageErrors.length, 0, pageErrors.join('\n'));
-  console.log('PASS: real desktop UI/API/SQLite; template configuration, private-data exclusion, named export/import, deletion and restart, real cards, white default, sidebar, project editing/background, no project-list Ollama banner.');
+  console.log('PASS: real desktop UI/API/SQLite; template configuration, private-data exclusion, named export/import, deletion and restart, six built-ins, real cards, preserved white default with accessible palette display, sidebar, palette editing/background, no project-list Ollama banner.');
 } catch (error) {
   console.error(logs); throw error;
 } finally {
