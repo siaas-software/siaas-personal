@@ -1,3 +1,5 @@
+import { executeLocalChat, localIntent } from "@/lib/local/chat-router";
+import { analysisMarkdown } from "@/lib/structured/service";
 import { actionInvocation } from "@/lib/actions";
 import { getAction } from "@/lib/local/actions";
 import {
@@ -42,11 +44,6 @@ export async function POST(req: Request) {
       .eq("id", conversation.assistant_id)
       .single();
     if (!assistant) throw new HttpError(404, "Assistente non trovato.");
-    if (!assistant.model_id)
-      throw new HttpError(
-        409,
-        "Scegli prima un modello per questo assistente.",
-      );
     const action = action_id ? getAction(db, action_id) : undefined;
     const invocation = actionInvocation(question, action);
     const inferenceContext = {
@@ -54,8 +51,15 @@ export async function POST(req: Request) {
       projectId: assistant.project_id,
       conversationId: conversation_id,
     };
-    const runtime = await requireOllama(assistant.model_id);
-    const useAgent = isDesktop() && runtime.agent.enabled;
+    const intent = action ? null : localIntent(question);
+    if (!intent && !assistant.model_id) {
+      throw new HttpError(
+        409,
+        language === "it"
+          ? "Questa richiesta richiede un modello locale oppure una domanda più specifica. Scrivi /aiuto per le funzioni disponibili."
+          : "This request needs a local model or a more specific question. Type /help for available operations.",
+      );
+    }
     const { count, error: countError } = await db
       .from("messages")
       .select("id", { count: "exact", head: true })
@@ -79,6 +83,20 @@ export async function POST(req: Request) {
       );
     const responseId = randomUUID();
     try {
+      const signal = req.signal;
+      signal.throwIfAborted();
+      const runtime = intent
+        ? null
+        : await requireOllama(assistant.model_id, (url, init) =>
+            fetch(url, {
+              ...init,
+              signal: AbortSignal.any([
+                signal,
+                ...(init?.signal ? [init.signal] : []),
+              ]),
+            }),
+          );
+      const useAgent = isDesktop() && Boolean(runtime?.agent.enabled);
       const { data: history, error: hError } = await db
         .from("messages")
         .select("role,content")
@@ -105,7 +123,8 @@ export async function POST(req: Request) {
           conversation_id,
           role: "assistant",
           status: "pending",
-          model_id: assistant.model_id,
+          model_id: intent ? null : assistant.model_id,
+          execution_path: intent?.kind ?? "model",
           ...(isDesktop() ? { agent_mode: useAgent } : {}),
           created_at: new Date(Date.now() + 1).toISOString(),
         },
@@ -139,20 +158,37 @@ export async function POST(req: Request) {
               let inputTokens = 0,
                 outputTokens = 0;
               const { structuredChat } = await import("@/lib/structured/chat");
-              const structured = await structuredChat({
-                db,
-                assistantId: assistant.id,
-                modelId: assistant.model_id,
-                question: invocation,
-                instructions: assistant.instructions,
-                embeddingProfile: runtime.embeddingProfile,
-                signal: AbortSignal.any([agentAbort.signal, req.signal]),
-                emit(delta) {
-                  text += delta;
-                  send({ type: "delta", text: delta });
-                },
-              });
+              const signal = AbortSignal.any([
+                agentAbort.signal,
+                req.signal,
+                AbortSignal.timeout(240_000),
+              ]);
+              const structured = intent
+                ? await executeLocalChat(
+                    db,
+                    assistant.id,
+                    intent,
+                    language,
+                    signal,
+                  )
+                : await structuredChat({
+                    db,
+                    assistantId: assistant.id,
+                    modelId: assistant.model_id,
+                    question: invocation,
+                    instructions: assistant.instructions,
+                    embeddingProfile: runtime?.embeddingProfile ?? null,
+                    signal,
+                    emit(delta) {
+                      text += delta;
+                      send({ type: "delta", text: delta });
+                    },
+                  });
               if (structured) {
+                if (intent) {
+                  text = structured.content;
+                  send({ type: "delta", text });
+                }
                 sources = structured.sources;
                 send({ type: "sources", sources });
                 if (structured.result) {
@@ -160,19 +196,21 @@ export async function POST(req: Request) {
                     {
                       id: randomUUID(),
                       title: "Structured Data Analysis",
-                      content: structured.content,
+                      content: analysisMarkdown(structured.result),
                     },
                   ];
                   await db
                     .from("messages")
                     .update({
                       structured_analysis: structured.result,
+                      execution_path: intent ? "structured" : "model-planned",
                       artifacts,
                     })
                     .eq("id", responseId);
                   send({ type: "artifacts", artifacts });
                 }
               } else {
+                if (!runtime) throw new Error("Missing inference runtime.");
                 const research = await prepareAssistantResearch({
                   db,
                   assistantId: assistant.id,

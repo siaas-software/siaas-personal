@@ -85,6 +85,7 @@ export type Source = {
   position: number;
 };
 export type Message = {
+  execution_path?: string;
   action_id?: string;
   action_name?: string;
   id: string;

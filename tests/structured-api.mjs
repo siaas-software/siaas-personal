@@ -8,10 +8,12 @@ import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import ExcelJS from "exceljs";
+let ollamaRequests = 0;
 let answerPlan,
   plannerMode = "query",
   plannerRequests = 0;
 const ollama = createServer(async (req, res) => {
+  ollamaRequests++;
   let text = "";
   for await (const c of req) text += c;
   const body = text ? JSON.parse(text) : {};
@@ -182,6 +184,10 @@ try {
   assert.equal(production.model_id, null);
   assert.equal(finance.model_id, null);
   assert.equal(workspace.aiReady, false);
+  if (process.argv.includes("--hybrid")) {
+    const { checkHybridChat } = await import("./hybrid-chat-checks.mjs");
+    await checkHybridChat({ api, upload, origin, headers, finance, production, requests: () => ollamaRequests });
+  } else {
   const ordersDoc = await upload(
     production.id,
     "orders.csv",
@@ -376,7 +382,7 @@ try {
       .filter((e) => e.type === "delta")
       .map((e) => e.text)
       .join("")
-      .includes("Sources and applied operations"),
+      .includes("orders.csv"),
   );
   const history = await api(`/api/conversations/${conversation.id}`);
   const message = history.messages.find((m) => m.role === "assistant");
@@ -496,6 +502,7 @@ try {
   console.log(
     "PASS: standalone parser; XLSX/CSV without embeddings/Docker/Python; three-template catalog and both project creations; confirmed mappings and joins; exact shortage and multi-currency results; isolation and Origin guards; mocked Ollama JSON fallback, invalid plan and unsupported-request handling; persisted chat evidence/report; deletion.",
   );
+  }
 } finally {
   if (browser) await browser.close();
   if (server) {

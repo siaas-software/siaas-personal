@@ -1,5 +1,6 @@
 import { researchSettingsSchema } from "../research";
 import { researchTerms } from "../research-policy";
+import { readLinkedDocument } from "./knowledge";
 import { embedLocal } from "../ollama";
 import type { Source } from "../catalog";
 import type { LocalDatabase } from "./database";
@@ -17,7 +18,19 @@ type Options = {
   conversationId?: string;
 };
 export async function retrieveAssistantSources(
-  options: Options,
+  options: Pick<
+    Options,
+    | "db"
+    | "assistantId"
+    | "embeddingProfile"
+    | "question"
+    | "signal"
+    | "conversationId"
+  > & {
+    kind?: "website" | "document";
+    modelId?: string;
+    emit?: Options["emit"];
+  },
 ): Promise<Source[]> {
   const docs = new Map(
     options.db
@@ -26,7 +39,9 @@ export async function retrieveAssistantSources(
         (d) =>
           d.assistant_id === options.assistantId &&
           d.status === "ready" &&
-          d.enabled !== false,
+          d.enabled !== false &&
+          (!options.kind ||
+            (options.kind === "website") === Boolean(d.source_url)),
       )
       .map((d) => [d.id, d]),
   );
@@ -109,7 +124,19 @@ export async function retrieveAssistantSources(
           : { kind: "document" as const }),
       }));
   }
-  return sources.map((s) => ({ ...s, content: s.content.slice(0, 1600) }));
+  const checked = new Set<string>();
+  return sources
+    .filter((s) => {
+      options.signal.throwIfAborted();
+      const doc = docs.get(s.document_id);
+      if (!doc) return false;
+      if (doc.source_id && !checked.has(doc.id)) {
+        readLinkedDocument(options.db, doc);
+        checked.add(doc.id);
+      }
+      return true;
+    })
+    .map((s) => ({ ...s, content: s.content.slice(0, 1600) }));
 }
 export async function prepareAssistantResearch(
   options: Options,

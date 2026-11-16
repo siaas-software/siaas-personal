@@ -1403,11 +1403,6 @@ export function Workspace() {
                       />
                       <button
                         className="button primary"
-                        disabled={
-                          !data.models.some(
-                            (m) => m.id === selected.model_id && m.available,
-                          )
-                        }
                         onClick={() => setTab("chat")}
                       >
                         {italian
@@ -1633,11 +1628,15 @@ export function Workspace() {
                             )) && (
                             <div className="notice assistant-chat-setup">
                               <div>
-                                <strong>Finish setup to start chatting.</strong>
+                                <strong>
+                                  {italian
+                                    ? "Chat locale disponibile"
+                                    : "Local chat available"}
+                                </strong>
                                 <p className="muted small">
-                                  {!selected.model_id
-                                    ? "Choose the recommended model for this PC."
-                                    : "The selected model must be installed on this PC."}
+                                  {italian
+                                    ? "Puoi calcolare e cercare nelle fonti preparate. Per generare testo, configura un modello."
+                                    : "Calculate and search prepared sources here. Configure a model for text generation."}
                                 </p>
                               </div>
                               <div className="button-row">
@@ -1661,9 +1660,14 @@ export function Workspace() {
                           assistant={selected}
                           desktop={desktop}
                           preview={preview}
-                          ready={data.models.some(
-                            (m) => m.id === selected.model_id && m.available,
-                          )}
+                          ready={
+                            !preview &&
+                            (desktop ||
+                              data.models.some(
+                                (m) =>
+                                  m.id === selected.model_id && m.available,
+                              ))
+                          }
                           onSource={(s) =>
                             setSource({
                               title: s.title,
@@ -1721,13 +1725,22 @@ export function Workspace() {
                 ))}
               </select>
             </label>
-            {templates.filter(t => t.id === projectTemplateId).map(template => (
-              <section key={template.id} className="panel project-template-card" aria-label="Template preview" style={templateCardStyle(template)}>
-                <strong>{template.name}</strong>
-                <p>{template.description}</p>
-                <p className="muted">{template.assistants.length} preconfigured assistants</p>
-              </section>
-            ))}
+            {templates
+              .filter((t) => t.id === projectTemplateId)
+              .map((template) => (
+                <section
+                  key={template.id}
+                  className="panel project-template-card"
+                  aria-label="Template preview"
+                  style={templateCardStyle(template)}
+                >
+                  <strong>{template.name}</strong>
+                  <p>{template.description}</p>
+                  <p className="muted">
+                    {template.assistants.length} preconfigured assistants
+                  </p>
+                </section>
+              ))}
             <p className="field-help">
               Assistant names, descriptions and instructions are preconfigured.
               Choose the recommended models. Template web sources are indexed
@@ -2471,9 +2484,17 @@ function Chat({
                 )}
                 {m.role === "assistant" && m.status === "complete" && (
                   <p className="generation-evidence">
-                    {m.sources?.length
-                      ? `Generation ${m.model_id?.startsWith("ollama/") ? "local" : "previous"} completed · ${m.model_id ?? "model not recorded"}`
-                      : `Generation ${m.model_id?.startsWith("ollama/") ? "local" : "previous"} completed · no sources retrieved`}
+                    {m.execution_path === "model-planned"
+                      ? italian
+                        ? "Calcolo verificato · interpretazione del modello locale"
+                        : "Verified calculation · local model interpretation"
+                      : m.execution_path && m.execution_path !== "model"
+                        ? italian
+                          ? "Risposta locale · senza modello"
+                          : "Local response · no model used"
+                        : m.sources?.length
+                          ? `Generation ${m.model_id?.startsWith("ollama/") ? "local" : "previous"} completed · ${m.model_id ?? "model not recorded"}`
+                          : `Generation ${m.model_id?.startsWith("ollama/") ? "local" : "previous"} completed · no sources retrieved`}
                     {m.sources?.length > 0 &&
                     (m.input_tokens || m.output_tokens)
                       ? ` · ${m.input_tokens ?? 0} token input / ${m.output_tokens ?? 0} output`
