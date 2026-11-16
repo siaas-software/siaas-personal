@@ -565,12 +565,8 @@ export function Workspace() {
       });
       setModal(null);
       await loadDocs();
-      if (data?.aiReady) await processDocument(d.id);
-      setNotice(
-        data?.aiReady
-          ? "Text added to knowledge."
-          : "Text saved. Index it when the AI service is ready.",
-      );
+      if (desktop || data?.aiReady) await processDocument(d.id);
+      setNotice("Text added to knowledge.");
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -636,11 +632,11 @@ export function Workspace() {
           );
         }
         await loadDocs();
-        if (data?.aiReady || ["xlsx", "csv"].includes(kind))
+        if (desktop || data?.aiReady || ["xlsx", "csv"].includes(kind))
           await processDocument(importedId);
       }
       setNotice(
-        data?.aiReady
+        desktop || data?.aiReady
           ? "Documents ready for chat."
           : "Files saved. Indexing will be available after AI setup.",
       );
@@ -1068,7 +1064,7 @@ export function Workspace() {
                       <span>
                         {preview
                           ? "Create assistants and organize knowledge. Personal runs AI locally on your computer."
-                          : "You can create assistants and save sources now. Chat and indexing become available when Ollama and the embedding model are ready."}
+                          : "Local chat, calculations and keyword search are available. Configure Ollama for text generation and semantic search."}
                       </span>
                     </div>
                   )}
@@ -1476,7 +1472,6 @@ export function Workspace() {
                         </div>
                         {desktop && (
                           <LocalKnowledge
-                            embeddingReady={!!data?.aiReady}
                             key={selected.id}
                             assistantId={selected.id}
                             revision={knowledgeRevision}
@@ -1574,7 +1569,8 @@ export function Workspace() {
                                       className="button compact"
                                       disabled={
                                         busy ||
-                                        (!data.aiReady &&
+                                        (!desktop &&
+                                          !data.aiReady &&
                                           !["xlsx", "csv"].includes(d.kind))
                                       }
                                       onClick={async () => {

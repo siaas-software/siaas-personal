@@ -1,3 +1,4 @@
+import { LEXICAL_PROFILE } from "../catalog";
 import type { LocalDatabase } from "./database";
 import { saveWebKnowledge } from "./web-knowledge";
 import { requireOllama, embedLocal } from "../ollama";
@@ -60,29 +61,21 @@ async function processSource(
   }
   if (!doc || doc.enabled === false)
     return { status: doc?.status ?? "removed" };
-  let runtime: { embeddingProfile: string };
+  let embeddingProfile: string | null = null;
   try {
-    const available = await (dependencies.runtime ?? requireOllama)();
-    if (!available.embeddingProfile)
-      throw new Error("Embedding model unavailable.");
-    runtime = { embeddingProfile: available.embeddingProfile };
+    embeddingProfile = (await (dependencies.runtime ?? requireOllama)())
+      .embeddingProfile;
   } catch {
-    const error =
-      "Waiting for the local document model. Start Ollama and configure the embedding model, then retry.";
-    const current = db.get("documents", id);
-    if (current) {
-      db.put("documents", { ...current, error }, true);
-      db.syncKnowledgeFiles(current.assistant_id);
-    }
-    return { status: "queued", error };
+    // The acquired page can still be chunked and searched locally.
   }
+  const profile = embeddingProfile || LEXICAL_PROFILE;
   if (
     doc.status === "ready" &&
-    doc.embedding_model === runtime.embeddingProfile
+    (!embeddingProfile || doc.embedding_model === profile)
   )
     return { status: "ready" };
   const claim = await db.rpc("claim_document_local", {
-    target_profile: runtime.embeddingProfile,
+    target_profile: profile,
     target_document: id,
   });
   if (claim.error) throw claim.error;
@@ -90,18 +83,23 @@ async function processSource(
     return { status: db.get("documents", id)?.status ?? "removed" };
   try {
     const chunks = chunkText(doc.raw_text ?? "");
-    const vectors = await (dependencies.embed ?? embedLocal)(
-      chunks,
-      "document",
-      runtime.embeddingProfile,
-      fetch,
-      { assistantId: doc.assistant_id },
-    );
+    const vectors = embeddingProfile
+      ? await (dependencies.embed ?? embedLocal)(
+          chunks,
+          "document",
+          embeddingProfile,
+          fetch,
+          { assistantId: doc.assistant_id },
+        )
+      : [];
     const result = await db.rpc("complete_document_local", {
-      target_profile: runtime.embeddingProfile,
+      target_profile: profile,
       target_document: id,
       token: claim.data,
-      chunks: chunks.map((content, i) => ({ content, embedding: vectors[i] })),
+      chunks: chunks.map((content, i) => ({
+        content,
+        embedding: vectors[i] ?? null,
+      })),
     });
     if (result.error) throw result.error;
     return { status: "ready" };

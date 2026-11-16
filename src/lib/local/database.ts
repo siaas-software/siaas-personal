@@ -1,3 +1,4 @@
+import { LEXICAL_PROFILE } from "../catalog";
 import { researchSettingsSchema } from "../research";
 import { migrateExperimentalFeatures } from "../experimental";
 import { DatabaseSync } from "node:sqlite";
@@ -295,7 +296,8 @@ export class LocalDatabase {
       );
       return token;
     }
-    if (!profilePattern.test(a.target_profile))
+    const lexical = a.target_profile === LEXICAL_PROFILE && name !== "match_documents_local";
+    if (!lexical && !profilePattern.test(a.target_profile))
       throw new Error("Profilo embedding non valido.");
     if (name === "claim_document_local") {
       const d = this.get("documents", a.target_document);
@@ -328,7 +330,8 @@ export class LocalDatabase {
       if (!Array.isArray(a.chunks) || !a.chunks.length || a.chunks.length > 150)
         throw new Error("Frammenti non validi.");
       for (const c of a.chunks) {
-        validateVector(c.embedding);
+        if (!lexical) validateVector(c.embedding);
+        else if (c.embedding != null) throw new Error("Unexpected embedding for lexical index.");
         if (
           typeof c.content !== "string" ||
           !c.content ||
