@@ -1,12 +1,13 @@
 // Real browser -> compiled desktop API -> temporary SQLite; deterministic Ollama.
 import { chromium } from 'playwright';
 import { createServer } from 'node:http';
-import { spawn } from 'node:child_process';
-import { mkdtemp, rm, mkdir } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import assert from 'node:assert/strict';
-const dir=await mkdtemp(join(tmpdir(),'siaas-workbench-'));
+import { runTest, requireBuild, freePort, waitForReady, cleanEnv, launchBrowser } from './helpers/runtime.mjs';
+
+await runTest('workbench-ui', async run => {
+await requireBuild();
+const dir=await run.tempDir();
 const ollama=createServer(async(req,res)=>{
  let raw='';for await(const c of req)raw+=c;const body=raw?JSON.parse(raw):{};
  res.setHeader('Content-Type','application/json');
@@ -20,23 +21,23 @@ const ollama=createServer(async(req,res)=>{
  }
  res.statusCode=404;res.end('{}');
 });
-await new Promise(r=>ollama.listen(0,'127.0.0.1',r));
-const probe=createServer();await new Promise(r=>probe.listen(0,'127.0.0.1',r));const port=probe.address().port;await new Promise(r=>probe.close(r));
+await run.server(ollama);
+const port=await freePort();
 const origin=`http://127.0.0.1:${port}`,key='workbench-test-key-'.repeat(4);
 const headers={'x-siaas-desktop-key':key,origin,'Content-Type':'application/json'};
 let logs='';
-const server=spawn(process.execPath,[resolve('.next/standalone/server.js')],{env:{...process.env,PORT:String(port),HOSTNAME:'127.0.0.1',NODE_ENV:'production',VERCEL:'0',SIAAS_RUNTIME:'desktop',SIAAS_DESKTOP_DEV:'0',SIAAS_DESKTOP_KEY:key,SIAAS_DESKTOP_ORIGIN:origin,SIAAS_DATA_DIR:dir,OLLAMA_BASE_URL:`http://127.0.0.1:${ollama.address().port}`},stdio:['ignore','pipe','pipe']});
+const server=run.child(process.execPath,[resolve('.next/standalone/server.js')],{env:cleanEnv({PORT:String(port),HOSTNAME:'127.0.0.1',NODE_ENV:'production',VERCEL:'0',SIAAS_RUNTIME:'desktop',SIAAS_DESKTOP_DEV:'0',SIAAS_DESKTOP_KEY:key,SIAAS_DESKTOP_ORIGIN:origin,SIAAS_DATA_DIR:dir,OLLAMA_BASE_URL:`http://127.0.0.1:${ollama.address().port}`}),stdio:['ignore','pipe','pipe']});
 server.stdout.on('data',d=>logs+=d);server.stderr.on('data',d=>logs+=d);
 let browser;
-async function api(path,method='GET',body){const r=await fetch(origin+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});const data=await r.json();assert(r.ok,`${path}: ${r.status} ${JSON.stringify(data)} ${logs}`);return data;}
-try{
- for(let i=0;i<100;i++){try{if((await fetch(origin,{headers})).ok)break;}catch{}await new Promise(r=>setTimeout(r,150));}
+async function api(path,method='GET',body){const r=await fetch(origin+path,{method,headers,signal:AbortSignal.timeout(30000),body:body===undefined?undefined:JSON.stringify(body)});const data=await r.json();assert(r.ok,`${path}: ${r.status} ${JSON.stringify(data)} ${logs}`);return data;}
+ await waitForReady(origin,{child:server,headers});
  const p=await api('/api/projects','POST',{name:'Workshop',description:'',color:'#ffffff'});
  const a=await api('/api/assistants','POST',{project_id:p.id,name:'Maintenance assistant',description:'Technical knowledge',instructions:'Use sources.',model_id:'ollama/qwen2.5:1.5b'});
  const doc=await api('/api/documents','POST',{assistant_id:a.id,title:'Machine manual',kind:'text',text:'The test machine requires scheduled maintenance every 500 hours.'});
  await api(`/api/documents/${doc.id}/process`,'POST');
- browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,headless:true,args:['--no-sandbox']});
+ browser=await launchBrowser(run, chromium);
  const page=await browser.newPage({extraHTTPHeaders:{'x-siaas-desktop-key':key},viewport:{width:1440,height:1000}}),errors=[];
+ await run.context(page.context());
  page.on('pageerror',e=>errors.push(e.message));
  await page.goto(`${origin}/?assistant=${a.id}`);
  await page.getByRole('heading',{name:/File management/}).waitFor();
@@ -75,8 +76,8 @@ try{
  const saved=await api(`/api/conversations/${convs[0].id}`);assert.equal(saved.messages.filter(m=>m.role==='user').length,2);
  assert(saved.messages.some(m=>m.content.includes('Columns: model and maintenance interval')));
  await page.reload();await page.locator('.chat-table').waitFor();
- await mkdir('test-results/workbench',{recursive:true});await page.screenshot({path:'test-results/workbench/desktop.png',fullPage:true});
- await page.setViewportSize({width:390,height:844});await page.screenshot({path:'test-results/workbench/mobile.png',fullPage:true});
+ await page.screenshot({path:join(run.out, 'desktop.png'),fullPage:true});
+ await page.setViewportSize({width:390,height:844});await page.screenshot({path:join(run.out, 'mobile.png'),fullPage:true});
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),'Mobile page must not overflow');
  await page.setViewportSize({width:1440,height:1000});
  await page.goto(`${origin}/?assistant=${a.id}&lang=it`);
@@ -88,7 +89,7 @@ try{
  await page.getByRole('tab',{name:'Modelli',exact:true}).click();
  assert.equal(await page.getByRole('tab',{name:'Modelli'}).getAttribute('aria-selected'),'true');
  assert.equal(await page.locator('.app-version').innerText(), `Versione ${workspace.version}`);
- await page.screenshot({path:'test-results/workbench/italian-models.png',fullPage:true});
+ await page.screenshot({path:join(run.out, 'italian-models.png'),fullPage:true});
  assert.deepEqual(errors,[]);
  console.log('PASS: columns, English UI, five Shortcuts, URI error feedback, direct report consuming draft, preserved Data Cell draft, table modal/rendering, SQLite persistence, reload, responsive layout.');
-}finally{if(browser)await browser.close();server.kill();await new Promise(r=>server.once('exit',r));await new Promise(r=>ollama.close(r));await rm(dir,{recursive:true,force:true});}
+});

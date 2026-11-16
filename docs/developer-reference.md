@@ -6,6 +6,10 @@ These procedures do not authorize publication or establish native acceptance.
 For contributor workflow see [CONTRIBUTING](../CONTRIBUTING.md); for everyday use
 start with the [README](../README.md).
 
+For automated desktop checks, fixture ownership, artifacts and Windows commands,
+see [Electron testing infrastructure](electron-testing.md) and its
+[Phase 1 evidence report](electron-phase1-report.md).
+
 ## Local workspace and compatibility
 
 ### Local filesystem organization
