@@ -113,6 +113,31 @@ test("offline template import persists sources, isolates assistants, retries and
       runtime: async () => ({ embeddingProfile: profile }),
       embed: async (texts: string[]) => texts.map(() => vector),
     };
+    const lexical = await processWebSource(db, id, false, {
+      ...deps,
+      runtime: async () => {
+        throw new Error("local model offline");
+      },
+      embed: async () => {
+        throw new Error("unexpected embedding request");
+      },
+    });
+    assert.equal(lexical.status, "ready");
+    assert.equal(db.get("documents", id)?.embedding_model, "lexical-v1");
+    const { executeLocalChat } = await import("../src/lib/local/chat-router");
+    const findPage = (assistantId: string) =>
+      executeLocalChat(
+        db,
+        assistantId,
+        { kind: "website", terms: "lesson" },
+        "en",
+        new AbortController().signal,
+      );
+    assert.match((await findPage(assistant)).content, /First lesson/);
+    assert.equal((await findPage(other.assistantIds[0])).sources.length, 0);
+    setWebSourceEnabled(db, assistant, id, false);
+    assert.equal((await findPage(assistant)).sources.length, 0);
+    setWebSourceEnabled(db, assistant, id, true);
     assert.equal((await processWebSource(db, id, false, deps)).status, "ready");
     const lookup = (a: string) =>
       db.rpc("match_documents_local", {
@@ -182,19 +207,19 @@ test("new built-ins replace retired catalog entries without changing existing pr
       undefined,
       old.id,
     );
-    const rows = await listTemplates(
-      db,
-      LOCAL_USER_ID,
-    );
+    const rows = await listTemplates(db, LOCAL_USER_ID);
     assert.equal(rows.length, 6);
     assert.equal(db.get("projects", project.project.id)?.template_id, old.id);
     for (const row of rows) {
       assert(row.assistants.length > 0);
       if (row.builtin_key === "computer-science-study") {
         assert.equal(row.assistants.length, 3);
-        assert(row.assistants.every(a => a.sources.length === 1));
+        assert(row.assistants.every((a) => a.sources.length === 1));
       }
-      const sourceCount = row.assistants.reduce((n, a) => n + a.sources.length, 0);
+      const sourceCount = row.assistants.reduce(
+        (n, a) => n + a.sources.length,
+        0,
+      );
       const imported = importLocalTemplate(db, row);
       assert.equal(imported.documents.length, sourceCount);
       if (!row.assistants[0].sources.length) continue;

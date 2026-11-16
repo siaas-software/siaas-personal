@@ -119,15 +119,17 @@ export type AgentStep = {
 };
 export type AgentArtifact = { id: string; title: string; content: string };
 
+export const LEXICAL_PROFILE = "lexical-v1";
+
 export function isDocumentReady(
   doc: Pick<DocumentRecord, "status" | "embedding_model" | "enabled">,
   profile: string | null | undefined,
 ) {
   return (
     doc.enabled !== false &&
-    !!profile &&
     doc.status === "ready" &&
-    doc.embedding_model === profile
+    (doc.embedding_model === LEXICAL_PROFILE ||
+      (!!profile && doc.embedding_model === profile))
   );
 }
 export function needsReindex(
@@ -137,6 +139,7 @@ export function needsReindex(
   return (
     doc.status === "ready" &&
     doc.embedding_model !== "structured-v1" &&
+    (doc.embedding_model !== LEXICAL_PROFILE || !!profile) &&
     (!doc.embedding_model.startsWith("ollama/embeddinggemma:latest@") ||
       (!!profile && doc.embedding_model !== profile))
   );

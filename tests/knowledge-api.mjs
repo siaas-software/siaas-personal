@@ -150,10 +150,23 @@ try {
   );
   assert.equal(manifest.documents.length, 1);
   assert.match(manifest.documents[0].chunks[0].content, /500 hours/);
+  const conversation = await api("/api/conversations", "POST", { assistant_id: a.id });
+  async function searchManual() {
+    const response = await fetch(origin + "/api/chat", {
+      method: "POST", headers,
+      body: JSON.stringify({conversation_id: conversation.id, question:"search documents: maintenance"}),
+    });
+    assert.equal(response.status,200);
+    return (await response.text()).trim().split("\n").map(JSON.parse);
+  }
+  assert((await searchManual()).some(event => event.type === "sources" && event.sources[0]?.content.includes("500 hours")));
   await writeFile(
     join(folder, "manual.txt"),
     "The new maintenance interval is 750 hours. ".repeat(12),
   );
+  const stale = await searchManual();
+  assert(stale.some(event => event.type === "error"));
+  assert(!JSON.stringify(stale).includes("500 hours"));
   const check = await api("/api/local/knowledge", "POST", {
     action: "refresh-project",
     project_id: p.id,

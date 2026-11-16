@@ -1,3 +1,4 @@
+import { LEXICAL_PROFILE } from "@/lib/catalog";
 import { isDesktop } from "@/lib/runtime";
 import { localWorkspace, fail, HttpError, uuid } from "@/lib/http";
 import { requireOllama, embedLocal, OllamaError } from "@/lib/ollama";
@@ -31,16 +32,22 @@ export async function POST(
       const { importStructured } = await import("@/lib/structured/store");
       return Response.json(await importStructured(db, id));
     }
-    const runtime = await requireOllama();
+    const embeddingProfile = await requireOllama()
+      .then((r) => r.embeddingProfile)
+      .catch((error) => {
+        if (error instanceof OllamaError && error.status === 503) return null;
+        throw error;
+      });
+    const profile = embeddingProfile ?? LEXICAL_PROFILE;
     if (
       doc.status === "ready" &&
-      doc.embedding_model === runtime.embeddingProfile
+      (doc.embedding_model === profile || !embeddingProfile)
     )
       return Response.json({ ok: true });
     const { data: token, error: claimError } = await db.rpc(
       "claim_document_local",
       {
-        target_profile: runtime.embeddingProfile,
+        target_profile: profile,
         target_document: id,
       },
     );
@@ -70,20 +77,18 @@ export async function POST(
         text = await extractDocument(file, doc.kind);
       }
       const chunks = chunkText(text);
-      const embeddings = await embedLocal(
-        chunks,
-        "document",
-        runtime.embeddingProfile,
-        fetch,
-        { assistantId: doc.assistant_id },
-      );
+      const embeddings = embeddingProfile
+        ? await embedLocal(chunks, "document", profile, fetch, {
+            assistantId: doc.assistant_id,
+          })
+        : [];
       const { error: e } = await db.rpc("complete_document_local", {
-        target_profile: runtime.embeddingProfile,
+        target_profile: profile,
         target_document: id,
         token,
         chunks: chunks.map((content, i) => ({
           content,
-          embedding: embeddings[i],
+          embedding: embeddings[i] ?? null,
         })),
       });
       if (e) throw e;
