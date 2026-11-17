@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0-rc.5 · candidate in review
+
+- One desktop chat handles bounded arithmetic, named dataset totals and duplicate inspection without Ollama.
+- Prepared local files and acquired pages support keyword retrieval without embeddings.
+- [Candidate notes](docs/releases/1.1.0-rc.5.md) and [readiness](docs/releases/1.1.0-rc.5-readiness.md).
+
+## 1.1.0-rc.4
+
+Published prerelease with isolated source installation and Linux x64 first-party lifecycle work. [Release and assets](https://github.com/siaas-software/siaas-personal/releases/tag/v1.1.0-rc.4).
+
 ## 1.1.0-rc.3 (unreleased)
 
 - Package the functionality integrated on develop at

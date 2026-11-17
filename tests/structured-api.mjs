@@ -390,6 +390,7 @@ try {
   assert.equal(message.status, "complete");
   assert(message.artifacts[0].content.includes("orders.csv"));
   assert.equal(plannerRequests, 1);
+  const beforeArithmetic = ollamaRequests;
   const generalEvents = await chat("Quanto fa 2 + 2?");
   assert.equal(
     generalEvents
@@ -403,6 +404,7 @@ try {
     1,
     "general arithmetic must bypass structured planner",
   );
+  assert.equal(ollamaRequests, beforeArithmetic, "no Ollama probe with a configured model");
   plannerMode = "invalid";
   const invalid = await chat("Calculate again");
   assert(
@@ -445,16 +447,7 @@ try {
     page.on("pageerror", (e) => errors.push(e.message));
     await page.goto(origin);
     await page.getByRole("heading", { name: "Your projects." }).waitFor();
-    await page
-      .locator(".resource-card")
-      .filter({
-        has: page.getByRole("heading", {
-          name: "Production Planning",
-          exact: true,
-        }),
-      })
-      .locator("button")
-      .first()
+    await page.getByRole("button", { name: "Open project Production Planning", exact: true })
       .click();
     await page
       .locator(".resource-card")
@@ -500,7 +493,7 @@ try {
     0,
   );
   console.log(
-    "PASS: standalone parser; XLSX/CSV without embeddings/Docker/Python; three-template catalog and both project creations; confirmed mappings and joins; exact shortage and multi-currency results; isolation and Origin guards; mocked Ollama JSON fallback, invalid plan and unsupported-request handling; persisted chat evidence/report; deletion.",
+    "PASS: standalone parser; XLSX/CSV without embeddings/Docker/Python; both template project creations; confirmed mappings and joins; exact shortage and multi-currency results; isolation and Origin guards; mocked Ollama JSON fallback, invalid plan and unsupported-request handling; persisted chat evidence/report; deletion.",
   );
   }
 } finally {

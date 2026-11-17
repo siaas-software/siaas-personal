@@ -35,7 +35,7 @@ try{
  const a=await api('/api/assistants','POST',{project_id:p.id,name:'Maintenance assistant',description:'Technical knowledge',instructions:'Use sources.',model_id:'ollama/qwen2.5:1.5b'});
  const doc=await api('/api/documents','POST',{assistant_id:a.id,title:'Machine manual',kind:'text',text:'The test machine requires scheduled maintenance every 500 hours.'});
  await api(`/api/documents/${doc.id}/process`,'POST');
- browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,headless:true,args:['--no-sandbox']});
+ browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH||process.env.CHROMIUM_PATH,headless:true,args:['--no-sandbox']});
  const page=await browser.newPage({extraHTTPHeaders:{'x-siaas-desktop-key':key},viewport:{width:1440,height:1000}}),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  await page.goto(`${origin}/?assistant=${a.id}`);
