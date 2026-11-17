@@ -71,12 +71,17 @@ if (pkg.version.includes("-rc.")) {
   writeFileSync(join("dist-source","rc-manifests.json"),JSON.stringify(all,null,2)+"\n");
   writeFileSync(join("dist-source","rc-manifests.tsv"),lines.join("\n")+"\n");
   assets.push("rc-manifests.json","rc-manifests.tsv");
-  for (const [source, name] of [
-    [`docs/releases/${pkg.version}.md`, "RELEASE_NOTES.md"],
-    [`docs/releases/${pkg.version}-readiness.md`, "READINESS.md"],
-    [`docs/releases/${pkg.version}-windows.md`, "WINDOWS_TESTING.md"],
-  ]) {
-    copyFileSync(source, join("dist-source", name));
+  const releaseDocuments = [
+    [pkg.version + ".md", "RELEASE_NOTES.md"],
+    [pkg.version + "-readiness.md", "READINESS.md"],
+    [pkg.version + "-windows.md", "WINDOWS_TESTING.md"],
+  ];
+  for (const [source, name] of releaseDocuments) {
+    let markdown = readFileSync(join("docs/releases", source), "utf8");
+    for (const [filename, asset] of releaseDocuments) {
+      markdown = markdown.replaceAll("](" + filename + ")", "](" + asset + ")");
+    }
+    writeFileSync(join("dist-source", name), markdown);
     assets.push(name);
   }
   for(const ext of ["ps1","sh"]){const name="install-rc."+ext;copyFileSync("scripts/"+name,join("dist-source",name));assets.push(name);}
