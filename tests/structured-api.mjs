@@ -140,7 +140,7 @@ try {
         SIAAS_DESKTOP_DEV: "0",
         SIAAS_DESKTOP_KEY: key,
         SIAAS_DESKTOP_ORIGIN: origin,
-        SIAAS_DATA_DIR: directory,
+        SIAAS_DATA_DIR: join(directory, "profile"),
         OLLAMA_BASE_URL: `http://127.0.0.1:${ollama.address().port}`,
         VERCEL: "0",
         NEXT_TELEMETRY_DISABLED: "1",
@@ -186,7 +186,8 @@ try {
   assert.equal(workspace.aiReady, false);
   if (process.argv.includes("--hybrid")) {
     const { checkHybridChat } = await import("./hybrid-chat-checks.mjs");
-    await checkHybridChat({ api, upload, origin, headers, finance, production, requests: () => ollamaRequests });
+    if (process.argv.includes("--offline")) await new Promise(done => ollama.close(done));
+    await checkHybridChat({ api, upload, origin, headers, finance, production, directory, serverPid:server.pid, requests: () => ollamaRequests });
   } else {
   const ordersDoc = await upload(
     production.id,

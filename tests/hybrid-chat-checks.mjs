@@ -2,6 +2,8 @@
 // node tests/structured-api.mjs --hybrid [--benchmark] [--ui]
 import assert from "node:assert/strict";
 import { readFile, mkdir, writeFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import { join } from "node:path";
 import { cpus, platform, arch } from "node:os";
 import { setTimeout as delay } from "node:timers/promises";
 
@@ -42,6 +44,8 @@ export async function checkHybridChat({
   finance,
   production,
   requests,
+  directory,
+  serverPid,
 }) {
   const conversation = async (assistant) =>
     (
@@ -147,6 +151,31 @@ export async function checkHybridChat({
   console.log(
     "PASS unified chat HTTP, stored replies, exact invoice, RC4 budgets and duplicates, ambiguous input, cross-project denial, no model selected, zero Ollama HTTP requests.",
   );
+  if (process.argv.includes("--offline")) {
+    const folder = join(directory, "linked-fixtures");
+    await mkdir(folder);
+    const file = join(folder, "linked.csv");
+    await writeFile(file, "Item,Amount\nA,11\nB,5\n");
+    const linked = await api("/api/local/knowledge", "POST", {
+      action: "connect",
+      assistant_id: production.id,
+      path: folder,
+      recursive: false,
+    });
+    await api("/api/documents/" + linked.queued[0] + "/process", "POST");
+    assert.equal(
+      (await chat("total Amount in linked.csv", other)).message
+        .structured_analysis.rows[0].total,
+      "16",
+    );
+    await writeFile(file, "Item,Amount\nA,71\nB,5\n");
+    const stale = (await chat("total Amount in linked.csv", other)).message;
+    assert.equal(stale.structured_analysis, undefined);
+    assert.match(stale.content, /changed|unavailable/i);
+    console.log(
+      "PASS stopped Ollama endpoint and chat-time invalidation of a changed linked CSV",
+    );
+  }
   if (process.argv.includes("--ui")) {
     const { chromium } = await import("playwright");
     const browser = await chromium.launch({
@@ -182,6 +211,21 @@ export async function checkHybridChat({
     }
   }
   if (process.argv.includes("--benchmark")) {
+    // Linux procfs measures the server process; client and model usage are separate.
+    const ticks =
+      process.platform === "linux"
+        ? Number(execFileSync("getconf", ["CLK_TCK"]))
+        : null;
+    const usage = async () => {
+      if (!ticks) return null;
+      const stat = await readFile("/proc/" + serverPid + "/stat", "utf8");
+      const fields = stat.slice(stat.lastIndexOf(")") + 2).split(" ");
+      const status = await readFile("/proc/" + serverPid + "/status", "utf8");
+      return {
+        cpuMs: (1000 * (Number(fields[11]) + Number(fields[12]))) / ticks,
+        rssKiB: Number(/^VmRSS:\s+(\d+)/m.exec(status)?.[1]),
+      };
+    };
     const results = {
       node: process.version,
       platform: platform(),
@@ -198,12 +242,17 @@ export async function checkHybridChat({
       await run(); // The first (separately recorded) invocation was warmup one.
       const samples = [];
       for (let i = 0; i < 15; i++) {
+        const before = await usage();
         const { ms, message, count } = await run();
+        const after = await usage();
         samples.push({
           ms,
           ollamaRequests: count,
           tokens: message.input_tokens + message.output_tokens,
           engineMs: message.structured_analysis?.engineMs ?? null,
+          serverCpuMsIncludingHistoryCheck:
+            before && after ? after.cpuMs - before.cpuMs : null,
+          serverRssKiBAfterHistoryCheck: after?.rssKiB ?? null,
         });
       }
       const times = samples.map((s) => s.ms).sort((a, b) => a - b);
