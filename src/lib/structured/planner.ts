@@ -174,6 +174,7 @@ export async function planQuestion(
     await reader.cancel().catch(() => {});
     reader.releaseLock();
   }
+  if (timeoutSignal.aborted) throw new AnalysisError(timeoutMessage);
   try {
     const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
     if (body.error || body.done === false || body.done_reason === "length")
