@@ -176,7 +176,7 @@ test("SQLite create/edit/delete, read-only builtins, duplicate names, persistenc
     // Damaged definitions can still be inspected and deleted to recover.
     deleteAction(db, action.id);
     assert.throws(() => getAction(db, action.id), /not found/);
-    assert.equal(listActions(db).length, 4);
+    assert.equal(listActions(db).length, 5);
     // A real SQLite write failure must surface, not return a successful save.
     db.sql.exec("PRAGMA query_only=ON");
     assert.throws(() => saveAction(db, { name: "Cannot write", markdown }));
