@@ -205,6 +205,7 @@ try {
       SIAAS_DESKTOP_KEY: key,
       SIAAS_DESKTOP_ORIGIN: origin,
       OLLAMA_BASE_URL: `http://127.0.0.1:${ollama.address().port}`,
+      SIAAS_CHAT_MAX_OUTPUT_TOKENS: "768",
       NEXT_TELEMETRY_DISABLED: "1",
     },
     stdio: ["ignore", "pipe", "pipe"],
