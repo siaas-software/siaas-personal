@@ -8,6 +8,7 @@
 export type ProjectOrchestrationConfig = {
   enabled: boolean;
   instructions: string;
+  share_results: boolean;
   assistant_ids: string[];
   max_steps: number;
 };
@@ -70,18 +71,21 @@ const invalid = (message: string): never => {
 
 export function parseProjectOrchestration(value: unknown): ProjectOrchestrationConfig {
   if (value === undefined || value === null)
-    return { enabled: false, instructions: "", assistant_ids: [], max_steps: 4 };
+    return { enabled: false, instructions: "", share_results: false, assistant_ids: [], max_steps: 4 };
   const input = record(value);
-  if (!keys(input, ["enabled", "instructions", "assistant_ids", "max_steps"]))
+  if (!keys(input, ["enabled", "instructions", "share_results", "assistant_ids", "max_steps"]))
     invalid("Campi di orchestrazione non riconosciuti.");
   const enabled = input.enabled ?? false;
   const instructions = input.instructions ?? "";
+  const shareResults = input.share_results ?? false;
   const assistantIds = input.assistant_ids ?? [];
   const maxSteps = input.max_steps ?? 4;
   if (typeof enabled !== "boolean")
     invalid("enabled deve essere booleano.");
   if (typeof instructions !== "string" || instructions.length > 4000)
     invalid("Istruzioni troppo lunghe o non valide.");
+  if (typeof shareResults !== "boolean")
+    invalid("share_results deve essere booleano.");
   if (!Array.isArray(assistantIds) || assistantIds.length > 8 ||
       !assistantIds.every(validId) ||
       new Set(assistantIds).size !== assistantIds.length)
@@ -93,6 +97,7 @@ export function parseProjectOrchestration(value: unknown): ProjectOrchestrationC
   return {
     enabled: enabled as boolean,
     instructions: instructions.trim(),
+    share_results: shareResults,
     assistant_ids: [...assistantIds] as string[],
     max_steps: maxSteps as number,
   };
@@ -163,7 +168,8 @@ export async function executeProjectPlan(options: {
   const steps: { assistant_id: string; text: string }[] = [];
   for (const step of plan.steps) {
     signal.throwIfAborted();
-    const previousResult = steps.length ? { ...steps[steps.length - 1] } : null;
+    const previousResult = config.share_results && steps.length
+      ? { ...steps[steps.length - 1] } : null;
     const result = await delegate({
       projectId: project.id,
       assistantId: step.assistant_id,
