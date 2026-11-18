@@ -39,7 +39,7 @@ export function executeNativeAction(
   const entries = visible.map((document) => {
     const name = String(document.title ?? "Documento senza titolo")
       .slice(0, 180)
-      .replace(/[^\\p{L}\\p{N} .,()\'_-]/gu, " ");
+      .replace(/[^\p{L}\p{N} .,()'_-]/gu, " ");
     return `- ${name}`;
   });
   const content = visible.length
