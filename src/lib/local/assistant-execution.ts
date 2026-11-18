@@ -5,7 +5,7 @@ import { isDesktop } from "../runtime";
 
 import { analysisMarkdown } from "../structured/service";
 import { ragPrompt } from "../rag";
-import { requireOllama, streamLocal, type OllamaMessage } from "../ollama";
+import { requireOllama, streamLocal, OllamaError, type OllamaMessage } from "../ollama";
 import { structuredChat } from "../structured/chat";
 import { localIntent, executeLocalChat } from "./chat-router";
 import { executeNativeAction } from "./native-actions";
