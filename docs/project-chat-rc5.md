@@ -34,7 +34,7 @@ Assistant conversations and project orchestration runs are stored separately. A 
 
 - `src/lib/local/assistant-execution.ts`: shared execution service used by both paths (native Actions, local deterministic calculations/search, structured Chat, agent tool calling and standard Ollama).
 - `src/app/api/chat/route.ts`: direct-chat adapter preserving conversation lease, streaming NDJSON, metrics, message history, sources and artifacts while calling the shared service.
-- `src/lib/local/database.ts`: additive `project_runs` table, local SQLite schema version 5 (previous version 4), project FK cascade and isolated metadata.
+- `src/lib/local/database.ts`: additive `project_runs` table, local existing SQLite schema user_version 4 (additive table, no compatibility-breaking version bump), project FK cascade and isolated metadata.
 - `src/app/api/projects/[id]/runs/route.ts`: project chat GET/POST with authorization, sequential orchestrator, current membership checks, bounded execution, persistent history and recovery.
 - `src/app/api/projects/[id]/runs/[runId]/artifacts/[artifactId]/route.ts`: scoped Markdown artifact download.
 - `src/components/project-chat.tsx`: existing project-page chat, configuration and timeline.
@@ -60,7 +60,7 @@ Assistant conversations and project orchestration runs are stored separately. A 
 3. Native Electron test of project configuration, two-assistant orchestration, step trace, artifact download, failure/cancel/restart, multiple projects, shared assistant isolation and assistant chat regression.
 4. Verify no-Ollama `2+2` in direct and project chat: no Ollama HTTP calls and identical deterministic result.
 5. Verify model-dependent requests with a real supported Ollama model, especially Gemma E4B AFTER applying PR #38 (capability-based eligibility). Check Ollama `/api/show` `tools` metadata, multi-tool selection, required tool arguments, accuracy and unsupported-model fallback.
-6. Verify RC4/RC5 regression gates, cross-platform packaging, source permissions, data preservation, SQLite migration 4→5, report download and error states.
+6. Verify RC4/RC5 regression gates, cross-platform packaging, source permissions, data preservation, additive project_runs table creation and reopening with legacy v4 data, report download and error states.
 7. Capture logs and classifications PASS/FAIL/BLOCKED/NOT RUN. Failures or untested suites block acceptance; source inspection alone is not a PASS.
 
 No merge, protected-branch modification, tag, release publication or deployment is authorized by this PR alone.
