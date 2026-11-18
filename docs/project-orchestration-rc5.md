@@ -8,14 +8,14 @@
 - Each assistant keeps its prompt, chat, selected documents/folders/URLs, its own **Hybrid Router** and locally configured Ollama model.
 - A delegated request MUST enter the **same assistant execution pipeline** used by direct chat. Do not add a parallel "agent-only" inferencing path or a second router at project level.
 - Project orchestration is **opt-in**, disabled by default. Project configuration names explicitly delegated assistants (maximum eight).
-- The orchestrator passes structured assignments and confirmed outputs between assistants. It cannot grant new filesystem, network, document or tool privileges. A target assistant rechecks its own resources when it executes. The orchestrator must not give an assistant raw document contents of another assistant unless explicitly authorized through the project's handoff policy.
+- The orchestrator passes structured assignments. **Result-text sharing is disabled by default** and requires the explicit `share_results: true` project setting. It cannot grant new filesystem, network, document or tool privileges. A target assistant rechecks its own resources when it executes. The orchestrator must not give an assistant raw document contents of another assistant unless explicitly authorized through the project's handoff policy.
 - Existing **Actions are Markdown shortcuts**, not executable tool definitions. Add default Actions only AFTER their underlying deterministic tool exists and is available; do not silently change built-in Actions into code.
 - For PDF fill use a bounded TypeScript document tool only when implemented and verified; require a writable, authorized destination. Preserve the source and reject unsupported flat PDFs, absent fields, ambiguous templates and failed verification. No mandatory Python or cloud dependency.
 - Gemma E4B acceptance follows capability-based PR #38; do not restore an 8B gate. Report whether each model actually calls tools and completes tasks, not merely its declared capabilities.
 
 ## Foundation implemented in this PR
 
-1. `src/lib/project-orchestration.ts` — pure, bounded, sequential orchestrator contract with an injected delegate. Validates project/tenant membership, configured assistant allowlist, step budgets, typed handoff, abort and error propagation.
+1. `src/lib/project-orchestration.ts` — pure, bounded, sequential orchestrator contract with an injected delegate. Validates project/tenant membership, configured assistant allowlist, step budgets, explicitly opted-in typed result handoff, abort and error propagation.
 2. `Project.orchestration` optional catalog field and `PATCH /api/projects/:id` validation/persistence. SQLite already stores row JSON; no migration required for this optional property. Existing projects stay disabled.
 3. `POST /api/projects/:id/orchestration/plan` — validates a caller-provided sequence, **returns `validated_not_executed`**. This endpoint cannot call models, touch documents or claim a completed workflow.
 4. `tests/project-orchestration.test.ts` — unit cases for budgets, permissions, handoff, cancellation and failure.
@@ -27,6 +27,7 @@ Example project configuration (submit through the existing project PATCH route w
   "name": "Document Management",
   "orchestration": {
     "enabled": true,
+    "share_results": true,
     "instructions": "Find the selected document; hand off only the authorized result.",
     "assistant_ids": ["<assistant-A-uuid>", "<assistant-B-uuid>"],
     "max_steps": 2
@@ -42,6 +43,8 @@ Example preflight request to `/api/projects/<project-uuid>/orchestration/plan`:
   {"assistant_id":"<assistant-B-uuid>","task":"Validate the field mapping for authorized JSON data"}
 ]}
 ```
+
+Setting `share_results: true` explicitly authorizes passing assistant-produced **text** to the next participating assistant, not extending its file/folder/URL permissions. Do not enable for confidential cross-assistant data without user intent. The adapter must treat this text as untrusted data and revalidate every referenced document ID in the receiving assistant scope.
 
 The API returns **`status: "validated_not_executed"`**, not `success`. Actual execution is deliberately not exposed by this draft.
 
