@@ -32,12 +32,15 @@ export const EMBEDDING_DIMENSIONS = 768;
 export const MAX_FILE_BYTES = 10 * 1024 * 1024;
 export const MAX_DOCUMENT_CHARS = 150_000;
 export const FILE_EXTENSIONS = ["pdf", "docx", "txt", "md", "xlsx", "csv"];
+import type { ProjectOrchestrationConfig } from "./project-orchestration";
+
 export type Project = {
   id: string;
   tenant_id: string;
   name: string;
   description: string;
   template_id: string | null;
+  orchestration?: ProjectOrchestrationConfig;
   color: string;
   created_at: string;
 };

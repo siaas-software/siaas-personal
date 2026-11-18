@@ -1,5 +1,10 @@
 import { removeProjectFiles } from "@/lib/delete-resource";
 import { localWorkspace, fail, HttpError, jsonBody, uuid } from "@/lib/http";
+import {
+  parseProjectOrchestration,
+  validateProjectParticipants,
+  ProjectOrchestrationError,
+} from "@/lib/project-orchestration";
 import { z } from "zod";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -10,13 +15,33 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       name: z.string().trim().min(1).max(100),
       description: z.string().trim().max(500).optional(),
       color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+      orchestration: z.unknown().optional(),
     }).parse(await jsonBody(req));
-    const { data, error } = await db.from("projects").update(input)
+    const update: Record<string, unknown> = {
+      name: input.name,
+      ...(input.description !== undefined ? { description: input.description } : {}),
+      ...(input.color !== undefined ? { color: input.color } : {}),
+    };
+    if (input.orchestration !== undefined) {
+      const { data: project, error: pError } = await db.from("projects")
+        .select("*").eq("id", id).eq("tenant_id", tenantId).maybeSingle();
+      if (pError) throw pError;
+      if (!project) throw new HttpError(404, "Progetto non trovato.");
+      const config = parseProjectOrchestration(input.orchestration);
+      const { data: members, error: aError } = await db.from("assistants")
+        .select("*").eq("project_id", id).eq("tenant_id", tenantId);
+      if (aError) throw aError;
+      validateProjectParticipants(project, tenantId, config, members ?? []);
+      update.orchestration = config;
+    }
+    const { data, error } = await db.from("projects").update(update)
       .eq("id", id).eq("tenant_id", tenantId).select().maybeSingle();
     if (error) throw error;
     if (!data) throw new HttpError(404, "Progetto non trovato.");
     return Response.json(data);
   } catch (error) {
+    if (error instanceof ProjectOrchestrationError)
+      return Response.json({ error: error.message, code: error.code }, { status: error.status });
     return fail(error);
   }
 }
