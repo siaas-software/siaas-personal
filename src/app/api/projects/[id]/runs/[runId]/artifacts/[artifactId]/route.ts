@@ -7,10 +7,10 @@ type Context = { params: Promise<{ id: string; runId: string; artifactId: string
 export async function GET(req: Request, { params }: Context) {
   try {
     const { db, tenantId } = await localWorkspace(req);
-    const params = await params;
-    const projectId = uuid.parse(params.id);
-    const runId = uuid.parse(params.runId);
-    const artifactId = uuid.parse(params.artifactId);
+    const values = await params;
+    const projectId = uuid.parse(values.id);
+    const runId = uuid.parse(values.runId);
+    const artifactId = uuid.parse(values.artifactId);
     const project = db.get("projects", projectId);
     if (!project || project.tenant_id !== tenantId)
       throw new HttpError(404, "Progetto non trovato.");
