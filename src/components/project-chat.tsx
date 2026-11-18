@@ -14,6 +14,7 @@ type Run = {
     status: string;
     text: string;
     execution_path?: string;
+    artifacts?: { id: string; title: string; content: string }[];
   }[];
   created_at: string;
 };
@@ -226,6 +227,19 @@ export function ProjectChat({
                       <strong>{assistants.find((a) => a.id === step.assistant_id)?.name ?? "Assistente non disponibile"}</strong>
                       <p className="muted small">{step.execution_path ?? "Esecuzione"} · {step.status}</p>
                       <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{step.text}</pre>
+                      {!!step.artifacts?.length && (
+                        <div className="sources" aria-label="Documenti generati">
+                          {step.artifacts.map((artifact) => (
+                            <a
+                              key={artifact.id}
+                              className="button compact"
+                              href={`/api/projects/${encodeURIComponent(project.id)}/runs/${encodeURIComponent(run.id)}/artifacts/${encodeURIComponent(artifact.id)}`}
+                            >
+                              {artifact.title} · Markdown
+                            </a>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </details>
