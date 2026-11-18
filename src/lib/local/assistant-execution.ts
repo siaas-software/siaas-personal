@@ -10,7 +10,6 @@ import { structuredChat } from "../structured/chat";
 import { localIntent, executeLocalChat } from "./chat-router";
 import { executeNativeAction } from "./native-actions";
 import { prepareAssistantResearch, researchLimitations } from "./assistant-research";
-import { runLocalAgent } from "./agent";
 import type { LocalDatabase } from "./database";
 
 export type AssistantExecutionEvent = { type: string; [key: string]: unknown };
@@ -135,6 +134,7 @@ export async function executeAssistantTask(options: {
     });
     sources = research.sources;
     if (agentMode) {
+      const { runLocalAgent } = await import("./agent");
       const result = await runLocalAgent({
         db,
         language,
