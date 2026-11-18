@@ -85,7 +85,7 @@ function fixture(
 test("migration maps every compatible shortcut exactly; Data Cell retains its native prompt", () => {
   assert.deepEqual(
     BUILTIN_ACTIONS.map((a) => a.id),
-    ["builtin:mindmap", "builtin:report", "builtin:flashcards", "builtin:quiz"],
+    ["builtin:mindmap", "builtin:report", "builtin:flashcards", "builtin:quiz", "builtin:list-sources"],
   );
   for (const legacy of SHORTCUT_ACTIONS.filter((a) => a.id !== "table")) {
     const action = BUILTIN_ACTIONS.find(
