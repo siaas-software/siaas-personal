@@ -18,13 +18,13 @@ const ollama = createServer(async (req, res) => {
   const body = raw ? JSON.parse(raw) : {};
   calls.push(req.url);
   if (req.url === "/api/show") {
-    const count = { "qwen3:8b": 8e9, "qwen3:7b": 7e9, "plain:14b": 14e9 }[
+    const count = { "qwen3:8b": 8e9, "qwen3:7b": 7e9, "gemma4:e4b-it-q4_K_M": 7_518_069_290, "plain:14b": 14e9 }[
       body.model
     ];
     res.setHeader("Content-Type", "application/json");
     return res.end(
       JSON.stringify({
-        capabilities: body.model.startsWith("qwen3:")
+        capabilities: body.model.startsWith("qwen3:") || body.model === "gemma4:e4b-it-q4_K_M"
           ? ["completion", "tools"]
           : ["completion"],
         model_info: count ? { "general.parameter_count": count } : {},
@@ -39,7 +39,7 @@ const ollama = createServer(async (req, res) => {
           { name: "qwen2.5:1.5b", digest },
           { name: "qwen2.5-coder:3b", digest },
           { name: "embeddinggemma:latest", digest },
-          ...["qwen3:8b", "qwen3:7b", "plain:14b", "unknown:latest"].map(
+          ...["qwen3:8b", "qwen3:7b", "gemma4:e4b-it-q4_K_M", "plain:14b", "unknown:latest"].map(
             (name) => ({ name, digest }),
           ),
         ],
@@ -54,7 +54,7 @@ const ollama = createServer(async (req, res) => {
       }),
     );
   if (req.url === "/api/chat") {
-    if (body.model === "qwen3:8b") {
+    if (["qwen3:8b", "qwen3:7b", "gemma4:e4b-it-q4_K_M"].includes(body.model)) {
       assert.deepEqual(body.tools.map((t) => t.function.name).sort(), [
         "create_report",
         "inspect_datasets",
@@ -289,7 +289,8 @@ try {
   let agentFixture;
   for (const [model, enabled] of [
     ["qwen3:8b", true],
-    ["qwen3:7b", false],
+    ["qwen3:7b", true],
+    ["gemma4:e4b-it-q4_K_M", true],
     ["plain:14b", false],
     ["unknown:latest", false],
   ]) {
@@ -312,7 +313,7 @@ try {
         text: "SIAAS Personal è operativo e conserva i documenti sul PC.",
       });
       await api("/api/documents/" + d.id + "/process", {});
-      agentFixture = { assistant: a, conversation: c };
+      if (model === "qwen3:8b") agentFixture = { assistant: a, conversation: c };
     }
     const response = await request("/api/chat", {
       conversation_id: c.id,
@@ -493,7 +494,7 @@ try {
         headers,
         body: JSON.stringify({
           ...agentFixture.assistant,
-          model_id: "ollama/qwen3:7b",
+          model_id: "ollama/plain:14b",
         }),
       },
     );
