@@ -20,7 +20,7 @@ const members = [
   { id: otherId, project_id: "66666666-6666-4666-8666-666666666666", tenant_id: tenant },
 ];
 const config = parseProjectOrchestration({
-  enabled: true, assistant_ids: [aId, bId], instructions: "Delegate in order.", max_steps: 2,
+  enabled: true, share_results: true, assistant_ids: [aId, bId], instructions: "Delegate in order.", max_steps: 2,
 });
 const plan = { steps: [
   { assistant_id: aId, task: "Find the selected document" },
@@ -30,6 +30,7 @@ const plan = { steps: [
 test("project orchestration is opt-in, bounded and rejects unknown settings", () => {
   assert.equal(parseProjectOrchestration(undefined).enabled, false);
   assert.equal(parseProjectOrchestration(undefined).max_steps, 4);
+  assert.equal(parseProjectOrchestration(undefined).share_results, false);
   assert.deepEqual(config.assistant_ids, [aId, bId]);
   for (const bad of [
     { enabled: true, assistant_ids: [] },
@@ -91,6 +92,21 @@ test("cross-project membership and foreign tenant are rejected before delegation
     delegate: async () => { calls++; return { status: "complete", text: "unsafe" }; },
   }), ProjectOrchestrationError);
   assert.equal(calls, 0);
+});
+
+test("handoff is disabled by default and cannot silently share assistant output", async () => {
+  const noShare = { ...config, share_results: false };
+  let second = false;
+  await executeProjectPlan({
+    project, tenantId: tenant, config: noShare, members, plan,
+    signal: new AbortController().signal,
+    async delegate({ previousResult }) {
+      assert.equal(previousResult, null);
+      if (second) return { status: "complete", text: "Done without handoff" };
+      second = true;
+      return { status: "complete", text: "Private assistant A result" };
+    },
+  });
 });
 
 test("failed delegation stops the workflow; nothing reports false success", async () => {
