@@ -209,7 +209,7 @@ try {
   const builtins = (await api("/api/actions")).body;
   assert.deepEqual(
     builtins.map((a) => a.id),
-    ["builtin:mindmap", "builtin:report", "builtin:flashcards", "builtin:quiz"],
+    ["builtin:mindmap", "builtin:report", "builtin:flashcards", "builtin:quiz", "builtin:list-sources"],
   );
   for (const action of builtins) {
     assert.equal(
@@ -252,7 +252,7 @@ try {
   assert.equal(generated.status, 200, JSON.stringify(generated));
   assert.equal(
     (await api("/api/actions")).body.length,
-    4,
+    5,
     "preview/cancellation creates no Action",
   );
   assert.equal(
@@ -324,7 +324,7 @@ try {
     (await api(`/api/actions/${id}`)).body.markdown,
     edited.body.markdown,
   );
-  assert.equal((await api("/api/actions")).body.length, 5);
+  assert.equal((await api("/api/actions")).body.length, 6);
   assert.equal(
     (await api("/api/actions/models")).body.modelId,
     "ollama/test:3b",

@@ -84,8 +84,8 @@ export function ActionsPage({ onModels }: { onModels: () => void }) {
       </div>
       <p className="muted">
         {italian
-          ? "Le Actions guidano il modello: non sono plugin eseguibili e non aggiungono nuove capacità. Data Cell (Tabella dati) resta una funzione separata, solo in chat."
-          : "Actions guide the model: they are not executable plugins and do not add capabilities. Data Cell (Data table) remains a separate chat-only feature."}
+          ? "Le Actions personalizzate guidano il modello. Alcune Actions integrate attivano capacità locali già disponibili. Le Actions integrate sono di sola lettura."
+          : "Custom Actions guide the model. Some built-in Actions invoke existing local capabilities. Built-in Actions are read-only."}
       </p>
       {(error || failure) && (
         <p role="alert">
@@ -135,6 +135,11 @@ export function ActionsPage({ onModels }: { onModels: () => void }) {
                   <h3>
                     <Zap size={20} aria-hidden="true" /> {action.name}
                   </h3>
+                  {action.kind === "builtin" && action.execution === "native" && (
+                    <p className="muted small">
+                      {italian ? "Capacità applicativa locale · Sola lettura" : "Local application capability · Read-only"}
+                    </p>
+                  )}
                   <details>
                     <summary>
                       {italian
