@@ -64,18 +64,29 @@ export async function POST(req: Request, { params }: Context) {
       .filter((assistant) => assistant.project_id === projectId && assistant.tenant_id === tenantId);
     validateProjectParticipants(project, tenantId, config, members);
     const run = db.transaction(() => {
+      const now = Date.now();
       const current = db.rows("project_runs")
         .filter((row) => row.project_id === projectId && row.status === "running");
-      // Reject concurrent requests; a stale record is retained for audit, not silently overwritten.
-      if (current.length)
-        throw new ProjectOrchestrationError(
-          409, "run_in_progress", "Esiste già un'esecuzione in corso per il progetto.",
-        );
+      for (const row of current) {
+        if (typeof row.lease_until === "string" && Date.parse(row.lease_until) <= now) {
+          db.put("project_runs", {
+            ...row,
+            status: "error",
+            error: "Esecuzione precedente interrotta o scaduta.",
+            completed_at: new Date(now).toISOString(),
+          }, true);
+        } else {
+          throw new ProjectOrchestrationError(
+            409, "run_in_progress", "Esiste già un'esecuzione in corso per il progetto.",
+          );
+        }
+      }
       return db.put("project_runs", {
         tenant_id: tenantId,
         project_id: projectId,
         question,
         status: "running",
+        lease_until: new Date(Date.now() + 300_000).toISOString(),
         steps: [],
         result: null,
       });
@@ -138,6 +149,9 @@ export async function POST(req: Request, { params }: Context) {
             execution_path: output.executionPath,
             model_id: output.executionPath === "model" ? assistant.model_id : null,
             sources: output.sources.map((source) => ({ title: source.title, kind: source.kind })),
+            artifacts: output.artifacts.map((artifact) => ({
+              id: artifact.id, title: artifact.title.slice(0, 120), content: artifact.content.slice(0, 32_000),
+            })),
           }],
         }, true);
         return { status: "complete", text: output.text };
