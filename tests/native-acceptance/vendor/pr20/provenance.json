@@ -1,0 +1,23 @@
+{
+  "repository": "siaas-software/siaas-personal",
+  "commit": "1496298a6619708e56bba1b1a2d08c0b542b2d80",
+  "license": "MIT (repository LICENSE)",
+  "files": {
+    "desktop-smoke.mjs": {
+      "sourcePath": "tests/desktop-smoke.mjs",
+      "sha256": "e67d023c7a5243ea336a985a266f9841867fdb414237440f8916e0d725de39d6"
+    },
+    "helpers/runtime.mjs": {
+      "sourcePath": "tests/helpers/runtime.mjs",
+      "sha256": "cf548964c777e76d51cac3d686b653797d4cd905f68cc482612aa1402e90cd05"
+    },
+    "helpers/electron.mjs": {
+      "sourcePath": "tests/helpers/electron.mjs",
+      "sha256": "d7adcdf818cc17d24f8f6f79577555c1cbf9a5da8875e29e3d5ce77ea8e17d24"
+    },
+    "helpers/playwright-electron.mjs": {
+      "sourcePath": "tests/helpers/playwright-electron.mjs",
+      "sha256": "f436ebb3d14678a1f23711813f3ec56de45401f9a44ac6e52c39a22961c681d3"
+    }
+  }
+}
