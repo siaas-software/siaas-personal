@@ -40,7 +40,7 @@ export function agentStatusText(status?: AgentEligibility) {
   if (!status) return "Standard chat · model check unavailable.";
   switch (status.reason) {
     case "ready":
-      return "Agent active · tool calling available; verify results carefully.";
+      return "Agent active · Ollama declares tool support; verify results carefully.";
     case "no-tools":
       return "Standard chat · this model does not declare tool support.";
     default:
