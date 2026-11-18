@@ -133,6 +133,7 @@ export async function POST(req: Request) {
           };
           task = (async () => {
             let text = "";
+            let modelOutputTruncated = false;
             try {
               send({ type: "start", id: responseId, agent_mode: useAgent });
               let sources: Source[] = [];
@@ -343,6 +344,7 @@ export async function POST(req: Request) {
                       if (event.type === "done") {
                         inputTokens = event.inputTokens;
                         outputTokens = event.outputTokens;
+                        modelOutputTruncated = event.truncated;
                         continue;
                       }
                       text += event.text;
@@ -359,6 +361,33 @@ export async function POST(req: Request) {
                     if (!text.trim()) throw new Error("Empty generation");
                   }
                 }
+              }
+              if (modelOutputTruncated) {
+                const warning =
+                  language === "it"
+                    ? "\n\n> **Risposta incompleta:** il modello ha raggiunto il limite dei token generabili. Il testo precedente potrebbe essere troncato; richiedi una risposta più breve."
+                    : "\n\n> **Incomplete response:** the model reached its output-token limit. The text above may be truncated; request a shorter answer.";
+                text += warning;
+                send({ type: "delta", text: warning });
+                const { error: partialError } = await db
+                  .from("messages")
+                  .update({
+                    content: text,
+                    status: "error",
+                    sources,
+                    input_tokens: inputTokens,
+                    output_tokens: outputTokens,
+                  })
+                  .eq("id", responseId);
+                if (partialError) throw partialError;
+                send({
+                  type: "error",
+                  error:
+                    language === "it"
+                      ? "La generazione ha raggiunto il limite dei token: risposta incompleta."
+                      : "Generation reached the output-token limit: incomplete response.",
+                });
+                return;
               }
               const { error: saveError } = await db
                 .from("messages")
