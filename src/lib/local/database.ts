@@ -74,7 +74,7 @@ export class LocalDatabase {
     const version = this.sql.prepare("PRAGMA user_version").get() as {
       user_version: number;
     };
-    if (version.user_version > 5)
+    if (version.user_version > 4)
       throw new Error(
         "Database creato da una versione più recente di SIAAS Personal.",
       );
@@ -140,7 +140,7 @@ export class LocalDatabase {
       if (research.success)
         this.put("assistants", { ...assistant, research: research.data }, true);
     }
-    this.sql.exec("PRAGMA user_version=5");
+    this.sql.exec("PRAGMA user_version=4");
     this.migrateFiles();
     removeEmptyLegacyDirectories(
       directory,
