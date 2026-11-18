@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { actionInvocation, type ActionSkill } from "../actions";
 import type { Assistant, AgentArtifact, Source } from "../catalog";
 import { isDesktop } from "../runtime";
-import { HttpError } from "../http";
+
 import { analysisMarkdown } from "../structured/service";
 import { ragPrompt } from "../rag";
 import { requireOllama, streamLocal, type OllamaMessage } from "../ollama";
