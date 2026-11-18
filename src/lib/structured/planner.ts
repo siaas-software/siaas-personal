@@ -67,6 +67,18 @@ export function planningCatalog(db: LocalDatabase, assistantId: string) {
     );
   return catalog;
 }
+export function structuredPlanningTimeoutMs(
+  value = process.env.SIAAS_STRUCTURED_PLANNER_TIMEOUT_MS,
+) {
+  const parsed = Number(value);
+  return value !== undefined &&
+    Number.isSafeInteger(parsed) &&
+    parsed >= 30_000 &&
+    parsed <= 180_000
+    ? parsed
+    : 120_000;
+}
+
 export async function planQuestion(
   db: LocalDatabase,
   assistantId: string,
@@ -90,6 +102,13 @@ export async function planQuestion(
     throw error;
   }
   const catalog = planningCatalog(db, assistantId);
+  const planningTimeoutMs = structuredPlanningTimeoutMs();
+  const timeoutSignal = AbortSignal.timeout(planningTimeoutMs);
+  const planningSignal = AbortSignal.any([signal, timeoutSignal]);
+  const timeoutMessage =
+    "Structured planning timed out after " +
+    Math.round(planningTimeoutMs / 1000) +
+    " seconds. No calculation was executed. Use the model-free query editor or retry with a faster local model.";
   let response: Response;
   try {
     response = await monitoredFetch({ assistantId }, cancellable)(
@@ -97,7 +116,7 @@ export async function planQuestion(
       {
         method: "POST",
         redirect: "error",
-        signal: AbortSignal.any([signal, AbortSignal.timeout(60000)]),
+        signal: planningSignal,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: modelId.slice(7),
@@ -118,10 +137,8 @@ export async function planQuestion(
     );
   } catch (error) {
     signal.throwIfAborted();
-    if (error instanceof Error && error.name === "TimeoutError")
-      throw new AnalysisError(
-        "Structured planning timed out after 60 seconds. No calculation was executed. Retry after the model has loaded or choose a faster local model.",
-      );
+    if (timeoutSignal.aborted || (error instanceof Error && error.name === "TimeoutError"))
+      throw new AnalysisError(timeoutMessage);
     throw new AnalysisError(
       "Ollama connection failed during structured planning. No calculation was executed.",
     );
@@ -147,10 +164,11 @@ export async function planQuestion(
     }
   } catch (error) {
     signal.throwIfAborted();
+    if (timeoutSignal.aborted || (error instanceof Error && error.name === "TimeoutError"))
+      throw new AnalysisError(timeoutMessage);
+    if (error instanceof AnalysisError) throw error;
     throw new AnalysisError(
-      error instanceof Error && error.name === "TimeoutError"
-        ? "Structured planning timed out while reading the response. No calculation was executed."
-        : "Incomplete structured planning response. No calculation was executed.",
+      "Incomplete structured planning response. No calculation was executed.",
     );
   } finally {
     await reader.cancel().catch(() => {});
