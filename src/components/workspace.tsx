@@ -22,6 +22,7 @@ import {
 import { AssistantMascot } from "./assistant-mascot";
 import { Overview } from "./overview";
 import { ProjectActions } from "./project-actions";
+import { ProjectChat } from "./project-chat";
 import type { ProjectTemplate } from "@/lib/templates";
 import { templateCardStyle } from "@/lib/template-presentation";
 import { DesktopUpdatesPanel } from "./desktop-updates";
@@ -1033,6 +1034,15 @@ export function Workspace() {
                       New assistant
                     </button>
                   </div>
+                  <ProjectChat
+                    key={activeProject.id}
+                    project={activeProject}
+                    assistants={activeAssistants}
+                    onSaved={(next) => {
+                      setActiveProject(next);
+                      void load();
+                    }}
+                  />
                   <div className="stats-row">
                     <div>
                       <span>Assistants</span>
