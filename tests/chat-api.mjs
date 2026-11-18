@@ -142,6 +142,19 @@ const ollama = createServer(async (req, res) => {
         }) + "\n",
       );
     }
+    if (body.messages?.at(-1)?.content === "test output limit") {
+      assert.equal(body.options.num_predict, 768);
+      res.setHeader("Content-Type", "application/x-ndjson");
+      return res.end(
+        JSON.stringify({
+          message: { content: "Partial answer" },
+          done: true,
+          done_reason: "length",
+          prompt_eval_count: 27,
+          eval_count: 768,
+        }) + "\n",
+      );
+    }
     assert.equal(body.tools, undefined, "normal chat must not receive tools");
     res.setHeader("Content-Type", "application/x-ndjson");
     // Delay generation until after the route has returned its HTTP response.
@@ -286,6 +299,29 @@ try {
   await chat("confermi?", 1, 6);
   assert.equal(calls.filter((path) => path === "/api/chat").length, 3);
   assert.equal(calls.filter((path) => path === "/api/embed").length, 3);
+  const truncatedConversation = await api("/api/conversations", {
+    assistant_id: assistant.id,
+  });
+  const truncatedResponse = await request("/api/chat", {
+    conversation_id: truncatedConversation.id,
+    question: "test output limit",
+  });
+  assert.equal(truncatedResponse.status, 200);
+  const truncatedEvents = (await truncatedResponse.text())
+    .trim()
+    .split("\n")
+    .map((line) => JSON.parse(line));
+  assert.equal(truncatedEvents.at(-1).type, "error");
+  assert.match(truncatedEvents.at(-1).error, /output-token limit/);
+  const truncatedSaved = await api(
+    "/api/conversations/" + truncatedConversation.id,
+  );
+  const partial = truncatedSaved.messages.at(-1);
+  assert.equal(partial.status, "error");
+  assert.match(partial.content, /Partial answer/);
+  assert.match(partial.content, /Incomplete response/);
+  assert.equal(partial.input_tokens, 27);
+  assert.equal(partial.output_tokens, 768);
   let agentFixture;
   for (const [model, enabled] of [
     ["qwen3:8b", true],
