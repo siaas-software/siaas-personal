@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { Assistant, Project } from "@/lib/catalog";
 import type { ProjectOrchestrationConfig } from "@/lib/project-orchestration";
 
@@ -90,7 +90,7 @@ export function ProjectChat({
     }
   }
 
-  async function runTask(event: React.FormEvent) {
+  async function runTask(event: FormEvent) {
     event.preventDefault();
     if (busy || !question.trim() || !project.orchestration?.enabled) return;
     setBusy(true);
@@ -165,7 +165,7 @@ export function ProjectChat({
             {!assistants.length && <p className="muted">Crea prima un assistente nel progetto.</p>}
           </fieldset>
           <label style={{ display: "block", marginTop: 12 }}>
-            Istruzioni dell'orchestratore (solo guida, non concede permessi)
+            Istruzioni dell'orchestratore (preferenze per gli assistenti; non concedono permessi)
             <textarea
               aria-label="Istruzioni dell'orchestratore"
               value={config.instructions}
