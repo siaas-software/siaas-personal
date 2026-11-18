@@ -52,7 +52,7 @@ export async function executeAssistantTask(options: {
   const intent = action ? null : localIntent(question);
   const modelId = assistant.model_id;
   if (!nativeAction && !intent && !modelId)
-    throw new HttpError(
+    throw new OllamaError(
       409,
       language === "it"
         ? "Questa richiesta richiede un modello locale oppure una domanda più specifica. Scrivi /aiuto per le funzioni disponibili."
