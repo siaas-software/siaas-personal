@@ -1,6 +1,7 @@
 import { executeLocalChat, localIntent } from "@/lib/local/chat-router";
 import { analysisMarkdown } from "@/lib/structured/service";
 import { actionInvocation } from "@/lib/actions";
+import { executeNativeAction } from "@/lib/local/native-actions";
 import { getAction } from "@/lib/local/actions";
 import {
   prepareAssistantResearch,
@@ -45,6 +46,7 @@ export async function POST(req: Request) {
       .single();
     if (!assistant) throw new HttpError(404, "Assistente non trovato.");
     const action = action_id ? getAction(db, action_id) : undefined;
+    const nativeAction = action?.kind === "builtin" && action.execution === "native" ? action : null;
     const invocation = actionInvocation(question, action);
     const inferenceContext = {
       assistantId: assistant.id,
@@ -52,7 +54,7 @@ export async function POST(req: Request) {
       conversationId: conversation_id,
     };
     const intent = action ? null : localIntent(question);
-    if (!intent && !assistant.model_id) {
+    if (!intent && !nativeAction && !assistant.model_id) {
       throw new HttpError(
         409,
         language === "it"
@@ -85,7 +87,7 @@ export async function POST(req: Request) {
     try {
       const signal = req.signal;
       signal.throwIfAborted();
-      const runtime = intent
+      const runtime = intent || nativeAction
         ? null
         : await requireOllama(assistant.model_id, (url, init) =>
             fetch(url, {
@@ -123,8 +125,8 @@ export async function POST(req: Request) {
           conversation_id,
           role: "assistant",
           status: "pending",
-          model_id: intent ? null : assistant.model_id,
-          execution_path: intent?.kind ?? "model",
+          model_id: intent || nativeAction ? null : assistant.model_id,
+          execution_path: nativeAction ? "native-action" : (intent?.kind ?? "model"),
           ...(isDesktop() ? { agent_mode: useAgent } : {}),
           created_at: new Date(Date.now() + 1).toISOString(),
         },
@@ -163,7 +165,9 @@ export async function POST(req: Request) {
                 req.signal,
                 AbortSignal.timeout(240_000),
               ]);
-              const structured = intent
+              const structured = nativeAction
+                ? executeNativeAction(db, assistant.id, nativeAction, signal)
+                : intent
                 ? await executeLocalChat(
                     db,
                     assistant.id,
@@ -185,7 +189,7 @@ export async function POST(req: Request) {
                     },
                   });
               if (structured) {
-                if (intent) {
+                if (intent || nativeAction) {
                   text = structured.content;
                   send({ type: "delta", text });
                 }
