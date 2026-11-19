@@ -35,7 +35,6 @@ import type { OllamaRuntime } from "@/lib/ollama";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Zap,
-  ArrowUp,
   AudioLines,
   BookOpenText,
   Check,
