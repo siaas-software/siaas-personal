@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { Assistant, Project } from "@/lib/catalog";
 import type { ProjectOrchestrationConfig } from "@/lib/project-orchestration";
+import { ChatMarkdown } from "./chat-markdown";
+import { ChatComposer } from "./chat-composer";
 
 type Run = {
   id: string;
@@ -226,7 +228,7 @@ export function ProjectChat({
                     <div key={index} style={{ marginTop: 8 }}>
                       <strong>{assistants.find((a) => a.id === step.assistant_id)?.name ?? "Assistente non disponibile"}</strong>
                       <p className="muted small">{step.execution_path ?? "Esecuzione"} · {step.status}</p>
-                      <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{step.text}</pre>
+                      <div className="message-text"><ChatMarkdown content={step.text} /></div>
                       {!!step.artifacts?.length && (
                         <div className="sources" aria-label="Documenti generati">
                           {step.artifacts.map((artifact) => (
@@ -244,35 +246,24 @@ export function ProjectChat({
                   ))}
                 </details>
                 {run.status === "complete" && run.result && (
-                  <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere", marginTop: 12 }} aria-label="Risultato finale">{run.result}</pre>
+                  <div className="message-text" aria-label="Risultato finale"><ChatMarkdown content={run.result} /></div>
                 )}
                 {run.status === "error" && <p role="alert">{run.error ?? "Esecuzione interrotta."}</p>}
               </article>
             ))}
           </div>
-          <form onSubmit={(event) => void runTask(event)} style={{ marginTop: 12 }}>
-            <label htmlFor="project-chat-input">Richiesta al progetto</label>
-            <textarea
-              id="project-chat-input"
-              rows={3}
-              value={question}
-              onChange={(event) => setQuestion(event.target.value)}
-              maxLength={1800}
-              disabled={busy}
-              placeholder="Chiedi agli assistenti di collaborare..."
-              style={{ width: "100%" }}
-            />
-            <div className="button-row">
-              <button className="button primary" disabled={busy || !question.trim()}>
-                {busy ? "Esecuzione in corso…" : "Invia al progetto"}
-              </button>
-              {busy && (
-                <button type="button" className="button" onClick={() => cancel.current?.abort()}>
-                  Annulla
-                </button>
-              )}
-            </div>
-          </form>
+          <ChatComposer
+            id="project-chat-input"
+            label="Richiesta al progetto"
+            value={question}
+            onChange={setQuestion}
+            onSubmit={runTask}
+            busy={busy}
+            disabled={!project.orchestration?.enabled}
+            placeholder="Chiedi agli assistenti di collaborare..."
+            busyLabel="Esecuzione in corso…"
+            onCancel={() => cancel.current?.abort()}
+          />
         </>
       ) : (
         <p className="muted" style={{ marginTop: 12 }}>

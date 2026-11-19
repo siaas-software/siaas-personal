@@ -20,11 +20,11 @@ Assistant conversations and project orchestration runs are stored separately. A 
 
 ## User-visible behavior
 
-- A **Chat del progetto** panel on the existing project page contains history, final result, step traces, error states and optional project orchestration settings.
+- A **Chat del progetto** panel on the existing project page contains history, final result, step traces, error states and optional project orchestration settings. Both chat entry points reuse the same `ChatComposer` and `ChatMarkdown` UI primitives, while preserving separate conversation/run histories.
 - Orchestration defaults to **disabled** on existing and new projects.
 - Users explicitly select the assistants, choose their order (selection order), set a step budget (up to eight), specify optional coordinator preferences and may opt in to result sharing.
 - The first operational strategy is **bounded sequential execution**, with all selected assistants invoked in their chosen order. It is **not** autonomous LLM planning, model-driven assistant selection or a promise of parallel execution.
-- Each step receives the original task and, ONLY when `share_results: true`, bounded previous-step text. The receiver must revalidate any document references against its own resources.
+- Each step receives the **unchanged original task**. ONLY when `share_results: true`, a bounded typed `handoff` carries the previous result **as untrusted model context**; it is NOT concatenated to the request passed through deterministic intent routing. The receiver must revalidate any document references against its own resources. Deterministic operations (e.g. `2+2`) remain local and Ollama-free even with a handoff.
 - Project coordinator preferences are appended to MODEL requests only, never allowed to disable deterministic routing or grant new tools.
 - Runtime traces and report Markdown artifacts are preserved in project-run SQLite records. A project-only authenticated download endpoint provides Markdown reports; no arbitrary file access.
 - A failed step aborts the workflow and returns a failure, not a fabricated final result. Project runs have a bounded timeout, and stale running records can be marked interrupted after their lease expires.
@@ -37,10 +37,11 @@ Assistant conversations and project orchestration runs are stored separately. A 
 - `src/lib/local/database.ts`: additive `project_runs` table, local existing SQLite schema user_version 4 (additive table, no compatibility-breaking version bump), project FK cascade and isolated metadata.
 - `src/app/api/projects/[id]/runs/route.ts`: project chat GET/POST with authorization, sequential orchestrator, current membership checks, bounded execution, persistent history and recovery.
 - `src/app/api/projects/[id]/runs/[runId]/artifacts/[artifactId]/route.ts`: scoped Markdown artifact download.
-- `src/components/project-chat.tsx`: existing project-page chat, configuration and timeline.
+- `src/components/project-chat.tsx`: project-page chat, configuration and timeline; uses shared `ChatComposer` and `ChatMarkdown` UI components.
+- `src/components/chat-composer.tsx`: shared accessible, Enter-to-send composer used by individual assistant chat and project chat.
 - `src/components/workspace.tsx`: project panel integration.
 - `src/lib/project-orchestration.ts`, `src/lib/catalog.ts`, project settings PATCH and preflight route: contract carried from foundation PR #39.
-- `tests/project-chat-integration.test.ts`: deterministic direct/delegated parity, native scoped Action, SQLite project history/cascade. Additional API/GUI tests still required.
+- `tests/project-chat-integration.test.ts`: deterministic direct/delegated parity, untrusted handoff not bypassing local routing, native scoped Action, SQLite project history/cascade. Additional API/GUI tests still required.
 
 ## Safety, limitations and design boundaries
 
