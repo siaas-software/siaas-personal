@@ -1,0 +1,6 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> siaas-personal@1.1.0-rc.5 test:structured:api
+> node tests/structured-api.mjs
+
+PASS: standalone parser; XLSX/CSV without embeddings/Docker/Python; both template project creations; confirmed mappings and joins; exact shortage and multi-currency results; isolation and Origin guards; mocked Ollama JSON fallback, invalid plan and unsupported-request handling; persisted chat evidence/report; deletion.

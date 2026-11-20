@@ -52,7 +52,7 @@ try{
  const knowledge=await page.locator('.knowledge-panel').boundingBox(),chat=await page.locator('.workbench-chat').boundingBox();
  assert(knowledge.x+knowledge.width<=chat.x,'Knowledge must be left of chat');
  await page.getByText('The assistant can make mistakes. Please verify its responses.').waitFor();
- assert.equal(await page.locator('.shortcut-action').count(),5);
+ assert.equal(await page.locator('.shortcut-action').count(),6);
  await page.getByLabel('Source URI').fill('https://127.0.0.1/private');
  await page.getByRole('button',{name:'Add URI',exact:true}).click();
  await page.getByRole('alert').filter({hasText:/Unable to read|public/}).waitFor();
@@ -90,5 +90,5 @@ try{
  assert.equal(await page.locator('.app-version').innerText(), `Versione ${workspace.version}`);
  await page.screenshot({path:'test-results/workbench/italian-models.png',fullPage:true});
  assert.deepEqual(errors,[]);
- console.log('PASS: columns, English UI, five Shortcuts, URI error feedback, direct report consuming draft, preserved Data Cell draft, table modal/rendering, SQLite persistence, reload, responsive layout.');
+ console.log('PASS: columns, English UI, six shortcuts (five built-in Actions and Data Cell), URI error feedback, direct report consuming draft, preserved Data Cell draft, table modal/rendering, SQLite persistence, reload, responsive layout.');
 }finally{if(browser)await browser.close();server.kill();await new Promise(r=>server.once('exit',r));await new Promise(r=>ollama.close(r));await rm(dir,{recursive:true,force:true});}

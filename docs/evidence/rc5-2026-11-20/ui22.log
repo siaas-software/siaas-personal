@@ -1,0 +1,8 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> siaas-personal@1.1.0-rc.3 test:ui
+> node tests/ui-smoke.mjs
+
+PASS: first guest load, actual SQLite write, account-free updates UI, preserved data, reload and local API protection.
+PASS: real desktop UI/API/SQLite; template configuration, private-data exclusion, named export/import, deletion and restart, six built-ins, real cards, preserved white default with accessible palette display, sidebar, palette editing/background, no project-list Ollama banner.
+PASS: columns, English UI, five Shortcuts, URI error feedback, direct report consuming draft, preserved Data Cell draft, table modal/rendering, SQLite persistence, reload, responsive layout.

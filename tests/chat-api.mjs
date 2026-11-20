@@ -18,13 +18,13 @@ const ollama = createServer(async (req, res) => {
   const body = raw ? JSON.parse(raw) : {};
   calls.push(req.url);
   if (req.url === "/api/show") {
-    const count = { "qwen3:8b": 8e9, "qwen3:7b": 7e9, "plain:14b": 14e9 }[
+    const count = { "qwen3:8b": 8e9, "qwen3:7b": 7e9, "gemma4:e4b-it-q4_K_M": 7_518_069_290, "plain:14b": 14e9 }[
       body.model
     ];
     res.setHeader("Content-Type", "application/json");
     return res.end(
       JSON.stringify({
-        capabilities: body.model.startsWith("qwen3:")
+        capabilities: body.model.startsWith("qwen3:") || body.model === "gemma4:e4b-it-q4_K_M"
           ? ["completion", "tools"]
           : ["completion"],
         model_info: count ? { "general.parameter_count": count } : {},
@@ -39,7 +39,7 @@ const ollama = createServer(async (req, res) => {
           { name: "qwen2.5:1.5b", digest },
           { name: "qwen2.5-coder:3b", digest },
           { name: "embeddinggemma:latest", digest },
-          ...["qwen3:8b", "qwen3:7b", "plain:14b", "unknown:latest"].map(
+          ...["qwen3:8b", "qwen3:7b", "gemma4:e4b-it-q4_K_M", "plain:14b", "unknown:latest"].map(
             (name) => ({ name, digest }),
           ),
         ],
@@ -54,7 +54,7 @@ const ollama = createServer(async (req, res) => {
       }),
     );
   if (req.url === "/api/chat") {
-    if (body.model === "qwen3:8b") {
+    if (["qwen3:8b", "qwen3:7b", "gemma4:e4b-it-q4_K_M"].includes(body.model)) {
       assert.deepEqual(body.tools.map((t) => t.function.name).sort(), [
         "create_report",
         "inspect_datasets",
@@ -142,6 +142,19 @@ const ollama = createServer(async (req, res) => {
         }) + "\n",
       );
     }
+    if (body.messages?.at(-1)?.content === "test output limit") {
+      assert.equal(body.options.num_predict, 768);
+      res.setHeader("Content-Type", "application/x-ndjson");
+      return res.end(
+        JSON.stringify({
+          message: { content: "Partial answer" },
+          done: true,
+          done_reason: "length",
+          prompt_eval_count: 27,
+          eval_count: 768,
+        }) + "\n",
+      );
+    }
     assert.equal(body.tools, undefined, "normal chat must not receive tools");
     res.setHeader("Content-Type", "application/x-ndjson");
     // Delay generation until after the route has returned its HTTP response.
@@ -192,6 +205,7 @@ try {
       SIAAS_DESKTOP_KEY: key,
       SIAAS_DESKTOP_ORIGIN: origin,
       OLLAMA_BASE_URL: `http://127.0.0.1:${ollama.address().port}`,
+      SIAAS_CHAT_MAX_OUTPUT_TOKENS: "768",
       NEXT_TELEMETRY_DISABLED: "1",
     },
     stdio: ["ignore", "pipe", "pipe"],
@@ -286,10 +300,34 @@ try {
   await chat("confermi?", 1, 6);
   assert.equal(calls.filter((path) => path === "/api/chat").length, 3);
   assert.equal(calls.filter((path) => path === "/api/embed").length, 3);
+  const truncatedConversation = await api("/api/conversations", {
+    assistant_id: assistant.id,
+  });
+  const truncatedResponse = await request("/api/chat", {
+    conversation_id: truncatedConversation.id,
+    question: "test output limit",
+  });
+  assert.equal(truncatedResponse.status, 200);
+  const truncatedEvents = (await truncatedResponse.text())
+    .trim()
+    .split("\n")
+    .map((line) => JSON.parse(line));
+  assert.equal(truncatedEvents.at(-1).type, "error");
+  assert.match(truncatedEvents.at(-1).error, /output-token limit/);
+  const truncatedSaved = await api(
+    "/api/conversations/" + truncatedConversation.id,
+  );
+  const partial = truncatedSaved.messages.at(-1);
+  assert.equal(partial.status, "error");
+  assert.match(partial.content, /Partial answer/);
+  assert.match(partial.content, /Incomplete response/);
+  assert.equal(partial.input_tokens, 27);
+  assert.equal(partial.output_tokens, 768);
   let agentFixture;
   for (const [model, enabled] of [
     ["qwen3:8b", true],
-    ["qwen3:7b", false],
+    ["qwen3:7b", true],
+    ["gemma4:e4b-it-q4_K_M", true],
     ["plain:14b", false],
     ["unknown:latest", false],
   ]) {
@@ -312,7 +350,7 @@ try {
         text: "SIAAS Personal è operativo e conserva i documenti sul PC.",
       });
       await api("/api/documents/" + d.id + "/process", {});
-      agentFixture = { assistant: a, conversation: c };
+      if (model === "qwen3:8b") agentFixture = { assistant: a, conversation: c };
     }
     const response = await request("/api/chat", {
       conversation_id: c.id,
@@ -493,7 +531,7 @@ try {
         headers,
         body: JSON.stringify({
           ...agentFixture.assistant,
-          model_id: "ollama/qwen3:7b",
+          model_id: "ollama/plain:14b",
         }),
       },
     );

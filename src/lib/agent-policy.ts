@@ -1,11 +1,12 @@
-export const MIN_AGENT_PARAMETERS = 8_000_000_000;
 export type AgentEligibility = {
   enabled: boolean;
   parameterCount: number | null;
   supportsTools: boolean;
-  reason: "ready" | "unknown-size" | "too-small" | "no-tools" | "not-local";
+  reason: "ready" | "no-tools" | "not-local";
 };
-// Use verified parameter metadata, never the model's name or download size.
+// Parameter metadata is informational, not an eligibility gate.
+// Only local completion models declaring native Ollama tool support may run agents.
+// Declared support does not certify tool-call reliability; that requires testing.
 export function agentEligibility(info: {
   model_info?: Record<string, unknown>;
   details?: { parameter_size?: string };
@@ -30,26 +31,18 @@ export function agentEligibility(info: {
     info.remote_host ||
     !info.capabilities?.includes("completion")
       ? "not-local"
-      : parameterCount === null
-        ? "unknown-size"
-        : parameterCount < MIN_AGENT_PARAMETERS
-          ? "too-small"
-          : !supportsTools
-            ? "no-tools"
-            : "ready";
+      : !supportsTools
+        ? "no-tools"
+        : "ready";
   return { enabled: reason === "ready", parameterCount, supportsTools, reason };
 }
 export function agentStatusText(status?: AgentEligibility) {
   if (!status) return "Standard chat · model check unavailable.";
   switch (status.reason) {
     case "ready":
-      return "Agent active · document search, source reading and report creation.";
-    case "too-small":
-      return "Standard chat · agent mode requires at least 8B parameters and tool support.";
+      return "Agent active · Ollama declares tool support; verify results carefully.";
     case "no-tools":
       return "Standard chat · this model does not declare tool support.";
-    case "unknown-size":
-      return "Standard chat · Ollama does not report this model’s parameter count.";
     default:
       return "Standard chat · agent mode requires a local chat model.";
   }

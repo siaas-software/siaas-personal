@@ -1,0 +1,26 @@
+PASS unified chat HTTP, stored replies, exact invoice, RC4 budgets and duplicates, ambiguous input, cross-project denial, no model selected, zero Ollama HTTP requests.
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"type":"start","agent_mode":false,"execution_path":"structured","id":"07c8caa7-cdf0-490c-b176-e4403aad21d8"}
+{"type":"delta","text":"A linked spreadsheet changed or is unavailable. Refresh its folder first."}
+{"type":"sources","sources":[]}
+{"type":"error","error":"A linked spreadsheet changed or is unavailable. Refresh its folder first.","id":"07c8caa7-cdf0-490c-b176-e4403aad21d8"}
+
+
+'error' !== 'done'
+
+    at chat (file:///workspace/scratch/8e6ae998bf9b/app/tests/hybrid-chat-checks.mjs:93:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async checkHybridChat (file:///workspace/scratch/8e6ae998bf9b/app/tests/hybrid-chat-checks.mjs:173:20)
+    at async file:///workspace/scratch/8e6ae998bf9b/app/tests/structured-api.mjs:190:5 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'error',
+  expected: 'done',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.3
