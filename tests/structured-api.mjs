@@ -362,7 +362,7 @@ try {
     { assistant_id: production.id },
     201,
   );
-  async function chat(question) {
+  async function chat(question, expectedError = false) {
     const response = await fetch(origin + "/api/chat", {
       method: "POST",
       headers,
@@ -370,7 +370,7 @@ try {
     });
     assert(response.ok);
     const events = (await response.text()).trim().split("\n").map(JSON.parse);
-    assert(!events.some((e) => e.type === "error"), JSON.stringify(events));
+    assert.equal(events.some((e) => e.type === "error"), expectedError, JSON.stringify(events));
     return events;
   }
   const events = await chat(
@@ -404,7 +404,7 @@ try {
     "general arithmetic must bypass structured planner",
   );
   plannerMode = "invalid";
-  const invalid = await chat("Calculate again");
+  const invalid = await chat("Calculate again", true);
   assert(
     invalid
       .filter((e) => e.type === "delta")
@@ -413,7 +413,7 @@ try {
       .includes("invalid plan"),
   );
   plannerMode = "clarify";
-  const unsupported = await chat("Find the optimal production schedule");
+  const unsupported = await chat("Find the optimal production schedule", true);
   assert(
     unsupported
       .filter((e) => e.type === "delta")
@@ -445,17 +445,7 @@ try {
     page.on("pageerror", (e) => errors.push(e.message));
     await page.goto(origin);
     await page.getByRole("heading", { name: "Your projects." }).waitFor();
-    await page
-      .locator(".resource-card")
-      .filter({
-        has: page.getByRole("heading", {
-          name: "Production Planning",
-          exact: true,
-        }),
-      })
-      .locator("button")
-      .first()
-      .click();
+    await page.getByRole("button", { name: "Open project Production Planning", exact: true }).click();
     await page
       .locator(".resource-card")
       .filter({

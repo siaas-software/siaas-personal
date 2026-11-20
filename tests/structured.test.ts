@@ -17,7 +17,7 @@ import {
   updateMapping,
 } from "../src/lib/structured/store";
 import { queryStructured } from "../src/lib/structured/service";
-import { planQuestion, planningSchema } from "../src/lib/structured/planner";
+import { planQuestion, planningSchema, structuredPlanningTimeoutMs } from "../src/lib/structured/planner";
 import { LocalDatabase } from "../src/lib/local/database";
 import { LOCAL_USER_ID } from "../src/lib/runtime";
 import {
@@ -831,6 +831,15 @@ test("semantic Knowledge remains retrievable alongside structured datasets", asy
     f.cleanup();
   }
 });
+test("structured planner timeout settings are bounded for slow local models", () => {
+  assert.equal(structuredPlanningTimeoutMs("30000"), 30000);
+  assert.equal(structuredPlanningTimeoutMs("120000"), 120000);
+  assert.equal(structuredPlanningTimeoutMs("180000"), 180000);
+  assert.equal(structuredPlanningTimeoutMs("20000"), 120000);
+  assert.equal(structuredPlanningTimeoutMs("180001"), 120000);
+  assert.equal(structuredPlanningTimeoutMs("not-a-number"), 120000);
+});
+
 test("JSON planning transport validates plans and rejects unsupported model output (mock Ollama)", async () => {
   const f = database();
   try {

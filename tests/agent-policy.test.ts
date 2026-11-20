@@ -3,59 +3,57 @@ import assert from "node:assert/strict";
 import { agentEligibility } from "../src/lib/agent-policy";
 import { requireOllama } from "../src/lib/ollama";
 
-test("agent threshold uses parameter metadata, not tags or quantized file size", () => {
-  for (const [parameter_size, enabled] of [
-    ["1.5B", false],
-    ["7B", false],
-    ["7.99B", false],
-    ["8B", true],
-    ["14B", true],
-    ["8000M", true],
-    ["0.01T", true],
-    ["8x7B", false],
-  ] as const) {
-    assert.equal(
-      agentEligibility({
-        details: { parameter_size },
-        capabilities: ["completion", "tools"],
-      }).enabled,
-      enabled,
-      parameter_size,
-    );
+test("local tool-capable models qualify regardless of parameter count", () => {
+  for (const parameter_size of ["1.5B", "3B", "7B", "7.5B", "7.99B", "8B", "14B", "8000M", "0.01T", "8x7B"]) {
+    const status = agentEligibility({
+      details: { parameter_size },
+      capabilities: ["completion", "tools"],
+    });
+    assert.equal(status.enabled, true, parameter_size);
+    assert.equal(status.reason, "ready", parameter_size);
+    assert.equal(status.supportsTools, true, parameter_size);
   }
-  assert.equal(
-    agentEligibility({ capabilities: ["completion", "tools"] }).reason,
-    "unknown-size",
-  );
+  const gemma = agentEligibility({
+    model_info: { "general.parameter_count": 7_518_069_290 },
+    capabilities: ["completion", "vision", "audio", "tools", "thinking"],
+  });
+  assert.equal(gemma.enabled, true);
+  assert.equal(gemma.parameterCount, 7_518_069_290);
+  assert.equal(gemma.reason, "ready");
+
+  const unknownSize = agentEligibility({ capabilities: ["completion", "tools"] });
+  assert.equal(unknownSize.enabled, true);
+  assert.equal(unknownSize.parameterCount, null);
   assert.equal(
     agentEligibility({
       details: { parameter_size: "8B" },
       model_info: { "general.parameter_count": 7_999_999_999 },
       capabilities: ["completion", "tools"],
     }).enabled,
-    false,
-  );
-  assert.equal(
-    agentEligibility({
-      model_info: { "general.parameter_count": 8e9 },
-      capabilities: ["completion", "tools"],
-    }).enabled,
     true,
   );
   assert.equal(
-    agentEligibility({
-      details: { parameter_size: "14B" },
-      capabilities: ["completion"],
-    }).reason,
-    "no-tools",
+    agentEligibility({ capabilities: ["completion", "tools"], remote_model: "cloud" }).reason,
+    "not-local",
   );
   assert.equal(
-    agentEligibility({
-      details: { parameter_size: "8B" },
-      capabilities: ["completion", "tools"],
-      remote_model: "cloud",
-    }).enabled,
+    agentEligibility({ capabilities: ["completion", "tools"], remote_host: "example.com" }).enabled,
     false,
+  );
+  for (const capabilities of [
+    ["completion"],
+    ["completion", "vision"],
+    [],
+    undefined,
+  ]) {
+    const status = agentEligibility({ capabilities });
+    assert.equal(status.enabled, false);
+    assert.equal(status.reason, capabilities?.includes("completion") ? "no-tools" : "not-local");
+  }
+  assert.equal(
+    agentEligibility({ capabilities: ["tools"] }).enabled,
+    false,
+    "tools without completion are not a local chat model",
   );
 });
 

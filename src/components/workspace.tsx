@@ -22,6 +22,8 @@ import {
 import { AssistantMascot } from "./assistant-mascot";
 import { Overview } from "./overview";
 import { ProjectActions } from "./project-actions";
+import { ProjectChat } from "./project-chat";
+import { ChatComposer } from "./chat-composer";
 import type { ProjectTemplate } from "@/lib/templates";
 import { templateCardStyle } from "@/lib/template-presentation";
 import { DesktopUpdatesPanel } from "./desktop-updates";
@@ -33,7 +35,6 @@ import type { OllamaRuntime } from "@/lib/ollama";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Zap,
-  ArrowUp,
   AudioLines,
   BookOpenText,
   Check,
@@ -1033,6 +1034,15 @@ export function Workspace() {
                       New assistant
                     </button>
                   </div>
+                  <ProjectChat
+                    key={activeProject.id}
+                    project={activeProject}
+                    assistants={activeAssistants}
+                    onSaved={(next) => {
+                      setActiveProject(next);
+                      void load();
+                    }}
+                  />
                   <div className="stats-row">
                     <div>
                       <span>Assistants</span>
@@ -2157,10 +2167,12 @@ function Chat({
     [loading, setLoading] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const mounted = useRef(true);
+  const chatAbort = useRef<AbortController | null>(null);
   useEffect(() => {
     mounted.current = true;
     return () => {
       mounted.current = false;
+      chatAbort.current?.abort();
     };
   }, []);
   const refresh = useCallback(async () => {
@@ -2221,6 +2233,8 @@ function Chat({
     onError("");
     let id = conversation;
     const localId = crypto.randomUUID();
+    const controller = new AbortController();
+    chatAbort.current = controller;
     try {
       if (!id) {
         const c = await api<{ id: string }>("/api/conversations", {
@@ -2254,6 +2268,7 @@ function Chat({
         },
       ]);
       const response = await fetch("/api/chat", {
+        signal: controller.signal,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -2344,6 +2359,7 @@ function Chat({
       if (!prompt) setInput(question);
     } finally {
       sending.current = false;
+      chatAbort.current = null;
       setStreaming(false);
     }
   }
@@ -2544,42 +2560,19 @@ function Chat({
           )}
           <div ref={endRef} />
         </div>
-        <form className="chat-composer" onSubmit={send}>
-          <label className="sr-only" htmlFor="question">
-            Your question
-          </label>
-          <textarea
-            id="question"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (
-                e.key === "Enter" &&
-                !e.shiftKey &&
-                !e.nativeEvent.isComposing
-              ) {
-                e.preventDefault();
-                if (ready) void send(e);
-              }
-            }}
-            rows={2}
-            maxLength={1800}
-            placeholder="Type a message…"
-            disabled={!ready || streaming || loading}
-          />
-          <button
-            className="send-button"
-            aria-busy={streaming}
-            aria-label={streaming ? "Generating response" : "Send message"}
-            disabled={!ready || !input.trim() || streaming || loading}
-          >
-            {streaming ? (
-              <SiaasLoader iconOnly label="Waiting for AI response…" />
-            ) : (
-              <ArrowUp size={20} />
-            )}
-          </button>
-        </form>
+        <ChatComposer
+          id="question"
+          label="Your question"
+          value={input}
+          onChange={setInput}
+          onSubmit={send}
+          busy={streaming}
+          disabled={!ready || loading}
+          placeholder="Type a message…"
+          busyLabel="Preparing response…"
+          cancelLabel={italian ? "Annulla" : "Cancel"}
+          onCancel={() => chatAbort.current?.abort()}
+        />
         <p className="chat-disclaimer">
           The assistant can make mistakes. Please verify its responses.
         </p>

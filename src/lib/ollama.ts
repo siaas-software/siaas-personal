@@ -246,6 +246,18 @@ export async function embedLocal(
     );
   }
 }
+export function localChatOutputLimit(
+  value = process.env.SIAAS_CHAT_MAX_OUTPUT_TOKENS,
+) {
+  const parsed = Number(value);
+  return value !== undefined &&
+    Number.isSafeInteger(parsed) &&
+    parsed >= 256 &&
+    parsed <= 1024
+    ? parsed
+    : 768;
+}
+
 export type OllamaMessage = {
   role: "system" | "user" | "assistant";
   content: string;
@@ -254,6 +266,7 @@ const streamEvent = z.object({
   error: z.string().optional(),
   message: z.object({ content: z.string() }).optional(),
   done: z.boolean().optional(),
+  done_reason: z.string().optional(),
   prompt_eval_count: z.number().int().nonnegative().optional(),
   eval_count: z.number().int().nonnegative().optional(),
 });
@@ -269,6 +282,7 @@ export async function* streamLocal(
   const send = isDesktop()
     ? (await import("./local/inference-telemetry")).monitoredFetch(context, request)
     : request;
+  const outputLimit = localChatOutputLimit();
   const response = await send(ollamaURL() + "/api/chat", {
     method: "POST",
     redirect: "error",
@@ -280,7 +294,7 @@ export async function* streamLocal(
       stream: true,
       think: false,
       keep_alive: 0,
-      options: { num_ctx: 4096, num_predict: 768, temperature: 0.2 },
+      options: { num_ctx: 4096, num_predict: outputLimit, temperature: 0.2 },
     }),
   });
   if (!response.ok || !response.body)
@@ -319,6 +333,10 @@ export async function* streamLocal(
             type: "done" as const,
             inputTokens: event.prompt_eval_count ?? 0,
             outputTokens: event.eval_count ?? 0,
+            truncated:
+              event.done_reason === "length" ||
+              (event.done_reason === undefined &&
+                (event.eval_count ?? 0) >= outputLimit),
           };
           return;
         }

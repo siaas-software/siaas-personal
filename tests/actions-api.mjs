@@ -369,7 +369,7 @@ try {
       assert.equal(result.body.preview, null);
       assert.equal(result.body.markdown, null);
     } else assert(result.status >= 400, JSON.stringify(result));
-    assert.equal((await api("/api/actions")).body.length, 5);
+    assert.equal((await api("/api/actions")).body.length, 6);
   }
   behavior = "normal";
   const project = (

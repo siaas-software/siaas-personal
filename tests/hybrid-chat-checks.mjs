@@ -67,7 +67,7 @@ export async function checkHybridChat({
     amounts.map((v, i) => i + 1 + "," + v).join("\n") +
     "\n";
   await upload(finance.id, "invoice.csv", "csv", Buffer.from(csv));
-  async function chat(question, conversationId = id) {
+  async function chat(question, conversationId = id, expectedError = false) {
     // Rate-limited samples are retried outside the timed interval, retaining the production limit.
     for (let attempt = 0; attempt < 2; attempt++) {
       const before = requests();
@@ -86,12 +86,12 @@ export async function checkHybridChat({
       }
       assert.equal(r.status, 200, body);
       const events = body.trim().split("\n").map(JSON.parse);
-      assert.equal(events.at(-1).type, "done", body);
+      assert.equal(events.at(-1).type, expectedError ? "error" : "done", body);
       const count = requests() - before;
       assert.equal(count, 0, "local routes must not even probe Ollama");
       const { messages } = await api("/api/conversations/" + conversationId);
       const message = messages.find((m) => m.id === events.at(-1).id);
-      assert.equal(message.status, "complete");
+      assert.equal(message.status, expectedError ? "error" : "complete");
       assert.equal(message.model_id, null);
       assert.equal(message.input_tokens + message.output_tokens, 0);
       assert.equal(
@@ -140,7 +140,8 @@ export async function checkHybridChat({
     ["1 / 0", id],
   ]) {
     assert.equal(
-      (await chat(question, conversationId)).message.structured_analysis,
+      (await chat(question, conversationId, /budgets\.csv/i.test(question)))
+        .message.structured_analysis,
       undefined,
     );
   }

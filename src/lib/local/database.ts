@@ -23,6 +23,7 @@ type Result<T = any> = { data: T; error: Error | null; count?: number };
 const tables = [
   "workspaces",
   "projects",
+  "project_runs",
   "project_templates",
   "actions",
   "assistants",
@@ -38,6 +39,7 @@ const profilePattern =
 const relations: Record<Table, Record<string, Table>> = {
   workspaces: {},
   projects: { tenant_id: "workspaces" },
+  project_runs: { tenant_id: "workspaces", project_id: "projects" },
   project_templates: { tenant_id: "workspaces" },
   actions: { tenant_id: "workspaces" },
   assistants: { tenant_id: "workspaces", project_id: "projects" },
@@ -178,6 +180,7 @@ export class LocalDatabase {
   put(table: Table, input: Row, replace = false): Row {
     const defaults: Partial<Record<Table, Row>> = {
       projects: { description: "", template_id: null, color: "#FFFFFF" },
+      project_runs: { status: "running", steps: [], result: null },
       assistants: {
         research: researchSettingsSchema.parse({}),
         description: "",
