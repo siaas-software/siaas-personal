@@ -17,6 +17,7 @@ export async function structuredChat(options: {
   signal: AbortSignal;
   emit: (text: string) => void;
   request?: typeof fetch;
+  onUsage?: (input: number | null, output: number | null) => void;
 }) {
   if (
     isGeneralRequest(options.question) ||
@@ -37,6 +38,7 @@ export async function structuredChat(options: {
       options.question,
       options.signal,
       options.request,
+      options.onUsage,
     );
   } catch (e) {
     options.signal.throwIfAborted();

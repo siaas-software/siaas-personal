@@ -35,7 +35,7 @@ try{
  const a=await api('/api/assistants','POST',{project_id:p.id,name:'Maintenance assistant',description:'Technical knowledge',instructions:'Use sources.',model_id:'ollama/qwen2.5:1.5b'});
  const doc=await api('/api/documents','POST',{assistant_id:a.id,title:'Machine manual',kind:'text',text:'The test machine requires scheduled maintenance every 500 hours.'});
  await api(`/api/documents/${doc.id}/process`,'POST');
- browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,headless:true,args:['--no-sandbox']});
+ browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH||process.env.CHROMIUM_PATH,headless:true,args:['--no-sandbox']});
  const page=await browser.newPage({extraHTTPHeaders:{'x-siaas-desktop-key':key},viewport:{width:1440,height:1000}}),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  await page.goto(`${origin}/?assistant=${a.id}`);
@@ -52,7 +52,7 @@ try{
  const knowledge=await page.locator('.knowledge-panel').boundingBox(),chat=await page.locator('.workbench-chat').boundingBox();
  assert(knowledge.x+knowledge.width<=chat.x,'Knowledge must be left of chat');
  await page.getByText('The assistant can make mistakes. Please verify its responses.').waitFor();
- assert.equal(await page.locator('.shortcut-action').count(),5);
+ assert.equal(await page.locator('.shortcut-action').count(),6);
  await page.getByLabel('Source URI').fill('https://127.0.0.1/private');
  await page.getByRole('button',{name:'Add URI',exact:true}).click();
  await page.getByRole('alert').filter({hasText:/Unable to read|public/}).waitFor();
@@ -90,5 +90,5 @@ try{
  assert.equal(await page.locator('.app-version').innerText(), `Versione ${workspace.version}`);
  await page.screenshot({path:'test-results/workbench/italian-models.png',fullPage:true});
  assert.deepEqual(errors,[]);
- console.log('PASS: columns, English UI, five Shortcuts, URI error feedback, direct report consuming draft, preserved Data Cell draft, table modal/rendering, SQLite persistence, reload, responsive layout.');
+ console.log('PASS: columns, English UI, six shortcuts (five built-in Actions and Data Cell), URI error feedback, direct report consuming draft, preserved Data Cell draft, table modal/rendering, SQLite persistence, reload, responsive layout.');
 }finally{if(browser)await browser.close();server.kill();await new Promise(r=>server.once('exit',r));await new Promise(r=>ollama.close(r));await rm(dir,{recursive:true,force:true});}

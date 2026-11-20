@@ -16,6 +16,7 @@ export function ChatComposer({
   placeholder,
   busyLabel = "Preparing response…",
   onCancel,
+  cancelLabel = "Cancel",
 }: {
   id: string;
   label: string;
@@ -27,18 +28,26 @@ export function ChatComposer({
   placeholder: string;
   busyLabel?: string;
   onCancel?: () => void;
+  cancelLabel?: string;
 }) {
   return (
     <form className="chat-composer" onSubmit={onSubmit}>
-      <label className="sr-only" htmlFor={id}>{label}</label>
+      <label className="sr-only" htmlFor={id}>
+        {label}
+      </label>
       <textarea
         id={id}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={(event) => {
-          if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
+          if (
+            event.key === "Enter" &&
+            !event.shiftKey &&
+            !event.nativeEvent.isComposing
+          ) {
             event.preventDefault();
-            if (!disabled && !busy && value.trim()) event.currentTarget.form?.requestSubmit();
+            if (!disabled && !busy && value.trim())
+              event.currentTarget.form?.requestSubmit();
           }
         }}
         rows={2}
@@ -53,11 +62,15 @@ export function ChatComposer({
         aria-label={busy ? busyLabel : label}
         disabled={disabled || busy || !value.trim()}
       >
-        {busy ? <SiaasLoader iconOnly label={busyLabel} /> : <ArrowUp size={20} />}
+        {busy ? (
+          <SiaasLoader iconOnly label={busyLabel} />
+        ) : (
+          <ArrowUp size={20} />
+        )}
       </button>
       {busy && onCancel && (
         <button type="button" className="button compact" onClick={onCancel}>
-          Annulla
+          {cancelLabel}
         </button>
       )}
     </form>

@@ -2167,10 +2167,12 @@ function Chat({
     [loading, setLoading] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const mounted = useRef(true);
+  const chatAbort = useRef<AbortController | null>(null);
   useEffect(() => {
     mounted.current = true;
     return () => {
       mounted.current = false;
+      chatAbort.current?.abort();
     };
   }, []);
   const refresh = useCallback(async () => {
@@ -2231,6 +2233,8 @@ function Chat({
     onError("");
     let id = conversation;
     const localId = crypto.randomUUID();
+    const controller = new AbortController();
+    chatAbort.current = controller;
     try {
       if (!id) {
         const c = await api<{ id: string }>("/api/conversations", {
@@ -2264,6 +2268,7 @@ function Chat({
         },
       ]);
       const response = await fetch("/api/chat", {
+        signal: controller.signal,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -2354,6 +2359,7 @@ function Chat({
       if (!prompt) setInput(question);
     } finally {
       sending.current = false;
+      chatAbort.current = null;
       setStreaming(false);
     }
   }
@@ -2563,7 +2569,9 @@ function Chat({
           busy={streaming}
           disabled={!ready || loading}
           placeholder="Type a message…"
-          busyLabel="Waiting for AI response…"
+          busyLabel="Preparing response…"
+          cancelLabel={italian ? "Annulla" : "Cancel"}
+          onCancel={() => chatAbort.current?.abort()}
         />
         <p className="chat-disclaimer">
           The assistant can make mistakes. Please verify its responses.

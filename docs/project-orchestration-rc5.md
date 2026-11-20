@@ -1,3 +1,5 @@
+> Historical foundation contract from PR #39. The integrated implementation and current evidence are documented in [project chat](project-chat-rc5.md). The “not yet implemented” statements below describe that earlier foundation, not the current #41 integration.
+
 > Integration note for RC5 PR #41 (2026-11-19): this document originated in the foundation PR #39. The integration branch now implements a bounded project-chat UI, project-run persistence and delegated execution through the same `executeAssistantTask()` used by individual chat. Both interfaces also reuse shared chat composer and Markdown presentation primitives. The original task remains unchanged for Hybrid Router intent detection; opted-in previous results are typed, untrusted model context only. Dynamic supervisor/model-driven selection is **not** implemented. The integrated branch remains Draft and has not completed acceptance tests.
 
 # Project-scoped assistant orchestration — RC5 integration contract

@@ -6,24 +6,35 @@ import { join } from "node:path";
 import { LocalDatabase } from "../src/lib/local/database";
 import { LOCAL_USER_ID } from "../src/lib/runtime";
 import { executeAssistantTask } from "../src/lib/local/assistant-execution";
-import { executeProjectPlan, parseProjectOrchestration } from "../src/lib/project-orchestration";
+import {
+  executeProjectPlan,
+  parseProjectOrchestration,
+} from "../src/lib/project-orchestration";
+import type { Assistant, Project } from "../src/lib/catalog";
 import { BUILTIN_ACTIONS } from "../src/lib/actions";
 
 function fixture() {
   const path = mkdtempSync(join(tmpdir(), "siaas-project-chat-"));
   const db = new LocalDatabase(path);
-  const project = db.put("projects", { tenant_id: LOCAL_USER_ID, name: "Orchestration" });
-  const assistants = ["Document selector", "Document processor"].map((name) =>
-    db.put("assistants", {
-      tenant_id: LOCAL_USER_ID,
-      project_id: project.id,
-      name,
-      instructions: "Use verified evidence.",
-      model_id: null,
-    }),
+  const project = db.put("projects", {
+    tenant_id: LOCAL_USER_ID,
+    name: "Orchestration",
+  }) as Project;
+  const assistants = ["Document selector", "Document processor"].map(
+    (name) =>
+      db.put("assistants", {
+        tenant_id: LOCAL_USER_ID,
+        project_id: project.id,
+        name,
+        instructions: "Use verified evidence.",
+        model_id: null,
+      }) as Assistant,
   );
   return {
-    db, path, project, assistants,
+    db,
+    path,
+    project,
+    assistants,
     clean() {
       db.close();
       rmSync(path, { recursive: true, force: true });
@@ -44,7 +55,9 @@ test("direct and delegated requests share the deterministic assistant execution 
         history: [],
         coordinatorInstructions: "No model needed for arithmetic.",
         signal: new AbortController().signal,
-        emit(event) { events.push(event.type); },
+        emit(event) {
+          events.push(event.type);
+        },
       });
     const direct = await run(f.assistants[0], "2+2");
     assert.equal(direct.text, "4");
@@ -62,10 +75,12 @@ test("direct and delegated requests share the deterministic assistant execution 
       tenantId: LOCAL_USER_ID,
       config,
       members: f.assistants,
-      plan: { steps: f.assistants.map((assistant) => ({
-        assistant_id: assistant.id,
-        task: "2+2",
-      })) },
+      plan: {
+        steps: f.assistants.map((assistant) => ({
+          assistant_id: assistant.id,
+          task: "2+2",
+        })),
+      },
       signal: new AbortController().signal,
       async delegate({ assistantId, task, previousResult }) {
         assert.equal(previousResult, null);
@@ -74,7 +89,10 @@ test("direct and delegated requests share the deterministic assistant execution 
         return { status: "complete", text: output.text };
       },
     });
-    assert.deepEqual(result.steps.map((step) => step.text), ["4", "4"]);
+    assert.deepEqual(
+      result.steps.map((step) => step.text),
+      ["4", "4"],
+    );
     assert(events.includes("delta"));
   } finally {
     f.clean();
@@ -92,7 +110,9 @@ test("native Action remains scoped when assistant is invoked through the shared 
         status: "ready",
         enabled: true,
       });
-    const action = BUILTIN_ACTIONS.find((entry) => entry.id === "builtin:list-sources")!;
+    const action = BUILTIN_ACTIONS.find(
+      (entry) => entry.id === "builtin:list-sources",
+    )!;
     const result = await executeAssistantTask({
       db: f.db,
       assistant: f.assistants[0],
@@ -132,7 +152,6 @@ test("project-run SQLite history survives restart and is removed only with its p
     f.clean();
   }
 });
-
 
 test("untrusted project handoff does not change deterministic-first routing or require Ollama", async () => {
   const f = fixture();

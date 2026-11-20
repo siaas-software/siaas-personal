@@ -6,6 +6,7 @@ import {
   requireOllama,
   embedLocal,
   streamLocal,
+  localChatOutputLimit,
   verifyLocalChatModel,
   OllamaError,
 } from "../src/lib/ollama";
@@ -186,8 +187,45 @@ test("stream handles fragmented UTF-8, final line without newline and real compl
     type: "done",
     inputTokens: 27,
     outputTokens: 5,
+    truncated: false,
   });
 });
+test("stream flags generation limits without falsely reporting a complete answer", async () => {
+  assert.equal(localChatOutputLimit("256"), 256);
+  assert.equal(localChatOutputLimit("1024"), 1024);
+  assert.equal(localChatOutputLimit("2048"), 768);
+  assert.equal(localChatOutputLimit("invalid"), 768);
+
+  for (const reason of ["length", undefined, "stop"]) {
+    const limit = localChatOutputLimit();
+    const events = [];
+    for await (const event of streamLocal(
+      "ollama/qwen2.5:1.5b",
+      [{ role: "user", content: "test" }],
+      fake((_url, init) => {
+        assert.equal(JSON.parse(String(init?.body)).options.num_predict, limit);
+        return new Response(
+          JSON.stringify({
+            message: { content: "Incomplete" },
+            done: true,
+            done_reason: reason,
+            prompt_eval_count: 10,
+            eval_count: limit,
+          }) + "\n",
+        );
+      }),
+    ))
+      events.push(event);
+    assert.equal(events[0].type, "delta");
+    assert.deepEqual(events.at(-1), {
+      type: "done",
+      inputTokens: 10,
+      outputTokens: limit,
+      truncated: reason !== "stop",
+    });
+  }
+});
+
 test("a broken local stream is an error, not a completed response", async () => {
   await assert.rejects(async () => {
     for await (const _ of streamLocal(

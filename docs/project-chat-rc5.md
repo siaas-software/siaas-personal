@@ -1,67 +1,33 @@
-# RC5 — Project chat and shared assistant execution (integration candidate)
+# RC5 — Project chat and shared assistant execution
 
-**Status: Draft, UNVERIFIED.** This code introduces a functioning application path in source, but has not passed npm/TypeScript, Electron, UI, real Ollama or Windows acceptance. Never describe it as released or proven operational.
+**Draft integration, verified 20 November 2026; not released.** Automated and production HTTP/SQLite/headless-browser checks have run. Real Ollama and native OS acceptance are separate outstanding gates. See [integration evidence](rc5-integration-2026-11-20.md).
 
-## Consolidated architecture
+## Architecture and behavior
 
-Project (N existing assistants)
-→ optional project-chat orchestration
-→ selected assistant (configured instructions/model/resources)
-→ **the assistant's own shared execution service and Hybrid Router**
-→ deterministic application operations, Ollama or hybrid retrieval
-→ scoped result/artifact
-→ project-run history and final response.
+Direct assistant chat and configured project delegation both call `executeAssistantTask()` in `src/lib/local/assistant-execution.ts`. Each assistant retains its own Hybrid Router, instructions, model, authorized sources and tools. The project has no second router or model runtime. `ChatComposer` and `ChatMarkdown` are shared presentation components; individual conversations and project runs have separate persistence.
 
-There is no second Hybrid Router on the project.
+Project orchestration is disabled by default. Users select existing project members in execution order, with a maximum of eight steps. Result sharing is separately opt-in. The original task remains unchanged for deterministic interpretation. Only model requests receive bounded prior-step text and coordinator preferences, explicitly marked untrusted. Neither grants resource access. `2+2` therefore remains local even with a configured model and hostile handoff text.
 
-Direct chat and project delegation both call `executeAssistantTask()`. It is the same service that chooses the native Action, deterministic local intent, structured data planner, agent tools or regular Ollama completion. Each selected assistant retains its selected documents/folders/URLs, existing restrictions and its own chat.
+The runs API validates membership, ownership, configuration, Action IDs and the step budget before returning HTTP 202. Work continues under a 240-second execution deadline and a 300-second recovery lease. The UI polls persisted progress; DELETE with a run ID requests cancellation, which propagates to pending Ollama requests. Concurrent runs in one project are rejected. Membership, enablement, sharing and budget revocations are checked throughout execution. Expired runs become errors rather than successful results.
 
-Assistant conversations and project orchestration runs are stored separately. A project run does not write fake user/assistant turns into an individual assistant's history.
+Each step preserves text, execution path, sources, metrics, errors and authorized Markdown artifacts. Deterministic steps record zero tokens and no model. Unavailable model metrics remain null. Truncated model output and oversized project output are errors with partial text retained. A failed required step stops subsequent delegation. Project result text is limited to 12,000 characters per step, handoff text to 6,000, coordinator preferences to 4,000, and each downloadable report to 32,000. Source excerpts appear under step details with acquisition times when available.
 
-## User-visible behavior
+The native **List Sources / Elenca fonti** Action works in direct and project chat without Ollama and uses each assistant's authorized prepared sources. Custom Actions cannot impersonate native capabilities: the executor resolves the canonical stored Action by ID. Other Actions preserve their prompt/model workflow.
 
-- A **Chat del progetto** panel on the existing project page contains history, final result, step traces, error states and optional project orchestration settings. Both chat entry points reuse the same `ChatComposer` and `ChatMarkdown` UI primitives, while preserving separate conversation/run histories.
-- Orchestration defaults to **disabled** on existing and new projects.
-- Users explicitly select the assistants, choose their order (selection order), set a step budget (up to eight), specify optional coordinator preferences and may opt in to result sharing.
-- The first operational strategy is **bounded sequential execution**, with all selected assistants invoked in their chosen order. It is **not** autonomous LLM planning, model-driven assistant selection or a promise of parallel execution.
-- Each step receives the **unchanged original task**. ONLY when `share_results: true`, a bounded typed `handoff` carries the previous result **as untrusted model context**; it is NOT concatenated to the request passed through deterministic intent routing. The receiver must revalidate any document references against its own resources. Deterministic operations (e.g. `2+2`) remain local and Ollama-free even with a handoff.
-- Project coordinator preferences are appended to MODEL requests only, never allowed to disable deterministic routing or grant new tools.
-- Runtime traces and report Markdown artifacts are preserved in project-run SQLite records. A project-only authenticated download endpoint provides Markdown reports; no arbitrary file access.
-- A failed step aborts the workflow and returns a failure, not a fabricated final result. Project runs have a bounded timeout, and stale running records can be marked interrupted after their lease expires.
-- The project chat is an additional entry point. The existing assistant chat remains unchanged.
+## Persistence and compatibility
 
-## Files
+`project_runs` is an additive SQLite table under existing schema version 4. Project deletion cascades to its runs. Existing assistant conversations are not rewritten. API integration checks reopen SQLite, validate separate histories and project-scoped artifacts, and revoke artifact access when its producing assistant leaves the project. This does not substitute for native RC4-to-RC5 installation and retention acceptance.
 
-- `src/lib/local/assistant-execution.ts`: shared execution service used by both paths (native Actions, local deterministic calculations/search, structured Chat, agent tool calling and standard Ollama).
-- `src/app/api/chat/route.ts`: direct-chat adapter preserving conversation lease, streaming NDJSON, metrics, message history, sources and artifacts while calling the shared service.
-- `src/lib/local/database.ts`: additive `project_runs` table, local existing SQLite schema user_version 4 (additive table, no compatibility-breaking version bump), project FK cascade and isolated metadata.
-- `src/app/api/projects/[id]/runs/route.ts`: project chat GET/POST with authorization, sequential orchestrator, current membership checks, bounded execution, persistent history and recovery.
-- `src/app/api/projects/[id]/runs/[runId]/artifacts/[artifactId]/route.ts`: scoped Markdown artifact download.
-- `src/components/project-chat.tsx`: project-page chat, configuration and timeline; uses shared `ChatComposer` and `ChatMarkdown` UI components.
-- `src/components/chat-composer.tsx`: shared accessible, Enter-to-send composer used by individual assistant chat and project chat.
-- `src/components/workspace.tsx`: project panel integration.
-- `src/lib/project-orchestration.ts`, `src/lib/catalog.ts`, project settings PATCH and preflight route: contract carried from foundation PR #39.
-- `tests/project-chat-integration.test.ts`: deterministic direct/delegated parity, untrusted handoff not bypassing local routing, native scoped Action, SQLite project history/cascade. Additional API/GUI tests still required.
+## PR integration
 
-## Safety, limitations and design boundaries
+The stack is #34 → #35 → #40 → #41. Independent #37 (timeouts/truncation) and #38 (capabilities) are reconciled into #41. The source foundation from #39 was already incorporated; it is not replayed. #36 is refreshed after this source integration and retains candidate packaging/version and prior RC4 regression corrections.
 
-- **PR #39 is duplicated in this integration branch deliberately.** Once this stacked PR is validated, do not merge the same foundational code twice; treat #39 as superseded/absorbed by this branch or reconcile commits accordingly.
-- This integration branch starts from the head of **PR #40** (native built-in Actions), which starts from #35 and #34. The independent #37 and #38 still require deliberate reconciliation. The RC5 release candidate #36 must be refreshed LAST.
-- **PDF generation is NOT implemented**. The previously successful external Gemma PDF experiment is a reference only. Do not add the built-in *Compila PDF* Action or claim output until a scoped TypeScript PDF tool supports the chosen formats and passes end-to-end tests.
-- **No autonomous project LLM planner**. It is a future optional enhancement; current project assistant sequence is user-configured.
-- No new tool permissions are granted. Existing Actions remain Markdown shortcuts except explicitly allowlisted built-in native Actions from #40. All built-ins are uneditable and undeletable.
-- Native tools do not require Ollama for deterministic work. Model-dependent operations honestly fail if Ollama is missing.
-- Coordinator prompts and agent outputs are untrusted; they do not override resource restrictions. A future tool dispatch policy needs further threat modeling before accepting document-write actions.
-- Filesystem and proxy errors must remain observable; new write operations require explicit destination authorization.
+The planner remains bounded and configurable (default 120 seconds, allowed 30–180 seconds). Native tools require reported `completion` and `tools` capabilities and runtime compatibility, not an 8B size threshold. Capability eligibility is not proof of reliable real-model tool selection.
 
-## Mandatory release acceptance (NOT RUN in connector environment)
+## Reproduction and remaining scope
 
-1. `npm ci`, `npm test`, `npm run typecheck`, `npm run desktop:build`.
-2. `npm run test:chat`, `npm run test:projects`, `npm run test:actions`, `npm run test:actions:api`, `npm run test:actions:ui`.
-3. Native Electron test of project configuration, two-assistant orchestration, step trace, artifact download, failure/cancel/restart, multiple projects, shared assistant isolation and assistant chat regression.
-4. Verify no-Ollama `2+2` in direct and project chat: no Ollama HTTP calls and identical deterministic result.
-5. Verify model-dependent requests with a real supported Ollama model, especially Gemma E4B AFTER applying PR #38 (capability-based eligibility). Check Ollama `/api/show` `tools` metadata, multi-tool selection, required tool arguments, accuracy and unsupported-model fallback.
-6. Verify RC4/RC5 regression gates, cross-platform packaging, source permissions, data preservation, additive project_runs table creation and reopening with legacy v4 data, report download and error states.
-7. Capture logs and classifications PASS/FAIL/BLOCKED/NOT RUN. Failures or untested suites block acceptance; source inspection alone is not a PASS.
+From the application root, install the lockfile, build desktop, then run `node --import tsx tests/project-chat-api.mjs --ui`. Set `CHROMIUM_EXECUTABLE_PATH` to an installed compatible Playwright browser if needed. The test uses real local routes and SQLite with synthetic Ollama responses. `npm test`, `npm run typecheck`, chat/Knowledge/Actions/structured API suites and existing UI suites cover shared behavior.
 
-No merge, protected-branch modification, tag, release publication or deployment is authorized by this PR alone.
+PDF extraction is implemented; PDF writing/filling is not. No **Fill PDF** native Action, arbitrary code execution, Python runtime or dynamic autonomous supervisor is introduced. Future PDF tools require authorized template resolution, format/field inspection, schema-validated mapping, immutable originals, bounded writes to an approved destination and independent output verification. Prefer TypeScript support for a specific supported format before broader editing claims. Dynamic assistant selection through Tool Calling is a later optional planner over the same validated delegation contract.
+
+No PR merge, protected-branch update, release tag, release publication or public download change is part of this draft.

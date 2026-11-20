@@ -1,0 +1,21 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> siaas-personal@1.1.0-rc.3 test:structured:ui
+> node tests/structured-api.mjs --ui
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('.resource-card').filter({ has: getByRole('heading', { name: 'Production Planning', exact: true }) }).locator('button').first()[22m
+
+    at /workspace/scratch/8e6ae998bf9b/app/tests/structured-api.mjs:458:8 {
+  log: [
+    "  - waiting for locator('.resource-card').filter({ has: getByRole('heading', { name: 'Production Planning', exact: true }) }).locator('button').first()"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.22.3

@@ -1,0 +1,52 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> siaas-personal@1.1.0-rc.3 test:actions:ui
+> node tests/actions-ui.mjs
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+electron.launch: Process failed to launch!
+Call log:
+[2m  - <launching> /workspace/scratch/8e6ae998bf9b/app/node_modules/electron/dist/electron --no-sandbox --inspect=0 --remote-debugging-port=0 --ozone-platform=headless --disable-gpu --user-data-dir=/tmp/siaas-actions-ui-5nHsxc /workspace/scratch/8e6ae998bf9b/app/desktop/main.cjs[22m
+[2m  - <launched> pid=30[22m
+[2m  - [pid=30][err] [30:1120/154240.616751:ERROR:dbus/bus.cc:406] Failed to connect to the bus: Failed to open socket: Operation not permitted[22m
+[2m  - [pid=30][err] [30:1120/154240.616884:ERROR:dbus/bus.cc:406] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")[22m
+[2m  - [pid=30][err] Debugger listening on ws://127.0.0.1:40649/6e1c072a-446b-4c4b-a6e5-ffef73cd5906[22m
+[2m  - [pid=30][err] For help, see: https://nodejs.org/learn/getting-started/debugging[22m
+[2m  - <ws connecting> ws://127.0.0.1:40649/6e1c072a-446b-4c4b-a6e5-ffef73cd5906[22m
+[2m  - <ws connected> ws://127.0.0.1:40649/6e1c072a-446b-4c4b-a6e5-ffef73cd5906[22m
+[2m  - [pid=30][err] Debugger attached.[22m
+[2m  - [pid=30][err] [30:1120/154241.841841:FATAL:chrome/browser/process_singleton_posix.cc:319] Check failed: . socket() failed: Operation not permitted (1)[22m
+[2m  - <ws disconnected> ws://127.0.0.1:40649/6e1c072a-446b-4c4b-a6e5-ffef73cd5906 code=1006 reason=[22m
+[2m  - [pid=30] <kill>[22m
+[2m  - [pid=30] <will force kill>[22m
+[2m  - [pid=30] exception while trying to kill process: Error: kill ESRCH[22m
+[2m  - [pid=30] <process did exit: exitCode=null, signal=SIGTRAP>[22m
+[2m  - [pid=30] starting temporary directories cleanup[22m
+[2m  - [pid=30] finished temporary directories cleanup[22m
+
+    at async file:///workspace/scratch/8e6ae998bf9b/app/tests/actions-ui.mjs:76:9 {
+  log: [
+    '  - <launching> /workspace/scratch/8e6ae998bf9b/app/node_modules/electron/dist/electron --no-sandbox --inspect=0 --remote-debugging-port=0 --ozone-platform=headless --disable-gpu --user-data-dir=/tmp/siaas-actions-ui-5nHsxc /workspace/scratch/8e6ae998bf9b/app/desktop/main.cjs',
+    '  - <launched> pid=30',
+    '  - [pid=30][err] [30:1120/154240.616751:ERROR:dbus/bus.cc:406] Failed to connect to the bus: Failed to open socket: Operation not permitted',
+    '  - [pid=30][err] [30:1120/154240.616884:ERROR:dbus/bus.cc:406] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")',
+    '  - [pid=30][err] Debugger listening on ws://127.0.0.1:40649/6e1c072a-446b-4c4b-a6e5-ffef73cd5906',
+    '  - [pid=30][err] For help, see: https://nodejs.org/learn/getting-started/debugging',
+    '  - <ws connecting> ws://127.0.0.1:40649/6e1c072a-446b-4c4b-a6e5-ffef73cd5906',
+    '  - <ws connected> ws://127.0.0.1:40649/6e1c072a-446b-4c4b-a6e5-ffef73cd5906',
+    '  - [pid=30][err] Debugger attached.',
+    '  - [pid=30][err] [30:1120/154241.841841:FATAL:chrome/browser/process_singleton_posix.cc:319] Check failed: . socket() failed: Operation not permitted (1)',
+    '  - <ws disconnected> ws://127.0.0.1:40649/6e1c072a-446b-4c4b-a6e5-ffef73cd5906 code=1006 reason=',
+    '  - [pid=30] <kill>',
+    '  - [pid=30] <will force kill>',
+    '  - [pid=30] exception while trying to kill process: Error: kill ESRCH',
+    '  - [pid=30] <process did exit: exitCode=null, signal=SIGTRAP>',
+    '  - [pid=30] starting temporary directories cleanup',
+    '  - [pid=30] finished temporary directories cleanup'
+  ]
+}
+
+Node.js v24.22.3
