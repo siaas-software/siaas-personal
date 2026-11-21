@@ -4,16 +4,22 @@ export const REPOSITORY = "siaas-software/siaas-personal";
 export const NODE_VERSION = "24.22.0";
 export const stableVersion = (v) =>
   typeof v === "string" && /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(v);
-export const releaseVersion = (v) => stableVersion(v) || (typeof v === "string" && /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)-rc\.(0|[1-9]\d*)$/.test(v));
+export const releaseVersion = (v) =>
+  stableVersion(v) ||
+  (typeof v === "string" &&
+    /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)-rc\.(0|[1-9]\d*)$/.test(v));
 export function compareVersions(a, b) {
-  if (!releaseVersion(a) || !releaseVersion(b)) throw Error("Invalid release version");
-  const [ac, ar] = a.split("-rc."), [bc, br] = b.split("-rc.");
-  const x = ac.split(".").map(Number), y = bc.split(".").map(Number);
-  for (let i=0;i<3;i++) if(x[i]!==y[i]) return x[i]>y[i]?1:-1;
-  if(ar===br) return 0;
-  if(ar===undefined) return 1;
-  if(br===undefined) return -1;
-  return Number(ar)>Number(br)?1:-1;
+  if (!releaseVersion(a) || !releaseVersion(b))
+    throw Error("Invalid release version");
+  const [ac, ar] = a.split("-rc."),
+    [bc, br] = b.split("-rc.");
+  const x = ac.split(".").map(Number),
+    y = bc.split(".").map(Number);
+  for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] > y[i] ? 1 : -1;
+  if (ar === br) return 0;
+  if (ar === undefined) return 1;
+  if (br === undefined) return -1;
+  return Number(ar) > Number(br) ? 1 : -1;
 }
 const digest = (value) =>
   typeof value === "string" && /^[a-f0-9]{64}$/.test(value);

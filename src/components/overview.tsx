@@ -116,7 +116,8 @@ function ModelDetail({
       <State model={model} />
       {stale && (
         <p className="overview-warning">
-          Ollama is unreachable: details and size reflect the last available update.
+          Ollama is unreachable: details and size reflect the last available
+          update.
         </p>
       )}
       <dl className="overview-facts">
@@ -168,13 +169,12 @@ function ModelDetail({
         </div>
       </dl>
       <p className="overview-note">
-        Model memory and GPU share are reported by Ollama. Total CPU and GPU usage is not attributed to this model.
+        Model memory and GPU share are reported by Ollama. Total CPU and GPU
+        usage is not attributed to this model.
       </p>
       <h3>Linked assistants and projects</h3>
       {!model.assistants.length ? (
-        <p className="overview-note">
-          No assistants use this model.
-        </p>
+        <p className="overview-note">No assistants use this model.</p>
       ) : (
         <div className="overview-links">
           {model.assistants.map((a) => (
@@ -230,12 +230,12 @@ function ModelDetail({
       )}
       <h3>Recent requests</h3>
       <p className="overview-note">
-        Last 20 calls per model. Each agent step and embedding batch is a separate call. Duration is measured by SIAAS Personal; tokens and speed come from Ollama.
+        Last 20 calls per model. Each agent step and embedding batch is a
+        separate call. Duration is measured by SIAAS Personal; tokens and speed
+        come from Ollama.
       </p>
       {!model.recent.length ? (
-        <p className="overview-empty">
-          No requests recorded for this model.
-        </p>
+        <p className="overview-empty">No requests recorded for this model.</p>
       ) : (
         <div className="overview-table-scroll">
           <table className="overview-history">
@@ -286,7 +286,8 @@ function ModelDetail({
         </div>
       )}
       <p className="overview-note">
-        Telemetry keeps only metadata on this PC: up to 1,000 requests for up to 30 days. Requests made before the update are not reconstructed.
+        Telemetry keeps only metadata on this PC: up to 1,000 requests for up to
+        30 days. Requests made before the update are not reconstructed.
       </p>
     </dialog>
   );
@@ -398,9 +399,7 @@ export function Overview({ onAssistant, onProject }: Props) {
           <h1>
             Overview<span className="title-dot">.</span>
           </h1>
-          <p>
-            All local models, computer resources and assistant activity.
-          </p>
+          <p>All local models, computer resources and assistant activity.</p>
         </div>
         <button
           className="button"
@@ -538,7 +537,8 @@ export function Overview({ onAssistant, onProject }: Props) {
         )}
       </div>
       <p className="overview-note">
-        CPU, RAM and sensors describe the whole computer. Activity from other applications is not attributed to SIAAS Personal models.
+        CPU, RAM and sensors describe the whole computer. Activity from other
+        applications is not attributed to SIAAS Personal models.
       </p>
       <div className="overview-section-heading">
         <h2>
@@ -563,7 +563,11 @@ export function Overview({ onAssistant, onProject }: Props) {
         </label>
         <label>
           Status
-          <select aria-label="Status" value={state} onChange={(e) => setState(e.target.value)}>
+          <select
+            aria-label="Status"
+            value={state}
+            onChange={(e) => setState(e.target.value)}
+          >
             <option value="all">All</option>
             <option value="in-use">In use (including startup)</option>
             <option value="loaded">Loaded</option>
@@ -606,7 +610,11 @@ export function Overview({ onAssistant, onProject }: Props) {
         </label>
         <label>
           Sort by
-          <select aria-label="Sort by" value={sort} onChange={(e) => setSort(e.target.value)}>
+          <select
+            aria-label="Sort by"
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+          >
             <option value="recent">Recent activity</option>
             <option value="size">Size</option>
             <option value="assistants">Linked assistants</option>
@@ -619,7 +627,8 @@ export function Overview({ onAssistant, onProject }: Props) {
         !snapshot.embeddingCount &&
         snapshot.historyAvailable && (
           <p className="overview-note">
-            SIAAS Personal is not using any models right now. Installed models remain available.
+            SIAAS Personal is not using any models right now. Installed models
+            remain available.
           </p>
         )}
       <div className="overview-table-scroll">
@@ -685,7 +694,10 @@ export function Overview({ onAssistant, onProject }: Props) {
         )}
       </div>
       <p className="overview-note">
-        Installed: available in Ollama. Loaded: in memory. In use: a monitored SIAAS Personal call. Startup includes waiting and loading; Ollama does not expose activity from other applications. “Error” marks the last failed SIAAS Personal call.
+        Installed: available in Ollama. Loaded: in memory. In use: a monitored
+        SIAAS Personal call. Startup includes waiting and loading; Ollama does
+        not expose activity from other applications. “Error” marks the last
+        failed SIAAS Personal call.
       </p>
       {detail && (
         <ModelDetail

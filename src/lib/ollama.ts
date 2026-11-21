@@ -150,18 +150,21 @@ export async function ollamaStatus(
     };
   }
 }
-export function requireOllama(modelId: string, request?: typeof fetch): Promise<OllamaRuntime & { agent: AgentEligibility }>;
-export function requireOllama(modelId?: undefined, request?: typeof fetch): Promise<OllamaRuntime & { embeddingProfile: string }>;
+export function requireOllama(
+  modelId: string,
+  request?: typeof fetch,
+): Promise<OllamaRuntime & { agent: AgentEligibility }>;
+export function requireOllama(
+  modelId?: undefined,
+  request?: typeof fetch,
+): Promise<OllamaRuntime & { embeddingProfile: string }>;
 export async function requireOllama(
   modelId?: string,
   request: typeof fetch = fetch,
 ): Promise<OllamaRuntime & { agent?: AgentEligibility }> {
   requireLocalRuntime();
   if (modelId && !isLocalModelId(modelId))
-    throw new OllamaError(
-      400,
-      "Select an Ollama model in assistant settings.",
-    );
+    throw new OllamaError(400, "Select an Ollama model in assistant settings.");
   const runtime = await ollamaStatus(request);
   if (!runtime.connected || (!modelId && !runtime.embeddingProfile))
     throw new OllamaError(503, runtime.message);
@@ -170,7 +173,9 @@ export async function requireOllama(
       503,
       `Modello non installato. Esegui: ollama pull ${modelId.slice(7)}`,
     );
-  const agent = modelId ? await verifyLocalChatModel(modelId, request) : undefined;
+  const agent = modelId
+    ? await verifyLocalChatModel(modelId, request)
+    : undefined;
   return { ...runtime, agent };
 }
 export async function embedLocal(
@@ -202,7 +207,10 @@ export async function embedLocal(
   );
   try {
     const send = isDesktop()
-      ? (await import("./local/inference-telemetry")).monitoredFetch(context, request)
+      ? (await import("./local/inference-telemetry")).monitoredFetch(
+          context,
+          request,
+        )
       : request;
     const response = await send(ollamaURL() + "/api/embed", {
       method: "POST",
@@ -280,7 +288,10 @@ export async function* streamLocal(
   if (!isLocalModelId(modelId))
     throw new OllamaError(400, "Invalid local model.");
   const send = isDesktop()
-    ? (await import("./local/inference-telemetry")).monitoredFetch(context, request)
+    ? (await import("./local/inference-telemetry")).monitoredFetch(
+        context,
+        request,
+      )
     : request;
   const outputLimit = localChatOutputLimit();
   const response = await send(ollamaURL() + "/api/chat", {

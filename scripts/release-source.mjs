@@ -56,21 +56,66 @@ for (const extension of ["ps1", "sh"]) {
 }
 
 if (pkg.version.includes("-rc.")) {
-  const sums = await fetch(`https://nodejs.org/dist/v${runtime.nodeVersion}/SHASUMS256.txt`, {signal:AbortSignal.timeout(30000)});
+  const sums = await fetch(
+    `https://nodejs.org/dist/v${runtime.nodeVersion}/SHASUMS256.txt`,
+    { signal: AbortSignal.timeout(30000) },
+  );
   if (!sums.ok) throw Error("Official runtime checksums unavailable");
-  const hashes = new Map((await sums.text()).trim().split(/\r?\n/).map(l=>{const [h,n]=l.trim().split(/\s+/);return [n,h]}));
-  const bytes=readFileSync(join("dist-source",prefix+"-source.zip"));
-  const all={}, lines=[];
-  for(const platform of ["win32","darwin","linux"]) for(const arch of ["x64","arm64"]) {
-    const r=runtimeAsset(runtime.nodeVersion,platform,arch), sha=hashes.get(r.name);
-    if(!/^[a-f0-9]{64}$/.test(sha||""))throw Error("Missing runtime hash");
-    const m={schemaVersion:1,version:pkg.version,platform,arch,name:prefix+"-source.zip",size:bytes.length,sha256:createHash("sha256").update(bytes).digest("hex"),downloadUrl:`https://github.com/siaas-software/siaas-personal/releases/download/v${pkg.version}/${prefix}-source.zip`,runtime:{version:runtime.nodeVersion,...r,sha256:sha}};
-    all[platform+"-"+arch]=m;
-    lines.push([platform,arch,m.version,m.name,m.size,m.sha256,m.downloadUrl,m.runtime.version,m.runtime.name,m.runtime.sha256,m.runtime.url].join("\t"));
-  }
-  writeFileSync(join("dist-source","rc-manifests.json"),JSON.stringify(all,null,2)+"\n");
-  writeFileSync(join("dist-source","rc-manifests.tsv"),lines.join("\n")+"\n");
-  assets.push("rc-manifests.json","rc-manifests.tsv");
+  const hashes = new Map(
+    (await sums.text())
+      .trim()
+      .split(/\r?\n/)
+      .map((l) => {
+        const [h, n] = l.trim().split(/\s+/);
+        return [n, h];
+      }),
+  );
+  const bytes = readFileSync(join("dist-source", prefix + "-source.zip"));
+  const all = {},
+    lines = [];
+  for (const platform of ["win32", "darwin", "linux"])
+    for (const arch of ["x64", "arm64"]) {
+      const r = runtimeAsset(runtime.nodeVersion, platform, arch),
+        sha = hashes.get(r.name);
+      if (!/^[a-f0-9]{64}$/.test(sha || ""))
+        throw Error("Missing runtime hash");
+      const m = {
+        schemaVersion: 1,
+        version: pkg.version,
+        platform,
+        arch,
+        name: prefix + "-source.zip",
+        size: bytes.length,
+        sha256: createHash("sha256").update(bytes).digest("hex"),
+        downloadUrl: `https://github.com/siaas-software/siaas-personal/releases/download/v${pkg.version}/${prefix}-source.zip`,
+        runtime: { version: runtime.nodeVersion, ...r, sha256: sha },
+      };
+      all[platform + "-" + arch] = m;
+      lines.push(
+        [
+          platform,
+          arch,
+          m.version,
+          m.name,
+          m.size,
+          m.sha256,
+          m.downloadUrl,
+          m.runtime.version,
+          m.runtime.name,
+          m.runtime.sha256,
+          m.runtime.url,
+        ].join("\t"),
+      );
+    }
+  writeFileSync(
+    join("dist-source", "rc-manifests.json"),
+    JSON.stringify(all, null, 2) + "\n",
+  );
+  writeFileSync(
+    join("dist-source", "rc-manifests.tsv"),
+    lines.join("\n") + "\n",
+  );
+  assets.push("rc-manifests.json", "rc-manifests.tsv");
   const releaseDocuments = [
     [pkg.version + ".md", "RELEASE_NOTES.md"],
     [pkg.version + "-readiness.md", "READINESS.md"],
@@ -84,9 +129,23 @@ if (pkg.version.includes("-rc.")) {
     writeFileSync(join("dist-source", name), markdown);
     assets.push(name);
   }
-  for(const ext of ["ps1","sh"]){const name="install-rc."+ext;copyFileSync("scripts/"+name,join("dist-source",name));assets.push(name);}
+  for (const ext of ["ps1", "sh"]) {
+    const name = "install-rc." + ext;
+    copyFileSync("scripts/" + name, join("dist-source", name));
+    assets.push(name);
+  }
 }
 
-writeFileSync(join("dist-source", "SHA256SUMS.txt"), assets.map(name =>
-  createHash("sha256").update(readFileSync(join("dist-source", name))).digest("hex") + "  " + name,
-).join("\n") + "\n");
+writeFileSync(
+  join("dist-source", "SHA256SUMS.txt"),
+  assets
+    .map(
+      (name) =>
+        createHash("sha256")
+          .update(readFileSync(join("dist-source", name)))
+          .digest("hex") +
+        "  " +
+        name,
+    )
+    .join("\n") + "\n",
+);

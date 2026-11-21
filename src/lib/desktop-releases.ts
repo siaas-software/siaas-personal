@@ -7,7 +7,11 @@ export const targetSchema = z
   })
   .refine((t) => t.arch === "x64" || t.platform === "darwin");
 const version = /^\d+\.\d+\.\d+$/;
-export type ReleaseTarget = { tag: string; platform: "win32" | "darwin" | "linux"; arch: "x64" | "arm64" };
+export type ReleaseTarget = {
+  tag: string;
+  platform: "win32" | "darwin" | "linux";
+  arch: "x64" | "arm64";
+};
 export function manifestName(t: Pick<ReleaseTarget, "platform" | "arch">) {
   return `update-${t.platform}-${t.arch}.json`;
 }
@@ -44,7 +48,8 @@ export function validateManifest(input: unknown, target: ReleaseTarget) {
   for (const f of m.files) {
     if (
       !allowed.some(
-        (ext) => f.url === `SIAAS-Personal-${m.version}-${os}-${artifactArch}.${ext}`,
+        (ext) =>
+          f.url === `SIAAS-Personal-${m.version}-${os}-${artifactArch}.${ext}`,
       )
     )
       throw new Error("Unexpected release asset");
@@ -59,7 +64,8 @@ export type Release = {
   assets: { id: number; name: string; size: number }[];
 };
 export async function githubRelease(tag?: string): Promise<Release> {
-  const repo = process.env.SIAAS_RELEASE_REPOSITORY || "siaas-software/siaas-personal";
+  const repo =
+    process.env.SIAAS_RELEASE_REPOSITORY || "siaas-software/siaas-personal";
   if (!/^[\w.-]+\/[\w.-]+$/.test(repo))
     throw new Error("Invalid release repository");
   const result = await fetch(
@@ -89,7 +95,8 @@ function githubHeaders() {
   };
 }
 export async function releaseAsset(id: number) {
-  const repo = process.env.SIAAS_RELEASE_REPOSITORY || "siaas-software/siaas-personal";
+  const repo =
+    process.env.SIAAS_RELEASE_REPOSITORY || "siaas-software/siaas-personal";
   return fetch(`https://api.github.com/repos/${repo}/releases/assets/${id}`, {
     headers: { ...githubHeaders(), Accept: "application/octet-stream" },
     redirect: "manual",

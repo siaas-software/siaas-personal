@@ -299,7 +299,8 @@ export class LocalDatabase {
       );
       return token;
     }
-    const lexical = a.target_profile === LEXICAL_PROFILE && name !== "match_documents_local";
+    const lexical =
+      a.target_profile === LEXICAL_PROFILE && name !== "match_documents_local";
     if (!lexical && !profilePattern.test(a.target_profile))
       throw new Error("Profilo embedding non valido.");
     if (name === "claim_document_local") {
@@ -334,7 +335,8 @@ export class LocalDatabase {
         throw new Error("Frammenti non validi.");
       for (const c of a.chunks) {
         if (!lexical) validateVector(c.embedding);
-        else if (c.embedding != null) throw new Error("Unexpected embedding for lexical index.");
+        else if (c.embedding != null)
+          throw new Error("Unexpected embedding for lexical index.");
         if (
           typeof c.content !== "string" ||
           !c.content ||
@@ -456,7 +458,9 @@ export class LocalDatabase {
       id.test(parts[3]) &&
       parts[4] === "documents" &&
       id.test(parts[5]) &&
-      /^[a-zA-Z0-9_][a-zA-Z0-9._ -]*\.(pdf|docx|txt|md|xlsx|csv)$/.test(parts[6])
+      /^[a-zA-Z0-9_][a-zA-Z0-9._ -]*\.(pdf|docx|txt|md|xlsx|csv)$/.test(
+        parts[6],
+      )
     )
       return join(this.directory, ...parts);
     // Legacy paths remain readable if migration was interrupted or a file is missing.
