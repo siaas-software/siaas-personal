@@ -31,9 +31,10 @@ portable project configuration:
 ```
 
 `assistant_indices` is an ordered subset of zero-based indices in
-`project.assistants`. The schema rejects duplicates, missing positions,
-more than eight participants, invalid step budgets, unsupported fields and
-enabling an empty/out-of-budget configuration. Input files never contain
+`project.assistants`. The schema rejects duplicate or missing participant indices,
+more than eight participants, invalid step budgets, unknown orchestration
+fields and enabling an empty/out-of-budget configuration. Unrelated legacy
+project and assistant metadata is sanitized at the portable schema boundary. Input files never contain
 runtime `assistant_ids`, chat history, documents, local paths, credentials or
 embeddings. Public URL sources remain scoped to individual assistants.
 

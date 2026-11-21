@@ -40,6 +40,7 @@ export async function listTemplates(
           .select()
           .single();
         if (upgradeError) throw upgradeError;
+        if (!upgraded) throw new Error("Updated template could not be loaded.");
         Object.assign(previous, upgraded);
       }
       continue;
