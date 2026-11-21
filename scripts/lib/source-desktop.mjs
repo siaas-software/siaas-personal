@@ -1,6 +1,12 @@
 // Internal legacy launcher registration and automatic application startup.
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, writeFileSync, readdirSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  writeFileSync,
+  readdirSync,
+  rmSync,
+} from "node:fs";
 import { join, dirname } from "node:path";
 import { homedir } from "node:os";
 import { verifyRuntime, runtimeEnv } from "./managed-runtime.mjs";
@@ -27,7 +33,11 @@ export function executable(path) {
 
 export function createSourceDesktop({ root, installed, folder }) {
   function launcherFile() {
-    if (installed()?.profile) return join(root, process.platform === "win32" ? "launch-rc.cmd" : "launch-rc.sh");
+    if (installed()?.profile)
+      return join(
+        root,
+        process.platform === "win32" ? "launch-rc.cmd" : "launch-rc.sh",
+      );
     return process.platform === "win32"
       ? join(
           process.env.APPDATA || join(homedir(), "AppData", "Roaming"),
@@ -76,38 +86,53 @@ export function createSourceDesktop({ root, installed, folder }) {
   }
   async function launch(item) {
     if (!item) throw Error("SIAAS Personal is not installed.");
-    let locked = false, releaseLock = true;
-    if (item.cliManaged === 1) { mkdirSync(join(root,".operation-lock")); locked = true; }
-    try {
-    await verifyRuntime(item.runtime, item.runtime?.version);
-    const manager = join(folder(item), "scripts", "source-manager.mjs");
-    const child = spawn(executable(folder(item)), item.profile ? ["--user-data-dir=" + item.profile] : [], {
-      detached: item.cliManaged !== 1,
-      stdio: "ignore",
-      env: {
-        ...runtimeEnv(item.runtime.node),
-        SIAAS_INSTALL_DIR: root,
-        SIAAS_SOURCE_MANAGER: manager,
-      },
-      windowsHide: false,
-    });
-    await new Promise((ok, no) => {
-      child.once("spawn", ok);
-      child.once("error", no);
-    });
-    if(item.cliManaged === 1) {
-      // Failure to establish a known child identity retains the operation lock.
-      releaseLock = false;
-      const {captureLease}=await import('./cli-quiescence.mjs');
-      const exited=new Promise(ok=>child.once('close',ok));
-      try {
-        const lease=captureLease(child.pid,executable(folder(item)));
-        writeFileSync(join(root,'instance.json'),JSON.stringify(lease),{mode:0o600});
-      } catch(e) { if(!['ENOENT','ESRCH'].includes(e.code))throw e; }
-      await exited;
+    let locked = false,
       releaseLock = true;
-    } else child.unref();
-    } finally { if (locked && releaseLock) rmSync(join(root,".operation-lock"),{recursive:true}); }
+    if (item.cliManaged === 1) {
+      mkdirSync(join(root, ".operation-lock"));
+      locked = true;
+    }
+    try {
+      await verifyRuntime(item.runtime, item.runtime?.version);
+      const manager = join(folder(item), "scripts", "source-manager.mjs");
+      const child = spawn(
+        executable(folder(item)),
+        item.profile ? ["--user-data-dir=" + item.profile] : [],
+        {
+          detached: item.cliManaged !== 1,
+          stdio: "ignore",
+          env: {
+            ...runtimeEnv(item.runtime.node),
+            SIAAS_INSTALL_DIR: root,
+            SIAAS_SOURCE_MANAGER: manager,
+          },
+          windowsHide: false,
+        },
+      );
+      await new Promise((ok, no) => {
+        child.once("spawn", ok);
+        child.once("error", no);
+      });
+      if (item.cliManaged === 1) {
+        // Failure to establish a known child identity retains the operation lock.
+        releaseLock = false;
+        const { captureLease } = await import("./cli-quiescence.mjs");
+        const exited = new Promise((ok) => child.once("close", ok));
+        try {
+          const lease = captureLease(child.pid, executable(folder(item)));
+          writeFileSync(join(root, "instance.json"), JSON.stringify(lease), {
+            mode: 0o600,
+          });
+        } catch (e) {
+          if (!["ENOENT", "ESRCH"].includes(e.code)) throw e;
+        }
+        await exited;
+        releaseLock = true;
+      } else child.unref();
+    } finally {
+      if (locked && releaseLock)
+        rmSync(join(root, ".operation-lock"), { recursive: true });
+    }
   }
   return { launcherFile, launcher, launch };
 }

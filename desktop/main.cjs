@@ -19,7 +19,8 @@ let installing = false;
 const activeMutations = new Set();
 // Keep the established data directory across the product rename.
 // This preserves projects, documents, sessions and the managed Ollama installation.
-const userDataDirectory = app.commandLine.getSwitchValue("user-data-dir") ||
+const userDataDirectory =
+  app.commandLine.getSwitchValue("user-data-dir") ||
   join(app.getPath("appData"), "SIAAS");
 mkdirSync(userDataDirectory, { recursive: true });
 app.setPath("userData", userDataDirectory);
@@ -58,7 +59,10 @@ async function start() {
         process.platform === "win32" ? "node.exe" : "node",
       )
     : process.env.SIAAS_NODE_EXECUTABLE;
-  if (!node) throw new Error("Start SIAAS Personal from the terminal with npm run desktop.");
+  if (!node)
+    throw new Error(
+      "Start SIAAS Personal from the terminal with npm run desktop.",
+    );
   const root = join(__dirname, "..");
   const serverDir = app.isPackaged
     ? join(process.resourcesPath, "server")
@@ -167,9 +171,14 @@ async function start() {
   const iconDirectory = app.isPackaged
     ? join(process.resourcesPath, "branding")
     : join(__dirname, "..", "build");
-  const icon = join(iconDirectory, process.platform === "win32" ? "icon.ico" : "icon.png");
-  if (!existsSync(icon)) throw new Error("SIAAS application icon is missing from the installation.");
-  if (process.platform === "darwin") app.dock?.setIcon(join(iconDirectory, "icon.png"));
+  const icon = join(
+    iconDirectory,
+    process.platform === "win32" ? "icon.ico" : "icon.png",
+  );
+  if (!existsSync(icon))
+    throw new Error("SIAAS application icon is missing from the installation.");
+  if (process.platform === "darwin")
+    app.dock?.setIcon(join(iconDirectory, "icon.png"));
   win = new BrowserWindow({
     icon,
     title: "SIAAS Personal",
@@ -228,7 +237,20 @@ async function start() {
     event.sender === win.webContents &&
     event.senderFrame === win.webContents.mainFrame &&
     new URL(event.senderFrame.url).origin === origin;
-  const installRoot = process.env.SIAAS_INSTALL_DIR || (process.platform === "win32" ? join(process.env.LOCALAPPDATA || join(require("node:os").homedir(), "AppData", "Local"), "SIAAS Personal Source") : join(require("node:os").homedir(), ".local", "share", "siaas-personal-source"));
+  const installRoot =
+    process.env.SIAAS_INSTALL_DIR ||
+    (process.platform === "win32"
+      ? join(
+          process.env.LOCALAPPDATA ||
+            join(require("node:os").homedir(), "AppData", "Local"),
+          "SIAAS Personal Source",
+        )
+      : join(
+          require("node:os").homedir(),
+          ".local",
+          "share",
+          "siaas-personal-source",
+        ));
   const sourceManager = join(installRoot, "source-manager.mjs");
   const { existsSync: sourceExists } = require("node:fs");
   const managerPath = process.env.SIAAS_SOURCE_MANAGER || sourceManager;
@@ -236,7 +258,8 @@ async function start() {
     version: app.getVersion(),
     supported: sourceExists(managerPath),
     notify: (state) => {
-      if (win && !win.isDestroyed()) win.webContents.send("siaas:update-state", state);
+      if (win && !win.isDestroyed())
+        win.webContents.send("siaas:update-state", state);
     },
   });
   const handle = (channel, fn) =>
@@ -245,46 +268,86 @@ async function start() {
       return await fn(...args);
     });
   handle("siaas:choose-knowledge-folder", async () => {
-    const result = await dialog.showOpenDialog(win, { title: "Collega una cartella ai documenti dell’assistente", properties: ["openDirectory"] });
-    return result.canceled ? null : result.filePaths[0] ?? null;
+    const result = await dialog.showOpenDialog(win, {
+      title: "Collega una cartella ai documenti dell’assistente",
+      properties: ["openDirectory"],
+    });
+    return result.canceled ? null : (result.filePaths[0] ?? null);
   });
   const openDirectory = async (path) => {
-    if (typeof path !== "string" || path.length > 4096 || !isAbsolute(path) || !statSync(path).isDirectory())
+    if (
+      typeof path !== "string" ||
+      path.length > 4096 ||
+      !isAbsolute(path) ||
+      !statSync(path).isDirectory()
+    )
       throw new Error("Cartella non disponibile.");
     const error = await shell.openPath(path);
     if (error) throw new Error("Impossibile aprire la cartella.");
   };
   handle("siaas:open-knowledge-folder", openDirectory);
-  handle("siaas:open-data-directory", () => openDirectory(app.getPath("userData")));
-
+  handle("siaas:open-data-directory", () =>
+    openDirectory(app.getPath("userData")),
+  );
 
   handle("siaas:update-state", () => updates.state);
   handle("siaas:check-update", () => updates.check());
   handle("siaas:install-update", async () => {
-    if (updates.state.phase !== "available") throw new Error("No stable update available.");
-    if (activeMutations.size || setupPending) throw new Error("Finish current work before updating.");
-    if (!sourceExists(managerPath)) throw new Error("Source manager not found.");
+    if (updates.state.phase !== "available")
+      throw new Error("No stable update available.");
+    if (activeMutations.size || setupPending)
+      throw new Error("Finish current work before updating.");
+    if (!sourceExists(managerPath))
+      throw new Error("Source manager not found.");
     const choice = await dialog.showMessageBox(win, {
       type: "question",
       title: "Update SIAAS Personal",
       message: "Restart and build the latest stable release from source?",
-      detail: "SIAAS Personal will close during the update. Existing local data will be preserved. Application rollback does not undo database migrations.",
+      detail:
+        "SIAAS Personal will close during the update. Existing local data will be preserved. Application rollback does not undo database migrations.",
       buttons: ["Update Now", "Cancel"],
       defaultId: 1,
       cancelId: 1,
     });
     if (choice.response !== 0) return updates.state;
     const externalNode = process.env.SIAAS_SOURCE_NODE;
-    if (!externalNode || !require("node:path").isAbsolute(externalNode) || !sourceExists(externalNode)) throw new Error("Managed Node.js runtime unavailable. Rerun the official installer.");
+    if (
+      !externalNode ||
+      !require("node:path").isAbsolute(externalNode) ||
+      !sourceExists(externalNode)
+    )
+      throw new Error(
+        "Managed Node.js runtime unavailable. Rerun the official installer.",
+      );
     const fs = require("node:fs");
-    const log = fs.openSync(require("node:path").join(process.env.SIAAS_INSTALL_DIR || require("node:path").dirname(managerPath), "update.log"), "a", 0o600);
-    const child = spawn(externalNode, [managerPath, "update-detached", String(process.pid)], {
-      detached: true, stdio: ["ignore", log, log], windowsHide: true,
-    });
+    const log = fs.openSync(
+      require("node:path").join(
+        process.env.SIAAS_INSTALL_DIR ||
+          require("node:path").dirname(managerPath),
+        "update.log",
+      ),
+      "a",
+      0o600,
+    );
+    const child = spawn(
+      externalNode,
+      [managerPath, "update-detached", String(process.pid)],
+      {
+        detached: true,
+        stdio: ["ignore", log, log],
+        windowsHide: true,
+      },
+    );
     fs.closeSync(log);
-    await new Promise((resolve, reject) => { child.once("spawn", resolve); child.once("error", reject); });
+    await new Promise((resolve, reject) => {
+      child.once("spawn", resolve);
+      child.once("error", reject);
+    });
     child.unref();
-    updates.set({phase:"activating",message:"Closing application to update from source…"});
+    updates.set({
+      phase: "activating",
+      message: "Closing application to update from source…",
+    });
     installing = true;
     app.quit();
     return updates.state;
@@ -295,8 +358,7 @@ async function start() {
     trusted(event) ? setupError : "Richiesta non valida.",
   );
   ipcMain.handle("siaas:setup-ollama", async (event) => {
-    if (!trusted(event))
-      return { ok: false, error: "Richiesta non valida." };
+    if (!trusted(event)) return { ok: false, error: "Richiesta non valida." };
     if (setupPending)
       return { ok: false, error: "Configurazione già in corso." };
     setupPending = true;

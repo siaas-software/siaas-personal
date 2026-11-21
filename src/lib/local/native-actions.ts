@@ -13,8 +13,7 @@ export function executeNativeAction(
 ): { content: string; sources: []; result: null } {
   signal.throwIfAborted();
   const assistant = db.get("assistants", assistantId);
-  if (!assistant)
-    throw new ActionError(404, "Assistente non trovato.");
+  if (!assistant) throw new ActionError(404, "Assistente non trovato.");
   // Never trust a persisted/custom Action to declare executable capabilities.
   if (
     action.kind !== "builtin" ||
@@ -23,16 +22,19 @@ export function executeNativeAction(
     action.capability !== "list_assistant_sources"
   )
     throw new ActionError(403, "Capacità applicativa non autorizzata.");
-  const documents = db.rows("documents")
-    .filter((d) =>
-      d.tenant_id === assistant.tenant_id &&
-      d.assistant_id === assistantId &&
-      d.enabled !== false &&
-      d.status === "ready",
+  const documents = db
+    .rows("documents")
+    .filter(
+      (d) =>
+        d.tenant_id === assistant.tenant_id &&
+        d.assistant_id === assistantId &&
+        d.enabled !== false &&
+        d.status === "ready",
     )
-    .sort((a, b) =>
-      String(a.title ?? "").localeCompare(String(b.title ?? "")) ||
-      String(a.id).localeCompare(String(b.id)),
+    .sort(
+      (a, b) =>
+        String(a.title ?? "").localeCompare(String(b.title ?? "")) ||
+        String(a.id).localeCompare(String(b.id)),
     );
   signal.throwIfAborted();
   const visible = documents.slice(0, 50);
@@ -46,7 +48,9 @@ export function executeNativeAction(
     ? [
         "Fonti indicizzate, abilitate e pronte per questo assistente:",
         ...entries,
-        ...(documents.length > visible.length ? ["- (altre fonti non visualizzate)"] : []),
+        ...(documents.length > visible.length
+          ? ["- (altre fonti non visualizzate)"]
+          : []),
       ].join("\n")
     : "Questo assistente non ha fonti indicizzate, abilitate e pronte.";
   return { content, sources: [], result: null };

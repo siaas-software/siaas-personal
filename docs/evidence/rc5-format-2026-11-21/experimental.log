@@ -1,0 +1,1 @@
+PASS: compiled API rejects absent Engine, invalid origins/payloads and disabled assistant Beta; Docker recovery never opts in; normal project/assistant data persists. No container commands executed.

@@ -27,7 +27,8 @@ export function QuoteDemo() {
         </div>
         <p>
           Estimate the cost of embeddings to prepare your text with{" "}
-          {EXTERNAL_PROVIDER.name}. This is an estimate only: no external processing or payment.
+          {EXTERNAL_PROVIDER.name}. This is an estimate only: no external
+          processing or payment.
         </p>
         <label>
           Provider and model
@@ -49,7 +50,8 @@ export function QuoteDemo() {
           />
         </label>
         <p className="field-help">
-          The estimate is calculated in your browser. Text is not saved or sent to the provider. Editing it clears the previous estimate.
+          The estimate is calculated in your browser. Text is not saved or sent
+          to the provider. Editing it clears the previous estimate.
         </p>
         <div className="button-row">
           <button
@@ -81,12 +83,17 @@ export function QuoteDemo() {
               {usd.format(quote.lowUSD)} – {usd.format(quote.highUSD)}
             </strong>
             <p>
-              Initial text indexing only. Excludes subsequent chats, OCR, storage, infrastructure, taxes and service margin. This is not a final purchase price.
+              Initial text indexing only. Excludes subsequent chats, OCR,
+              storage, infrastructure, taxes and service margin. This is not a
+              final purchase price.
             </p>
           </div>
         )}
         <p className="muted small">
-          Standard paid rate: USD 0.20 per million text tokens. Assumes 2–4 characters per token, plus 15% for chunk overlap. Actual counts depend on the text. Prices checked on October 2, 2026; free allowances are excluded.{" "}
+          Standard paid rate: USD 0.20 per million text tokens. Assumes 2–4
+          characters per token, plus 15% for chunk overlap. Actual counts depend
+          on the text. Prices checked on October 2, 2026; free allowances are
+          excluded.{" "}
           <a href={EXTERNAL_PROVIDER.source} target="_blank" rel="noreferrer">
             Official pricing ↗
           </a>
@@ -101,7 +108,9 @@ export function QuoteDemo() {
           </div>
         </div>
         <p>
-          In the future, you will be able to confirm an estimate and prepare the assistant online. This uses RAG: it prepares knowledge without changing model weights.
+          In the future, you will be able to confirm an estimate and prepare the
+          assistant online. This uses RAG: it prepares knowledge without
+          changing model weights.
         </p>
         <button className="button" disabled>
           External preparation · Coming soon

@@ -104,9 +104,7 @@ export function ProjectActions({
             <Upload size={17} />
             Import
           </button>
-          {!canImport && (
-            <small>Import is available for empty projects.</small>
-          )}
+          {!canImport && <small>Import is available for empty projects.</small>}
           <button role="menuitem" onClick={() => act(onConfigure)}>
             <Settings2 size={17} />
             Configuration

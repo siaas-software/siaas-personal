@@ -104,28 +104,42 @@ export async function planQuestion(
   }
   const catalog = planningCatalog(db, assistantId);
   const example = catalog.datasets.find(
-    (dataset) => dataset.confirmed && dataset.columns.some((column) => column.type === "number"),
+    (dataset) =>
+      dataset.confirmed &&
+      dataset.columns.some((column) => column.type === "number"),
   );
   const measure = example?.columns.find((column) => column.type === "number");
-  const fieldHint = example && measure
-    ? " Example for the sum of " + JSON.stringify(measure.name) + " in " +
-      JSON.stringify(example.filename) + ": " + JSON.stringify({
-        status: "query",
-        plan: {
-          stages: [{
-            id: "summary",
-            datasetId: example.id,
-            steps: [{
-              op: "group",
-              by: example.partitions,
-              aggregates: [{ fn: "sum", column: measure.id, as: "total" }],
-            }],
-          }],
-          output: "summary",
-          limit: 100,
-        },
-      }) + ". output is the id of the final stage. Use the requested dataset, columns and operations."
-    : "";
+  const fieldHint =
+    example && measure
+      ? " Example for the sum of " +
+        JSON.stringify(measure.name) +
+        " in " +
+        JSON.stringify(example.filename) +
+        ": " +
+        JSON.stringify({
+          status: "query",
+          plan: {
+            stages: [
+              {
+                id: "summary",
+                datasetId: example.id,
+                steps: [
+                  {
+                    op: "group",
+                    by: example.partitions,
+                    aggregates: [
+                      { fn: "sum", column: measure.id, as: "total" },
+                    ],
+                  },
+                ],
+              },
+            ],
+            output: "summary",
+            limit: 100,
+          },
+        }) +
+        ". output is the id of the final stage. Use the requested dataset, columns and operations."
+      : "";
   const planningTimeoutMs = structuredPlanningTimeoutMs();
   const timeoutSignal = AbortSignal.timeout(planningTimeoutMs);
   const planningSignal = AbortSignal.any([signal, timeoutSignal]);

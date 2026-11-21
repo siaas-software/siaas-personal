@@ -1,0 +1,156 @@
+[
+  {
+    "name": "unit",
+    "command": "npm test",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 13.49
+  },
+  {
+    "name": "types",
+    "command": "npm run typecheck",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 2.83
+  },
+  {
+    "name": "research",
+    "command": "npm run test:research",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 10.78
+  },
+  {
+    "name": "distribution",
+    "command": "npm run test:distribution",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 7.55
+  },
+  {
+    "name": "installer",
+    "command": "npm run test:installer",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 0.53
+  },
+  {
+    "name": "cli",
+    "command": "node --test tests/cli-quiescence.test.mjs tests/source-manager-characterization.test.mjs",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 41.95
+  },
+  {
+    "name": "icons",
+    "command": "npm run icons:check",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 0.34
+  },
+  {
+    "name": "web-build",
+    "command": "npm run build",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 7.04
+  },
+  {
+    "name": "desktop-build",
+    "command": "npm run desktop:build",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 15.13
+  },
+  {
+    "name": "chat",
+    "command": "npm run test:chat",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 4.39
+  },
+  {
+    "name": "knowledge",
+    "command": "npm run test:knowledge",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 1.61
+  },
+  {
+    "name": "actions",
+    "command": "npm run test:actions:api",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 2.87
+  },
+  {
+    "name": "templates",
+    "command": "node tests/template-api.mjs",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 1.6
+  },
+  {
+    "name": "structured",
+    "command": "node tests/structured-api.mjs --ui",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 6.09
+  },
+  {
+    "name": "hybrid",
+    "command": "node tests/structured-api.mjs --hybrid --offline --ui",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 4.37
+  },
+  {
+    "name": "project",
+    "command": "node --import tsx tests/project-chat-api.mjs --ui",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 3.85
+  },
+  {
+    "name": "ui",
+    "command": "npm run test:ui",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 14.03
+  },
+  {
+    "name": "experimental",
+    "command": "node tests/experimental-api.mjs",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 2.31
+  },
+  {
+    "name": "licenses",
+    "command": "node tests/licenses-integration.mjs",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 0.98
+  },
+  {
+    "name": "bundle",
+    "command": "node tests/structured-bundle.test.mjs",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 0.27
+  },
+  {
+    "name": "prepare",
+    "command": "npm run desktop:prepare",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 7.09
+  },
+  {
+    "name": "package",
+    "command": "npx --no-install electron-builder --config electron-builder.cjs --linux --x64 --dir --publish never --config.electronDist=node_modules/electron/dist",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 6.73
+  }
+]

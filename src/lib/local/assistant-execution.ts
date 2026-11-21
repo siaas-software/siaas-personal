@@ -252,19 +252,13 @@ export async function executeAssistantTask(options: {
         for await (const event of streamLocal(
           modelId!,
           messages,
-          (url, init) =>
-            fetch(url, {
-              ...init,
-              signal: AbortSignal.any([
-                signal,
-                ...(init?.signal ? [init.signal] : []),
-              ]),
-            }),
+          fetch,
           {
             assistantId: assistant.id,
             projectId: assistant.project_id,
             conversationId: options.conversationId,
           },
+          signal,
         )) {
           if (event.type === "done") {
             inputTokens = event.inputTokens;

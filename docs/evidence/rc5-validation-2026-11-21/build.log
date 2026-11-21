@@ -1,0 +1,182 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> siaas-personal@1.1.0-rc.5 predesktop:build
+> npm run templates:check
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> siaas-personal@1.1.0-rc.5 templates:check
+> node --import tsx scripts/sync-templates.mjs --check
+
+Template snapshot verified: siaas-software/siaas-templates@f99813cf3799ea91a5d32ccce8521e054bb11c52
+
+> siaas-personal@1.1.0-rc.5 desktop:build
+> node scripts/build-desktop.mjs
+
+▲ Next.js 16.4.6 (Turbopack)
+✓ Running next.config.ts took 77ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 11.3s
+  Running TypeScript ...
+  Finished TypeScript in 3.5s ...
+  Collecting page data using 8 workers ...
+  Generating static pages using 8 workers (0/25) ...
+  Generating static pages using 8 workers (6/25)
+  Generating static pages using 8 workers (12/25)
+  Generating static pages using 8 workers (18/25)
+✓ Generating static pages using 8 workers (25/25) in 294ms
+Turbopack build encountered 3 warnings:
+./src/lib/licenses.ts:38:22
+Warning: Dynamic filesystem access causes tracing of the whole project
+  36 |       id,
+  37 |       title,
+> 38 |       content: await readFile(join(root, path), "utf8"),
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  39 |     })),
+  40 |   );
+  41 | }
+
+Static analysis determined that this filesystem access causes the whole project to be traced and included in the output.
+This is usually unintentional and leads to all source files (including the public folder) to be deployed as part of the server code.
+This can slow down deployments or lead to failures when size limits are exceeded.
+To resolve this, you can
+- make sure the path is statically scoped to some subfolder, for example path.join(process.cwd(), 'data', bar), or
+- only use them in development, or
+- opt out by adding an ignore comment to the highlighted call: fs.readFile(/*turbopackIgnore: true*/ ...), or
+- remove them.
+
+Import traces:
+  #1 [App Route]:
+    ./src/lib/licenses.ts
+    ./src/app/api/licenses/route.ts
+
+  #2 [App Route]:
+    ./src/lib/licenses.ts
+    ./src/lib/local/legacy-cleanup.ts
+    ./src/lib/local/database.ts
+    ./src/app/api/local/knowledge/web/route.ts
+
+
+./src/lib/licenses.ts:38:31
+Warning: Dynamic filesystem access causes tracing of the whole project
+  36 |       id,
+  37 |       title,
+> 38 |       content: await readFile(join(root, path), "utf8"),
+     |                               ^^^^^^^^^^^^^^^^
+  39 |     })),
+  40 |   );
+  41 | }
+
+Static analysis determined that this filesystem access causes the whole project to be traced and included in the output.
+This is usually unintentional and leads to all source files (including the public folder) to be deployed as part of the server code.
+This can slow down deployments or lead to failures when size limits are exceeded.
+To resolve this, you can
+- make sure the path is statically scoped to some subfolder, for example path.join(process.cwd(), 'data', bar), or
+- only use them in development, or
+- opt out by adding an ignore comment to the highlighted call: path.join(/*turbopackIgnore: true*/ ...), or
+- remove them.
+
+Import traces:
+  #1 [App Route]:
+    ./src/lib/licenses.ts
+    ./src/app/api/licenses/route.ts
+
+  #2 [App Route]:
+    ./src/lib/licenses.ts
+    ./src/lib/local/legacy-cleanup.ts
+    ./src/lib/local/database.ts
+    ./src/app/api/local/knowledge/web/route.ts
+
+
+./src/lib/local/legacy-cleanup.ts:56:25
+Warning: Dynamic filesystem access causes tracing of the whole project
+  54 |       }
+  55 |       if (linked || !lstatSync(candidate).isDirectory()) continue;
+> 56 |       const canonical = realpathSync(candidate);
+     |                         ^^^^^^^^^^^^^^^^^^^^^^^
+  57 |       if (
+  58 |         sources.some(
+  59 |           (source) =>
+
+Static analysis determined that this filesystem access causes the whole project to be traced and included in the output.
+This is usually unintentional and leads to all source files (including the public folder) to be deployed as part of the server code.
+This can slow down deployments or lead to failures when size limits are exceeded.
+To resolve this, you can
+- make sure the path is statically scoped to some subfolder, for example path.join(process.cwd(), 'data', bar), or
+- only use them in development, or
+- opt out by adding an ignore comment to the highlighted call: fs.realpathSync(/*turbopackIgnore: true*/ ...), or
+- remove them.
+
+Import traces:
+  #1 [App Route]:
+    ./src/lib/local/legacy-cleanup.ts
+    ./src/lib/local/database.ts
+    ./src/app/api/local/knowledge/web/route.ts
+
+  #2 [App Route]:
+    ./src/lib/local/legacy-cleanup.ts
+    ./src/lib/local/legacy-cleanup.ts
+    ./src/lib/local/database.ts
+    ./src/lib/local/research-services.ts
+    ./src/app/api/local/research/route.ts
+
+
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ○ /_not-found
+├ ƒ /api/actions
+├ ƒ /api/actions/[id]
+├ ƒ /api/actions/builder
+├ ƒ /api/actions/models
+├ ƒ /api/assistants
+├ ƒ /api/assistants/[id]
+├ ƒ /api/chat
+├ ƒ /api/conversations
+├ ƒ /api/conversations/[id]
+├ ƒ /api/desktop/downloads
+├ ƒ /api/documents
+├ ƒ /api/documents/[id]
+├ ƒ /api/documents/[id]/process
+├ ƒ /api/licenses
+├ ƒ /api/local/experimental
+├ ƒ /api/local/files/[id]
+├ ƒ /api/local/hardware
+├ ƒ /api/local/knowledge
+├ ƒ /api/local/knowledge/web
+├ ƒ /api/local/model-catalog
+├ ƒ /api/local/models
+├ ƒ /api/local/overview
+├ ƒ /api/local/reports/[id]
+├ ƒ /api/local/research
+├ ƒ /api/local/structured
+├ ƒ /api/project/export
+├ ƒ /api/project/import
+├ ƒ /api/projects
+├ ƒ /api/projects/[id]
+├ ƒ /api/projects/[id]/orchestration/plan
+├ ƒ /api/projects/[id]/runs
+├ ƒ /api/projects/[id]/runs/[runId]/artifacts/[artifactId]
+├ ƒ /api/projects/[id]/template
+├ ƒ /api/templates
+├ ƒ /api/templates/[id]
+├ ƒ /api/workspace
+├ ƒ /app
+├ ○ /documentation
+├ ○ /external
+└ ○ /icon.svg
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+SIAAS Personal desktop pronto. Avvia con npm run desktop.
+npm notice
+npm notice New major version of npm available! 11.19.1 -> 12.2.3
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.3
+npm notice To update run: npm install -g npm@12.2.3
+npm notice

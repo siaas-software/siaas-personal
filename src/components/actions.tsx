@@ -135,11 +135,14 @@ export function ActionsPage({ onModels }: { onModels: () => void }) {
                   <h3>
                     <Zap size={20} aria-hidden="true" /> {action.name}
                   </h3>
-                  {action.kind === "builtin" && action.execution === "native" && (
-                    <p className="muted small">
-                      {italian ? "Capacità applicativa locale · Sola lettura" : "Local application capability · Read-only"}
-                    </p>
-                  )}
+                  {action.kind === "builtin" &&
+                    action.execution === "native" && (
+                      <p className="muted small">
+                        {italian
+                          ? "Capacità applicativa locale · Sola lettura"
+                          : "Local application capability · Read-only"}
+                      </p>
+                    )}
                   <details>
                     <summary>
                       {italian

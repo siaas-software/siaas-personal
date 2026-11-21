@@ -65,15 +65,34 @@ export function analysisMarkdown(
           "```",
         ]
       : result.evidence.map((item, index) => {
-          const source = item as { filename: string; worksheet: string; columns: { id: string; name: string }[] };
+          const source = item as {
+            filename: string;
+            worksheet: string;
+            columns: { id: string; name: string }[];
+          };
           const stage = result.plan.stages[index];
-          const filters = stage.steps.flatMap(step => {
+          const filters = stage.steps.flatMap((step) => {
             if (step.op !== "filter") return [];
-            const column = source.columns.find(c => c.id === step.column)?.name ?? step.column;
-            const value = step.value && ("value" in step.value ? step.value.value : step.value.column);
-            return [escape(column) + " " + step.comparison + (value === undefined ? "" : " " + escape(value))];
+            const column =
+              source.columns.find((c) => c.id === step.column)?.name ??
+              step.column;
+            const value =
+              step.value &&
+              ("value" in step.value ? step.value.value : step.value.column);
+            return [
+              escape(column) +
+                " " +
+                step.comparison +
+                (value === undefined ? "" : " " + escape(value)),
+            ];
           });
-          return ["Source: " + escape(source.filename) + " / " + escape(source.worksheet), ...filters].join(" · ");
+          return [
+            "Source: " +
+              escape(source.filename) +
+              " / " +
+              escape(source.worksheet),
+            ...filters,
+          ].join(" · ");
         })),
     "",
   ].join("\n\n");

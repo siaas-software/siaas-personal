@@ -1,0 +1,38 @@
+[
+  {
+    "name": "hardware-ui",
+    "command": "node tests/hardware-finder-ui.mjs",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 5.26
+  },
+  {
+    "name": "template-ui",
+    "command": "node tests/template-palettes-ui.mjs",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 31.22
+  },
+  {
+    "name": "licenses-ui",
+    "command": "node tests/licenses-integration.mjs --ui",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 2.65
+  },
+  {
+    "name": "research-e2e",
+    "command": "node --import tsx tests/research-e2e.mjs",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 4.06
+  },
+  {
+    "name": "actions-ui",
+    "command": "npm run test:actions:ui",
+    "status": "BLOCKED",
+    "code": 1,
+    "seconds": 1.87,
+    "reason": "Electron process_singleton socket() Operation not permitted before UI assertions; native runtime exclusion under RC policy"
+  }
+]
