@@ -54,14 +54,14 @@ if (args.includes("--check")) {
     raw = await response.text();
   }
   const catalog = JSON.parse(raw);
-  assert.equal(catalog.version, 1);
+  assert([1, 2].includes(catalog.version), "Unsupported catalog version");
   assert(Array.isArray(catalog.templates) && catalog.templates.length > 0);
   const ids = new Set();
   for (const template of catalog.templates) {
     assert.match(template.id, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
     assert(!ids.has(template.id), "Duplicate template ID");
     ids.add(template.id);
-    assert.equal(template.format, "siaas-project-v1");
+    assert.equal(template.format, `siaas-project-v${catalog.version}`);
     assert(template.project.name && Array.isArray(template.project.assistants));
     assert(
       template.project.assistants.length > 0 &&
@@ -95,11 +95,26 @@ if (args.includes("--check")) {
         isProjectPaletteKey(template.project.palette),
         "Unknown project palette",
       );
+    if (catalog.version === 2) {
+      const o = template.project.orchestration;
+      assert(o && typeof o === "object");
+      assert.deepEqual(Object.keys(o).sort(), ["assistant_indices", "enabled", "instructions", "max_steps", "share_results"]);
+      assert.equal(typeof o.enabled, "boolean");
+      assert.equal(typeof o.share_results, "boolean");
+      assert.equal(typeof o.instructions, "string");
+      assert(o.instructions.length <= 4000);
+      assert(Number.isInteger(o.max_steps) && o.max_steps >= 1 && o.max_steps <= 8);
+      assert(Array.isArray(o.assistant_indices) && o.assistant_indices.length <= 8);
+      assert.equal(new Set(o.assistant_indices).size, o.assistant_indices.length);
+      for (const index of o.assistant_indices)
+        assert(Number.isInteger(index) && index >= 0 && index < template.project.assistants.length);
+      assert(!o.enabled || (o.assistant_indices.length > 0 && o.assistant_indices.length <= o.max_steps));
+    }
     assert.deepEqual(
-      Object.keys(template.project)
-        .filter((key) => key !== "palette")
-        .sort(),
-      ["assistants", "color", "description", "name"],
+      Object.keys(template.project).filter((key) => key !== "palette").sort(),
+      catalog.version === 2
+        ? ["assistants", "color", "description", "name", "orchestration"]
+        : ["assistants", "color", "description", "name"],
     );
     assert(template.listing.description.en && template.listing.description.it);
     assert(["Education", "Hobby", "Work"].includes(template.listing.category));
@@ -128,7 +143,7 @@ if (args.includes("--check")) {
           category: listing.category,
           sources: project.assistants.reduce((n, a) => n + a.sources.length, 0),
           assistants: project.assistants.map((a) => a.name),
-          bundle: { format: "siaas-project-v1", project },
+          bundle: { format: `siaas-project-v${catalog.version}`, project },
         }));
   const output = JSON.stringify(data, null, 2) + "\n";
   await mkdir(dirname(outputPath), { recursive: true });
