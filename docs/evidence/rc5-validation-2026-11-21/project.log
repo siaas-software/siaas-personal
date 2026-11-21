@@ -1,0 +1,3 @@
+PASS project browser composer Enter, final result, history reload and server cancellation.
+PASS real PDF, DOCX and TXT extraction through production HTTP with lexical preparation and no embeddings.
+PASS project/direct HTTP parity, configured/no-model zero requests, native scope, independent histories, truncation metrics, cancellation reaches Ollama, concurrent runs, membership revocation, handoff opt-in, stale recovery, artifacts, restart and cascade.

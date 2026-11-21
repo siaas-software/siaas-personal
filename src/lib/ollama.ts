@@ -283,6 +283,7 @@ export async function* streamLocal(
   messages: OllamaMessage[],
   request: typeof fetch = fetch,
   context: InferenceContext = {},
+  signal?: AbortSignal,
 ) {
   requireLocalRuntime();
   if (!isLocalModelId(modelId))
@@ -297,7 +298,10 @@ export async function* streamLocal(
   const response = await send(ollamaURL() + "/api/chat", {
     method: "POST",
     redirect: "error",
-    signal: AbortSignal.timeout(180_000),
+    // Transport and telemetry must observe the same cancellation/deadline.
+    signal: signal
+      ? AbortSignal.any([signal, AbortSignal.timeout(180_000)])
+      : AbortSignal.timeout(180_000),
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       model: modelId.slice(7),
