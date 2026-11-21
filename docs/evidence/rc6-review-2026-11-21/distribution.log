@@ -1,0 +1,33 @@
+
+> siaas-personal@1.1.0-rc.5 test:distribution
+> node --test tests/distribution.test.mjs tests/docker-prerequisites.test.mjs tests/source-manager.test.mjs
+
+✔ all six platforms resolve validated public assets without authentication (26.062104ms)
+✔ missing public release and unsupported platform have actionable errors (1.227497ms)
+✔ manifest rejects tampered URLs, hashes, sizes and runtime target (1.576144ms)
+✔ child environment uses explicit runtime without changing global Node or NVM (0.296606ms)
+✔ corrupt or missing runtime fails before executing it (8.259961ms)
+✔ explicit RC versions validate while stable discovery rejects prereleases (1.259173ms)
+✔ missing Docker produces actionable OS-specific errors without starting or installing it (1.733818ms)
+✔ missing Compose and stopped daemon are distinguished (0.313511ms)
+✔ process execution failures and timeouts have friendly diagnostics (0.140018ms)
+✔ healthy Docker probes only prerequisites (0.215797ms)
+✔ unsupported Docker capability: windows (0.240972ms)
+✔ unsupported Docker capability: old (0.108568ms)
+✔ unsupported Docker capability: architecture (0.149825ms)
+✔ unsupported Docker capability: invalid (0.163195ms)
+✔ async detection distinguishes permission, missing CLI, Compose and stopped Engine without any mutations (0.312117ms)
+✔ managed source installation stages updates, retains matching rollback, and preserves state after failed builds (3474.025794ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3551.026523
+npm notice
+npm notice New major version of npm available! 11.19.1 -> 12.2.3
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.3
+npm notice To update run: npm install -g npm@12.2.3
+npm notice

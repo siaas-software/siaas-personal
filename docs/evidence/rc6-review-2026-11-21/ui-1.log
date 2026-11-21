@@ -1,0 +1,1 @@
+PASS: Overview → authenticated API → real SQLite telemetry; live chat, measured metrics, cross-project links, filters, offline/recovery/empty states, responsive UI, navigation/explicit cancellation reaches Ollama, accurate cancellation telemetry, partial-reply reload and lease reuse.

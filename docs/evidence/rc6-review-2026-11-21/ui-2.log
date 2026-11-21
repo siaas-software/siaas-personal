@@ -1,0 +1,21 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: This suite requires a host without Docker; an unavailable prerequisite is not a passing test.
++ actual - expected
+
++ 'ready'
+- 'not_installed'
+
+    at file:///workspace/siaas-personal-flow01/tests/missing-docker-e2e.mjs:16:8
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'ready',
+  expected: 'not_installed',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.0

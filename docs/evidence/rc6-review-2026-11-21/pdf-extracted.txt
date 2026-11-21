@@ -1,0 +1,26 @@
+MAINTENANCE ACCEPTANCE - SYNTHETIC TEST DOCUMENT
+Fixture ID: FM-2026-017 | Revision: 1 | 2026-11-07
+Client: North Quay Workshop (fictional company).
+Site: Warehouse A (fictional location).
+Equipment: AHU-01 and AHU-02, rooftop air-handling units.
+
+CONTRACTUAL ACCEPTANCE REQUIREMENTS
+R1: Replace 12 F7 ventilation filters, six for each unit.
+R2: Complete the work by 2026-10-31.
+R3: Measure airflow on BOTH units; nominal 1,500 m3/h each.
+Permissible measured interval: 1,350-1,650 m3/h for each unit.
+R4: Submit a signed acceptance checklist, the service log,
+serial numbers and the commissioning date.
+Acceptance requires review of all supporting records.
+SERVICE NOTE AND EVIDENCE
+Service note SN-026 date: 2026-11-03.
+Supplier technician states 12 F7 filters replaced, six per unit.
+Service note SN-026: included.
+Signed acceptance checklist: NOT PROVIDED.
+AHU-01 airflow reading: NOT PROVIDED.
+AHU-02 airflow reading: NOT PROVIDED.
+Serial numbers: NOT RECORDED.
+Commissioning date: NOT RECORDED.
+
+SYNTHETIC FIXTURE - NOT A REAL INSPECTION OR SUPPLIER RECORD.
+

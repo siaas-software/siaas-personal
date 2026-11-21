@@ -1,0 +1,26 @@
+
+> siaas-personal@1.1.0-rc.5 test:projects
+> node tests/project-flows.mjs
+
+▲ Next.js 16.4.6
+- Local:         http://127.0.0.1:44681
+- Network:       http://127.0.0.1:44681
+✓ Ready in 0ms
+✓ Running next.config took 2ms
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByRole('heading', { name: 'Importazione nel progetto.' }) to be visible[22m
+
+    at /workspace/siaas-personal-flow01/tests/project-flows.mjs:240:75 {
+  log: [
+    "  - waiting for getByRole('heading', { name: 'Importazione nel progetto.' }) to be visible"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.22.0

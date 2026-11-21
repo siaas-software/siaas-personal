@@ -1,0 +1,48 @@
+
+> siaas-personal@1.1.0-rc.5 test:research
+> node --import tsx --test tests/research*.test.ts tests/morphic.test.mjs tests/morphic-http.test.mjs tests/research-lifecycle.test.mjs tests/docker-prerequisites.test.mjs
+
+✔ missing Docker produces actionable OS-specific errors without starting or installing it (2.91964ms)
+✔ missing Compose and stopped daemon are distinguished (0.36037ms)
+✔ process execution failures and timeouts have friendly diagnostics (0.211968ms)
+✔ healthy Docker probes only prerequisites (0.470568ms)
+✔ unsupported Docker capability: windows (0.552944ms)
+✔ unsupported Docker capability: old (0.221653ms)
+✔ unsupported Docker capability: architecture (0.171449ms)
+✔ unsupported Docker capability: invalid (0.609596ms)
+✔ async detection distinguishes permission, missing CLI, Compose and stopped Engine without any mutations (0.859817ms)
+✔ Morphic HTTP authentication, dependency health, timeout, recovery and process restart (9962.020842ms)
+✔ real Morphic ToolLoopAgent and Ollama provider execute tools through the versioned adapter (22.797974ms)
+✔ Morphic refuses Ollama cloud models before inference or search (0.924686ms)
+✔ Morphic returns page evidence, enforces budgets and prevents arbitrary fetches (1.751195ms)
+✔ engine snippets are never returned as evidence; errors preserve pages (1.441426ms)
+✔ explicit domain restrictions are enforced on results and forwarded query is redacted (1.014204ms)
+✔ oversized service responses and pre-aborted requests terminate without evidence (0.997366ms)
+✔ reasoning setup preserves legacy token during data-directory migration and targets only its service (516.851836ms)
+✔ standard workflow always consults configured websites when local coverage is incomplete, without either Beta (5.719273ms)
+✔ deterministic local coverage avoids website requests without Docker, while fresh information forces configured consultation (0.760598ms)
+✔ greetings and explicit local-only requests never trigger website or generic Internet requests (1.030019ms)
+✔ standard consultation precedes optional reasoning and web fallback, preserving all source order and citations (1.242097ms)
+✔ assistant OFF and global OFF independently prevent arbitrary Internet search (0.768432ms)
+✔ reasoning is independent of assistant discovery; web still works when reasoning is off or fails (1.240372ms)
+✔ sufficient reasoning stops generic search after standard source consultation (0.33866ms)
+✔ Docker/service failures and partial discovery retain document and website evidence with warnings (0.595889ms)
+✔ bounded one-hop section crawl stays within configured paths and reserves optional discovery budget (0.77718ms)
+✔ invalid generic evidence is excluded without losing standard sources; cancellation propagates (0.852599ms)
+✔ legacy migration removes exclusive modes without granting Beta or new website consent (0.727487ms)
+✔ privacy: external query contains only the current public question and never documents, source titles or history (2.435354ms)
+✔ local retrieval works for every saved legacy mode and isolates assistant documents even without embeddings (7.189797ms)
+✔ URL policy enforces exact origins, paths, credentials, ports and encoded boundaries (4.614697ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10135.826436
+npm notice
+npm notice New major version of npm available! 11.19.1 -> 12.2.3
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.3
+npm notice To update run: npm install -g npm@12.2.3
+npm notice

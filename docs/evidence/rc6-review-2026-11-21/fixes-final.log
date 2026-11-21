@@ -1,0 +1,16 @@
+✔ startup removes only empty legacy folders, preserves personal records and never recreates removed folders (22.791299ms)
+✔ cleanup protects empty knowledge folders, aliases, symlink ancestors and unknown subdirectories (2.911859ms)
+✔ template round trip keeps configuration and strips personal data at every level (2.128878ms)
+✔ built-in templates are complete, persist once and respect tombstones across restarts (10.251015ms)
+✔ v2 project chat settings remain portable and map only selected local assistants (1.477889ms)
+✔ RC5 pristine official seeds upgrade to v2 while edits, tombstones and projects are preserved (13.759279ms)
+✔ two Gemma examples import with distinct local assistants, disabled coordinator and no embedded documents (5.133071ms)
+✔ RC5 migration preserves edits and tombstones committed after the initial list read (6.921227ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 389.931142

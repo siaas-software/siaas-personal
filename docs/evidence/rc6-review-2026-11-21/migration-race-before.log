@@ -1,0 +1,35 @@
+✔ template round trip keeps configuration and strips personal data at every level (2.30902ms)
+✔ built-in templates are complete, persist once and respect tombstones across restarts (9.340525ms)
+✔ v2 project chat settings remain portable and map only selected local assistants (1.782861ms)
+✔ RC5 pristine official seeds upgrade to v2 while edits, tombstones and projects are preserved (6.912119ms)
+✔ two Gemma examples import with distinct local assistants, disabled coordinator and no embedded documents (4.701295ms)
+✖ RC5 migration preserves edits and tombstones committed after the initial list read (7.736971ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 355.108548
+
+✖ failing tests:
+
+test at tests/templates.test.ts:1:6818
+✖ RC5 migration preserves edits and tombstones committed after the initial list read (7.736971ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'Study programming, algorithms and software development.'
+  - 'Concurrent user edit'
+  
+      at TestContext.<anonymous> (/workspace/siaas-personal-flow01/tests/templates.test.ts:162:67)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Study programming, algorithms and software development.',
+    expected: 'Concurrent user edit',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

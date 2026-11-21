@@ -144,3 +144,23 @@ test("two Gemma examples import with distinct local assistants, disabled coordin
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("RC5 migration preserves edits and tombstones committed after the initial list read", async () => {
+  for (const change of [{ description: "Concurrent user edit" }, { deleted: true }]) {
+    const dir = mkdtempSync(join(tmpdir(), "siaas-template-race-"));
+    const db = new LocalDatabase(dir);
+    try {
+      const key = "computer-science-study";
+      const id = `${LOCAL_USER_ID}:${key}`;
+      db.put("project_templates", { ...rc5Builtins[key], id,
+        tenant_id: LOCAL_USER_ID, builtin_key: key, deleted: false });
+      await Promise.all([
+        listTemplates(db, LOCAL_USER_ID),
+        db.from("project_templates").update(change).eq("id", id),
+      ]);
+      const row = db.get("project_templates", id)!;
+      for (const [field, value] of Object.entries(change)) assert.equal(row[field], value);
+      assert.equal(row.orchestration, undefined);
+    } finally { db.close(); rmSync(dir, { recursive: true, force: true }); }
+  }
+});

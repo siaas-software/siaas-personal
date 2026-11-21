@@ -1,0 +1,7 @@
+
+> siaas-personal@1.1.0-rc.5 test:ui
+> node tests/ui-smoke.mjs
+
+PASS: first guest load, actual SQLite write, account-free updates UI, preserved data, reload and local API protection.
+PASS: real desktop UI/API/SQLite; template configuration, private-data exclusion, named export/import, deletion and restart, eight built-ins, real cards, preserved white default with accessible palette display, sidebar, palette editing/background, no project-list Ollama banner.
+PASS: columns, English UI, six shortcuts (five built-in Actions and Data Cell), URI error feedback, direct report consuming draft, preserved Data Cell draft, table modal/rendering, SQLite persistence, reload, responsive layout.

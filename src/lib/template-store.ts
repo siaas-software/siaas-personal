@@ -25,24 +25,21 @@ export async function listTemplates(
       // Upgrade only a pristine, still-active RC5 official seed. Never change a
       // deleted (tombstoned) or user-customized preset, nor any existing project.
       const baseline = rc5Builtins[key as keyof typeof rc5Builtins];
-      const isPristine =
-        !previous.deleted &&
-        previous.orchestration === undefined &&
-        baseline !== undefined &&
-        JSON.stringify(templateProjectSchema.parse(previous)) ===
-          JSON.stringify(templateProjectSchema.parse(baseline));
-      if (isPristine) {
-        const { data: upgraded, error: upgradeError } = await db
-          .from("project_templates")
-          .update(templateProjectSchema.parse(preset))
-          .eq("id", previous.id)
-          .eq("tenant_id", tenantId)
-          .select()
-          .single();
-        if (upgradeError) throw upgradeError;
-        if (!upgraded) throw new Error("Updated template could not be loaded.");
-        Object.assign(previous, upgraded);
-      }
+      // Re-read and compare inside the write transaction: a settings edit or
+      // tombstone may have committed while the initial query was awaited.
+      const current = db.transaction(() => {
+        const row = db.get("project_templates", previous.id);
+        if (!row || row.tenant_id !== tenantId) return null;
+        const isPristine =
+          !row.deleted && row.orchestration === undefined && baseline !== undefined &&
+          JSON.stringify(templateProjectSchema.parse(row)) ===
+            JSON.stringify(templateProjectSchema.parse(baseline));
+        return isPristine
+          ? db.put("project_templates", { ...row, ...templateProjectSchema.parse(preset) }, true)
+          : row;
+      });
+      if (current) Object.assign(previous, current);
+      else previous.deleted = true;
       continue;
     }
     const project = templateProjectSchema.parse(preset);

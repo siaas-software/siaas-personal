@@ -1,0 +1,24 @@
+
+> siaas-templates@2.0.0 test
+> node scripts/build-catalog.mjs --check && node --test tests/*.test.mjs
+
+Validated 8 portable project templates.
+✔ eight official semantic assignments and portable catalog parity (3.780701ms)
+✔ catalog builds reproducibly and rejects missing or unknown official palette keys (199.728048ms)
+✔ rejects malformed v2 orchestration indexes and enabled budgets (252.678573ms)
+✔ two Gemma example templates are offline, scoped and role-separated (0.598954ms)
+✔ synthetic invoice fixture is internally consistent without model computation (0.459813ms)
+✔ PDF synthetic acceptance fixture is a two-page searchable PDF (0.341951ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 523.784699
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.3
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.3
+npm notice To update run: npm install -g npm@12.2.3
+npm notice
