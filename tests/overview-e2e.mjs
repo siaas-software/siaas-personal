@@ -11,10 +11,9 @@ const directory = await mkdtemp(join(tmpdir(), "siaas-overview-e2e-"));
 let offline = false,
   empty = false,
   releaseChat,
-  chatStarted;
-const started = new Promise((r) => {
-  chatStarted = r;
-});
+  holdChat = false,
+  chatCalls = 0,
+  cancelledChats = 0;
 const release = new Promise((r) => {
   releaseChat = r;
 });
@@ -62,11 +61,21 @@ const ollama = createServer(async (req, res) => {
   if (req.url === "/api/show")
     return res.end(JSON.stringify({ capabilities: ["completion"] }));
   if (req.url === "/api/chat") {
+    chatCalls++;
+    const closed = new Promise((resolve) => {
+      res.once("close", () => {
+        if (!res.writableEnded) cancelledChats++;
+        resolve();
+      });
+    });
     res.setHeader("Content-Type", "application/x-ndjson");
     res.write(
       JSON.stringify({ message: { content: "Risposta " }, done: false }) + "\n",
     );
-    chatStarted();
+    if (holdChat) {
+      await closed;
+      return;
+    }
     await release;
     return res.end(
       JSON.stringify({
@@ -163,13 +172,27 @@ try {
     viewport: { width: 1440, height: 1050 },
     extraHTTPHeaders: { "x-siaas-desktop-key": key },
   });
+  const chatPage = await browser.newPage({
+    extraHTTPHeaders: { "x-siaas-desktop-key": key },
+  });
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto(`${origin}/?assistant=${assistant.id}`);
-  await page.getByPlaceholder("Type a message…").fill("Verifica overview");
-  await page.getByRole("button", { name: "Send message" }).click();
-  await started;
-  await page.getByRole("button", { name: "Overview", exact: true }).click();
+  chatPage.on("pageerror", (e) => errors.push(e.message));
+  async function until(check, description) {
+    const deadline = Date.now() + 8000;
+    while (Date.now() < deadline) {
+      if (await check()) return;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    assert.fail(description);
+  }
+  // Direct chat is view-bound. Observe it in a second page so monitoring does
+  // not unmount/cancel the producer; test navigation cancellation separately.
+  await chatPage.goto(`${origin}/?assistant=${assistant.id}`);
+  await chatPage.getByPlaceholder("Type a message…").fill("Verifica overview");
+  await chatPage.getByRole("button", { name: "Your question", exact: true }).click();
+  await until(() => chatCalls === 1, "generation starts");
+  await page.goto(`${origin}/?view=overview`);
   await page.getByRole("heading", { name: "Overview." }).waitFor();
   const active = page
     .locator(".overview-summary article")
@@ -195,6 +218,19 @@ try {
   assert.equal(completed.models[0].recent[0].tokensPerSecond, 2);
   assert.equal(completed.models[0].recent[0].assistantId, assistant.id);
   assert.equal(completed.models[0].recent[0].projectId, project.id);
+  assert.equal(completed.models[0].recent[0].status, "complete");
+  assert.equal(completed.models[0].recent[0].inputTokens, 12);
+  assert.equal(completed.models[0].recent[0].outputTokens, 6);
+  const completedConversation = completed.models[0].recent[0].conversationId;
+  await until(async () => {
+    const messages = (await api(`/api/conversations/${completedConversation}`)).messages;
+    return messages.some((m) => m.role === "assistant" && m.status === "complete");
+  }, "completed reply persists");
+  const completedMessages = (await api(`/api/conversations/${completedConversation}`)).messages;
+  assert.equal(completedMessages.length, 2);
+  assert.equal(completedMessages[1].content, "Risposta completata.");
+  assert.equal(completedMessages[1].input_tokens, 12);
+  assert.equal(completedMessages[1].output_tokens, 6);
   await page.getByRole("button", { name: "qwen2.5:1.5b", exact: true }).click();
   await page.getByRole("dialog").waitFor();
   assert.match(await page.getByRole("dialog").textContent(), /2 token\/s/);
@@ -255,13 +291,75 @@ try {
     true,
     "no page-level mobile overflow",
   );
+  // Leaving the direct chat and pressing Cancel both stop the underlying
+  // model request, preserve its partial text and release the conversation lease.
+  holdChat = true;
+  for (const mode of ["navigation", "explicit"]) {
+    const callsBefore = chatCalls;
+    const cancelledBefore = cancelledChats;
+    await chatPage.goto(`${origin}/?assistant=${assistant.id}`);
+    await chatPage.getByPlaceholder("Type a message…").fill(`Cancel by ${mode}`);
+    await chatPage.getByRole("button", { name: "Your question", exact: true }).click();
+    await until(() => chatCalls === callsBefore + 1, "cancellable generation starts");
+    await chatPage.getByText("Risposta", { exact: true }).waitFor();
+    const running = (await api("/api/local/overview")).models[0].active;
+    assert.equal(running.length, 1);
+    const conversationId = running[0].conversationId;
+    assert.equal(running[0].assistantId, assistant.id);
+    if (mode === "navigation") {
+      await chatPage.getByRole("button", { name: "Overview", exact: true }).click();
+      await chatPage.getByRole("heading", { name: "Overview." }).waitFor();
+    } else {
+      await chatPage.getByRole("button", { name: "Cancel", exact: true }).click();
+    }
+    await until(() => cancelledChats === cancelledBefore + 1, "Ollama socket closes on cancellation");
+    await until(async () => {
+      const messages = (await api(`/api/conversations/${conversationId}`)).messages;
+      return messages.some((m) => m.role === "assistant" && m.status === "error");
+    }, "interrupted reply persists");
+    const saved = await api(`/api/conversations/${conversationId}`);
+    assert.equal(saved.messages.length, 2);
+    const partial = saved.messages.find((m) => m.role === "assistant");
+    assert.equal(partial.status, "error");
+    assert.equal(partial.content, "Risposta ");
+    assert.deepEqual(partial.sources, []);
+    assert.equal(partial.input_tokens, null);
+    assert.equal(partial.output_tokens, null);
+    const snapshot = await api("/api/local/overview");
+    assert.equal(snapshot.models[0].active.length, 0);
+    const record = snapshot.models[0].recent.find((r) => r.conversationId === conversationId);
+    assert(record);
+    assert.equal(record.status, "cancelled");
+    assert.equal(record.inputTokens, null);
+    assert.equal(record.outputTokens, null);
+    assert.equal(record.tokensPerSecond, null);
+    assert(record.finishedAt);
+    await chatPage.goto(`${origin}/?assistant=${assistant.id}&conversation=${conversationId}`);
+    await chatPage.getByText("Risposta", { exact: true }).waitFor();
+    await chatPage.reload();
+    await chatPage.getByText("Risposta", { exact: true }).waitFor();
+    assert.deepEqual((await api(`/api/conversations/${conversationId}`)).messages, saved.messages);
+    const lease = await fetch(origin + "/api/chat", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ conversation_id: conversationId, question: "2 + 2" }),
+    });
+    assert.equal(lease.status, 200);
+    const events = (await lease.text()).trim().split("\n").map((line) => JSON.parse(line));
+    assert(events.some((e) => e.type === "done"));
+    assert(!events.some((e) => e.type === "error"));
+    assert.equal(events.filter((e) => e.type === "delta").map((e) => e.text).join(""), "4");
+    assert.equal(chatCalls, callsBefore + 1, "reload and deterministic follow-up do not invoke Ollama");
+  }
+  assert.equal(chatCalls, 3);
+  assert.equal(cancelledChats, 2);
   assert.deepEqual(errors, []);
   assert.doesNotMatch(
     logs,
     /Request failed|Cannot find module|outside a request scope/,
   );
   console.log(
-    "PASS: Overview → authenticated API → real SQLite telemetry; live chat, measured metrics, cross-project links, filters, offline/recovery/empty states, navigation during generation and responsive UI.",
+    "PASS: Overview → authenticated API → real SQLite telemetry; live chat, measured metrics, cross-project links, filters, offline/recovery/empty states, responsive UI, navigation/explicit cancellation reaches Ollama, accurate cancellation telemetry, partial-reply reload and lease reuse.",
   );
 } catch (error) {
   console.error(logs);

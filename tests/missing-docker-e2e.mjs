@@ -1,6 +1,6 @@
 // Compiled app + real SQLite, actual missing Docker and unreachable Ollama.
 // No fake Docker executable, fetch override or model/service fixture is used.
-// Run after desktop:build. Skips when the machine has a Docker executable.
+// Run after desktop:build on a host without Docker; never report a skipped run as PASS.
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { spawn } from "node:child_process";
@@ -13,12 +13,11 @@ import { inspectDocker } from "../scripts/docker-prerequisites.mjs";
 import { LocalDatabase } from "../src/lib/local/database.ts";
 
 const docker = await inspectDocker();
-if (docker.reason !== "not_installed") {
-  console.log(
-    "SKIP: missing-Docker scenario requires an environment without the Docker executable.",
-  );
-  process.exit(0);
-}
+assert.equal(
+  docker.reason,
+  "not_installed",
+  "This suite requires a host without Docker; an unavailable prerequisite is not a passing test.",
+);
 const directory = await mkdtemp(join(tmpdir(), "siaas-missing-docker-"));
 const data = join(directory, "data"),
   home = join(directory, "home");
@@ -157,15 +156,101 @@ try {
     conversation_id: conversation.id,
     question: "hello",
   });
-  assert.equal(chat.status, 503);
-  assert.match(JSON.stringify(await chat.json()), /Ollama/);
-  const processing = await request(`/api/documents/${document.id}/process`, {});
-  assert.equal(processing.status, 503);
-  assert.match(JSON.stringify(await processing.json()), /Ollama/);
-  assert.deepEqual(
-    (await api(`/api/conversations/${conversation.id}`)).messages,
-    [],
-  );
+  // HTTP 200 starts the NDJSON transport; the terminal event, not HTTP alone,
+  // determines whether execution succeeded. An unavailable model must not emit
+  // deltas, sources, artifacts or a successful completion.
+  assert.equal(chat.status, 200);
+  assert.match(chat.headers.get("content-type"), /application\/x-ndjson/);
+  const events = (await chat.text()).trim().split("\n").map((line) => JSON.parse(line));
+  assert.deepEqual(events.map((event) => event.type), ["error"]);
+  assert.match(events[0].error, /Ollama.*unreachable/i);
+  const failedMessages = (await api(`/api/conversations/${conversation.id}`)).messages;
+  assert.equal(failedMessages.length, 2);
+  assert.equal(failedMessages[0].role, "user");
+  assert.equal(failedMessages[0].content, "hello");
+  const failed = failedMessages[1];
+  assert.equal(failed.role, "assistant");
+  assert.equal(failed.status, "error");
+  assert.equal(failed.content, events[0].error);
+  assert.deepEqual(failed.sources, []);
+  assert.equal(failed.input_tokens, 0);
+  assert.equal(failed.output_tokens, 0);
+  assert.equal(failed.structured_analysis ?? null, null);
+  assert.deepEqual(failed.artifacts ?? [], []);
+
+  // Check both inline text and actual uploaded TXT bytes through production
+  // preparation/extraction, with neither embeddings nor a running model.
+  const txtBytes = Buffer.from("The maintenance checklist requires a filter inspection.");
+  const txt = await api("/api/documents", {
+    assistant_id: assistant.id,
+    title: "maintenance.txt",
+    kind: "txt",
+    byte_size: txtBytes.length,
+  });
+  const upload = await fetch(origin + `/api/local/files/${txt.id}`, {
+    method: "PUT",
+    headers: { ...headers, "Content-Type": "application/octet-stream" },
+    body: txtBytes,
+    signal: AbortSignal.timeout(5000),
+  });
+  assert.equal(upload.status, 200);
+  for (const source of [document, txt]) {
+    const processing = await request(`/api/documents/${source.id}/process`, {});
+    assert.equal(processing.status, 200);
+    const prepared = await processing.json();
+    assert.equal(prepared.ok, true);
+    assert(prepared.chunks > 0);
+    assert.equal((await api(`/api/documents/${source.id}/process`, {})).ok, true);
+  }
+  const preparedDocuments = await api(`/api/documents?assistant=${assistant.id}`);
+  for (const source of [document, txt]) {
+    const prepared = preparedDocuments.find((d) => d.id === source.id);
+    assert.equal(prepared.status, "ready");
+    assert.equal(prepared.embedding_model, "lexical-v1");
+    assert(prepared.chunk_count > 0);
+  }
+  const evidenceDb = new LocalDatabase(data);
+  try {
+    const chunks = evidenceDb.rows("document_chunks").filter((c) => [document.id, txt.id].includes(c.document_id));
+    assert(chunks.length >= 2);
+    assert(chunks.every((c) => c.embedding == null));
+    assert(chunks.some((c) => c.document_id === txt.id && c.content === txtBytes.toString()));
+  } finally {
+    evidenceDb.close();
+  }
+  async function offlineTurn(question) {
+    const response = await request("/api/chat", {
+      conversation_id: conversation.id,
+      question,
+    });
+    assert.equal(response.status, 200, "previous failure released the chat lease");
+    const result = (await response.text()).trim().split("\n").map((line) => JSON.parse(line));
+    assert(result.some((e) => e.type === "done"));
+    assert(!result.some((e) => e.type === "error"));
+    return result;
+  }
+  const arithmetic = await offlineTurn("2 + 2");
+  assert.equal(arithmetic.filter((e) => e.type === "delta").map((e) => e.text).join(""), "4");
+  const retrieval = await offlineTurn("search documents: maintenance");
+  const sources = retrieval.filter((e) => e.type === "sources").flatMap((e) => e.sources);
+  assert(sources.some((source) => source.document_id === document.id));
+  assert(sources.some((source) => source.document_id === txt.id));
+  assert(sources.every((source) => [document.id, txt.id].includes(source.document_id)));
+  const excerpt = retrieval.filter((e) => e.type === "delta").map((e) => e.text).join("");
+  assert.match(excerpt, /500 hours/);
+  assert.match(excerpt, /filter inspection/);
+  const persisted = (await api(`/api/conversations/${conversation.id}`)).messages;
+  assert.equal(persisted.length, 6);
+  assert.deepEqual(persisted.slice(0, 2), failedMessages);
+  assert.equal(persisted[3].status, "complete");
+  assert.equal(persisted[3].content, "4");
+  assert.equal(persisted[5].status, "complete");
+  assert.equal(persisted[5].content, excerpt);
+  for (const message of [persisted[3], persisted[5]]) {
+    assert.equal(message.model_id, null);
+    assert.equal(message.input_tokens, 0);
+    assert.equal(message.output_tokens, 0);
+  }
   await assert.rejects(access(join(data, "research-services.json")), {
     code: "ENOENT",
   });
@@ -179,11 +264,27 @@ try {
       (d) => d.id === document.id,
     ),
   );
+  assert.deepEqual(
+    (await api(`/api/conversations/${conversation.id}`)).messages,
+    persisted,
+    "failure, deterministic result and source-backed retrieval survive restart",
+  );
+  const restartedDocuments = await api(`/api/documents?assistant=${assistant.id}`);
+  for (const source of [document, txt]) {
+    const recoveredDocument = restartedDocuments.find((d) => d.id === source.id);
+    assert.equal(recoveredDocument.status, "ready");
+    assert.equal(recoveredDocument.embedding_model, "lexical-v1");
+    assert(recoveredDocument.chunk_count > 0);
+  }
+  const downloaded = await fetch(origin + `/api/local/files/${txt.id}`, { headers });
+  assert.equal(downloaded.status, 200);
+  assert.deepEqual(Buffer.from(await downloaded.arrayBuffer()), txtBytes);
+  await assert.rejects(access(join(data, "research-services.json")), { code: "ENOENT" });
   const recovered = await api("/api/local/experimental");
   assert.equal(recovered.preferences.advancedReasoning, false);
   assert.equal(recovered.preferences.advancedWebResearch, false);
   console.log(
-    "PASS: actual missing Docker, absent Ollama, first launch, rejected activation, safe chat/indexing errors, no research installation, and data persistence across application restart. No containers or model inference tested.",
+    "PASS: actual missing Docker, absent Ollama, first launch, rejected activation, explicit streamed chat failure, offline text/TXT preparation and retrieval, deterministic follow-up, no research installation, and exact conversation/source persistence across application restart. No containers or model inference tested.",
   );
 } finally {
   await stop();
