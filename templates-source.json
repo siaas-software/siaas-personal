@@ -1,11 +1,11 @@
 {
   "repository": "siaas-software/siaas-templates",
-  "ref": "f99813cf3799ea91a5d32ccce8521e054bb11c52",
+  "ref": "72633621a271c7ced485e97ea1c6753363265d53",
   "path": "catalog.json",
   "target": "app",
   "output": "src/generated/builtin-templates.json",
-  "catalogSha256": "64e9966cbdbfd4f1d3f0229912819d46a98e278374ed7371c50bb3dfcdc60391",
-  "outputSha256": "a74ca2eb6ac40ddd376f044b8f5cbc92679b21d23b3d1093c9275e453e5ec99e",
+  "catalogSha256": "4e2a27d2606451a8e1555ad096688302175d37235cfbd5e666bc61c0253ba98d",
+  "outputSha256": "465be3d586c8873f2b5591eea94a4d88ae43025ccf1ea5487501b11818bf8416",
   "templateIds": [
     "computer-science-study",
     "production-planning",

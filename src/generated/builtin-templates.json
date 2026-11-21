@@ -32,7 +32,18 @@
         "model": null
       }
     ],
-    "palette": "sky"
+    "palette": "sky",
+    "orchestration": {
+      "enabled": false,
+      "instructions": "Coordinate the programming, algorithms and TypeScript tutors in the selected order. Keep their teaching roles and source scopes separate, and verify shared conclusions.",
+      "assistant_indices": [
+        0,
+        1,
+        2
+      ],
+      "max_steps": 4,
+      "share_results": false
+    }
   },
   "production-planning": {
     "name": "Production Planning",
@@ -47,7 +58,16 @@
         "sources": []
       }
     ],
-    "palette": "slate"
+    "palette": "slate",
+    "orchestration": {
+      "enabled": false,
+      "instructions": "Coordinate the production analyst using confirmed dataset schemas, relationships and deterministic calculations; never invent BOM or stock values.",
+      "assistant_indices": [
+        0
+      ],
+      "max_steps": 4,
+      "share_results": false
+    }
   },
   "personal-finance": {
     "name": "Personal Finance",
@@ -62,7 +82,16 @@
         "sources": []
       }
     ],
-    "palette": "mint"
+    "palette": "mint",
+    "orchestration": {
+      "enabled": false,
+      "instructions": "Coordinate the selected finance assistant using local evidence; preserve currencies, sign conventions and data completeness.",
+      "assistant_indices": [
+        0
+      ],
+      "max_steps": 4,
+      "share_results": false
+    }
   },
   "construction-cost-analysis": {
     "name": "Construction Cost Analysis",
@@ -77,7 +106,16 @@
         "sources": []
       }
     ],
-    "palette": "peach"
+    "palette": "peach",
+    "orchestration": {
+      "enabled": false,
+      "instructions": "Coordinate the authorized construction cost analyst, requiring verified local spreadsheet calculations, units, estimates and source evidence.",
+      "assistant_indices": [
+        0
+      ],
+      "max_steps": 4,
+      "share_results": false
+    }
   },
   "technical-documentation": {
     "name": "Technical Documentation",
@@ -92,7 +130,16 @@
         "sources": []
       }
     ],
-    "palette": "lavender"
+    "palette": "lavender",
+    "orchestration": {
+      "enabled": false,
+      "instructions": "Coordinate technical documentation from each authorized assistant's sources, distinguishing verified citations from suggestions and unverified compliance claims.",
+      "assistant_indices": [
+        0
+      ],
+      "max_steps": 4,
+      "share_results": false
+    }
   },
   "materials-procurement": {
     "name": "Materials & Procurement",
@@ -107,6 +154,15 @@
         "sources": []
       }
     ],
-    "palette": "aqua"
+    "palette": "aqua",
+    "orchestration": {
+      "enabled": false,
+      "instructions": "Coordinate procurement analysis using validated local datasets and authorized sources; do not invent supplier prices, delivery times or quantities.",
+      "assistant_indices": [
+        0
+      ],
+      "max_steps": 4,
+      "share_results": false
+    }
   }
 }
