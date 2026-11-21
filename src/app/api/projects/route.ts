@@ -2,6 +2,7 @@ import { after } from "next/server";
 import { isDesktop } from "@/lib/runtime";
 import { localWorkspace, fail, HttpError, jsonBody } from "@/lib/http";
 import { listTemplates } from "@/lib/template-store";
+import { materializeTemplateOrchestration } from "@/lib/templates";
 import { z } from "zod";
 
 const schema = z.object({
@@ -61,25 +62,30 @@ export async function POST(req: Request) {
       .select()
       .single();
     if (error) throw error;
-    if (template?.assistants.length) {
-      const { error: assistantError } = await db.from("assistants").insert(
-        template.assistants.map(
-          ({ model: _model, sources: _sources, ...config }) => ({
-            ...config,
-            tenant_id: tenantId,
-            project_id: project.id,
-            model_id: null,
-          }),
-        ),
-      );
-      if (assistantError) {
-        await db
-          .from("projects")
-          .delete()
-          .eq("id", project.id)
-          .eq("tenant_id", tenantId);
-        throw assistantError;
+    const createdIds: string[] = [];
+    try {
+      // Insert in portable order: indexes in project.orchestration must map to
+      // the newly created assistant IDs, never to old machine UUIDs.
+      for (const { model: _model, sources: _sources, ...config } of template?.assistants ?? []) {
+        const { data: assistant, error } = await db.from("assistants").insert({
+          ...config,
+          tenant_id: tenantId,
+          project_id: project.id,
+          model_id: null,
+        }).select("id").single();
+        if (error) throw error;
+        createdIds.push(assistant.id);
       }
+      if (template) {
+        const { data: configured, error } = await db.from("projects")
+          .update({ orchestration: materializeTemplateOrchestration(template.orchestration, createdIds) })
+          .eq("id", project.id).eq("tenant_id", tenantId).select().single();
+        if (error) throw error;
+        return Response.json(configured, { status: 201 });
+      }
+    } catch (error) {
+      await db.from("projects").delete().eq("id", project.id).eq("tenant_id", tenantId);
+      throw error;
     }
     return Response.json(project, { status: 201 });
   } catch (error) {

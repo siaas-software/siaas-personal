@@ -1,6 +1,6 @@
 import { after } from "next/server";
 import { isDesktop } from "@/lib/runtime";
-import { templateBundleSchema } from "@/lib/templates";
+import { templateBundleSchema, materializeTemplateOrchestration } from "@/lib/templates";
 import { localWorkspace, fail, HttpError, jsonBody, uuid } from "@/lib/http";
 
 const portableProject = templateBundleSchema;
@@ -55,29 +55,34 @@ export async function POST(req: Request) {
         400,
         "Templates with web sources require SIAAS Personal on your computer.",
       );
-    if (input.project.assistants.length) {
-      const { error } = await db.from("assistants").insert(
-        input.project.assistants.map((a) => ({
+    const createdIds: string[] = [];
+    try {
+      for (const assistant of input.project.assistants) {
+        const { data: created, error } = await db.from("assistants").insert({
           tenant_id: tenantId,
           project_id: projectId,
-          name: a.name,
-          description: a.description,
-          instructions: a.instructions,
+          name: assistant.name,
+          description: assistant.description,
+          instructions: assistant.instructions,
           model_id: null,
-        })),
-      );
-      if (error) throw error;
-    }
-    const { error: updateError } = await db
-      .from("projects")
-      .update({
+        }).select("id").single();
+        if (error) throw error;
+        createdIds.push(created.id);
+      }
+      const { error: updateError } = await db.from("projects").update({
         name: input.project.name,
         description: input.project.description,
         color: input.project.color,
-      })
-      .eq("id", projectId)
-      .eq("tenant_id", tenantId);
-    if (updateError) throw updateError;
+        orchestration: materializeTemplateOrchestration(input.project.orchestration, createdIds),
+      }).eq("id", projectId).eq("tenant_id", tenantId);
+      if (updateError) throw updateError;
+    } catch (error) {
+      // The pre-existing empty project must survive a failed import without
+      // any partially imported assistants or portable/invalid UUID references.
+      for (const id of createdIds)
+        await db.from("assistants").delete().eq("id", id).eq("tenant_id", tenantId);
+      throw error;
+    }
     return Response.json(
       {
         name: input.project.name,

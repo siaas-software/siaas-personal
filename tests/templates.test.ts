@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { LocalDatabase } from "../src/lib/local/database";
 import { LOCAL_USER_ID } from "../src/lib/runtime";
-import { templateBundle, templateBundleSchema } from "../src/lib/templates";
+import { templateBundle, templateBundleSchema, materializeTemplateOrchestration, portableTemplateOrchestration } from "../src/lib/templates";
 import { listTemplates } from "../src/lib/template-store";
 
 test("template round trip keeps configuration and strips personal data at every level", () => {
@@ -32,4 +32,45 @@ test("built-in templates are complete, persist once and respect tombstones acros
     db.close(); db = new LocalDatabase(path);
     assert.equal((await listTemplates(client(), LOCAL_USER_ID)).length, 5);
   } finally { db.close(); rmSync(path, { recursive: true, force: true }); }
+});
+
+test("v2 project chat settings remain portable and map only selected local assistants", () => {
+  const local = ["11111111-1111-4111-8111-111111111111", "22222222-2222-4222-8222-222222222222"];
+  const configured = materializeTemplateOrchestration({
+    enabled: true,
+    instructions: "Coordinate without expanding permissions.",
+    share_results: true,
+    assistant_indices: [1, 0],
+    max_steps: 2,
+  }, local);
+  assert.deepEqual(configured.assistant_ids, [local[1], local[0]]);
+  assert.deepEqual(portableTemplateOrchestration(configured, local).assistant_indices, [1, 0]);
+  const bundle = templateBundle({
+    name: "Portable project",
+    assistants: [{ name: "A" }, { name: "B" }],
+    orchestration: portableTemplateOrchestration(configured, local),
+  });
+  assert.equal(bundle.format, "siaas-project-v2");
+  assert.deepEqual(templateBundleSchema.parse(bundle), bundle);
+  assert(!JSON.stringify(bundle).includes(local[0]));
+  assert(!JSON.stringify(bundle).includes(local[1]));
+  for (const indices of [[0,0], [2], [-1], [0,1,2]]) {
+    const result = templateBundleSchema.safeParse({
+      ...bundle, project: { ...bundle.project, orchestration: {
+        ...bundle.project.orchestration, assistant_indices: indices,
+      } },
+    });
+    assert.equal(result.success, false, JSON.stringify(indices));
+  }
+  assert.equal(templateBundleSchema.safeParse({
+    format: "siaas-project-v1", project: bundle.project,
+  }).success, false);
+  assert.equal(templateBundleSchema.safeParse({
+    format: "siaas-project-v2", project: {
+      name: "Missing configuration", assistants: [{ name: "A" }],
+    },
+  }).success, false);
+  assert.throws(() => portableTemplateOrchestration({
+    ...configured, assistant_ids: ["33333333-3333-4333-8333-333333333333"],
+  }, local));
 });

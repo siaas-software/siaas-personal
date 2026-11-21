@@ -62,8 +62,19 @@ try {
   assert.equal((await api(`/api/documents?assistant=${a.id}`))[0].enabled, false);
   assert.equal((await request('/api/local/knowledge/web', 'POST', { action: 'toggle', assistant_id: assistants[1].id, document_id: doc.id, enabled: true })).status, 400);
   await api('/api/documents', 'POST', { assistant_id: a.id, kind: 'text', title: 'Private notes', text: 'SECRET_LOCAL_TEXT_123' });
+  const projectConfigured = await api(`/api/projects/${project.id}`, 'PATCH', {
+    name: project.name,
+    orchestration: {
+      enabled: true, instructions: 'Coordinate test tutors', share_results: true,
+      assistant_ids: [assistants[2].id, assistants[0].id], max_steps: 2,
+    },
+  });
+  assert.equal(projectConfigured.orchestration.enabled, true);
   const exported = await api(`/api/project/export?project=${project.id}`);
-  assert.equal(exported.format, 'siaas-project-v1');
+  assert.equal(exported.format, 'siaas-project-v2');
+  assert.equal(exported.project.orchestration.enabled, true);
+  assert.deepEqual(exported.project.orchestration.assistant_indices, [2, 0]);
+  assert(!JSON.stringify(exported.project.orchestration).includes(assistants[0].id));
   assert(exported.project.assistants.every(a => a.sources.length === 1 && a.model === null && !('color' in a)));
   assert(!JSON.stringify(exported).includes('SECRET_LOCAL_TEXT_123'));
   assert(!JSON.stringify(exported).includes('listing'));
@@ -78,6 +89,10 @@ try {
   assert.equal((await request(`/api/project/import?project=${empty.id}`, 'POST', exported)).status, 409);
   const fresh = (await api('/api/workspace')).assistants.filter(a => a.project_id === empty.id);
   assert.equal(fresh.length, 3);
+  const importedConfig = (await api("/api/workspace")).projects.find(p => p.id === empty.id).orchestration;
+  assert.deepEqual(importedConfig.assistant_ids, [fresh[2].id, fresh[0].id]);
+  assert.equal(importedConfig.enabled, true);
+  assert.equal(importedConfig.share_results, true);
   for (const assistant of fresh) assert.equal((await api(`/api/documents?assistant=${assistant.id}`))[0].enabled, true);
   const legacy = await api('/api/templates', 'POST', { format: 'siaas-project-v1', listing: { title: 'Old' }, project: { name: 'Legacy', assistants: [{ name: 'Old assistant', model: 'old', color: '#123456' }] } });
   const old = await api('/api/projects', 'POST', { template_id: legacy.id });
