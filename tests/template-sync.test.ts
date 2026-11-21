@@ -102,9 +102,9 @@ test("sync validates semantic/legacy catalogs, subsets, hashes and reproducibili
         (p) => !("palette" in (p as object)),
       ),
     );
-    const saved = readFileSync(outputPath, "utf8");
     write(catalog);
     assert.equal(sync().status, 0);
+    const saved = readFileSync(outputPath, "utf8");
     const bad = structuredClone(catalog);
     bad.templates[0].project.orchestration.assistant_indices = [999];
     write(bad);
