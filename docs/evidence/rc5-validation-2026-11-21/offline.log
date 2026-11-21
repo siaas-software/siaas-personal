@@ -1,0 +1,1 @@
+PASS: actual missing Docker, absent Ollama, first launch, rejected activation, explicit streamed chat failure, offline text/TXT preparation and retrieval, deterministic follow-up, no research installation, and exact conversation/source persistence across application restart. No containers or model inference tested.

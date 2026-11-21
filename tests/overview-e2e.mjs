@@ -190,7 +190,9 @@ try {
   // not unmount/cancel the producer; test navigation cancellation separately.
   await chatPage.goto(`${origin}/?assistant=${assistant.id}`);
   await chatPage.getByPlaceholder("Type a message…").fill("Verifica overview");
-  await chatPage.getByRole("button", { name: "Your question", exact: true }).click();
+  await chatPage
+    .getByRole("button", { name: "Your question", exact: true })
+    .click();
   await until(() => chatCalls === 1, "generation starts");
   await page.goto(`${origin}/?view=overview`);
   await page.getByRole("heading", { name: "Overview." }).waitFor();
@@ -210,7 +212,9 @@ try {
   await page.waitForFunction(
     () =>
       [...document.querySelectorAll(".overview-summary article")]
-        .find((e) => e.textContent.includes("Active SIAAS Personal generations"))
+        .find((e) =>
+          e.textContent.includes("Active SIAAS Personal generations"),
+        )
         ?.querySelector("strong")?.textContent === "0",
   );
   assert.match(page.url(), /view=overview/);
@@ -223,10 +227,15 @@ try {
   assert.equal(completed.models[0].recent[0].outputTokens, 6);
   const completedConversation = completed.models[0].recent[0].conversationId;
   await until(async () => {
-    const messages = (await api(`/api/conversations/${completedConversation}`)).messages;
-    return messages.some((m) => m.role === "assistant" && m.status === "complete");
+    const messages = (await api(`/api/conversations/${completedConversation}`))
+      .messages;
+    return messages.some(
+      (m) => m.role === "assistant" && m.status === "complete",
+    );
   }, "completed reply persists");
-  const completedMessages = (await api(`/api/conversations/${completedConversation}`)).messages;
+  const completedMessages = (
+    await api(`/api/conversations/${completedConversation}`)
+  ).messages;
   assert.equal(completedMessages.length, 2);
   assert.equal(completedMessages[1].content, "Risposta completata.");
   assert.equal(completedMessages[1].input_tokens, 12);
@@ -298,24 +307,41 @@ try {
     const callsBefore = chatCalls;
     const cancelledBefore = cancelledChats;
     await chatPage.goto(`${origin}/?assistant=${assistant.id}`);
-    await chatPage.getByPlaceholder("Type a message…").fill(`Cancel by ${mode}`);
-    await chatPage.getByRole("button", { name: "Your question", exact: true }).click();
-    await until(() => chatCalls === callsBefore + 1, "cancellable generation starts");
+    await chatPage
+      .getByPlaceholder("Type a message…")
+      .fill(`Cancel by ${mode}`);
+    await chatPage
+      .getByRole("button", { name: "Your question", exact: true })
+      .click();
+    await until(
+      () => chatCalls === callsBefore + 1,
+      "cancellable generation starts",
+    );
     await chatPage.getByText("Risposta", { exact: true }).waitFor();
     const running = (await api("/api/local/overview")).models[0].active;
     assert.equal(running.length, 1);
     const conversationId = running[0].conversationId;
     assert.equal(running[0].assistantId, assistant.id);
     if (mode === "navigation") {
-      await chatPage.getByRole("button", { name: "Overview", exact: true }).click();
+      await chatPage
+        .getByRole("button", { name: "Overview", exact: true })
+        .click();
       await chatPage.getByRole("heading", { name: "Overview." }).waitFor();
     } else {
-      await chatPage.getByRole("button", { name: "Cancel", exact: true }).click();
+      await chatPage
+        .getByRole("button", { name: "Cancel", exact: true })
+        .click();
     }
-    await until(() => cancelledChats === cancelledBefore + 1, "Ollama socket closes on cancellation");
+    await until(
+      () => cancelledChats === cancelledBefore + 1,
+      "Ollama socket closes on cancellation",
+    );
     await until(async () => {
-      const messages = (await api(`/api/conversations/${conversationId}`)).messages;
-      return messages.some((m) => m.role === "assistant" && m.status === "error");
+      const messages = (await api(`/api/conversations/${conversationId}`))
+        .messages;
+      return messages.some(
+        (m) => m.role === "assistant" && m.status === "error",
+      );
     }, "interrupted reply persists");
     const saved = await api(`/api/conversations/${conversationId}`);
     assert.equal(saved.messages.length, 2);
@@ -327,29 +353,52 @@ try {
     assert.equal(partial.output_tokens, null);
     const snapshot = await api("/api/local/overview");
     assert.equal(snapshot.models[0].active.length, 0);
-    const record = snapshot.models[0].recent.find((r) => r.conversationId === conversationId);
+    const record = snapshot.models[0].recent.find(
+      (r) => r.conversationId === conversationId,
+    );
     assert(record);
     assert.equal(record.status, "cancelled");
     assert.equal(record.inputTokens, null);
     assert.equal(record.outputTokens, null);
     assert.equal(record.tokensPerSecond, null);
     assert(record.finishedAt);
-    await chatPage.goto(`${origin}/?assistant=${assistant.id}&conversation=${conversationId}`);
+    await chatPage.goto(
+      `${origin}/?assistant=${assistant.id}&conversation=${conversationId}`,
+    );
     await chatPage.getByText("Risposta", { exact: true }).waitFor();
     await chatPage.reload();
     await chatPage.getByText("Risposta", { exact: true }).waitFor();
-    assert.deepEqual((await api(`/api/conversations/${conversationId}`)).messages, saved.messages);
+    assert.deepEqual(
+      (await api(`/api/conversations/${conversationId}`)).messages,
+      saved.messages,
+    );
     const lease = await fetch(origin + "/api/chat", {
       method: "POST",
       headers,
-      body: JSON.stringify({ conversation_id: conversationId, question: "2 + 2" }),
+      body: JSON.stringify({
+        conversation_id: conversationId,
+        question: "2 + 2",
+      }),
     });
     assert.equal(lease.status, 200);
-    const events = (await lease.text()).trim().split("\n").map((line) => JSON.parse(line));
+    const events = (await lease.text())
+      .trim()
+      .split("\n")
+      .map((line) => JSON.parse(line));
     assert(events.some((e) => e.type === "done"));
     assert(!events.some((e) => e.type === "error"));
-    assert.equal(events.filter((e) => e.type === "delta").map((e) => e.text).join(""), "4");
-    assert.equal(chatCalls, callsBefore + 1, "reload and deterministic follow-up do not invoke Ollama");
+    assert.equal(
+      events
+        .filter((e) => e.type === "delta")
+        .map((e) => e.text)
+        .join(""),
+      "4",
+    );
+    assert.equal(
+      chatCalls,
+      callsBefore + 1,
+      "reload and deterministic follow-up do not invoke Ollama",
+    );
   }
   assert.equal(chatCalls, 3);
   assert.equal(cancelledChats, 2);

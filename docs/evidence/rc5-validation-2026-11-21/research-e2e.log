@@ -1,0 +1,1 @@
+PASS: compiled unified workflow for all legacy configurations and small/agent models, migration confirmation, local+site citations, global/assistant/Docker/health gates, private-data boundaries, graceful failures and conversation persistence. All external dependencies mocked.

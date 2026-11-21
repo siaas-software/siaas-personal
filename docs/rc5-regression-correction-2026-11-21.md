@@ -1,6 +1,6 @@
 # RC5 targeted regression correction — 21 November 2026
 
-Status: **PARTIAL implementation; release validation BLOCKED by unavailable execution environment**. The user explicitly authorized these two targeted corrections, preserving PR #42, and subsequent publication only after mandatory gates pass. This draft is based on #42 at `ce7dc5deb45a0da61ef395a8f297a4f591f800c8`.
+Initial checkpoint: **PARTIAL implementation; release validation BLOCKED by unavailable execution environment**. This historical checkpoint is superseded by the [completed executable validation](rc5-validation-2026-11-21.md). The user explicitly authorized these two targeted corrections, preserving PR #42, and subsequent publication only after mandatory gates pass. This draft is based on #42 at `ce7dc5deb45a0da61ef395a8f297a4f591f800c8`.
 
 ## Direct-chat lifecycle decision
 

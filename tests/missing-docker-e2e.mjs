@@ -161,10 +161,17 @@ try {
   // deltas, sources, artifacts or a successful completion.
   assert.equal(chat.status, 200);
   assert.match(chat.headers.get("content-type"), /application\/x-ndjson/);
-  const events = (await chat.text()).trim().split("\n").map((line) => JSON.parse(line));
-  assert.deepEqual(events.map((event) => event.type), ["error"]);
+  const events = (await chat.text())
+    .trim()
+    .split("\n")
+    .map((line) => JSON.parse(line));
+  assert.deepEqual(
+    events.map((event) => event.type),
+    ["error"],
+  );
   assert.match(events[0].error, /Ollama.*unreachable/i);
-  const failedMessages = (await api(`/api/conversations/${conversation.id}`)).messages;
+  const failedMessages = (await api(`/api/conversations/${conversation.id}`))
+    .messages;
   assert.equal(failedMessages.length, 2);
   assert.equal(failedMessages[0].role, "user");
   assert.equal(failedMessages[0].content, "hello");
@@ -180,7 +187,9 @@ try {
 
   // Check both inline text and actual uploaded TXT bytes through production
   // preparation/extraction, with neither embeddings nor a running model.
-  const txtBytes = Buffer.from("The maintenance checklist requires a filter inspection.");
+  const txtBytes = Buffer.from(
+    "The maintenance checklist requires a filter inspection.",
+  );
   const txt = await api("/api/documents", {
     assistant_id: assistant.id,
     title: "maintenance.txt",
@@ -200,9 +209,14 @@ try {
     const prepared = await processing.json();
     assert.equal(prepared.ok, true);
     assert(prepared.chunks > 0);
-    assert.equal((await api(`/api/documents/${source.id}/process`, {})).ok, true);
+    assert.equal(
+      (await api(`/api/documents/${source.id}/process`, {})).ok,
+      true,
+    );
   }
-  const preparedDocuments = await api(`/api/documents?assistant=${assistant.id}`);
+  const preparedDocuments = await api(
+    `/api/documents?assistant=${assistant.id}`,
+  );
   for (const source of [document, txt]) {
     const prepared = preparedDocuments.find((d) => d.id === source.id);
     assert.equal(prepared.status, "ready");
@@ -211,10 +225,16 @@ try {
   }
   const evidenceDb = new LocalDatabase(data);
   try {
-    const chunks = evidenceDb.rows("document_chunks").filter((c) => [document.id, txt.id].includes(c.document_id));
+    const chunks = evidenceDb
+      .rows("document_chunks")
+      .filter((c) => [document.id, txt.id].includes(c.document_id));
     assert(chunks.length >= 2);
     assert(chunks.every((c) => c.embedding == null));
-    assert(chunks.some((c) => c.document_id === txt.id && c.content === txtBytes.toString()));
+    assert(
+      chunks.some(
+        (c) => c.document_id === txt.id && c.content === txtBytes.toString(),
+      ),
+    );
   } finally {
     evidenceDb.close();
   }
@@ -223,23 +243,46 @@ try {
       conversation_id: conversation.id,
       question,
     });
-    assert.equal(response.status, 200, "previous failure released the chat lease");
-    const result = (await response.text()).trim().split("\n").map((line) => JSON.parse(line));
+    assert.equal(
+      response.status,
+      200,
+      "previous failure released the chat lease",
+    );
+    const result = (await response.text())
+      .trim()
+      .split("\n")
+      .map((line) => JSON.parse(line));
     assert(result.some((e) => e.type === "done"));
     assert(!result.some((e) => e.type === "error"));
     return result;
   }
   const arithmetic = await offlineTurn("2 + 2");
-  assert.equal(arithmetic.filter((e) => e.type === "delta").map((e) => e.text).join(""), "4");
+  assert.equal(
+    arithmetic
+      .filter((e) => e.type === "delta")
+      .map((e) => e.text)
+      .join(""),
+    "4",
+  );
   const retrieval = await offlineTurn("search documents: maintenance");
-  const sources = retrieval.filter((e) => e.type === "sources").flatMap((e) => e.sources);
+  const sources = retrieval
+    .filter((e) => e.type === "sources")
+    .flatMap((e) => e.sources);
   assert(sources.some((source) => source.document_id === document.id));
   assert(sources.some((source) => source.document_id === txt.id));
-  assert(sources.every((source) => [document.id, txt.id].includes(source.document_id)));
-  const excerpt = retrieval.filter((e) => e.type === "delta").map((e) => e.text).join("");
+  assert(
+    sources.every((source) =>
+      [document.id, txt.id].includes(source.document_id),
+    ),
+  );
+  const excerpt = retrieval
+    .filter((e) => e.type === "delta")
+    .map((e) => e.text)
+    .join("");
   assert.match(excerpt, /500 hours/);
   assert.match(excerpt, /filter inspection/);
-  const persisted = (await api(`/api/conversations/${conversation.id}`)).messages;
+  const persisted = (await api(`/api/conversations/${conversation.id}`))
+    .messages;
   assert.equal(persisted.length, 6);
   assert.deepEqual(persisted.slice(0, 2), failedMessages);
   assert.equal(persisted[3].status, "complete");
@@ -269,17 +312,25 @@ try {
     persisted,
     "failure, deterministic result and source-backed retrieval survive restart",
   );
-  const restartedDocuments = await api(`/api/documents?assistant=${assistant.id}`);
+  const restartedDocuments = await api(
+    `/api/documents?assistant=${assistant.id}`,
+  );
   for (const source of [document, txt]) {
-    const recoveredDocument = restartedDocuments.find((d) => d.id === source.id);
+    const recoveredDocument = restartedDocuments.find(
+      (d) => d.id === source.id,
+    );
     assert.equal(recoveredDocument.status, "ready");
     assert.equal(recoveredDocument.embedding_model, "lexical-v1");
     assert(recoveredDocument.chunk_count > 0);
   }
-  const downloaded = await fetch(origin + `/api/local/files/${txt.id}`, { headers });
+  const downloaded = await fetch(origin + `/api/local/files/${txt.id}`, {
+    headers,
+  });
   assert.equal(downloaded.status, 200);
   assert.deepEqual(Buffer.from(await downloaded.arrayBuffer()), txtBytes);
-  await assert.rejects(access(join(data, "research-services.json")), { code: "ENOENT" });
+  await assert.rejects(access(join(data, "research-services.json")), {
+    code: "ENOENT",
+  });
   const recovered = await api("/api/local/experimental");
   assert.equal(recovered.preferences.advancedReasoning, false);
   assert.equal(recovered.preferences.advancedWebResearch, false);
