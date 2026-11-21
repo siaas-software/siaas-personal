@@ -50,3 +50,7 @@ Executable application gates pass. Native Windows/macOS/Linux Electron, real Oll
 Publication remains conditional on protected GitFlow integration and exact-commit twelve-asset verification. GitHub publication access and anonymous downloads are separate gates, not inferred from these local results. Preserve stable main and all RC4 tags/assets. The user has already authorized integration and RC publication; no additional authorization is needed.
 
 [Reproducible commands, result matrices and logs](evidence/rc5-validation-2026-11-21/). Browser commands use `CHROMIUM_EXECUTABLE_PATH` and `CHROMIUM_PATH` pointing to the compatible headless shell. Logs use only synthetic test data.
+
+## RC4 ancestry reconciliation
+
+The candidate merge preserves `d8bf6e61a4d47920a00cc4e069a90cf26ac2d80f` as an additional parent. Resolved package manifests retain tested RC5 version/dependencies; the structured browser test retains the already-integrated accessible selector and #42 formatting. RC4 historical logs and three release documents are restored byte-for-byte from the tag. CHANGELOG keeps the published RC4 heading and the original preparation record. No application, dependency, script, test or template content differs from the validated #43 tree after this reconciliation. RC4's published tag/assets and stable main are untouched.

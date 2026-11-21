@@ -1,0 +1,34 @@
+
+> siaas-personal@1.1.0-rc.4 test:ui
+> node tests/ui-smoke.mjs
+
+PASS: first guest load, actual SQLite write, account-free updates UI, preserved data, reload and local API protection.
+▲ Next.js 16.4.3
+- Local:         http://127.0.0.1:33481
+- Network:       http://127.0.0.1:33481
+✓ Ready in 0ms
+✓ Running next.config took 4ms
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  [
++   'https://ocw.mit.edu/collections/introductory-programming/'
+-   'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide'
+  ]
+
+    at file:///workspace/siaas-personal/tests/project-flows.mjs:191:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [ 'https://ocw.mit.edu/collections/introductory-programming/' ],
+  expected: [ 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide' ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.0

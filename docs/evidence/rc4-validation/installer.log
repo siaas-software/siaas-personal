@@ -1,0 +1,16 @@
+
+> siaas-personal@1.1.0-rc.4 test:installer
+> node --test tests/installer.test.cjs
+
+✔ Ollama compatibility and loopback policy (5.336703ms)
+✔ package support and archive path validation (0.436566ms)
+✔ download rejects corruption and unexpected origins before execution (278.932885ms)
+✔ existing compatible service is reused and never stopped; old service is preserved (295.519266ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1079.720691

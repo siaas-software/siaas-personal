@@ -1,0 +1,5 @@
+
+> siaas-personal@1.1.0-rc.4 release:source
+> node scripts/release-source.mjs
+
+Created local source.zip and install.json artifacts in dist-source. Publication follows the applicable release policy; this script does not publish.

@@ -1,0 +1,32 @@
+
+> siaas-personal@1.1.0-rc.4 test:experimental
+> node --import tsx --test tests/experimental*.test.ts tests/docker-prerequisites.test.mjs
+
+✔ missing Docker produces actionable OS-specific errors without starting or installing it (15.610377ms)
+✔ missing Compose and stopped daemon are distinguished (4.690813ms)
+✔ process execution failures and timeouts have friendly diagnostics (0.249123ms)
+✔ healthy Docker probes only prerequisites (0.58207ms)
+✔ unsupported Docker capability: windows (3.973156ms)
+✔ unsupported Docker capability: old (0.181184ms)
+✔ unsupported Docker capability: architecture (0.130439ms)
+✔ unsupported Docker capability: invalid (0.245427ms)
+✔ async detection distinguishes permission, missing CLI, Compose and stopped Engine without any mutations (3.514508ms)
+✔ new and legacy configurations default to OFF; legacy modes, endpoints and malformed settings never grant consent (3.685691ms)
+✔ migration and restart preserve projects, assistants, selected websites, messages and other settings (13.830452ms)
+✔ backend rejects enabling either feature without prerequisites and never starts services or persists an enabled preference (4.706877ms)
+✔ features activate and stop independently; Docker recovery never enables the other preference (4.326067ms)
+✔ failed start and Docker loss during startup never persist a new activation; revocation succeeds with pending cleanup (43.094274ms)
+✔ backend blocks new assistant opt-in while preserving existing consent for unrelated offline edits (8.551134ms)
+✔ disabled engine requests are blocked before any health or private evidence network request (5.034323ms)
+✔ lifecycle stops only the selected owned service and never deletes volumes or unrelated containers (0.456484ms)
+✔ status never probes disabled engines and distinguishes Docker availability from saved consent (9.594208ms)
+✔ both switches fail closed before Docker status is known; refresh and platform instructions remain available (16.93166ms)
+✔ assistant panel always shows sites, has no exclusive mode selector and disables new Beta opt-in until ready (3.820051ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3227.603284

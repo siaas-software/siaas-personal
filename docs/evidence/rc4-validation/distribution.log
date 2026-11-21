@@ -1,0 +1,28 @@
+
+> siaas-personal@1.1.0-rc.4 test:distribution
+> node --test tests/distribution.test.mjs tests/docker-prerequisites.test.mjs tests/source-manager.test.mjs
+
+✔ all six platforms resolve validated public assets without authentication (77.168839ms)
+✔ missing public release and unsupported platform have actionable errors (0.925238ms)
+✔ manifest rejects tampered URLs, hashes, sizes and runtime target (2.273478ms)
+✔ child environment uses explicit runtime without changing global Node or NVM (0.261944ms)
+✔ corrupt or missing runtime fails before executing it (78.126921ms)
+✔ explicit RC versions validate while stable discovery rejects prereleases (2.183084ms)
+✔ missing Docker produces actionable OS-specific errors without starting or installing it (2.81748ms)
+✔ missing Compose and stopped daemon are distinguished (0.551061ms)
+✔ process execution failures and timeouts have friendly diagnostics (0.191024ms)
+✔ healthy Docker probes only prerequisites (0.258577ms)
+✔ unsupported Docker capability: windows (0.37383ms)
+✔ unsupported Docker capability: old (0.143532ms)
+✔ unsupported Docker capability: architecture (0.124981ms)
+✔ unsupported Docker capability: invalid (0.528928ms)
+✔ async detection distinguishes permission, missing CLI, Compose and stopped Engine without any mutations (0.354409ms)
+✔ managed source installation stages updates, retains matching rollback, and preserves state after failed builds (45858.196805ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 47090.288734

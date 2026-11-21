@@ -1,0 +1,5 @@
+
+> siaas-personal@1.1.0-rc.4 templates:check
+> node --import tsx scripts/sync-templates.mjs --check
+
+Template snapshot verified: siaas-software/siaas-templates@f99813cf3799ea91a5d32ccce8521e054bb11c52
