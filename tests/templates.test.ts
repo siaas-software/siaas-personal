@@ -7,6 +7,8 @@ import { LocalDatabase } from "../src/lib/local/database";
 import { LOCAL_USER_ID } from "../src/lib/runtime";
 import { templateBundle, templateBundleSchema, materializeTemplateOrchestration, portableTemplateOrchestration } from "../src/lib/templates";
 import { listTemplates } from "../src/lib/template-store";
+import rc5Builtins from "../src/generated/builtin-templates-rc5.json";
+import { BUILTIN_TEMPLATES } from "../src/lib/templates";
 
 test("template round trip keeps configuration and strips personal data at every level", () => {
   const result = templateBundle({ name: "Example", description: "Role", color: "#123456", documents: ["secret"],
@@ -73,4 +75,45 @@ test("v2 project chat settings remain portable and map only selected local assis
   assert.throws(() => portableTemplateOrchestration({
     ...configured, assistant_ids: ["33333333-3333-4333-8333-333333333333"],
   }, local));
+});
+
+test("RC5 pristine official seeds upgrade to v2 while edits, tombstones and projects are preserved", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "siaas-v2-rc5-upgrade-"));
+  const db = new LocalDatabase(dir);
+  try {
+    for (const [key, preset] of Object.entries(rc5Builtins)) {
+      db.put("project_templates", {
+        ...preset,
+        id: `${LOCAL_USER_ID}:${key}`,
+        tenant_id: LOCAL_USER_ID,
+        builtin_key: key,
+        deleted: key === "materials-procurement",
+      });
+    }
+    const editedKey = "personal-finance";
+    const edited = db.get("project_templates", `${LOCAL_USER_ID}:${editedKey}`)!;
+    db.put("project_templates", { ...edited, description: "User-edited finance description" }, true);
+    const existingProject = db.put("projects", {
+      tenant_id: LOCAL_USER_ID, name: "Keep my project",
+      orchestration: { enabled: false, assistant_ids: [], instructions: "Keep", share_results: false, max_steps: 3 },
+    });
+    const before = db.get("projects", existingProject.id);
+    const first = await listTemplates(db, LOCAL_USER_ID);
+    assert.equal(first.length, 5);
+    const upgraded = first.find((item) => item.builtin_key === "computer-science-study")!;
+    assert.deepEqual(upgraded.orchestration?.assistant_indices, [0,1,2]);
+    assert.equal(upgraded.orchestration?.enabled, false);
+    assert.deepEqual(upgraded.assistants, BUILTIN_TEMPLATES["computer-science-study"].assistants);
+    const customized = first.find((item) => item.builtin_key === editedKey)!;
+    assert.equal(customized.description, "User-edited finance description");
+    assert.equal(customized.orchestration, undefined);
+    assert.equal(db.get("project_templates", `${LOCAL_USER_ID}:materials-procurement`)?.deleted, true);
+    assert.deepEqual(db.get("projects", existingProject.id), before);
+    const afterUpgrade = db.rows("project_templates");
+    assert.deepEqual(await listTemplates(db, LOCAL_USER_ID), first);
+    assert.deepEqual(db.rows("project_templates"), afterUpgrade);
+  } finally {
+    db.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

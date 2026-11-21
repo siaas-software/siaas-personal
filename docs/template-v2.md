@@ -51,10 +51,13 @@ remain importable, and a saved v1 template without orchestration produces a
 disabled project. When re-exported, it uses v2 with disabled orchestration.
 
 Built-in definitions are explicitly adopted by immutable source SHA through
-`templates-source.json`; applying an update does **not** overwrite existing
-projects, local documents, user edits or stored template rows. A previously
-seeded built-in template is deliberately preserved, and may be re-imported
-from the updated official catalog if the user chooses.
+`templates-source.json`. When upgrading from RC5, pristine, enabled built-in
+template rows that exactly match the old official snapshot receive the v2
+project-chat configuration automatically. User-edited templates and tombstones
+remain unchanged. Existing projects, local documents, Knowledge, conversations
+and other saved settings are not touched. The old RC5 snapshot is retained
+solely to recognize an unmodified official seed; it is never offered as a new
+built-in catalog.
 
 ## Source and test scope
 
