@@ -1,0 +1,27 @@
+Before navigation {"name":"qwen2.5:1.5b","size":1000000000,"digest":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","details":{"family":"qwen2","parameter_size":"1.5B","quantization_level":"Q4_K_M","format":"gguf"},"loaded":true,"state":"in-use","memory":1400000000,"vram":800000000,"contextLength":4096,"assistants":[{"id":"3f4b5625-a89f-4a18-aa01-370c2fbcd833","name":"Organizzatore","projectId":"64011457-b4c6-4fd9-a757-8fefcba00e11"},{"id":"13981858-92fc-4961-bb37-fe02b6eaa88a","name":"Tutor","projectId":"7b9ffd26-6312-4fd5-999b-13c28eab0dd1"}],"projects":[{"id":"64011457-b4c6-4fd9-a757-8fefcba00e11","name":"Eventi"},{"id":"7b9ffd26-6312-4fd5-999b-13c28eab0dd1","name":"Studio"}],"active":[{"assistantId":"3f4b5625-a89f-4a18-aa01-370c2fbcd833","projectId":"64011457-b4c6-4fd9-a757-8fefcba00e11","conversationId":"23a833e5-6a49-4754-9de1-fa389e992128","id":"79de9bb6-5f68-431c-8ea8-de937ca41ae2","model":"qwen2.5:1.5b","kind":"chat","status":"generating","startedAt":"2026-11-21T04:25:17.875Z","finishedAt":null,"durationMs":null,"inputTokens":null,"outputTokens":null,"tokensPerSecond":null,"loadMs":null,"error":null}],"recent":[]}
+After navigation {"name":"qwen2.5:1.5b","size":1000000000,"digest":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","details":{"family":"qwen2","parameter_size":"1.5B","quantization_level":"Q4_K_M","format":"gguf"},"loaded":true,"state":"error","memory":1400000000,"vram":800000000,"contextLength":4096,"assistants":[{"id":"3f4b5625-a89f-4a18-aa01-370c2fbcd833","name":"Organizzatore","projectId":"64011457-b4c6-4fd9-a757-8fefcba00e11"},{"id":"13981858-92fc-4961-bb37-fe02b6eaa88a","name":"Tutor","projectId":"7b9ffd26-6312-4fd5-999b-13c28eab0dd1"}],"projects":[{"id":"64011457-b4c6-4fd9-a757-8fefcba00e11","name":"Eventi"},{"id":"7b9ffd26-6312-4fd5-999b-13c28eab0dd1","name":"Studio"}],"active":[],"recent":[{"assistantId":"3f4b5625-a89f-4a18-aa01-370c2fbcd833","projectId":"64011457-b4c6-4fd9-a757-8fefcba00e11","conversationId":"23a833e5-6a49-4754-9de1-fa389e992128","id":"79de9bb6-5f68-431c-8ea8-de937ca41ae2","model":"qwen2.5:1.5b","kind":"chat","status":"error","startedAt":"2026-11-21T04:25:17.875Z","finishedAt":"2026-11-21T04:25:18.129Z","durationMs":254.55801199999996,"inputTokens":null,"outputTokens":null,"tokensPerSecond":null,"loadMs":null,"error":"Connessione con Ollama interrotta."}]}
+▲ Next.js 16.4.6
+- Local:         http://127.0.0.1:37971
+- Network:       http://127.0.0.1:37971
+✓ Ready in 0ms
+✓ Running next.config took 4ms
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+'error' !== 'in-use'
+
+    at file:///workspace/scratch/8e6ae998bf9b/app/tests/overview-rc5-diagnostic.tmp.mjs:186:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'error',
+  expected: 'in-use',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.3

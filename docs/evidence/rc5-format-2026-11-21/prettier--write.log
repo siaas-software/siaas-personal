@@ -1,0 +1,173 @@
+desktop/install-ollama.cjs 70ms (unchanged)
+desktop/main.cjs 51ms
+desktop/ollama-manager.cjs 23ms (unchanged)
+desktop/preload.cjs 3ms
+desktop/safe-zip.cjs 10ms
+desktop/updates.cjs 9ms
+scripts/backup-desktop.cjs 3ms (unchanged)
+scripts/build-desktop.mjs 5ms (unchanged)
+scripts/build-structured-parser.mjs 7ms
+scripts/check-ollama.ts 96ms (unchanged)
+scripts/checksums.mjs 3ms (unchanged)
+scripts/desktop.mjs 2ms (unchanged)
+scripts/docker-prerequisites.mjs 6ms (unchanged)
+scripts/generate-icons.mjs 10ms (unchanged)
+scripts/lib/cli-profile.mjs 3ms
+scripts/lib/cli-quiescence.mjs 6ms
+scripts/lib/distribution.mjs 12ms
+scripts/lib/managed-runtime.mjs 11ms (unchanged)
+scripts/lib/source-build.mjs 4ms
+scripts/lib/source-desktop.mjs 8ms
+scripts/lib/source-state.mjs 5ms
+scripts/license-inventory.mjs 9ms
+scripts/prepare-package.mjs 5ms
+scripts/release-manifest.mjs 3ms (unchanged)
+scripts/release-source.mjs 6ms
+scripts/research-services.mjs 7ms (unchanged)
+scripts/source-manager.mjs 12ms
+scripts/structured-parser.cjs 11ms (unchanged)
+scripts/sync-templates.mjs 13ms
+scripts/test-agent-tool-calling.mjs 8ms
+scripts/test-ollama.ts 9ms (unchanged)
+scripts/verify-release.mjs 3ms
+scripts/verify-source-release.mjs 10ms (unchanged)
+scripts/verify-windows-icon.mjs 3ms (unchanged)
+services/morphic/adapter.mjs 12ms (unchanged)
+services/morphic/build.mjs 1ms (unchanged)
+services/morphic/researcher.mjs 2ms (unchanged)
+services/morphic/server.mjs 5ms (unchanged)
+src/app/api/actions/[id]/route.ts 11ms (unchanged)
+src/app/api/actions/builder/route.ts 5ms (unchanged)
+src/app/api/actions/models/route.ts 4ms (unchanged)
+src/app/api/actions/route.ts 4ms (unchanged)
+src/app/api/assistants/[id]/route.ts 8ms (unchanged)
+src/app/api/assistants/route.ts 4ms (unchanged)
+src/app/api/chat/route.ts 21ms (unchanged)
+src/app/api/conversations/[id]/route.ts 3ms (unchanged)
+src/app/api/conversations/route.ts 5ms (unchanged)
+src/app/api/desktop/downloads/route.ts 10ms (unchanged)
+src/app/api/documents/[id]/process/route.ts 9ms (unchanged)
+src/app/api/documents/[id]/route.ts 6ms (unchanged)
+src/app/api/documents/route.ts 8ms (unchanged)
+src/app/api/licenses/route.ts 2ms (unchanged)
+src/app/api/local/experimental/route.ts 3ms (unchanged)
+src/app/api/local/files/[id]/route.ts 8ms (unchanged)
+src/app/api/local/hardware/route.ts 2ms (unchanged)
+src/app/api/local/knowledge/route.ts 10ms (unchanged)
+src/app/api/local/knowledge/web/route.ts 5ms (unchanged)
+src/app/api/local/model-catalog/route.ts 2ms (unchanged)
+src/app/api/local/models/route.ts 5ms (unchanged)
+src/app/api/local/overview/route.ts 2ms (unchanged)
+src/app/api/local/reports/[id]/route.ts 5ms (unchanged)
+src/app/api/local/research/route.ts 2ms (unchanged)
+src/app/api/local/structured/route.ts 5ms (unchanged)
+src/app/api/project/export/route.ts 5ms (unchanged)
+src/app/api/project/import/route.ts 8ms (unchanged)
+src/app/api/projects/[id]/orchestration/plan/route.ts 5ms (unchanged)
+src/app/api/projects/[id]/route.ts 7ms (unchanged)
+src/app/api/projects/[id]/runs/[runId]/artifacts/[artifactId]/route.ts 5ms (unchanged)
+src/app/api/projects/[id]/runs/route.ts 23ms (unchanged)
+src/app/api/projects/[id]/template/route.ts 6ms (unchanged)
+src/app/api/projects/route.ts 8ms (unchanged)
+src/app/api/templates/[id]/route.ts 5ms
+src/app/api/templates/route.ts 3ms
+src/app/api/workspace/route.ts 6ms (unchanged)
+src/app/app/page.tsx 3ms (unchanged)
+src/app/documentation/page.tsx 1ms (unchanged)
+src/app/external/page.tsx 3ms
+src/app/globals.css 327ms
+src/app/layout.tsx 3ms
+src/app/loading.tsx 2ms (unchanged)
+src/app/page.tsx 2ms
+src/components/about-settings.tsx 16ms (unchanged)
+src/components/actions.tsx 57ms
+src/components/agent-status.tsx 5ms (unchanged)
+src/components/app-version.tsx 4ms (unchanged)
+src/components/assistant-mascot.tsx 6ms (unchanged)
+src/components/chat-composer.tsx 6ms (unchanged)
+src/components/chat-markdown.tsx 6ms (unchanged)
+src/components/desktop-updates.tsx 6ms (unchanged)
+src/components/experimental-features.tsx 13ms (unchanged)
+src/components/hardware-advisor.tsx 14ms (unchanged)
+src/components/interface-language.ts 3ms (unchanged)
+src/components/local-knowledge.tsx 21ms (unchanged)
+src/components/local-setup.tsx 19ms (unchanged)
+src/components/model-catalog.tsx 16ms (unchanged)
+src/components/model-recommendation.tsx 2ms (unchanged)
+src/components/overview.tsx 54ms
+src/components/project-actions.tsx 6ms
+src/components/project-chat.tsx 25ms (unchanged)
+src/components/quote-demo.tsx 6ms
+src/components/research-settings.tsx 11ms (unchanged)
+src/components/shortcuts.tsx 6ms (unchanged)
+src/components/siaas-loader.tsx 2ms (unchanged)
+src/components/siaas-mark.tsx 2ms (unchanged)
+src/components/structured-knowledge.tsx 38ms (unchanged)
+src/components/web-knowledge.tsx 10ms (unchanged)
+src/components/workspace.tsx 146ms (unchanged)
+src/desktop.d.ts 4ms (unchanged)
+src/lib/actions.ts 11ms
+src/lib/agent-policy.ts 6ms (unchanged)
+src/lib/agent-steps.ts 6ms (unchanged)
+src/lib/catalog.ts 12ms (unchanged)
+src/lib/chat-markdown.ts 5ms (unchanged)
+src/lib/chunk.ts 3ms (unchanged)
+src/lib/delete-resource.ts 9ms (unchanged)
+src/lib/desktop-releases.ts 15ms
+src/lib/experimental.ts 3ms (unchanged)
+src/lib/export-bundle.ts 3ms (unchanged)
+src/lib/external-quote.ts 3ms (unchanged)
+src/lib/hardware.ts 10ms (unchanged)
+src/lib/http.ts 7ms (unchanged)
+src/lib/ingestion.ts 3ms (unchanged)
+src/lib/licenses.ts 4ms (unchanged)
+src/lib/local/action-builder-model.ts 5ms (unchanged)
+src/lib/local/action-builder.ts 33ms (unchanged)
+src/lib/local/actions.ts 5ms (unchanged)
+src/lib/local/agent.ts 30ms (unchanged)
+src/lib/local/assistant-execution.ts 18ms (unchanged)
+src/lib/local/assistant-research.ts 20ms (unchanged)
+src/lib/local/chat-router.ts 13ms (unchanged)
+src/lib/local/database.ts 82ms
+src/lib/local/experimental-features.ts 11ms (unchanged)
+src/lib/local/hardware.ts 11ms (unchanged)
+src/lib/local/inference-telemetry.ts 19ms (unchanged)
+src/lib/local/knowledge.ts 21ms (unchanged)
+src/lib/local/legacy-cleanup.ts 7ms (unchanged)
+src/lib/local/native-actions.ts 6ms
+src/lib/local/overview.ts 13ms (unchanged)
+src/lib/local/public-web.ts 21ms (unchanged)
+src/lib/local/research-services.ts 18ms (unchanged)
+src/lib/local/research-workflow.ts 22ms (unchanged)
+src/lib/local/system-resources.ts 23ms (unchanged)
+src/lib/local/template-project.ts 5ms (unchanged)
+src/lib/local/web-ingestion.ts 10ms (unchanged)
+src/lib/local/web-knowledge.ts 9ms (unchanged)
+src/lib/model-catalog.ts 6ms (unchanged)
+src/lib/model-name.ts 2ms (unchanged)
+src/lib/ollama.ts 25ms
+src/lib/overview.ts 6ms (unchanged)
+src/lib/project-colors.ts 9ms
+src/lib/project-orchestration.ts 14ms (unchanged)
+src/lib/rag.ts 2ms (unchanged)
+src/lib/research-policy.ts 12ms (unchanged)
+src/lib/research.ts 18ms (unchanged)
+src/lib/runtime.ts 2ms (unchanged)
+src/lib/shortcuts.ts 8ms (unchanged)
+src/lib/structured/chat.ts 8ms (unchanged)
+src/lib/structured/decimal.ts 4ms (unchanged)
+src/lib/structured/engine.ts 59ms (unchanged)
+src/lib/structured/import-review.ts 18ms (unchanged)
+src/lib/structured/parser.ts 6ms (unchanged)
+src/lib/structured/planner.ts 19ms
+src/lib/structured/profile.ts 17ms (unchanged)
+src/lib/structured/routing.ts 1ms (unchanged)
+src/lib/structured/service.ts 12ms
+src/lib/structured/store.ts 60ms (unchanged)
+src/lib/structured/types.ts 9ms (unchanged)
+src/lib/template-colors.ts 10ms (unchanged)
+src/lib/template-presentation.ts 4ms (unchanged)
+src/lib/template-store.ts 7ms (unchanged)
+src/lib/templates.ts 10ms (unchanged)
+src/lib/validation.ts 8ms (unchanged)
+src/proxy.ts 4ms

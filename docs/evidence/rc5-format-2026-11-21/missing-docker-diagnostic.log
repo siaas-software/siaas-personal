@@ -1,0 +1,22 @@
+Chat status 200 body {"type":"error","error":"Ollama is unreachable. Start Ollama on this PC and select Check Ollama."}
+
+Persisted messages [{"id":"367d9b17-3407-4d2d-9734-7e587e545c1d","created_at":"2026-11-21T04:25:26.364Z","content":"hello","status":"complete","sources":[],"input_tokens":0,"output_tokens":0,"tenant_id":"00000000-0000-4000-8000-000000000001","assistant_id":"a46aab8f-7ae1-4704-887e-54c645f1a902","conversation_id":"c137d15d-a815-4501-b9b9-90adf67d696c","role":"user"},{"id":"d4becac8-2221-4c62-b641-884123f11a41","created_at":"2026-11-21T04:25:26.365Z","content":"Ollama is unreachable. Start Ollama on this PC and select Check Ollama.","status":"error","sources":[],"input_tokens":0,"output_tokens":0,"tenant_id":"00000000-0000-4000-8000-000000000001","assistant_id":"a46aab8f-7ae1-4704-887e-54c645f1a902","conversation_id":"c137d15d-a815-4501-b9b9-90adf67d696c","role":"assistant","model_id":"ollama/test:8b"}]
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+200 !== 503
+
+    at file:///workspace/scratch/8e6ae998bf9b/app/tests/missing-docker-rc5-diagnostic.tmp.mjs:162:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 200,
+  expected: 503,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.3
