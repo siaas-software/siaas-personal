@@ -160,8 +160,22 @@ try {
       "rgb(25, 88, 91)",
       "#E1F5F4",
     ],
+    [
+      "pdf-maintenance-acceptance",
+      "PDF Maintenance Acceptance Review",
+      "rgb(240, 234, 254)",
+      "rgb(75, 50, 124)",
+      "#F0EAFE",
+    ],
+    [
+      "spreadsheet-purchase-reconciliation",
+      "Spreadsheet Purchase Order Reconciliation",
+      "rgb(225, 245, 244)",
+      "rgb(25, 88, 91)",
+      "#E1F5F4",
+    ],
   );
-  assert.equal(templates.length, 6);
+  assert.equal(templates.length, 8);
   const contrast = (a, b) => {
     const luminance = (color) => {
       const [r, g, b] = color
@@ -344,7 +358,7 @@ try {
   assert.deepEqual(await api("/api/templates"), templates);
   assert.deepEqual(errors, []);
   console.log(
-    "PASS: all six cards/previews, normal/hover/focus contrast at 1440/390px, browser project creation, template/project exports and HTTP/SQLite restart persistence.",
+    "PASS: all eight cards/previews, normal/hover/focus contrast at 1440/390px, browser project creation, template/project exports and HTTP/SQLite restart persistence.",
   );
 } finally {
   await browser?.close();

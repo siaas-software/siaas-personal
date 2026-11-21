@@ -43,7 +43,7 @@ indices to the new local UUIDs inside its existing project orchestration
 contract. The coordinator remains deterministic, with no project-level model
 or new permissions; each delegated task still uses the original assistant
 execution pipeline / Hybrid Router. `enabled=false` and
-`share_results=false` by default for all six official templates.
+`share_results=false` by default for all eight official templates.
 
 Project export and Save to Templates transform current authorized assistant
 UUIDs back to portable indices. Export fails closed if an orchestration
@@ -62,7 +62,7 @@ built-in catalog.
 
 ## Source and test scope
 
-- Upstream `siaas-software/siaas-templates`: six portable templates,
+- Upstream `siaas-software/siaas-templates`: eight portable templates,
   catalog v2, builder checks, negative validation tests.
 - Consumer `siaas-software/siaas-personal`: v1/v2 schemas,
   create/import/export/Save Template, local ID mapping, pinned catalog,
@@ -73,3 +73,29 @@ built-in catalog.
   `node --import tsx tests/project-chat-api.mjs` and relevant UI/E2E suites.
 - Runtime acceptance, GitFlow merge, release tagging and publication are
   separate decisions. Do not infer PASS from static code review.
+
+## Two real-world-style Gemma example exercises (synthetic fixtures)
+
+The catalog also includes `pdf-maintenance-acceptance` and
+`spreadsheet-purchase-reconciliation`, each with two dedicated assistants,
+an ordered two-step optional coordinator and `enabled=false`,
+`share_results=false` by default.
+
+- **PDF Maintenance Acceptance Review:** evidence reader + findings reviewer
+  using a fictional technical maintenance acceptance PDF. The repository
+  provides a searchable two-page PDF test fixture, with requirements R1-R4
+  and intentionally missing measured evidence. The supported report tool
+  produces **Markdown**, not a PDF artifact.
+- **Spreadsheet Purchase Order Reconciliation:** dataset inspector + deterministic
+  invoice analyst using two CSV fixtures. Synthetic expected net totals are
+  EUR 296.00 ordered, EUR 261.00 invoiced, EUR 35.00 difference. Never infer
+  missing deliveries from invoice quantities or use model-computed totals.
+
+The sample documents/CSV remain separate from the portable JSON; user data
+cannot be serialized into the template. Import sample files into each assistant's
+authorized Knowledge as needed. Select local Ollama Gemma (for example,
+`gemma4:e4b-it-q4_K_M` if installed) **after** project creation; `model:null`
+is intentional. Actual agent/tool-calling support and model correctness require
+runtime verification. Read the source repository's
+[`docs/gemma-template-examples.md`](https://github.com/siaas-software/siaas-templates/blob/feature/project-chat-template-v2-2026-11-21/docs/gemma-template-examples.md)
+for reproducible acceptance steps. RC5 cannot import these v2 bundles.

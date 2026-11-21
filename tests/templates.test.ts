@@ -9,6 +9,7 @@ import { templateBundle, templateBundleSchema, materializeTemplateOrchestration,
 import { listTemplates } from "../src/lib/template-store";
 import rc5Builtins from "../src/generated/builtin-templates-rc5.json";
 import { BUILTIN_TEMPLATES } from "../src/lib/templates";
+import { importLocalTemplate } from "../src/lib/local/template-project";
 
 test("template round trip keeps configuration and strips personal data at every level", () => {
   const result = templateBundle({ name: "Example", description: "Role", color: "#123456", documents: ["secret"],
@@ -27,12 +28,12 @@ test("built-in templates are complete, persist once and respect tombstones acros
   try {
     const client = () => db;
     const first = await listTemplates(client(), LOCAL_USER_ID);
-    assert.equal(first.length, 6);
+    assert.equal(first.length, 8);
     assert(first.every((t) => t.assistants.every((a) => a.instructions && a.description && a.model === null)));
-    assert.equal((await listTemplates(client(), LOCAL_USER_ID)).length, 6);
+    assert.equal((await listTemplates(client(), LOCAL_USER_ID)).length, 8);
     await db.from("project_templates").update({ deleted: true }).eq("id", first[0].id);
     db.close(); db = new LocalDatabase(path);
-    assert.equal((await listTemplates(client(), LOCAL_USER_ID)).length, 5);
+    assert.equal((await listTemplates(client(), LOCAL_USER_ID)).length, 7);
   } finally { db.close(); rmSync(path, { recursive: true, force: true }); }
 });
 
@@ -99,7 +100,7 @@ test("RC5 pristine official seeds upgrade to v2 while edits, tombstones and proj
     });
     const before = db.get("projects", existingProject.id);
     const first = await listTemplates(db, LOCAL_USER_ID);
-    assert.equal(first.length, 5);
+    assert.equal(first.length, 7);
     const upgraded = first.find((item) => item.builtin_key === "computer-science-study")!;
     assert.deepEqual(upgraded.orchestration?.assistant_indices, [0,1,2]);
     assert.equal(upgraded.orchestration?.enabled, false);
@@ -112,6 +113,32 @@ test("RC5 pristine official seeds upgrade to v2 while edits, tombstones and proj
     const afterUpgrade = db.rows("project_templates");
     assert.deepEqual(await listTemplates(db, LOCAL_USER_ID), first);
     assert.deepEqual(db.rows("project_templates"), afterUpgrade);
+  } finally {
+    db.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("two Gemma examples import with distinct local assistants, disabled coordinator and no embedded documents", () => {
+  const dir = mkdtempSync(join(tmpdir(), "siaas-gemma-examples-"));
+  const db = new LocalDatabase(dir);
+  try {
+    for (const id of ["pdf-maintenance-acceptance", "spreadsheet-purchase-reconciliation"]) {
+      const preset = BUILTIN_TEMPLATES[id];
+      assert.ok(preset);
+      assert.equal(preset.assistants.length, 2);
+      assert.equal(preset.orchestration?.enabled, false);
+      assert.equal(preset.orchestration?.share_results, false);
+      assert.deepEqual(preset.orchestration?.assistant_indices, [0, 1]);
+      assert(preset.assistants.every(a => a.model === null && a.sources.length === 0));
+      const imported = importLocalTemplate(db, preset);
+      assert.equal(imported.assistantIds.length, 2);
+      assert.notEqual(imported.assistantIds[0], imported.assistantIds[1]);
+      assert.equal(imported.documents.length, 0);
+      assert.deepEqual(imported.project.orchestration.assistant_ids, imported.assistantIds);
+      assert.equal(imported.project.orchestration.enabled, false);
+      assert.equal(imported.project.orchestration.share_results, false);
+    }
   } finally {
     db.close();
     rmSync(dir, { recursive: true, force: true });

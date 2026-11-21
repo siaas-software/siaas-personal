@@ -27,6 +27,8 @@ const assignments = {
   "construction-cost-analysis": "peach",
   "technical-documentation": "lavender",
   "materials-procurement": "aqua",
+  "pdf-maintenance-acceptance": "lavender",
+  "spreadsheet-purchase-reconciliation": "aqua",
 };
 for (const [key, paletteKey] of Object.entries(assignments)) {
   test(`${key}: semantic palette controls card, preview, export and new project`, () => {
@@ -157,7 +159,7 @@ test("upgrade adds construction templates once while preserving saved rows, proj
     );
     const savedTemplates = db.rows("project_templates");
     const templates = await listTemplates(db, LOCAL_USER_ID);
-    assert.equal(templates.length, 6);
+    assert.equal(templates.length, 8);
     for (const row of savedTemplates)
       assert.deepEqual(db.get("project_templates", row.id), row);
     for (const template of templates) {

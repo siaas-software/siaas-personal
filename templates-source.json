@@ -1,17 +1,19 @@
 {
   "repository": "siaas-software/siaas-templates",
-  "ref": "72633621a271c7ced485e97ea1c6753363265d53",
+  "ref": "efcf5304f9754768af97c02bc57ec6487908d2f8",
   "path": "catalog.json",
   "target": "app",
   "output": "src/generated/builtin-templates.json",
-  "catalogSha256": "4e2a27d2606451a8e1555ad096688302175d37235cfbd5e666bc61c0253ba98d",
-  "outputSha256": "465be3d586c8873f2b5591eea94a4d88ae43025ccf1ea5487501b11818bf8416",
+  "catalogSha256": "2a788868a10c8855ff02015699ccc510683c13438ac9e8443c59fa5c74196630",
+  "outputSha256": "2c4e2a80e08843444399f11b5ccce158a053faf3c9f009a7cd70a1411d3f0eab",
   "templateIds": [
     "computer-science-study",
     "production-planning",
     "personal-finance",
     "construction-cost-analysis",
     "technical-documentation",
-    "materials-procurement"
+    "materials-procurement",
+    "pdf-maintenance-acceptance",
+    "spreadsheet-purchase-reconciliation"
   ]
 }

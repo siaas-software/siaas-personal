@@ -40,7 +40,7 @@ try {
     await new Promise(r => setTimeout(r, 100));
   }
   const presets = await api('/api/templates');
-  assert.deepEqual(presets.map(t => t.name), ['Computer Science Study', 'Production Planning', 'Personal Finance', 'Construction Cost Analysis', 'Technical Documentation', 'Materials & Procurement']);
+  assert.deepEqual(presets.map(t => t.name), ['Computer Science Study', 'Production Planning', 'Personal Finance', 'Construction Cost Analysis', 'Technical Documentation', 'Materials & Procurement', 'PDF Maintenance Acceptance Review', 'Spreadsheet Purchase Order Reconciliation']);
   const project = await api('/api/projects', 'POST', { template_id: presets[0].id });
   const workspace = await api('/api/workspace');
   assert.match(workspace.version, /^\d+\.\d+\.\d+/);
@@ -118,7 +118,7 @@ try {
   assert.equal((await request('/api/templates', 'POST', {
     format: 'siaas-project-v1', project: { name: 'Bad key', palette: 'unknown', assistants: [] },
   })).status, 400);
-  console.log('PASS: actual desktop APIs, version metadata, assistant/model persistence, removed export endpoint, 6 presets, source ownership/toggles, portable exports, saved templates, import and legacy compatibility with simulated Ollama discovery.');
+  console.log('PASS: actual desktop APIs, version metadata, assistant/model persistence, removed export endpoint, 8 presets, source ownership/toggles, portable exports, saved templates, import and legacy compatibility with simulated Ollama discovery.');
 } finally {
   server.kill('SIGKILL'); await new Promise(r => server.once('exit', r));
   await new Promise(resolve => ollama.close(resolve));
