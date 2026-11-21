@@ -19,7 +19,14 @@ function run(command, args, cwd, runtime) {
     );
 }
 
-export async function buildSource({ manifest, prepared, stage, source, runtime, emit }) {
+export async function buildSource({
+  manifest,
+  prepared,
+  stage,
+  source,
+  runtime,
+  emit,
+}) {
   const archive = prepared
     ? join(resolve(prepared), "source.zip")
     : join(stage, "source.zip");

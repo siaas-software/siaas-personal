@@ -1,0 +1,25 @@
+✔ known live owned process blocks regardless of arguments (2.027177ms)
+✔ reused PID and stale zombie never query unrelated executable (0.37614ms)
+✔ inaccessible known process fails closed; vanished process is stale (0.799034ms)
+✔ mismatched executable or invalid lease cannot authorize mutation (0.584082ms)
+✔ fresh claimed root does not enumerate any global processes; partial roots refuse (1.534851ms)
+✔ old managed generations without lease protocol fail closed (0.405091ms)
+✔ native Linux lease observes only its owned child and detects exit (309.412665ms)
+✔ managed launch refuses an existing operation lock and cleans its own lock (602.934557ms)
+✔ missing boot identity and numeric birth fields are ambiguous, not stale (1.318341ms)
+✔ cold backup preserves profile files and refuses links (2.47143ms)
+✔ legacy transcript, launch/build arguments, metadata and retained dispatchers match pinned baseline (12314.041174ms)
+✔ interrupted legacy build leaves lock/stage and refuses retry without changing metadata (4026.798471ms)
+✔ platform launcher paths and profile selection match legacy without native app execution (7331.969946ms)
+✔ default roots and status side effects remain unchanged on simulated platforms (3012.406061ms)
+✔ separate stable and candidate roots preserve both registrations and user data (6250.105631ms)
+✔ corrupt prepared inputs fail before build and preserve the active generation (4416.168728ms)
+✔ launcher registration failure restores metadata and leaves the built generation as legacy does (4260.425889ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41869.787217

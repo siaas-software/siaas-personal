@@ -83,12 +83,10 @@ export function LocalStoragePanel() {
 }
 export function LocalKnowledge({
   assistantId,
-  embeddingReady,
   revision,
   onChanged,
 }: {
   assistantId: string;
-  embeddingReady: boolean;
   revision: number;
   onChanged: () => Promise<void>;
 }) {
@@ -134,25 +132,8 @@ export function LocalKnowledge({
       setNotice(result.source.error ?? "Folder unavailable.");
       return;
     }
-    if (!embeddingReady && !result.queued.length) {
-      setNotice(
-        "Sources updated. New documents become available after indexing with the local model.",
-      );
-      return;
-    }
     let failed = 0;
-    const docs = await fetch(`/api/documents?assistant=${assistantId}`).then(
-      (r) => r.json(),
-    );
     for (const id of result.queued) {
-      if (
-        !embeddingReady &&
-        !docs.some(
-          (d: { id: string; kind: string }) =>
-            d.id === id && ["xlsx", "csv"].includes(d.kind),
-        )
-      )
-        continue;
       try {
         const r = await fetch(`/api/documents/${id}/process`, {
           method: "POST",

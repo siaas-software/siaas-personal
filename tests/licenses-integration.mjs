@@ -165,7 +165,7 @@ try {
       .waitFor();
     const ids = ["notices", "siaas", "laya", "morphic", "morphic-notice"];
     for (const [index, id] of ids.entries()) {
-      await reader.getByLabel("Document", { exact: true }).selectOption(id);
+      await reader.getByRole("combobox", { name: /^Document/ }).selectOption(id);
       assert.equal(
         await reader.locator("pre").textContent(),
         documents[index].content,
@@ -199,6 +199,7 @@ try {
     );
     await page.keyboard.press("Escape");
     await page.goto(`${origin}/?lang=it`);
+    await page.getByRole("button", { name: "Open navigation", exact: true }).click();
     await page.getByRole("button", { name: "Settings", exact: true }).click();
     await page
       .getByRole("heading", { name: "Informazioni", exact: true })

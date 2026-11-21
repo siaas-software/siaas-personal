@@ -1,8 +1,10 @@
 const { contextBridge, ipcRenderer } = require("electron");
 // Narrow actions; folder opening accepts directories only. The main process also verifies sender/frame.
 contextBridge.exposeInMainWorld("siaasDesktop", {
-  chooseKnowledgeFolder: () => ipcRenderer.invoke("siaas:choose-knowledge-folder"),
-  openKnowledgeFolder: (path) => ipcRenderer.invoke("siaas:open-knowledge-folder", path),
+  chooseKnowledgeFolder: () =>
+    ipcRenderer.invoke("siaas:choose-knowledge-folder"),
+  openKnowledgeFolder: (path) =>
+    ipcRenderer.invoke("siaas:open-knowledge-folder", path),
   openDataDirectory: () => ipcRenderer.invoke("siaas:open-data-directory"),
   updateState: () => ipcRenderer.invoke("siaas:update-state"),
   checkUpdate: () => ipcRenderer.invoke("siaas:check-update"),

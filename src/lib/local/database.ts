@@ -1,3 +1,4 @@
+import { LEXICAL_PROFILE } from "../catalog";
 import { researchSettingsSchema } from "../research";
 import { migrateExperimentalFeatures } from "../experimental";
 import { DatabaseSync } from "node:sqlite";
@@ -22,6 +23,7 @@ type Result<T = any> = { data: T; error: Error | null; count?: number };
 const tables = [
   "workspaces",
   "projects",
+  "project_runs",
   "project_templates",
   "actions",
   "assistants",
@@ -37,6 +39,7 @@ const profilePattern =
 const relations: Record<Table, Record<string, Table>> = {
   workspaces: {},
   projects: { tenant_id: "workspaces" },
+  project_runs: { tenant_id: "workspaces", project_id: "projects" },
   project_templates: { tenant_id: "workspaces" },
   actions: { tenant_id: "workspaces" },
   assistants: { tenant_id: "workspaces", project_id: "projects" },
@@ -177,6 +180,7 @@ export class LocalDatabase {
   put(table: Table, input: Row, replace = false): Row {
     const defaults: Partial<Record<Table, Row>> = {
       projects: { description: "", template_id: null, color: "#FFFFFF" },
+      project_runs: { status: "running", steps: [], result: null },
       assistants: {
         research: researchSettingsSchema.parse({}),
         description: "",
@@ -295,7 +299,9 @@ export class LocalDatabase {
       );
       return token;
     }
-    if (!profilePattern.test(a.target_profile))
+    const lexical =
+      a.target_profile === LEXICAL_PROFILE && name !== "match_documents_local";
+    if (!lexical && !profilePattern.test(a.target_profile))
       throw new Error("Profilo embedding non valido.");
     if (name === "claim_document_local") {
       const d = this.get("documents", a.target_document);
@@ -328,7 +334,9 @@ export class LocalDatabase {
       if (!Array.isArray(a.chunks) || !a.chunks.length || a.chunks.length > 150)
         throw new Error("Frammenti non validi.");
       for (const c of a.chunks) {
-        validateVector(c.embedding);
+        if (!lexical) validateVector(c.embedding);
+        else if (c.embedding != null)
+          throw new Error("Unexpected embedding for lexical index.");
         if (
           typeof c.content !== "string" ||
           !c.content ||
@@ -450,7 +458,9 @@ export class LocalDatabase {
       id.test(parts[3]) &&
       parts[4] === "documents" &&
       id.test(parts[5]) &&
-      /^[a-zA-Z0-9_][a-zA-Z0-9._ -]*\.(pdf|docx|txt|md|xlsx|csv)$/.test(parts[6])
+      /^[a-zA-Z0-9_][a-zA-Z0-9._ -]*\.(pdf|docx|txt|md|xlsx|csv)$/.test(
+        parts[6],
+      )
     )
       return join(this.directory, ...parts);
     // Legacy paths remain readable if migration was interrupted or a file is missing.

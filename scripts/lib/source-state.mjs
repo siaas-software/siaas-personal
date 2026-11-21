@@ -1,5 +1,12 @@
 // Internal legacy installation state. No adapter protocol or migration semantics.
-import { existsSync, readFileSync, writeFileSync, renameSync, rmSync, readdirSync } from "node:fs";
+import {
+  existsSync,
+  readFileSync,
+  writeFileSync,
+  renameSync,
+  rmSync,
+  readdirSync,
+} from "node:fs";
 import { join, resolve, isAbsolute } from "node:path";
 import { homedir } from "node:os";
 
@@ -69,5 +76,16 @@ export function createSourceState() {
       }
     }
   }
-  return { root, versions, current, lock, managerFile, installed, folder, atomicWrite, snapshot, cleanup };
+  return {
+    root,
+    versions,
+    current,
+    lock,
+    managerFile,
+    installed,
+    folder,
+    atomicWrite,
+    snapshot,
+    cleanup,
+  };
 }

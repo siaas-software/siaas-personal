@@ -1,5 +1,5 @@
 import { z } from "zod";
-import Decimal from "decimal.js";
+import type Decimal from "decimal.js";
 import { performance } from "node:perf_hooks";
 import { profile } from "./profile";
 import {
@@ -10,7 +10,7 @@ import {
   type Value,
   type ColumnType,
 } from "./types";
-const D = Decimal.clone({ precision: 40, rounding: Decimal.ROUND_HALF_EVEN });
+import { AnalysisDecimal as D, binaryDecimal } from "./decimal";
 const name = z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]{0,39}$/);
 const column = z.string().min(1).max(100);
 const operand = z.union([
@@ -342,7 +342,7 @@ export function executePlan(
           const a = value(r, s.left, t),
             b = s.right ? value(r, s.right, t) : null;
           let result: Value = null;
-          if (date)
+          if (s.operator === "month" || s.operator === "year")
             result =
               a === null
                 ? null
@@ -354,17 +354,7 @@ export function executePlan(
             else if (s.operator === "ceil") result = out(x.ceil());
             else if (b !== null) {
               const y = num(b)!;
-              if (s.operator === "divide" && y.isZero())
-                throw new AnalysisError("Division by zero.");
-              result = out(
-                s.operator === "add"
-                  ? x.add(y)
-                  : s.operator === "subtract"
-                    ? x.sub(y)
-                    : s.operator === "multiply"
-                      ? x.mul(y)
-                      : x.div(y),
-              );
+              result = out(binaryDecimal(s.operator, x, y));
             }
           }
           return { ...r, [s.as]: result };
@@ -604,6 +594,7 @@ export function executePlan(
     warnings: [...warnings],
     evidence,
     plan,
+    engineMs: performance.now() - start,
     method:
       "Validated typed operations; decimal arithmetic (40 significant digits, half-even rounding).",
   };

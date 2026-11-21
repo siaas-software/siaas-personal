@@ -28,6 +28,10 @@ export async function verifyRc2Visuals(
     await page
       .getByRole("heading", { name: "Structured Data Analysis", exact: true })
       .waitFor();
+    await page.waitForFunction(expected => {
+      const main = document.querySelector(".project-detail");
+      return main && getComputedStyle(main).backgroundColor === expected;
+    }, rgb);
     assert.equal(
       await page
         .locator(".project-detail")
@@ -87,6 +91,10 @@ export async function verifyRc2Visuals(
       new URL(`/?project=${p.id}&assistant=${a.id}`, page.url()).href,
     );
     await page.locator(".assistant-workbench").waitFor();
+    await page.waitForFunction(expected => {
+      const main = document.querySelector(".project-detail");
+      return main && getComputedStyle(main).backgroundColor === expected;
+    }, rgb);
     assert.equal(
       await page
         .locator(".project-detail")

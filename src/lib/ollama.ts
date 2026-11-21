@@ -150,18 +150,21 @@ export async function ollamaStatus(
     };
   }
 }
-export function requireOllama(modelId: string, request?: typeof fetch): Promise<OllamaRuntime & { agent: AgentEligibility }>;
-export function requireOllama(modelId?: undefined, request?: typeof fetch): Promise<OllamaRuntime & { embeddingProfile: string }>;
+export function requireOllama(
+  modelId: string,
+  request?: typeof fetch,
+): Promise<OllamaRuntime & { agent: AgentEligibility }>;
+export function requireOllama(
+  modelId?: undefined,
+  request?: typeof fetch,
+): Promise<OllamaRuntime & { embeddingProfile: string }>;
 export async function requireOllama(
   modelId?: string,
   request: typeof fetch = fetch,
 ): Promise<OllamaRuntime & { agent?: AgentEligibility }> {
   requireLocalRuntime();
   if (modelId && !isLocalModelId(modelId))
-    throw new OllamaError(
-      400,
-      "Select an Ollama model in assistant settings.",
-    );
+    throw new OllamaError(400, "Select an Ollama model in assistant settings.");
   const runtime = await ollamaStatus(request);
   if (!runtime.connected || (!modelId && !runtime.embeddingProfile))
     throw new OllamaError(503, runtime.message);
@@ -170,7 +173,9 @@ export async function requireOllama(
       503,
       `Modello non installato. Esegui: ollama pull ${modelId.slice(7)}`,
     );
-  const agent = modelId ? await verifyLocalChatModel(modelId, request) : undefined;
+  const agent = modelId
+    ? await verifyLocalChatModel(modelId, request)
+    : undefined;
   return { ...runtime, agent };
 }
 export async function embedLocal(
@@ -202,7 +207,10 @@ export async function embedLocal(
   );
   try {
     const send = isDesktop()
-      ? (await import("./local/inference-telemetry")).monitoredFetch(context, request)
+      ? (await import("./local/inference-telemetry")).monitoredFetch(
+          context,
+          request,
+        )
       : request;
     const response = await send(ollamaURL() + "/api/embed", {
       method: "POST",
@@ -246,6 +254,18 @@ export async function embedLocal(
     );
   }
 }
+export function localChatOutputLimit(
+  value = process.env.SIAAS_CHAT_MAX_OUTPUT_TOKENS,
+) {
+  const parsed = Number(value);
+  return value !== undefined &&
+    Number.isSafeInteger(parsed) &&
+    parsed >= 256 &&
+    parsed <= 1024
+    ? parsed
+    : 768;
+}
+
 export type OllamaMessage = {
   role: "system" | "user" | "assistant";
   content: string;
@@ -254,6 +274,7 @@ const streamEvent = z.object({
   error: z.string().optional(),
   message: z.object({ content: z.string() }).optional(),
   done: z.boolean().optional(),
+  done_reason: z.string().optional(),
   prompt_eval_count: z.number().int().nonnegative().optional(),
   eval_count: z.number().int().nonnegative().optional(),
 });
@@ -262,17 +283,25 @@ export async function* streamLocal(
   messages: OllamaMessage[],
   request: typeof fetch = fetch,
   context: InferenceContext = {},
+  signal?: AbortSignal,
 ) {
   requireLocalRuntime();
   if (!isLocalModelId(modelId))
     throw new OllamaError(400, "Invalid local model.");
   const send = isDesktop()
-    ? (await import("./local/inference-telemetry")).monitoredFetch(context, request)
+    ? (await import("./local/inference-telemetry")).monitoredFetch(
+        context,
+        request,
+      )
     : request;
+  const outputLimit = localChatOutputLimit();
   const response = await send(ollamaURL() + "/api/chat", {
     method: "POST",
     redirect: "error",
-    signal: AbortSignal.timeout(180_000),
+    // Transport and telemetry must observe the same cancellation/deadline.
+    signal: signal
+      ? AbortSignal.any([signal, AbortSignal.timeout(180_000)])
+      : AbortSignal.timeout(180_000),
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       model: modelId.slice(7),
@@ -280,7 +309,7 @@ export async function* streamLocal(
       stream: true,
       think: false,
       keep_alive: 0,
-      options: { num_ctx: 4096, num_predict: 768, temperature: 0.2 },
+      options: { num_ctx: 4096, num_predict: outputLimit, temperature: 0.2 },
     }),
   });
   if (!response.ok || !response.body)
@@ -319,6 +348,10 @@ export async function* streamLocal(
             type: "done" as const,
             inputTokens: event.prompt_eval_count ?? 0,
             outputTokens: event.eval_count ?? 0,
+            truncated:
+              event.done_reason === "length" ||
+              (event.done_reason === undefined &&
+                (event.eval_count ?? 0) >= outputLimit),
           };
           return;
         }

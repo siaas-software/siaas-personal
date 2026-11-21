@@ -128,6 +128,14 @@ there is no unconstrained second model explanation that can contradict the table
 General conversation and document-only requests use the existing chat/RAG flow.
 Invalid model plans cannot generate fallback totals.
 
+## Slow local models and incomplete replies
+
+The structured planner uses Ollama only when a local deterministic route does not match. It keeps a strict, read-only JSON plan schema and never substitutes guessed totals for failed planning. Its default request deadline is 120 seconds; the optional server environment setting `SIAAS_STRUCTURED_PLANNER_TIMEOUT_MS` accepts integer values from 30000 to 180000 milliseconds. Missing or out-of-range values use the default. The deadline applies to both the Ollama request and reading its response. A timeout produces no calculation; use the model-free Query editor for verified totals.
+
+Ordinary local chat defaults to at most 768 generated tokens. `SIAAS_CHAT_MAX_OUTPUT_TOKENS` accepts integer values from 256 to 1024; out-of-range values use 768. These environment variables must be configured **before** launching the desktop application/server and are not dynamic chat commands. Higher limits can make responses much slower on CPU-only machines and do not guarantee completion.
+
+When Ollama explicitly reports `done_reason: "length"`, or when it omits the reason and reports at least the configured token limit, SIAAS treats the visible answer as **incomplete** instead of a successfully completed generation. It preserves the partial answer and token counts, displays a warning, and records an interrupted message. A model may still produce an incomplete answer for other reasons; reaching the configured limit is a conservative observable signal, not an assessment of correctness. These chat safeguards do not alter model-free deterministic calculations or any source data.
+
 ## Official templates
 
 Both templates are shipped in the generated offline catalog pinned to the

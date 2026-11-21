@@ -48,15 +48,16 @@ await build({
   platform: "node",
   target: "node24",
   format: "cjs",
-  external: [
-    "electron",
-    "./ollama-manager.cjs",
-    "./updates.cjs",
-  ],
+  external: ["electron", "./ollama-manager.cjs", "./updates.cjs"],
   legalComments: "eof",
 });
 await mkdir(".desktop/resources/branding", { recursive: true });
-for (const icon of ["icon.png", "icon.ico", "icon.icns", "icon-provenance.json"])
+for (const icon of [
+  "icon.png",
+  "icon.ico",
+  "icon.icns",
+  "icon-provenance.json",
+])
   await cp(join("build", icon), join(".desktop/resources/branding", icon));
 await mkdir(".desktop/resources/helpers", { recursive: true });
 await cp(

@@ -1,24 +1,19 @@
-import { actionInvocation } from "@/lib/actions";
-import { getAction } from "@/lib/local/actions";
-import {
-  prepareAssistantResearch,
-  researchLimitations,
-} from "@/lib/local/assistant-research";
 import { randomUUID } from "node:crypto";
 import { after } from "next/server";
 import { z } from "zod";
 import { localWorkspace, fail, HttpError, jsonBody, uuid } from "@/lib/http";
+import { localIntent } from "@/lib/local/chat-router";
+import { getAction } from "@/lib/local/actions";
 import {
-  requireOllama,
-  streamLocal,
-  OllamaError,
-  type OllamaMessage,
-} from "@/lib/ollama";
-import { isDesktop } from "@/lib/runtime";
-import { ragPrompt } from "@/lib/rag";
-import type { Source } from "@/lib/catalog";
+  executeAssistantTask,
+  type AssistantExecutionEvent,
+} from "@/lib/local/assistant-execution";
+import { OllamaError } from "@/lib/ollama";
+import type { Assistant, Source } from "@/lib/catalog";
+
 export const runtime = "nodejs";
 export const maxDuration = 300;
+
 export async function POST(req: Request) {
   try {
     const { db, tenantId } = await localWorkspace(req);
@@ -30,32 +25,34 @@ export async function POST(req: Request) {
         question: z.string().trim().min(1).max(1800),
       })
       .parse(await jsonBody(req, 30_000));
-    const { data: conversation } = await db
+    const { data: conversation, error: cError } = await db
       .from("conversations")
       .select("*")
       .eq("id", conversation_id)
+      .eq("tenant_id", tenantId)
       .maybeSingle();
+    if (cError) throw cError;
     if (!conversation) throw new HttpError(404, "Conversazione non trovata.");
-    const { data: assistant } = await db
+    const { data: assistant, error: aError } = await db
       .from("assistants")
       .select("*")
       .eq("id", conversation.assistant_id)
-      .single();
+      .eq("tenant_id", tenantId)
+      .maybeSingle();
+    if (aError) throw aError;
     if (!assistant) throw new HttpError(404, "Assistente non trovato.");
-    if (!assistant.model_id)
-      throw new HttpError(
-        409,
-        "Scegli prima un modello per questo assistente.",
-      );
     const action = action_id ? getAction(db, action_id) : undefined;
-    const invocation = actionInvocation(question, action);
-    const inferenceContext = {
-      assistantId: assistant.id,
-      projectId: assistant.project_id,
-      conversationId: conversation_id,
-    };
-    const runtime = await requireOllama(assistant.model_id);
-    const useAgent = isDesktop() && runtime.agent.enabled;
+    if (
+      !assistant.model_id &&
+      !(action?.kind === "builtin" && action.execution === "native") &&
+      !(action === undefined && localIntent(question))
+    )
+      throw new OllamaError(
+        409,
+        language === "it"
+          ? "Questa richiesta richiede un modello locale oppure una domanda più specifica. Scrivi /aiuto."
+          : "This request needs a local model or a more specific question. Type /help.",
+      );
     const { count, error: countError } = await db
       .from("messages")
       .select("id", { count: "exact", head: true })
@@ -106,7 +103,6 @@ export async function POST(req: Request) {
           role: "assistant",
           status: "pending",
           model_id: assistant.model_id,
-          ...(isDesktop() ? { agent_mode: useAgent } : {}),
           created_at: new Date(Date.now() + 1).toISOString(),
         },
       ]);
@@ -133,245 +129,103 @@ export async function POST(req: Request) {
           };
           task = (async () => {
             let text = "";
+            let sources: Source[] = [];
+            let savedAt = Date.now();
             try {
-              send({ type: "start", id: responseId, agent_mode: useAgent });
-              let sources: Source[] = [];
-              let inputTokens = 0,
-                outputTokens = 0;
-              const { structuredChat } = await import("@/lib/structured/chat");
-              const structured = await structuredChat({
+              const result = await executeAssistantTask({
                 db,
-                assistantId: assistant.id,
-                modelId: assistant.model_id,
-                question: invocation,
-                instructions: assistant.instructions,
-                embeddingProfile: runtime.embeddingProfile,
+                assistant: assistant as Assistant,
+                question,
+                action,
+                language,
+                history: prior.map((message) => ({
+                  role: message.role as "user" | "assistant",
+                  content: message.content,
+                })),
+                conversationId: conversation_id,
                 signal: AbortSignal.any([agentAbort.signal, req.signal]),
-                emit(delta) {
-                  text += delta;
-                  send({ type: "delta", text: delta });
+                emit(event: AssistantExecutionEvent) {
+                  if (event.type === "delta" && typeof event.text === "string")
+                    text += event.text;
+                  if (event.type === "sources" && Array.isArray(event.sources))
+                    sources = event.sources as Source[];
+                  send(
+                    event.type === "start"
+                      ? { ...event, id: responseId }
+                      : event,
+                  );
+                  if (
+                    event.type === "steps" ||
+                    event.type === "research" ||
+                    event.type === "artifacts" ||
+                    Date.now() - savedAt > 1500
+                  ) {
+                    const current = db.get("messages", responseId);
+                    if (!current) throw new Error("Conversation removed");
+                    db.put(
+                      "messages",
+                      {
+                        ...current,
+                        content: text,
+                        sources,
+                        ...(event.type === "steps"
+                          ? { agent_steps: event.steps }
+                          : {}),
+                        ...(event.type === "research"
+                          ? {
+                              research_warnings: event.warnings,
+                              research_missing: event.missing,
+                            }
+                          : {}),
+                        ...(event.type === "artifacts"
+                          ? { artifacts: event.artifacts }
+                          : {}),
+                      },
+                      true,
+                    );
+                    savedAt = Date.now();
+                  }
+                },
+                async saveArtifacts(artifacts) {
+                  const current = db.get("messages", responseId);
+                  if (!current) throw new Error("Conversation removed");
+                  db.put("messages", { ...current, artifacts }, true);
                 },
               });
-              if (structured) {
-                sources = structured.sources;
-                send({ type: "sources", sources });
-                if (structured.result) {
-                  const artifacts = [
-                    {
-                      id: randomUUID(),
-                      title: "Structured Data Analysis",
-                      content: structured.content,
-                    },
-                  ];
-                  await db
-                    .from("messages")
-                    .update({
-                      structured_analysis: structured.result,
-                      artifacts,
-                    })
-                    .eq("id", responseId);
-                  send({ type: "artifacts", artifacts });
-                }
-              } else {
-                const research = await prepareAssistantResearch({
-                  db,
-                  assistantId: assistant.id,
-                  modelId: assistant.model_id,
-                  question,
-                  embeddingProfile: runtime.embeddingProfile,
-                  conversationId: conversation_id,
-                  language,
-                  signal: AbortSignal.any([
-                    agentAbort.signal,
-                    req.signal,
-                    AbortSignal.timeout(240_000),
-                  ]),
-                  emit(event) {
-                    if (event.type === "sources") sources = event.sources;
-                    send(event);
-                    if (
-                      event.type === "sources" ||
-                      event.type === "steps" ||
-                      event.type === "research"
-                    ) {
-                      const current = db.get("messages", responseId);
-                      if (!current) throw new Error("Conversation removed");
-                      db.put(
-                        "messages",
-                        {
-                          ...current,
-                          sources,
-                          ...(event.type === "steps"
-                            ? { agent_steps: event.steps }
-                            : {}),
-                          ...(event.type === "research"
-                            ? {
-                                research_warnings: event.warnings,
-                                research_missing: event.missing,
-                              }
-                            : {}),
-                        },
-                        true,
-                      );
-                    }
-                  },
-                });
-                sources = research.sources;
-                if (useAgent) {
-                  const [{ runLocalAgent }, { localDatabase }] =
-                    await Promise.all([
-                      import("@/lib/local/agent"),
-                      import("@/lib/local/database"),
-                    ]);
-                  const local = localDatabase();
-                  let savedAt = Date.now();
-                  const result = await runLocalAgent({
-                    db: local,
-                    language,
-                    preparedResearch: research,
-                    assistantId: assistant.id,
-                    conversationId: conversation_id,
-                    modelId: assistant.model_id,
-                    instructions: assistant.instructions,
-                    question: invocation,
-                    history: prior.map((message) => ({
-                      role: message.role as "user" | "assistant",
-                      content: message.content,
-                    })),
-                    embeddingProfile: runtime.embeddingProfile,
-                    signal: AbortSignal.any([
-                      agentAbort.signal,
-                      req.signal,
-                      AbortSignal.timeout(240_000),
-                    ]),
-                    emit(event) {
-                      if (event.type === "delta") text += event.text;
-                      if (event.type === "sources") sources = event.sources;
-                      send(event);
-                      if (
-                        event.type === "steps" ||
-                        event.type === "research" ||
-                        Date.now() - savedAt > 1500
-                      ) {
-                        const current = local.get("messages", responseId);
-                        if (!current) throw new Error("Conversation removed");
-                        local.put(
-                          "messages",
-                          {
-                            ...current,
-                            content: text,
-                            sources,
-                            ...(event.type === "steps"
-                              ? { agent_steps: event.steps }
-                              : {}),
-                            ...(event.type === "research"
-                              ? {
-                                  research_warnings: event.warnings,
-                                  research_missing: event.missing,
-                                }
-                              : {}),
-                          },
-                          true,
-                        );
-                        savedAt = Date.now();
-                      }
-                    },
-                    async saveArtifacts(artifacts) {
-                      const current = local.get("messages", responseId);
-                      if (!current) throw new Error("Conversation removed");
-                      local.put("messages", { ...current, artifacts }, true);
-                    },
-                  });
-                  sources = result.sources;
-                  inputTokens = result.inputTokens;
-                  outputTokens = result.outputTokens;
-                  if (!text.trim()) throw new Error("Empty generation");
-                } else {
-                  const { error: sError } = await db
-                    .from("messages")
-                    .update({ sources })
-                    .eq("id", responseId);
-                  if (sError) throw sError;
-                  send({ type: "sources", sources });
-                  {
-                    const messages: OllamaMessage[] = [
-                      {
-                        role: "system",
-                        content:
-                          (sources.length
-                            ? ragPrompt(
-                                assistant.instructions.slice(0, 1000),
-                                // Bound the model context; full sources remain in SQLite and the UI.
-                                sources.map((source) => ({
-                                  ...source,
-                                  title: source.title.slice(0, 100),
-                                  url: undefined,
-                                  content: source.content.slice(
-                                    0,
-                                    Math.floor(
-                                      5000 / Math.max(1, sources.length),
-                                    ),
-                                  ),
-                                })),
-                              )
-                            : assistant.instructions.slice(0, 1000) ||
-                              "You are a helpful assistant.") +
-                          "\nFollow the user request and assistant instructions. General conversation and standalone arithmetic do not require Knowledge. For claims about private documents or datasets, use verified evidence and never invent results." +
-                          researchLimitations(research),
-                      },
-                      ...prior.slice(-2).map((m) => ({
-                        role: m.role as "user" | "assistant",
-                        content: m.content.slice(0, 400),
-                      })),
-                      { role: "user", content: invocation },
-                    ];
-                    let savedAt = Date.now();
-                    for await (const event of streamLocal(
-                      assistant.model_id,
-                      messages,
-                      (url, init) =>
-                        fetch(url, {
-                          ...init,
-                          signal: AbortSignal.any([
-                            agentAbort.signal,
-                            req.signal,
-                            ...(init?.signal ? [init.signal] : []),
-                          ]),
-                        }),
-                      inferenceContext,
-                    )) {
-                      if (event.type === "done") {
-                        inputTokens = event.inputTokens;
-                        outputTokens = event.outputTokens;
-                        continue;
-                      }
-                      text += event.text;
-                      send({ type: "delta", text: event.text });
-                      if (Date.now() - savedAt > 1500) {
-                        const { error: pError } = await db
-                          .from("messages")
-                          .update({ content: text })
-                          .eq("id", responseId);
-                        if (pError) throw pError;
-                        savedAt = Date.now();
-                      }
-                    }
-                    if (!text.trim()) throw new Error("Empty generation");
-                  }
-                }
-              }
               const { error: saveError } = await db
                 .from("messages")
                 .update({
-                  content: text,
-                  status: "complete",
-                  sources,
-                  input_tokens: inputTokens,
-                  output_tokens: outputTokens,
+                  content: result.text || result.error || "",
+                  status: result.status,
+                  error: result.error,
+                  sources: result.sources,
+                  ...(result.artifacts.length
+                    ? { artifacts: result.artifacts }
+                    : {}),
+                  ...(result.structuredAnalysis
+                    ? { structured_analysis: result.structuredAnalysis }
+                    : {}),
+                  agent_mode: result.agentMode,
+                  execution_path: result.executionPath,
+                  model_id: [
+                    "native-action",
+                    "arithmetic",
+                    "structured",
+                    "document",
+                    "website",
+                    "help",
+                    "clarify",
+                  ].includes(result.executionPath)
+                    ? null
+                    : assistant.model_id,
+                  input_tokens: result.inputTokens,
+                  output_tokens: result.outputTokens,
                 })
                 .eq("id", responseId);
               if (saveError) throw saveError;
-              send({ type: "done", id: responseId });
+              if (result.status === "error")
+                send({ type: "error", error: result.error, id: responseId });
+              else send({ type: "done", id: responseId });
             } catch (error) {
               const message =
                 error instanceof OllamaError

@@ -27,7 +27,10 @@ const escape = (value: unknown) =>
   String(value ?? "∅")
     .replace(/[|\r\n]/g, " ")
     .replace(/[<>]/g, "");
-export function analysisMarkdown(result: AnalysisResult) {
+export function analysisMarkdown(
+  result: AnalysisResult,
+  includeEvidence = true,
+) {
   const cols = result.columns.map((c) => c.id);
   const table = [
     `| ${result.columns.map((c) => escape(c.name)).join(" | ")} |`,
@@ -54,10 +57,43 @@ export function analysisMarkdown(result: AnalysisResult) {
     `${result.totalRows} result rows${result.truncated ? `; showing ${result.rows.length}` : ""}. ∅ means missing, not zero.`,
     result.warnings.map((w) => `- ${w}`).join("\n"),
     `Calculation method: ${result.method}`,
-    "Sources and applied operations:",
-    "```json",
-    JSON.stringify(result.evidence, null, 2),
-    "```",
+    ...(includeEvidence
+      ? [
+          "Sources and applied operations:",
+          "```json",
+          JSON.stringify(result.evidence, null, 2),
+          "```",
+        ]
+      : result.evidence.map((item, index) => {
+          const source = item as {
+            filename: string;
+            worksheet: string;
+            columns: { id: string; name: string }[];
+          };
+          const stage = result.plan.stages[index];
+          const filters = stage.steps.flatMap((step) => {
+            if (step.op !== "filter") return [];
+            const column =
+              source.columns.find((c) => c.id === step.column)?.name ??
+              step.column;
+            const value =
+              step.value &&
+              ("value" in step.value ? step.value.value : step.value.column);
+            return [
+              escape(column) +
+                " " +
+                step.comparison +
+                (value === undefined ? "" : " " + escape(value)),
+            ];
+          });
+          return [
+            "Source: " +
+              escape(source.filename) +
+              " / " +
+              escape(source.worksheet),
+            ...filters,
+          ].join(" · ");
+        })),
     "",
   ].join("\n\n");
 }

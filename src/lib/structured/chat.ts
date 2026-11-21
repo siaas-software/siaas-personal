@@ -1,3 +1,4 @@
+import { requestsDatasetCalculation } from "../local/chat-router";
 import type { LocalDatabase } from "../local/database";
 import { retrieveAssistantSources } from "../local/assistant-research";
 import { isGeneralRequest } from "./routing";
@@ -16,12 +17,18 @@ export async function structuredChat(options: {
   signal: AbortSignal;
   emit: (text: string) => void;
   request?: typeof fetch;
+  onUsage?: (input: number | null, output: number | null) => void;
 }) {
   if (
     isGeneralRequest(options.question) ||
     !datasets(options.db, options.assistantId).length
-  )
-    return null;
+  ) {
+    if (!requestsDatasetCalculation(options.question)) return null;
+    const content =
+      "No available dataset for this calculation. Check the file and its mapping.";
+    options.emit(content);
+    return { content, sources: [], result: null };
+  }
   let planning;
   try {
     planning = await planQuestion(
@@ -31,6 +38,7 @@ export async function structuredChat(options: {
       options.question,
       options.signal,
       options.request,
+      options.onUsage,
     );
   } catch (e) {
     options.signal.throwIfAborted();
@@ -41,7 +49,13 @@ export async function structuredChat(options: {
     options.emit(content);
     return { content, sources: [], result: null };
   }
-  if (planning.status === "narrative") return null;
+  if (planning.status === "narrative") {
+    if (!requestsDatasetCalculation(options.question)) return null;
+    const content =
+      "Specify the dataset, column and operation. No calculation was executed.";
+    options.emit(content);
+    return { content, sources: [], result: null };
+  }
   if (planning.status === "clarify") {
     // Model-authored explanations can falsely deny real columns/values. Show
     // authoritative schema facts instead of presenting those claims as evidence.
@@ -67,7 +81,7 @@ export async function structuredChat(options: {
     options.emit(content);
     return { content, sources: [], result: null };
   }
-  let content = analysisMarkdown(result);
+  let content = analysisMarkdown(result, false);
   options.emit(content);
   // Descriptive evidence stays separate from verified calculations. An
   // unconstrained second model answer cannot revise or contradict the results.

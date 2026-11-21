@@ -1,0 +1,30 @@
+
+> siaas-personal@1.1.0-rc.4 test:ui
+> node tests/ui-smoke.mjs
+
+PASS: first guest load, actual SQLite write, account-free updates UI, preserved data, reload and local API protection.
+▲ Next.js 16.4.3
+- Local:         http://127.0.0.1:46855
+- Network:       http://127.0.0.1:46855
+✓ Ready in 0ms
+✓ Running next.config took 48ms
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+1 !== 0
+
+    at file:///workspace/siaas-personal/tests/project-flows.mjs:189:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.0

@@ -1,7 +1,17 @@
 // Source distribution manager. Renderer access remains behind the native update confirmation.
-import { mkdirSync, readFileSync, writeFileSync, renameSync, rmSync } from "node:fs";
+import {
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+  renameSync,
+  rmSync,
+} from "node:fs";
 import { join } from "node:path";
-import { resolveManifest, validateManifest, compareVersions } from "./lib/distribution.mjs";
+import {
+  resolveManifest,
+  validateManifest,
+  compareVersions,
+} from "./lib/distribution.mjs";
 import { provisionRuntime, verifyRuntime } from "./lib/managed-runtime.mjs";
 import { createSourceState } from "./lib/source-state.mjs";
 import { createSourceDesktop, executable } from "./lib/source-desktop.mjs";
@@ -11,7 +21,18 @@ const action = process.argv[2];
 const cliInstallOnly = action === "install-cli" || action === "update-cli";
 const cliManaged = cliInstallOnly || action === "uninstall-cli";
 const state = createSourceState();
-const { root, versions, current, lock, managerFile, installed, folder, atomicWrite, snapshot, cleanup } = state;
+const {
+  root,
+  versions,
+  current,
+  lock,
+  managerFile,
+  installed,
+  folder,
+  atomicWrite,
+  snapshot,
+  cleanup,
+} = state;
 const { launcherFile, launcher, launch } = createSourceDesktop(state);
 const emit = (phase, message) =>
   console.log("SIAAS_PROGRESS " + JSON.stringify({ phase, message }));
@@ -34,8 +55,14 @@ async function install() {
       : await resolveManifest(process.platform, process.arch),
   );
   const old = installed();
-  if (cliInstallOnly && old && old.cliManaged !== 1) throw Error("Unmanaged installation; adoption refused.");
-  if (cliInstallOnly && old && old.version.includes("-rc.") !== manifest.version.includes("-rc.")) throw Error("Channel switch refused.");
+  if (cliInstallOnly && old && old.cliManaged !== 1)
+    throw Error("Unmanaged installation; adoption refused.");
+  if (
+    cliInstallOnly &&
+    old &&
+    old.version.includes("-rc.") !== manifest.version.includes("-rc.")
+  )
+    throw Error("Channel switch refused.");
   if (old && newer(old.version, manifest.version))
     throw Error(
       "The public release is older than the installed version. Use rollback explicitly; automatic downgrade is refused.",
@@ -59,8 +86,10 @@ async function install() {
     renameSync(source, dest);
     const next = {
       version: manifest.version,
-      ...(cliInstallOnly ? {cliManaged:1,instanceProtocol:1} : {}),
-      ...((cliInstallOnly || old?.profile || manifest.version.includes("-rc.")) ? { profile: old?.profile || join(root, "profile") } : {}),
+      ...(cliInstallOnly ? { cliManaged: 1, instanceProtocol: 1 } : {}),
+      ...(cliInstallOnly || old?.profile || manifest.version.includes("-rc.")
+        ? { profile: old?.profile || join(root, "profile") }
+        : {}),
       tag: "v" + manifest.version,
       folder: id,
       runtime,
@@ -95,24 +124,45 @@ try {
     cleanup(next);
     emit("completed", "Activated SIAAS Personal " + manifest.version);
     if (!cliInstallOnly) await launch(next);
-    else console.log(JSON.stringify({ schemaVersion: 1, operation: action, version: manifest.version, launched: false }));
+    else
+      console.log(
+        JSON.stringify({
+          schemaVersion: 1,
+          operation: action,
+          version: manifest.version,
+          launched: false,
+        }),
+      );
   } finally {
     rmSync(stage, { recursive: true, force: true });
   }
 }
 async function main() {
   if (cliManaged) {
-    if (process.platform !== "linux" || process.arch !== "x64") throw Error("CLI lifecycle native acceptance unavailable on this target.");
+    if (process.platform !== "linux" || process.arch !== "x64")
+      throw Error(
+        "CLI lifecycle native acceptance unavailable on this target.",
+      );
     if (action === "uninstall-cli") {
-      if (process.argv.length !== 3) throw Error("Unexpected uninstall arguments.");
+      if (process.argv.length !== 3)
+        throw Error("Unexpected uninstall arguments.");
       const item = installed();
-      if (item && item.cliManaged !== 1) throw Error("Unmanaged installation; adoption refused.");
+      if (item && item.cliManaged !== 1)
+        throw Error("Unmanaged installation; adoption refused.");
     }
   }
   if (cliInstallOnly) {
     const argv = process.argv.slice(3);
-    if (argv.length !== 4 || argv[0] !== "--prepared" || argv[2] !== "--manifest" || !argv[1] || !argv[3])
-      throw Error("CLI-managed installation requires explicit prepared source and manifest.");
+    if (
+      argv.length !== 4 ||
+      argv[0] !== "--prepared" ||
+      argv[2] !== "--manifest" ||
+      !argv[1] ||
+      !argv[3]
+    )
+      throw Error(
+        "CLI-managed installation requires explicit prepared source and manifest.",
+      );
     if (action === "update-cli" && !installed())
       throw Error("No existing installation to update.");
   }
@@ -138,9 +188,16 @@ async function main() {
     return;
   }
   if (
-    !["install", "update", "install-cli", "update-cli", "uninstall-cli", "update-detached", "rollback", "uninstall"].includes(
-      action,
-    )
+    ![
+      "install",
+      "update",
+      "install-cli",
+      "update-cli",
+      "uninstall-cli",
+      "update-detached",
+      "rollback",
+      "uninstall",
+    ].includes(action)
   )
     throw Error(
       "Expected install, update, check, launch, rollback, status or uninstall.",
@@ -157,8 +214,11 @@ async function main() {
   try {
     if (cliManaged) {
       const { requireStopped } = await import("./lib/cli-quiescence.mjs");
-      requireStopped(root,installed());
-      if(action==="update-cli"){const {coldBackup}=await import("./lib/cli-profile.mjs");coldBackup(root);}
+      requireStopped(root, installed());
+      if (action === "update-cli") {
+        const { coldBackup } = await import("./lib/cli-profile.mjs");
+        coldBackup(root);
+      }
     }
     if (action === "rollback") {
       const i = installed();
@@ -181,13 +241,21 @@ async function main() {
     if (action === "uninstall-cli") {
       // Linux permits unlinking this running private Node image. No profile or
       // backup directory is in this explicit software-removal list.
-      if(installed()) {
-        rmSync(launcherFile(),{force:true});
-        for(const name of ['versions','runtimes','build-home'])rmSync(join(root,name),{recursive:true,force:true});
-        for(const name of ['source-manager.mjs','runtime-path','instance.json'])rmSync(join(root,name),{force:true});
-        rmSync(current,{force:true});
+      if (installed()) {
+        rmSync(launcherFile(), { force: true });
+        for (const name of ["versions", "runtimes", "build-home"])
+          rmSync(join(root, name), { recursive: true, force: true });
+        for (const name of [
+          "source-manager.mjs",
+          "runtime-path",
+          "instance.json",
+        ])
+          rmSync(join(root, name), { force: true });
+        rmSync(current, { force: true });
       }
-      console.log('Owned Personal software removed; profiles and backups preserved.');
+      console.log(
+        "Owned Personal software removed; profiles and backups preserved.",
+      );
       return;
     }
     if (action === "uninstall") {

@@ -1,0 +1,44 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> siaas-personal@1.1.0-rc.5 test:research
+> node --import tsx --test tests/research*.test.ts tests/morphic.test.mjs tests/morphic-http.test.mjs tests/research-lifecycle.test.mjs tests/docker-prerequisites.test.mjs
+
+✔ missing Docker produces actionable OS-specific errors without starting or installing it (4.056781ms)
+✔ missing Compose and stopped daemon are distinguished (0.708269ms)
+✔ process execution failures and timeouts have friendly diagnostics (0.346764ms)
+✔ healthy Docker probes only prerequisites (0.372154ms)
+✔ unsupported Docker capability: windows (0.535228ms)
+✔ unsupported Docker capability: old (0.387454ms)
+✔ unsupported Docker capability: architecture (0.275694ms)
+✔ unsupported Docker capability: invalid (0.37825ms)
+✔ async detection distinguishes permission, missing CLI, Compose and stopped Engine without any mutations (0.645216ms)
+✔ Morphic HTTP authentication, dependency health, timeout, recovery and process restart (10037.295824ms)
+✔ real Morphic ToolLoopAgent and Ollama provider execute tools through the versioned adapter (52.909975ms)
+✔ Morphic refuses Ollama cloud models before inference or search (1.993264ms)
+✔ Morphic returns page evidence, enforces budgets and prevents arbitrary fetches (3.647118ms)
+✔ engine snippets are never returned as evidence; errors preserve pages (3.434412ms)
+✔ explicit domain restrictions are enforced on results and forwarded query is redacted (2.141239ms)
+✔ oversized service responses and pre-aborted requests terminate without evidence (3.103596ms)
+✔ reasoning setup preserves legacy token during data-directory migration and targets only its service (1231.24593ms)
+✔ standard workflow always consults configured websites when local coverage is incomplete, without either Beta (41.507175ms)
+✔ deterministic local coverage avoids website requests without Docker, while fresh information forces configured consultation (19.804757ms)
+✔ greetings and explicit local-only requests never trigger website or generic Internet requests (4.082699ms)
+✔ standard consultation precedes optional reasoning and web fallback, preserving all source order and citations (2.222959ms)
+✔ assistant OFF and global OFF independently prevent arbitrary Internet search (1.692243ms)
+✔ reasoning is independent of assistant discovery; web still works when reasoning is off or fails (6.101432ms)
+✔ sufficient reasoning stops generic search after standard source consultation (2.005521ms)
+✔ Docker/service failures and partial discovery retain document and website evidence with warnings (3.172314ms)
+✔ bounded one-hop section crawl stays within configured paths and reserves optional discovery budget (1.509766ms)
+✔ invalid generic evidence is excluded without losing standard sources; cancellation propagates (1.576153ms)
+✔ legacy migration removes exclusive modes without granting Beta or new website consent (1.517866ms)
+✔ privacy: external query contains only the current public question and never documents, source titles or history (1.482385ms)
+✔ local retrieval works for every saved legacy mode and isolates assistant documents even without embeddings (24.049318ms)
+✔ URL policy enforces exact origins, paths, credentials, ports and encoded boundaries (9.499808ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10362.417913

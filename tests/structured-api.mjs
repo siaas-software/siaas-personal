@@ -8,10 +8,12 @@ import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import ExcelJS from "exceljs";
+let ollamaRequests = 0;
 let answerPlan,
   plannerMode = "query",
   plannerRequests = 0;
 const ollama = createServer(async (req, res) => {
+  ollamaRequests++;
   let text = "";
   for await (const c of req) text += c;
   const body = text ? JSON.parse(text) : {};
@@ -138,7 +140,7 @@ try {
         SIAAS_DESKTOP_DEV: "0",
         SIAAS_DESKTOP_KEY: key,
         SIAAS_DESKTOP_ORIGIN: origin,
-        SIAAS_DATA_DIR: directory,
+        SIAAS_DATA_DIR: join(directory, "profile"),
         OLLAMA_BASE_URL: `http://127.0.0.1:${ollama.address().port}`,
         VERCEL: "0",
         NEXT_TELEMETRY_DISABLED: "1",
@@ -182,6 +184,11 @@ try {
   assert.equal(production.model_id, null);
   assert.equal(finance.model_id, null);
   assert.equal(workspace.aiReady, false);
+  if (process.argv.includes("--hybrid")) {
+    const { checkHybridChat } = await import("./hybrid-chat-checks.mjs");
+    if (process.argv.includes("--offline")) await new Promise(done => ollama.close(done));
+    await checkHybridChat({ api, upload, origin, headers, finance, production, directory, serverPid:server.pid, requests: () => ollamaRequests });
+  } else {
   const ordersDoc = await upload(
     production.id,
     "orders.csv",
@@ -356,7 +363,7 @@ try {
     { assistant_id: production.id },
     201,
   );
-  async function chat(question) {
+  async function chat(question, expectedError = false) {
     const response = await fetch(origin + "/api/chat", {
       method: "POST",
       headers,
@@ -364,7 +371,7 @@ try {
     });
     assert(response.ok);
     const events = (await response.text()).trim().split("\n").map(JSON.parse);
-    assert(!events.some((e) => e.type === "error"), JSON.stringify(events));
+    assert.equal(events.some((e) => e.type === "error"), expectedError, JSON.stringify(events));
     return events;
   }
   const events = await chat(
@@ -376,7 +383,7 @@ try {
       .filter((e) => e.type === "delta")
       .map((e) => e.text)
       .join("")
-      .includes("Sources and applied operations"),
+      .includes("orders.csv"),
   );
   const history = await api(`/api/conversations/${conversation.id}`);
   const message = history.messages.find((m) => m.role === "assistant");
@@ -384,6 +391,7 @@ try {
   assert.equal(message.status, "complete");
   assert(message.artifacts[0].content.includes("orders.csv"));
   assert.equal(plannerRequests, 1);
+  const beforeArithmetic = ollamaRequests;
   const generalEvents = await chat("Quanto fa 2 + 2?");
   assert.equal(
     generalEvents
@@ -397,8 +405,9 @@ try {
     1,
     "general arithmetic must bypass structured planner",
   );
+  assert.equal(ollamaRequests, beforeArithmetic, "no Ollama probe with a configured model");
   plannerMode = "invalid";
-  const invalid = await chat("Calculate again");
+  const invalid = await chat("Calculate again", true);
   assert(
     invalid
       .filter((e) => e.type === "delta")
@@ -407,7 +416,7 @@ try {
       .includes("invalid plan"),
   );
   plannerMode = "clarify";
-  const unsupported = await chat("Find the optimal production schedule");
+  const unsupported = await chat("Find the optimal production schedule", true);
   assert(
     unsupported
       .filter((e) => e.type === "delta")
@@ -439,17 +448,7 @@ try {
     page.on("pageerror", (e) => errors.push(e.message));
     await page.goto(origin);
     await page.getByRole("heading", { name: "Your projects." }).waitFor();
-    await page
-      .locator(".resource-card")
-      .filter({
-        has: page.getByRole("heading", {
-          name: "Production Planning",
-          exact: true,
-        }),
-      })
-      .locator("button")
-      .first()
-      .click();
+    await page.getByRole("button", { name: "Open project Production Planning", exact: true }).click();
     await page
       .locator(".resource-card")
       .filter({
@@ -494,8 +493,9 @@ try {
     0,
   );
   console.log(
-    "PASS: standalone parser; XLSX/CSV without embeddings/Docker/Python; three-template catalog and both project creations; confirmed mappings and joins; exact shortage and multi-currency results; isolation and Origin guards; mocked Ollama JSON fallback, invalid plan and unsupported-request handling; persisted chat evidence/report; deletion.",
+    "PASS: standalone parser; XLSX/CSV without embeddings/Docker/Python; both template project creations; confirmed mappings and joins; exact shortage and multi-currency results; isolation and Origin guards; mocked Ollama JSON fallback, invalid plan and unsupported-request handling; persisted chat evidence/report; deletion.",
   );
+  }
 } finally {
   if (browser) await browser.close();
   if (server) {

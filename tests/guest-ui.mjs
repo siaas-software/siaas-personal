@@ -13,7 +13,8 @@ const server=spawn(process.execPath,[resolve('.next/standalone/server.js')],{env
 let browser;
 try {
   for(let i=0;i<80;i++){try{if((await fetch(origin,{headers:{'x-siaas-desktop-key':key}})).ok)break;}catch{}await new Promise(r=>setTimeout(r,200));}
-  browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+  browser=await chromium.launch({headless:true,args:['--no-sandbox'],
+    ...(process.env.CHROMIUM_EXECUTABLE_PATH ? {executablePath:process.env.CHROMIUM_EXECUTABLE_PATH} : {})});
   const page=await browser.newPage({extraHTTPHeaders:{'x-siaas-desktop-key':key},viewport:{width:1440,height:1000}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(()=>{

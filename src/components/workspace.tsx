@@ -22,6 +22,8 @@ import {
 import { AssistantMascot } from "./assistant-mascot";
 import { Overview } from "./overview";
 import { ProjectActions } from "./project-actions";
+import { ProjectChat } from "./project-chat";
+import { ChatComposer } from "./chat-composer";
 import type { ProjectTemplate } from "@/lib/templates";
 import { templateCardStyle } from "@/lib/template-presentation";
 import { DesktopUpdatesPanel } from "./desktop-updates";
@@ -33,7 +35,6 @@ import type { OllamaRuntime } from "@/lib/ollama";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Zap,
-  ArrowUp,
   AudioLines,
   BookOpenText,
   Check,
@@ -565,12 +566,8 @@ export function Workspace() {
       });
       setModal(null);
       await loadDocs();
-      if (data?.aiReady) await processDocument(d.id);
-      setNotice(
-        data?.aiReady
-          ? "Text added to knowledge."
-          : "Text saved. Index it when the AI service is ready.",
-      );
+      if (desktop || data?.aiReady) await processDocument(d.id);
+      setNotice("Text added to knowledge.");
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -636,11 +633,11 @@ export function Workspace() {
           );
         }
         await loadDocs();
-        if (data?.aiReady || ["xlsx", "csv"].includes(kind))
+        if (desktop || data?.aiReady || ["xlsx", "csv"].includes(kind))
           await processDocument(importedId);
       }
       setNotice(
-        data?.aiReady
+        desktop || data?.aiReady
           ? "Documents ready for chat."
           : "Files saved. Indexing will be available after AI setup.",
       );
@@ -1037,6 +1034,15 @@ export function Workspace() {
                       New assistant
                     </button>
                   </div>
+                  <ProjectChat
+                    key={activeProject.id}
+                    project={activeProject}
+                    assistants={activeAssistants}
+                    onSaved={(next) => {
+                      setActiveProject(next);
+                      void load();
+                    }}
+                  />
                   <div className="stats-row">
                     <div>
                       <span>Assistants</span>
@@ -1068,7 +1074,7 @@ export function Workspace() {
                       <span>
                         {preview
                           ? "Create assistants and organize knowledge. Personal runs AI locally on your computer."
-                          : "You can create assistants and save sources now. Chat and indexing become available when Ollama and the embedding model are ready."}
+                          : "Local chat, calculations and keyword search are available. Configure Ollama for text generation and semantic search."}
                       </span>
                     </div>
                   )}
@@ -1403,11 +1409,6 @@ export function Workspace() {
                       />
                       <button
                         className="button primary"
-                        disabled={
-                          !data.models.some(
-                            (m) => m.id === selected.model_id && m.available,
-                          )
-                        }
                         onClick={() => setTab("chat")}
                       >
                         {italian
@@ -1481,7 +1482,6 @@ export function Workspace() {
                         </div>
                         {desktop && (
                           <LocalKnowledge
-                            embeddingReady={!!data?.aiReady}
                             key={selected.id}
                             assistantId={selected.id}
                             revision={knowledgeRevision}
@@ -1579,7 +1579,8 @@ export function Workspace() {
                                       className="button compact"
                                       disabled={
                                         busy ||
-                                        (!data.aiReady &&
+                                        (!desktop &&
+                                          !data.aiReady &&
                                           !["xlsx", "csv"].includes(d.kind))
                                       }
                                       onClick={async () => {
@@ -1633,11 +1634,15 @@ export function Workspace() {
                             )) && (
                             <div className="notice assistant-chat-setup">
                               <div>
-                                <strong>Finish setup to start chatting.</strong>
+                                <strong>
+                                  {italian
+                                    ? "Chat locale disponibile"
+                                    : "Local chat available"}
+                                </strong>
                                 <p className="muted small">
-                                  {!selected.model_id
-                                    ? "Choose the recommended model for this PC."
-                                    : "The selected model must be installed on this PC."}
+                                  {italian
+                                    ? "Puoi calcolare e cercare nelle fonti preparate. Per generare testo, configura un modello."
+                                    : "Calculate and search prepared sources here. Configure a model for text generation."}
                                 </p>
                               </div>
                               <div className="button-row">
@@ -1661,9 +1666,14 @@ export function Workspace() {
                           assistant={selected}
                           desktop={desktop}
                           preview={preview}
-                          ready={data.models.some(
-                            (m) => m.id === selected.model_id && m.available,
-                          )}
+                          ready={
+                            !preview &&
+                            (desktop ||
+                              data.models.some(
+                                (m) =>
+                                  m.id === selected.model_id && m.available,
+                              ))
+                          }
                           onSource={(s) =>
                             setSource({
                               title: s.title,
@@ -1721,13 +1731,22 @@ export function Workspace() {
                 ))}
               </select>
             </label>
-            {templates.filter(t => t.id === projectTemplateId).map(template => (
-              <section key={template.id} className="panel project-template-card" aria-label="Template preview" style={templateCardStyle(template)}>
-                <strong>{template.name}</strong>
-                <p>{template.description}</p>
-                <p className="muted">{template.assistants.length} preconfigured assistants</p>
-              </section>
-            ))}
+            {templates
+              .filter((t) => t.id === projectTemplateId)
+              .map((template) => (
+                <section
+                  key={template.id}
+                  className="panel project-template-card"
+                  aria-label="Template preview"
+                  style={templateCardStyle(template)}
+                >
+                  <strong>{template.name}</strong>
+                  <p>{template.description}</p>
+                  <p className="muted">
+                    {template.assistants.length} preconfigured assistants
+                  </p>
+                </section>
+              ))}
             <p className="field-help">
               Assistant names, descriptions and instructions are preconfigured.
               Choose the recommended models. Template web sources are indexed
@@ -2148,10 +2167,12 @@ function Chat({
     [loading, setLoading] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const mounted = useRef(true);
+  const chatAbort = useRef<AbortController | null>(null);
   useEffect(() => {
     mounted.current = true;
     return () => {
       mounted.current = false;
+      chatAbort.current?.abort();
     };
   }, []);
   const refresh = useCallback(async () => {
@@ -2212,6 +2233,8 @@ function Chat({
     onError("");
     let id = conversation;
     const localId = crypto.randomUUID();
+    const controller = new AbortController();
+    chatAbort.current = controller;
     try {
       if (!id) {
         const c = await api<{ id: string }>("/api/conversations", {
@@ -2245,6 +2268,7 @@ function Chat({
         },
       ]);
       const response = await fetch("/api/chat", {
+        signal: controller.signal,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -2335,6 +2359,7 @@ function Chat({
       if (!prompt) setInput(question);
     } finally {
       sending.current = false;
+      chatAbort.current = null;
       setStreaming(false);
     }
   }
@@ -2471,9 +2496,17 @@ function Chat({
                 )}
                 {m.role === "assistant" && m.status === "complete" && (
                   <p className="generation-evidence">
-                    {m.sources?.length
-                      ? `Generation ${m.model_id?.startsWith("ollama/") ? "local" : "previous"} completed · ${m.model_id ?? "model not recorded"}`
-                      : `Generation ${m.model_id?.startsWith("ollama/") ? "local" : "previous"} completed · no sources retrieved`}
+                    {m.execution_path === "model-planned"
+                      ? italian
+                        ? "Calcolo verificato · interpretazione del modello locale"
+                        : "Verified calculation · local model interpretation"
+                      : m.execution_path && m.execution_path !== "model"
+                        ? italian
+                          ? "Risposta locale · senza modello"
+                          : "Local response · no model used"
+                        : m.sources?.length
+                          ? `Generation ${m.model_id?.startsWith("ollama/") ? "local" : "previous"} completed · ${m.model_id ?? "model not recorded"}`
+                          : `Generation ${m.model_id?.startsWith("ollama/") ? "local" : "previous"} completed · no sources retrieved`}
                     {m.sources?.length > 0 &&
                     (m.input_tokens || m.output_tokens)
                       ? ` · ${m.input_tokens ?? 0} token input / ${m.output_tokens ?? 0} output`
@@ -2527,42 +2560,19 @@ function Chat({
           )}
           <div ref={endRef} />
         </div>
-        <form className="chat-composer" onSubmit={send}>
-          <label className="sr-only" htmlFor="question">
-            Your question
-          </label>
-          <textarea
-            id="question"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (
-                e.key === "Enter" &&
-                !e.shiftKey &&
-                !e.nativeEvent.isComposing
-              ) {
-                e.preventDefault();
-                if (ready) void send(e);
-              }
-            }}
-            rows={2}
-            maxLength={1800}
-            placeholder="Type a message…"
-            disabled={!ready || streaming || loading}
-          />
-          <button
-            className="send-button"
-            aria-busy={streaming}
-            aria-label={streaming ? "Generating response" : "Send message"}
-            disabled={!ready || !input.trim() || streaming || loading}
-          >
-            {streaming ? (
-              <SiaasLoader iconOnly label="Waiting for AI response…" />
-            ) : (
-              <ArrowUp size={20} />
-            )}
-          </button>
-        </form>
+        <ChatComposer
+          id="question"
+          label="Your question"
+          value={input}
+          onChange={setInput}
+          onSubmit={send}
+          busy={streaming}
+          disabled={!ready || loading}
+          placeholder="Type a message…"
+          busyLabel="Preparing response…"
+          cancelLabel={italian ? "Annulla" : "Cancel"}
+          onCancel={() => chatAbort.current?.abort()}
+        />
         <p className="chat-disclaimer">
           The assistant can make mistakes. Please verify its responses.
         </p>

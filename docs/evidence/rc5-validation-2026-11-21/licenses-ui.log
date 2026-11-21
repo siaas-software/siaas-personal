@@ -1,0 +1,2 @@
+PASS: Settings navigation, offline viewer, five documents, Escape/focus, mobile layout and Italian UI.
+PASS: standalone offline license API returns all original texts; desktop auth; traced files; packaging configuration; safe Electron external navigation.

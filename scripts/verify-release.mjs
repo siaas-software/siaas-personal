@@ -11,7 +11,8 @@ for (const target of ["win32-x64", "darwin-x64", "darwin-arm64", "linux-x64"]) {
   if (manifest.version !== version || !manifest.files.length)
     throw new Error("Invalid release manifest");
   for (const f of manifest.files) {
-    if (!/^SIAAS-Personal-[\w.-]+$/.test(f.url)) throw new Error("Invalid filename");
+    if (!/^SIAAS-Personal-[\w.-]+$/.test(f.url))
+      throw new Error("Invalid filename");
     const path = "release/" + f.url;
     const hash = createHash("sha512");
     for await (const chunk of createReadStream(path)) hash.update(chunk);

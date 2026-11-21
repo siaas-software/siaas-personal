@@ -108,7 +108,7 @@ try {
   );
   await page.getByRole("button", { name: "Actions", exact: true }).click();
   const builtins = page.getByRole("region", { name: "Built-in Actions" });
-  assert.equal(await builtins.locator("article").count(), 4);
+  assert.equal(await builtins.locator("article").count(), 5);
   assert.equal(
     await builtins.getByRole("button", { name: "Delete", exact: true }).count(),
     0,
@@ -167,7 +167,7 @@ try {
     .getByRole("region", { name: "Markdown preview" })
     .getByText(/UI_REVISION_1/)
     .waitFor();
-  assert.equal(await page.locator(".actions-group article").count(), 4);
+  assert.equal(await page.locator(".actions-group article").count(), 5);
   await page
     .getByRole("button", { name: "Confirm and save Action", exact: true })
     .click();
@@ -237,7 +237,7 @@ try {
     "Data table",
   );
   assert.equal(await shortcuts.locator("hr").count(), 1);
-  assert.equal(await shortcuts.locator("button svg.lucide-zap").count(), 5);
+  assert.equal(await shortcuts.locator("button svg.lucide-zap").count(), 6);
   await shortcuts
     .getByRole("button", { name: "Data table", exact: true })
     .click();

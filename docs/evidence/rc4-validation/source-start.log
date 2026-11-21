@@ -1,0 +1,20 @@
+
+> siaas-personal@1.1.0-rc.4 release:source
+> node scripts/release-source.mjs
+
+Created local source.zip and install.json artifacts in dist-source. Publication follows the applicable release policy; this script does not publish.
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo EAI_AGAIN nodejs.org
+      at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:123:26) {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'nodejs.org'
+  }
+}
+
+Node.js v24.22.0

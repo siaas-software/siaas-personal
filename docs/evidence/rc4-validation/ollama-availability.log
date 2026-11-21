@@ -1,0 +1,9 @@
+
+> siaas-personal@1.1.0-rc.4 ollama:check
+> node --import tsx scripts/check-ollama.ts
+
+Ollama is unreachable. Start Ollama on this PC and select Check Ollama.
+Embedding embeddinggemma:latest: assente
+Qwen 2.5 · 1.5B: assente — ollama pull qwen2.5:1.5b
+Qwen 2.5 · 7B: assente — ollama pull qwen2.5:7b
+Qwen 2.5 · 14B: assente — ollama pull qwen2.5:14b

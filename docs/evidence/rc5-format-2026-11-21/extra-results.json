@@ -1,0 +1,44 @@
+[
+  {
+    "name": "hardware-ui",
+    "command": "node tests/hardware-finder-ui.mjs",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 5.06
+  },
+  {
+    "name": "overview-ui",
+    "command": "node tests/overview-e2e.mjs",
+    "status": "FAIL",
+    "code": 1,
+    "seconds": 32.24
+  },
+  {
+    "name": "template-ui",
+    "command": "node tests/template-palettes-ui.mjs",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 36.7
+  },
+  {
+    "name": "licenses-ui",
+    "command": "node tests/licenses-integration.mjs --ui",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 31.63
+  },
+  {
+    "name": "research-e2e",
+    "command": "node --import tsx tests/research-e2e.mjs",
+    "status": "PASS",
+    "code": 0,
+    "seconds": 18.11
+  },
+  {
+    "name": "missing-docker",
+    "command": "node --import tsx tests/missing-docker-e2e.mjs",
+    "status": "FAIL",
+    "code": 1,
+    "seconds": 2.6
+  }
+]
