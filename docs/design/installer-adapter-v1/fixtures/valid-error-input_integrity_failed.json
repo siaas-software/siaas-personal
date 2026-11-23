@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "1.0",
+  "code": "INPUT_INTEGRITY_FAILED",
+  "exitCode": 3,
+  "phase": "prepare",
+  "retryable": false,
+  "recoveryRequired": false,
+  "diagnosticId": null
+}

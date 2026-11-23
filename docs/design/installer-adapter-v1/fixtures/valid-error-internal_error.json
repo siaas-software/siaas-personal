@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "1.0",
+  "code": "INTERNAL_ERROR",
+  "exitCode": 1,
+  "phase": "prepare",
+  "retryable": false,
+  "recoveryRequired": false,
+  "diagnosticId": null
+}

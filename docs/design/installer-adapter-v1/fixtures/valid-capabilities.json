@@ -1,0 +1,29 @@
+{
+  "protocol": "siaas.personal.installer-adapter",
+  "schemaVersion": "1.0",
+  "contractVersion": "1.0",
+  "product": "siaas-personal",
+  "platform": "linux",
+  "arch": "x64",
+  "descriptorSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "availability": "supported",
+  "operations": [
+    "prepare",
+    "commit",
+    "activate",
+    "install",
+    "inspect",
+    "recover"
+  ],
+  "capabilities": [
+    "install-only",
+    "explicit-paths",
+    "isolated-channels",
+    "durable-receipts",
+    "installed-integrity",
+    "journal-recovery",
+    "prepared-archives",
+    "build-network-consent"
+  ],
+  "blockers": []
+}

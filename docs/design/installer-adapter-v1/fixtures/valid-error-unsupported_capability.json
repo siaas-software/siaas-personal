@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "1.0",
+  "code": "UNSUPPORTED_CAPABILITY",
+  "exitCode": 2,
+  "phase": "prepare",
+  "retryable": false,
+  "recoveryRequired": false,
+  "diagnosticId": null
+}

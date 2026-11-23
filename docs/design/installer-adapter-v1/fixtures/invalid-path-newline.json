@@ -1,0 +1,62 @@
+{
+  "protocol": "siaas.personal.installer-adapter",
+  "schemaVersion": "1.0",
+  "contractVersion": "1.0",
+  "operation": "install",
+  "operationId": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+  "installationId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  "paths": {
+    "installRoot": "/home/example/personal-candidate\n",
+    "launcher": {
+      "kind": "desktop-entry",
+      "path": "/home/example/launchers/personal-candidate.desktop"
+    },
+    "profile": "/home/example/profiles/personal-candidate",
+    "receipt": "/home/example/private/receipt.json"
+  },
+  "requiredCapabilities": [
+    "install-only",
+    "explicit-paths",
+    "isolated-channels",
+    "durable-receipts",
+    "installed-integrity",
+    "journal-recovery",
+    "prepared-archives",
+    "build-network-consent"
+  ],
+  "target": {
+    "product": "siaas-personal",
+    "version": "1.2.0-rc.1",
+    "commit": "1111111111111111111111111111111111111111",
+    "channel": "candidate",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "expectedGeneration": 0,
+  "prepared": {
+    "source": {
+      "path": "/home/example/prepared/source",
+      "size": 1234,
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "runtime": {
+      "path": "/home/example/prepared/runtime",
+      "size": 1234,
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "manifest": {
+      "path": "/home/example/prepared/manifest",
+      "size": 1234,
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "buildPolicy": {
+      "path": "/home/example/prepared/buildPolicy",
+      "size": 1234,
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  },
+  "buildConsent": {
+    "policySha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "consentId": "cccccccc-cccc-4ccc-8ccc-cccccccccccc"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "protocol": "siaas.personal.installer-adapter",
+  "schemaVersion": "1.0",
+  "contractVersion": "1.0",
+  "product": "siaas-personal",
+  "platform": "linux",
+  "arch": "x64",
+  "descriptorSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "availability": "blocked",
+  "operations": [],
+  "capabilities": [],
+  "blockers": [
+    {
+      "schemaVersion": "1.0",
+      "code": "BUILD_POLICY_UNAVAILABLE",
+      "exitCode": 5,
+      "phase": "prepare",
+      "retryable": false,
+      "recoveryRequired": false,
+      "diagnosticId": null
+    }
+  ]
+}

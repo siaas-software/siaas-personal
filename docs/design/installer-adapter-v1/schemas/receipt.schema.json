@@ -1,0 +1,411 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.siaas.invalid/installer-adapter/1.0/receipt.schema.json",
+  "type": "object",
+  "properties": {
+    "protocol": {
+      "const": "siaas.personal.installer-adapter"
+    },
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "contractVersion": {
+      "const": "1.0"
+    },
+    "operation": {
+      "enum": [
+        "prepare",
+        "commit",
+        "activate",
+        "install",
+        "inspect",
+        "recover",
+        "invalid"
+      ]
+    },
+    "operationId": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "installationId": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "transactionId": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "state": {
+      "enum": [
+        "prepared",
+        "committed",
+        "activated",
+        "restored",
+        "failed"
+      ]
+    },
+    "lastDurableState": {
+      "enum": [
+        "none",
+        "prepared",
+        "committed",
+        "activated"
+      ]
+    },
+    "generation": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "activeGeneration": {
+      "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/generation"
+    },
+    "revision": {
+      "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/generation"
+    },
+    "changed": {
+      "type": "boolean"
+    },
+    "guiStarted": {
+      "const": false
+    },
+    "integrity": {
+      "enum": [
+        "verified",
+        "failed",
+        "not-checked"
+      ]
+    },
+    "installedManifestSha256": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$(?![\\s\\S])"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "paths": {
+      "anyOf": [
+        {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/paths"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "effects": {
+      "type": "object",
+      "properties": {
+        "generationCommitted": {
+          "type": "boolean"
+        },
+        "pointerSwitched": {
+          "type": "boolean"
+        },
+        "launcherReplaced": {
+          "type": "boolean"
+        },
+        "profileDataModified": {
+          "const": false
+        }
+      },
+      "required": [
+        "generationCommitted",
+        "pointerSwitched",
+        "launcherReplaced",
+        "profileDataModified"
+      ],
+      "additionalProperties": false
+    },
+    "error": {
+      "anyOf": [
+        {
+          "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/error.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "recovery": {
+      "type": "object",
+      "properties": {
+        "actions": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "resume",
+              "restore-previous"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "automatic": {
+          "const": false
+        }
+      },
+      "required": [
+        "actions",
+        "automatic"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "protocol",
+    "schemaVersion",
+    "contractVersion",
+    "operation",
+    "operationId",
+    "installationId",
+    "transactionId",
+    "state",
+    "lastDurableState",
+    "generation",
+    "activeGeneration",
+    "revision",
+    "changed",
+    "guiStarted",
+    "integrity",
+    "installedManifestSha256",
+    "paths",
+    "effects",
+    "error",
+    "recovery"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "failed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/error.schema.json"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "error": {
+            "type": "null"
+          },
+          "integrity": {
+            "const": "verified"
+          },
+          "operation": {
+            "enum": [
+              "prepare",
+              "commit",
+              "activate",
+              "install",
+              "inspect",
+              "recover"
+            ]
+          },
+          "operationId": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+          },
+          "installationId": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+          },
+          "paths": {
+            "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/paths"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "prepared"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "lastDurableState": {
+            "const": "prepared"
+          },
+          "generation": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "installedManifestSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$(?![\\s\\S])"
+          },
+          "transactionId": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "committed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "lastDurableState": {
+            "const": "committed"
+          },
+          "generation": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "installedManifestSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$(?![\\s\\S])"
+          },
+          "transactionId": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "activated"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "lastDurableState": {
+            "const": "activated"
+          },
+          "generation": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "installedManifestSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$(?![\\s\\S])"
+          },
+          "transactionId": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$(?![\\s\\S])"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "invalid"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "state": {
+            "const": "failed"
+          },
+          "lastDurableState": {
+            "const": "none"
+          },
+          "operationId": {
+            "type": "null"
+          },
+          "installationId": {
+            "type": "null"
+          },
+          "transactionId": {
+            "type": "null"
+          },
+          "paths": {
+            "type": "null"
+          },
+          "changed": {
+            "const": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "restored"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "operation": {
+            "const": "recover"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "inspect"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "changed": {
+            "const": false
+          }
+        }
+      }
+    }
+  ]
+}

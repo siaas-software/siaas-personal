@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.siaas.invalid/installer-adapter/1.0/capabilities.schema.json",
+  "type": "object",
+  "properties": {
+    "protocol": {
+      "const": "siaas.personal.installer-adapter"
+    },
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "contractVersion": {
+      "const": "1.0"
+    },
+    "product": {
+      "const": "siaas-personal"
+    },
+    "platform": {
+      "enum": [
+        "linux",
+        "win32",
+        "darwin"
+      ]
+    },
+    "arch": {
+      "enum": [
+        "x64",
+        "arm64"
+      ]
+    },
+    "descriptorSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$(?![\\s\\S])"
+    },
+    "availability": {
+      "enum": [
+        "supported",
+        "blocked"
+      ]
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "prepare",
+          "commit",
+          "activate",
+          "install",
+          "inspect",
+          "recover"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/common.schema.json#/$defs/capability"
+      },
+      "uniqueItems": true,
+      "maxItems": 8
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "$ref": "https://schemas.siaas.invalid/installer-adapter/1.0/error.schema.json"
+      },
+      "maxItems": 16
+    }
+  },
+  "required": [
+    "protocol",
+    "schemaVersion",
+    "contractVersion",
+    "product",
+    "platform",
+    "arch",
+    "descriptorSha256",
+    "availability",
+    "operations",
+    "capabilities",
+    "blockers"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "availability": {
+            "const": "supported"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "operations": {
+            "const": [
+              "prepare",
+              "commit",
+              "activate",
+              "install",
+              "inspect",
+              "recover"
+            ]
+          },
+          "capabilities": {
+            "const": [
+              "install-only",
+              "explicit-paths",
+              "isolated-channels",
+              "durable-receipts",
+              "installed-integrity",
+              "journal-recovery",
+              "prepared-archives",
+              "build-network-consent"
+            ]
+          },
+          "blockers": {
+            "maxItems": 0
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "operations": {
+            "maxItems": 0
+          },
+          "capabilities": {
+            "maxItems": 0
+          },
+          "blockers": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}

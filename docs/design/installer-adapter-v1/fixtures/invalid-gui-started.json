@@ -1,0 +1,38 @@
+{
+  "protocol": "siaas.personal.installer-adapter",
+  "schemaVersion": "1.0",
+  "contractVersion": "1.0",
+  "operation": "install",
+  "operationId": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+  "installationId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  "transactionId": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+  "state": "activated",
+  "lastDurableState": "activated",
+  "generation": 1,
+  "activeGeneration": 1,
+  "revision": 1,
+  "changed": true,
+  "guiStarted": true,
+  "integrity": "verified",
+  "installedManifestSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "paths": {
+    "installRoot": "/home/example/personal-candidate",
+    "launcher": {
+      "kind": "desktop-entry",
+      "path": "/home/example/launchers/personal-candidate.desktop"
+    },
+    "profile": "/home/example/profiles/personal-candidate",
+    "receipt": "/home/example/private/receipt.json"
+  },
+  "effects": {
+    "generationCommitted": true,
+    "pointerSwitched": true,
+    "launcherReplaced": true,
+    "profileDataModified": false
+  },
+  "error": null,
+  "recovery": {
+    "actions": [],
+    "automatic": false
+  }
+}
