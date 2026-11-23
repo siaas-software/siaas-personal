@@ -10,7 +10,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const project = db.get("projects", id) as (Project & { permissions?: unknown }) | null;
     if (!project || project.tenant_id !== tenantId)
       throw new HttpError(404, "Project not found.");
-    const assistants = db.rows("assistants").filter((a: Assistant) =>
+    const assistants = db.rows("assistants").filter((a) =>
       a.tenant_id === tenantId && a.project_id === id
     ) as Assistant[];
     const markdown = generateProjectAgentsMarkdown({
