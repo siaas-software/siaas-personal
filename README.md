@@ -97,13 +97,8 @@ Supported arithmetic, bounded structured data queries, keyword retrieval over
 prepared local sources and native List Sources can run without a selected
 model, embeddings or an inference request.
 
-Try asking:
-
-```text
-What is 2 + 2?
-```
-
-For a prepared dataset with a unique sheet and an unambiguous numeric column:
+For example, with a prepared budget dataset containing a unique sheet and an
+unambiguous numeric column, ask:
 
 ```text
 What is the total budget in budgets.csv?
