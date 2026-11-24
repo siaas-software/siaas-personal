@@ -290,10 +290,62 @@ SHA-256 digest, and explicitly set `SIAAS_RELEASE_TAG=v1.1.0-rc.5` before runnin
 the appropriate script. Keep candidate installation and data profiles separate
 from stable. Consult the candidate release notes and readiness assets.
 
-SIAAS CLI is a separate optional command-line utility:
-[official CLI repository](https://github.com/siaas-software/siaas-cli) ·
-[CLI installation guide](https://siaas.vercel.app/documentation/en/cli-installation).
-Consult its own release notes for supported lifecycle operations and platforms.
+### SIAAS CLI
+
+[SIAAS CLI](https://github.com/siaas-software/siaas-cli) is a free, standalone,
+optional command-line application written in Go for managing SIAAS products.
+It is a lightweight entry point to supported Personal lifecycle operations,
+not a replacement for the desktop workspace. It does not run AI models or
+require Node.js, Electron, Docker, Ollama or Go to be installed. Installing
+the CLI does not automatically install Personal or change its data.
+
+The published CLI **v0.2.1** supports Windows, macOS and Linux on x64 and
+arm64. Read-only release checks verify the selected Personal source release
+without installing or modifying the application. CLI-driven Personal
+installation, update and uninstall are currently supported on **Linux x64**
+for compatible release candidates; other platforms use the desktop source
+installer described above.
+
+**Install SIAAS CLI — Windows (PowerShell):**
+
+```powershell
+irm https://github.com/siaas-software/siaas-cli/releases/download/v0.2.1/install.ps1 | iex
+```
+
+**Install SIAAS CLI — macOS or Linux (Terminal):**
+
+```bash
+curl -fsSL https://github.com/siaas-software/siaas-cli/releases/download/v0.2.1/install.sh -o install-siaas-cli.sh
+bash install-siaas-cli.sh
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+Review and verify the official scripts before execution. CLI artifacts are
+unsigned; follow operating-system security policies. The versioned URLs pin
+the bootstrap scripts, which select the latest stable CLI release. The Unix
+PATH change above applies to the current terminal.
+
+```bash
+siaas --version
+siaas --help
+siaas install personal --rc --check
+```
+
+On Linux x64, for a compatible published candidate:
+
+```bash
+siaas install personal --rc --yes
+siaas update personal --rc --yes
+siaas uninstall personal --rc --yes
+```
+
+Use `--json` for machine-readable command output. Mutating commands require
+explicit confirmation and release verification. The CLI is not required for
+normal desktop use.
+
+[CLI repository](https://github.com/siaas-software/siaas-cli) ·
+[CLI releases](https://github.com/siaas-software/siaas-cli/releases) ·
+[Installation guide](https://siaas.vercel.app/documentation/en/cli-installation)
 
 ### Updates and existing workspaces
 
