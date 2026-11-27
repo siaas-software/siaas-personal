@@ -13,7 +13,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
     ...init,
     cache: "no-store",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...init?.headers },
   });
   if (!response.ok) throw new Error(String(response.status));
   return response.json();
@@ -136,6 +136,7 @@ export function ProjectSecurity({ projectId, assistants, italian }: Props) {
   const url = "/api/projects/" + projectId;
   const [rules, setRules] = useState<ToolPermissionRule[]>([]);
   const [defaults, setDefaults] = useState<ToolPermissionRule[]>([]);
+  const [revision, setRevision] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [message, setMessage] = useState("");
   const [filter, setFilter] = useState("");
@@ -147,9 +148,11 @@ export function ProjectSecurity({ projectId, assistants, italian }: Props) {
     const c = new AbortController();
     request<{
       defaults: { rules: ToolPermissionRule[] };
+      revision: number;
       overrides: { rules: ToolPermissionRule[] };
     }>(url + "/permissions", { signal: c.signal })
       .then((data) => {
+        setRevision(data.revision);
         setRules(data.overrides.rules);
         setDefaults(data.defaults.rules);
         setLoaded(true);
@@ -179,13 +182,15 @@ export function ProjectSecurity({ projectId, assistants, italian }: Props) {
   }, [url, filter, page, fail]);
   async function save() {
     try {
-      await request(url + "/permissions", {
+      const saved = await request<{ revision: number }>(url + "/permissions", {
+        headers: { "If-Match": `"${revision}"` },
         method: "PUT",
         body: JSON.stringify({ rules }),
       });
+      setRevision(saved.revision);
       setMessage(italian ? "Regole salvate." : "Rules saved.");
-    } catch {
-      setMessage(fail);
+    } catch (error) {
+      setMessage(error instanceof Error && error.message === "412" ? (italian ? "Le regole sono cambiate. Riapri le impostazioni." : "Rules changed. Reopen settings to review them.") : fail);
     }
   }
   const decisions = italian

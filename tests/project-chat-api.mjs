@@ -440,6 +440,12 @@ try {
     const audit = db.sql.prepare("SELECT details FROM execution_events WHERE session_id=? AND kind='tool.permission_checked'").all(refused.id);
     assert.deepEqual(audit.map(row => JSON.parse(row.details).permission), [decision]);
   }
+  const staleRevision = (await api(permissionsPath)).revision;
+  await api(permissionsPath, "PUT", { rules: [] });
+  const staleSave = await fetch(origin + permissionsPath, { method: "PUT", headers: { ...headers, "If-Match": '"' + staleRevision + '"' },
+    body: JSON.stringify({ rules: [{ capability:"reports.create", decision:"allow" }] }) });
+  assert.equal(staleSave.status, 412);
+  assert.deepEqual((await api(permissionsPath)).overrides.rules, []);
   const approvalsPath = "/api/projects/" + project.id + "/approvals";
   const askRules = { rules: [{ capability: "documents.read", decision: "ask" }] };
   await api(permissionsPath, "PUT", askRules);

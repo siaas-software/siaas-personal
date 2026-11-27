@@ -6,9 +6,10 @@ type Params = { params: Promise<{ id: string }> };
 export async function GET(req: Request, { params }: Params) {
   try {
     const { db, tenantId } = await localWorkspace(req);
-    const project = db.get("projects", uuid.parse((await params).id));
+    const id = uuid.parse((await params).id);
+    const project = db.get("projects", id);
     if (!project || project.tenant_id !== tenantId) throw new HttpError(404, "Project not found.");
-    return Response.json({ defaults: defaultToolPermissions(), overrides: parseProjectToolPermissions(project.permissions) });
+    return Response.json({ revision: project.permission_revision ?? 0, defaults: defaultToolPermissions(), overrides: parseProjectToolPermissions(project.permissions) });
   } catch (error) { return fail(error); }
 }
 
@@ -22,11 +23,15 @@ export async function PUT(req: Request, { params }: Params) {
       if (body == null) throw new Error();
       permissions = parseProjectToolPermissions(body);
     } catch { throw new HttpError(400, "Invalid project permission rules."); }
-    db.transaction(() => {
+    const revision = db.transaction(() => {
       const project = db.get("projects", id);
       if (!project || project.tenant_id !== tenantId) throw new HttpError(404, "Project not found.");
-      db.put("projects", { ...project, permissions }, true);
+      const current = project.permission_revision ?? 0;
+      const expected = req.headers.get("if-match");
+      if (expected !== null && expected !== `"${current}"`) throw new HttpError(412, "Project permissions changed.");
+      db.put("projects", { ...project, permissions, permission_revision: current + 1 }, true);
+      return current + 1;
     });
-    return Response.json({ overrides: permissions });
+    return Response.json({ overrides: permissions, revision });
   } catch (error) { return fail(error); }
 }
