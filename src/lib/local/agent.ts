@@ -1,3 +1,4 @@
+import { checkNativePermission, type ToolTrace } from "./native-permissions";
 import { planSchema } from "../structured/engine";
 import { planningCatalog } from "../structured/planner";
 import { queryStructured } from "../structured/service";
@@ -33,6 +34,7 @@ type AgentEvent =
   | { type: "steps"; steps: AgentStep[] }
   | { type: "research"; warnings: string[]; missing: string[] };
 type ToolOptions = {
+  trace?: ToolTrace;
   db: LocalDatabase;
   assistantId: string;
   conversationId?: string;
@@ -46,12 +48,13 @@ export function createLocalAgentTools(options: ToolOptions) {
   const sources: Source[] = [];
   const artifacts: AgentArtifact[] = [];
   let calls = 0;
-  function before(text: string) {
+  function before(capability: string, text: string) {
     options.signal.throwIfAborted();
     if (++calls > 8)
       throw new Error(
         "Limite di 8 operazioni raggiunto. Concludi con i risultati disponibili.",
       );
+    checkNativePermission(options.db, options.assistantId, capability, options.trace);
     options.emit({ type: "activity", text });
   }
   const documents = () =>
@@ -88,7 +91,7 @@ export function createLocalAgentTools(options: ToolOptions) {
   const tools = [
     tool(
       async ({ query }) => {
-        before("Searching assistant documents…");
+        before("documents.read", "Searching assistant documents…");
         const available = catalog();
         if (!options.embeddingProfile || !available.length)
           return JSON.stringify({
@@ -137,7 +140,7 @@ export function createLocalAgentTools(options: ToolOptions) {
     ),
     tool(
       async ({ document_id, start_chunk }) => {
-        before("Reading document passages…");
+        before("documents.read", "Reading document passages…");
         const ready = documents();
         const document = ready.find(
           (d) => d.id === document_id || reference(d.id) === document_id,
@@ -198,7 +201,7 @@ export function createLocalAgentTools(options: ToolOptions) {
     ),
     tool(
       async ({ title, markdown }) => {
-        before("Creo il report scaricabile…");
+        before("reports.create", "Creo il report scaricabile…");
         if (artifacts.length >= 3)
           return JSON.stringify({
             code: "report_limit",
@@ -227,7 +230,7 @@ export function createLocalAgentTools(options: ToolOptions) {
     ),
     tool(
       async () => {
-        before("Inspecting structured datasets…");
+        before("datasets.query", "Inspecting structured datasets…");
         return JSON.stringify(planningCatalog(options.db, options.assistantId));
       },
       {
@@ -239,7 +242,7 @@ export function createLocalAgentTools(options: ToolOptions) {
     ),
     tool(
       async ({ plan }) => {
-        before("Calculating structured results…");
+        before("datasets.query", "Calculating structured results…");
         try {
           return JSON.stringify(
             queryStructured(options.db, options.assistantId, plan),

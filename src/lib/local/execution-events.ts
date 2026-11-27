@@ -161,6 +161,22 @@ export class ExecutionEventStore {
     return rows.map((row) => ({ ...row, details: JSON.parse(row.details) }));
   }
 
+  page(projectId: string, assistantId: string | null, before: string | null, limit: number) {
+    this.project(projectId);
+    if (assistantId !== null) this.assistant(projectId, assistantId);
+    const scope = assistantId === null ? "project_id = ?" : "project_id = ? AND assistant_id = ?";
+    const values = assistantId === null ? [projectId] : [projectId, assistantId];
+    const cursor = before === null ? "" :
+      ` AND rowid < (SELECT rowid FROM execution_events WHERE id = ? AND ${scope})`;
+    const size = Math.min(200, Math.max(1, Math.trunc(limit) || 50));
+    const rows = this.read(
+      `SELECT * FROM execution_events WHERE ${scope}${cursor} ORDER BY rowid DESC LIMIT ?`,
+      [...values, ...(before === null ? [] : [before, ...values]), size + 1],
+    );
+    const events = rows.slice(0, size);
+    return { events, next: rows.length > size ? events[size - 1].id : null };
+  }
+
   /** Project-wide audit view: one copy of each event from every project member. */
   listProject(projectId: string, limit = 100): ExecutionEventRecord[] {
     this.project(projectId);

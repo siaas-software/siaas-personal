@@ -1,3 +1,4 @@
+import { checkNativePermission, type ToolTrace } from "./native-permissions";
 import { ActionError, type ActionSkill } from "../actions";
 import type { LocalDatabase } from "./database";
 
@@ -10,6 +11,7 @@ export function executeNativeAction(
   assistantId: string,
   action: ActionSkill,
   signal: AbortSignal,
+  trace?: ToolTrace,
 ): { content: string; sources: []; result: null } {
   signal.throwIfAborted();
   const assistant = db.get("assistants", assistantId);
@@ -22,6 +24,7 @@ export function executeNativeAction(
     action.capability !== "list_assistant_sources"
   )
     throw new ActionError(403, "Capacità applicativa non autorizzata.");
+  checkNativePermission(db, assistantId, "documents.read", trace);
   const documents = db
     .rows("documents")
     .filter(

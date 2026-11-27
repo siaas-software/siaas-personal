@@ -1,3 +1,4 @@
+import { checkNativePermission, type ToolTrace } from "./native-permissions";
 import type { LocalDatabase } from "./database";
 import { retrieveAssistantSources } from "./assistant-research";
 import {
@@ -93,8 +94,13 @@ export async function executeLocalChat(
   intent: Intent,
   language: "en" | "it",
   signal: AbortSignal,
+  trace?: ToolTrace,
 ) {
   signal.throwIfAborted();
+  if (intent.kind === "document" || intent.kind === "website")
+    checkNativePermission(db, assistantId, "documents.read", trace);
+  if (intent.kind === "structured")
+    checkNativePermission(db, assistantId, "datasets.query", trace);
   let content: string;
   let result: ReturnType<typeof queryStructured> | null = null;
   let sources: Source[] = [];

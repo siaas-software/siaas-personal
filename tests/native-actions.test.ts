@@ -57,6 +57,11 @@ test("native source Action reads only this assistant's enabled ready metadata", 
     assert.throws(() => executeNativeAction(db, first.id, {
       ...action, kind: "custom",
     } as ActionSkill, new AbortController().signal), /non autorizzata/);
+    for (const decision of ["ask", "deny"]) {
+      db.put("projects", { ...project, permissions: { rules: [{ capability: "documents.read", decision }] } }, true);
+      assert.throws(() => executeNativeAction(db, first.id, action, new AbortController().signal),
+        decision === "ask" ? /approval required/ : /denied/);
+    }
     const controller = new AbortController();
     controller.abort();
     assert.throws(() => executeNativeAction(db, first.id, action, controller.signal));

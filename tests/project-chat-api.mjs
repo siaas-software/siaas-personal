@@ -397,6 +397,28 @@ try {
   assert.match(native.steps[0].text, /Only-first/);
   assert(!native.steps[1].text.includes("Only-first"));
   assert(!JSON.stringify(native).includes("Private-other"));
+  const permissionsPath = "/api/projects/" + project.id + "/permissions";
+  const tracePath = "/api/projects/" + project.id + "/trace";
+  assert.equal((await fetch(origin + tracePath)).status, 403);
+  await api(tracePath + "?assistant=" + stranger.id, "GET", undefined, 404);
+  const scopedTrace = tracePath + "?assistant=" + assistants[0].id + "&limit=1";
+  const page = await api(scopedTrace);
+  assert.equal(page.events[0].assistant_id, assistants[0].id);
+  assert(page.next);
+  const older = await api(scopedTrace + "&before=" + page.next);
+  assert.equal(older.events[0].assistant_id, assistants[0].id);
+  assert.notEqual(older.events[0].id, page.events[0].id);
+  for (const decision of ["ask", "deny"]) {
+    const rules = [{ capability: "documents.read", decision }];
+    await api(permissionsPath, "PUT", { rules });
+    assert.deepEqual((await api(permissionsPath)).overrides.rules, rules);
+    const refused = await complete("List sources", "builtin:list-sources");
+    assert.equal(refused.status, "error");
+    assert(!JSON.stringify(refused).includes("Only-first"));
+    const audit = db.sql.prepare("SELECT details FROM execution_events WHERE session_id=? AND kind='tool.permission_checked'").all(refused.id);
+    assert.deepEqual(audit.map(row => JSON.parse(row.details).permission), [decision]);
+  }
+  await api(permissionsPath, "PUT", { rules: [] });
   assert.equal(calls, before);
   assert.equal(
     db.rows("conversations").length,
@@ -449,6 +471,17 @@ try {
   assert(!questions.at(-1).includes("Previous assistant result"));
   configure(undefined, true);
   const sharing = await complete("handoff");
+  const events = db.sql.prepare(
+    "SELECT * FROM execution_events WHERE project_id = ? AND session_id = ? ORDER BY sequence"
+  ).all(project.id, sharing.id);
+  assert.equal(events[0].kind, "session.started");
+  const delegations = events.filter(event => event.kind === "assistant.delegated");
+  assert.deepEqual(delegations.map(event => event.assistant_id), sharing.steps.map(step => step.assistant_id));
+  for (const child of delegations) {
+    assert.equal(child.parent_trace_id, events[0].trace_id);
+    const kinds = events.filter(event => event.trace_id === child.trace_id).map(event => event.kind);
+    assert.deepEqual(kinds, ["assistant.delegated", "router.decision", "execution.completed"]);
+  }
   assert.equal(sharing.status, "complete");
   assert(questions.at(-1).includes("UNTRUSTED DATA"));
   const stale = db.put("project_runs", {

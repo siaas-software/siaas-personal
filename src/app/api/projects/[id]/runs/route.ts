@@ -3,6 +3,7 @@ import { z } from "zod";
 import { localWorkspace, fail, HttpError, jsonBody, uuid } from "@/lib/http";
 import type { Assistant, Project } from "@/lib/catalog";
 import { getAction } from "@/lib/local/actions";
+import { ExecutionEventStore } from "@/lib/local/execution-events";
 import { executeAssistantTask } from "@/lib/local/assistant-execution";
 import {
   executeProjectPlan,
@@ -190,6 +191,7 @@ export async function POST(req: Request, { params }: Context) {
         }
       }, 100);
       try {
+        new ExecutionEventStore(db).append({ projectId, sessionId: run.id, traceId: run.id, kind: "session.started" });
         const result = await executeProjectPlan({
           project,
           tenantId,
@@ -236,6 +238,7 @@ export async function POST(req: Request, { params }: Context) {
             let partial = "";
             let savedAt = 0;
             const output = await executeAssistantTask({
+              projectRunId: run.id,
               db,
               assistant,
               question: task,
