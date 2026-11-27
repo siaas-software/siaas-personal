@@ -30,7 +30,7 @@ test("native built-in Actions are immutable and never treated as executable Mark
   }
 });
 
-test("native source Action reads only this assistant's enabled ready metadata", () => {
+test("native source Action reads only this assistant's enabled ready metadata", async () => {
   const directory = mkdtempSync(join(tmpdir(), "siaas-native-action-"));
   const db = new LocalDatabase(directory);
   try {
@@ -47,24 +47,24 @@ test("native source Action reads only this assistant's enabled ready metadata", 
     add(first.id, "Incomplete.pdf", "queued");
     add(second.id, "Other-assistant.pdf");
     const action = BUILTIN_ACTIONS.find((a) => a.id === "builtin:list-sources")!;
-    const actual = executeNativeAction(db, first.id, action, new AbortController().signal);
+    const actual = await executeNativeAction(db, first.id, action, new AbortController().signal);
     assert.match(actual.content, /Authorized\.pdf/);
     assert(!actual.content.includes("Disabled.pdf"));
     assert(!actual.content.includes("Incomplete.pdf"));
     assert(!actual.content.includes("Other-assistant.pdf"));
     assert.equal(actual.result, null);
     assert.deepEqual(actual.sources, []);
-    assert.throws(() => executeNativeAction(db, first.id, {
+    await assert.rejects(() => executeNativeAction(db, first.id, {
       ...action, kind: "custom",
     } as ActionSkill, new AbortController().signal), /non autorizzata/);
     for (const decision of ["ask", "deny"]) {
       db.put("projects", { ...project, permissions: { rules: [{ capability: "documents.read", decision }] } }, true);
-      assert.throws(() => executeNativeAction(db, first.id, action, new AbortController().signal),
+      await assert.rejects(() => executeNativeAction(db, first.id, action, new AbortController().signal),
         decision === "ask" ? /approval required/ : /denied/);
     }
     const controller = new AbortController();
     controller.abort();
-    assert.throws(() => executeNativeAction(db, first.id, action, controller.signal));
+    await assert.rejects(() => executeNativeAction(db, first.id, action, controller.signal));
   } finally {
     db.close();
     rmSync(directory, { recursive: true, force: true });

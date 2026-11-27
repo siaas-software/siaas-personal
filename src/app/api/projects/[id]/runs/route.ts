@@ -190,8 +190,10 @@ export async function POST(req: Request, { params }: Context) {
           abort.abort(error);
         }
       }, 100);
+      const trace = new ExecutionEventStore(db);
+      const root = { projectId, sessionId: run.id, traceId: run.id };
       try {
-        new ExecutionEventStore(db).append({ projectId, sessionId: run.id, traceId: run.id, kind: "session.started" });
+        trace.append({ ...root, kind: "session.started" });
         const result = await executeProjectPlan({
           project,
           tenantId,
@@ -304,6 +306,7 @@ export async function POST(req: Request, { params }: Context) {
         });
         check();
         const current = db.get("project_runs", run.id)!;
+        trace.append({ ...root, kind: "execution.completed" });
         db.put(
           "project_runs",
           {
@@ -318,6 +321,7 @@ export async function POST(req: Request, { params }: Context) {
       } catch (error) {
         const current = db.get("project_runs", run.id);
         if (current?.status === "running") {
+          trace.append({ ...root, kind: signal.aborted || current.cancel_requested ? "execution.cancelled" : "execution.failed" });
           const message =
             abort.signal.reason instanceof Error
               ? abort.signal.reason.message

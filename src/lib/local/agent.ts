@@ -1,4 +1,8 @@
-import { checkNativePermission, type ToolTrace } from "./native-permissions";
+import {
+  runNativeOperation,
+  type NativeOperation,
+  type ToolTrace,
+} from "./native-permissions";
 import { planSchema } from "../structured/engine";
 import { planningCatalog } from "../structured/planner";
 import { queryStructured } from "../structured/service";
@@ -48,14 +52,29 @@ export function createLocalAgentTools(options: ToolOptions) {
   const sources: Source[] = [];
   const artifacts: AgentArtifact[] = [];
   let calls = 0;
-  function before(capability: string, text: string) {
+  function invoke<T>(
+    operation: NativeOperation,
+    parameters: object,
+    text: string,
+    execute: (revalidate: () => void) => Promise<T>,
+  ) {
     options.signal.throwIfAborted();
     if (++calls > 8)
       throw new Error(
         "Limite di 8 operazioni raggiunto. Concludi con i risultati disponibili.",
       );
-    checkNativePermission(options.db, options.assistantId, capability, options.trace);
-    options.emit({ type: "activity", text });
+    return runNativeOperation(
+      options.db,
+      options.assistantId,
+      options.trace,
+      options.signal,
+      operation,
+      parameters,
+      (revalidate) => {
+        options.emit({ type: "activity", text });
+        return execute(revalidate);
+      },
+    );
   }
   const documents = () =>
     options.db
@@ -91,45 +110,56 @@ export function createLocalAgentTools(options: ToolOptions) {
   const tools = [
     tool(
       async ({ query }) => {
-        before("documents.read", "Searching assistant documents…");
-        const available = catalog();
-        if (!options.embeddingProfile || !available.length)
-          return JSON.stringify({
-            documents: available,
-            matches: [],
-            note: "Puoi usare read_document per leggere i documenti disponibili.",
-          });
-        const [embedding] = await embedLocal(
-          [query],
-          "query",
-          options.embeddingProfile,
-          fetch,
-          {
-            assistantId: options.assistantId,
-            projectId: options.db.get("assistants", options.assistantId)
-              ?.project_id,
-            conversationId: options.conversationId,
+        return invoke(
+          "search_documents",
+          { query },
+          "Searching assistant documents…",
+          async (revalidate) => {
+            const available = catalog();
+            if (!options.embeddingProfile || !available.length)
+              return JSON.stringify({
+                documents: available,
+                matches: [],
+                note: "Puoi usare read_document per leggere i documenti disponibili.",
+              });
+            const [embedding] = await embedLocal(
+              [query],
+              "query",
+              options.embeddingProfile,
+              fetch,
+              {
+                assistantId: options.assistantId,
+                projectId: options.db.get("assistants", options.assistantId)
+                  ?.project_id,
+                conversationId: options.conversationId,
+              },
+            );
+            options.signal.throwIfAborted();
+            revalidate();
+            const { data, error } = await options.db.rpc(
+              "match_documents_local",
+              {
+                target_profile: options.embeddingProfile,
+                query_embedding: embedding,
+                target_assistant: options.assistantId,
+                match_count: 3,
+                match_threshold: 0.25,
+              },
+            );
+            if (error) throw error;
+            const matches = ((data ?? []) as Source[]).map((s) => ({
+              ...s,
+              content: s.content.slice(0, 1600),
+            }));
+            revalidate();
+            remember(matches);
+            return JSON.stringify({
+              documents: available,
+              matches: matches.map(passage),
+              note: "I passaggi contengono già il testo delle fonti. Usali direttamente se sufficienti; read_document serve solo per parti aggiuntive. Se richiesto, crea il file con create_report.",
+            });
           },
         );
-        options.signal.throwIfAborted();
-        const { data, error } = await options.db.rpc("match_documents_local", {
-          target_profile: options.embeddingProfile,
-          query_embedding: embedding,
-          target_assistant: options.assistantId,
-          match_count: 3,
-          match_threshold: 0.25,
-        });
-        if (error) throw error;
-        const matches = ((data ?? []) as Source[]).map((s) => ({
-          ...s,
-          content: s.content.slice(0, 1600),
-        }));
-        remember(matches);
-        return JSON.stringify({
-          documents: available,
-          matches: matches.map(passage),
-          note: "I passaggi contengono già il testo delle fonti. Usali direttamente se sufficienti; read_document serve solo per parti aggiuntive. Se richiesto, crea il file con create_report.",
-        });
       },
       {
         name: "search_documents",
@@ -140,54 +170,60 @@ export function createLocalAgentTools(options: ToolOptions) {
     ),
     tool(
       async ({ document_id, start_chunk }) => {
-        before("documents.read", "Reading document passages…");
-        const ready = documents();
-        const document = ready.find(
-          (d) => d.id === document_id || reference(d.id) === document_id,
+        return invoke(
+          "read_document",
+          { document_id, start_chunk },
+          "Reading document passages…",
+          async () => {
+            const ready = documents();
+            const document = ready.find(
+              (d) => d.id === document_id || reference(d.id) === document_id,
+            );
+            if (!document)
+              return JSON.stringify({
+                code: "document_not_found",
+                error:
+                  "Documento non disponibile per questo assistente. Usa un document_id del catalogo, non l’ID di un passaggio. Puoi comunque usare il testo già restituito dalla ricerca.",
+                documents: catalog(),
+              });
+            const all = options.db
+              .rows("document_chunks")
+              .filter(
+                (c) =>
+                  c.assistant_id === options.assistantId &&
+                  c.document_id === document.id,
+              )
+              .sort((a, b) => a.position - b.position);
+            const chunks: Source[] = all
+              .slice(start_chunk, start_chunk + 2)
+              .map((c) => ({
+                id: c.id,
+                document_id: document.id,
+                title: document.title,
+                url: document.source_url,
+                fetched_at: document.fetched_at,
+                kind: document.source_url ? "website" : "document",
+                content: c.content.slice(0, 2000),
+                position: c.position,
+                similarity: 1,
+              }));
+            if (!chunks.length)
+              return JSON.stringify({
+                code: "empty_document_range",
+                error:
+                  "Nessun passaggio in questo intervallo. Riparti da start_chunk 0 o usa i risultati della ricerca.",
+                document_id: reference(document.id),
+                total_chunks: all.length,
+              });
+            remember(chunks);
+            return JSON.stringify({
+              document_id: reference(document.id),
+              title: document.title,
+              chunks: chunks.map(passage),
+              next_chunk: start_chunk + 2 < all.length ? start_chunk + 2 : null,
+            });
+          },
         );
-        if (!document)
-          return JSON.stringify({
-            code: "document_not_found",
-            error:
-              "Documento non disponibile per questo assistente. Usa un document_id del catalogo, non l’ID di un passaggio. Puoi comunque usare il testo già restituito dalla ricerca.",
-            documents: catalog(),
-          });
-        const all = options.db
-          .rows("document_chunks")
-          .filter(
-            (c) =>
-              c.assistant_id === options.assistantId &&
-              c.document_id === document.id,
-          )
-          .sort((a, b) => a.position - b.position);
-        const chunks: Source[] = all
-          .slice(start_chunk, start_chunk + 2)
-          .map((c) => ({
-            id: c.id,
-            document_id: document.id,
-            title: document.title,
-            url: document.source_url,
-            fetched_at: document.fetched_at,
-            kind: document.source_url ? "website" : "document",
-            content: c.content.slice(0, 2000),
-            position: c.position,
-            similarity: 1,
-          }));
-        if (!chunks.length)
-          return JSON.stringify({
-            code: "empty_document_range",
-            error:
-              "Nessun passaggio in questo intervallo. Riparti da start_chunk 0 o usa i risultati della ricerca.",
-            document_id: reference(document.id),
-            total_chunks: all.length,
-          });
-        remember(chunks);
-        return JSON.stringify({
-          document_id: reference(document.id),
-          title: document.title,
-          chunks: chunks.map(passage),
-          next_chunk: start_chunk + 2 < all.length ? start_chunk + 2 : null,
-        });
       },
       {
         name: "read_document",
@@ -201,22 +237,28 @@ export function createLocalAgentTools(options: ToolOptions) {
     ),
     tool(
       async ({ title, markdown }) => {
-        before("reports.create", "Creo il report scaricabile…");
-        if (artifacts.length >= 3)
-          return JSON.stringify({
-            code: "report_limit",
-            error: "Massimo tre report per risposta.",
-          });
-        const artifact = { id: randomUUID(), title, content: markdown };
-        artifacts.push(artifact);
-        await options.saveArtifacts([...artifacts]);
-        options.emit({ type: "artifacts", artifacts: [...artifacts] });
-        return JSON.stringify({
-          id: artifact.id,
-          title,
-          saved: true,
-          note: "Report Markdown scaricabile dalla chat.",
-        });
+        return invoke(
+          "create_report",
+          { title, markdown },
+          "Creo il report scaricabile…",
+          async () => {
+            if (artifacts.length >= 3)
+              return JSON.stringify({
+                code: "report_limit",
+                error: "Massimo tre report per risposta.",
+              });
+            const artifact = { id: randomUUID(), title, content: markdown };
+            artifacts.push(artifact);
+            await options.saveArtifacts([...artifacts]);
+            options.emit({ type: "artifacts", artifacts: [...artifacts] });
+            return JSON.stringify({
+              id: artifact.id,
+              title,
+              saved: true,
+              note: "Report Markdown scaricabile dalla chat.",
+            });
+          },
+        );
       },
       {
         name: "create_report",
@@ -230,8 +272,16 @@ export function createLocalAgentTools(options: ToolOptions) {
     ),
     tool(
       async () => {
-        before("datasets.query", "Inspecting structured datasets…");
-        return JSON.stringify(planningCatalog(options.db, options.assistantId));
+        return invoke(
+          "inspect_datasets",
+          {},
+          "Inspecting structured datasets…",
+          async () => {
+            return JSON.stringify(
+              planningCatalog(options.db, options.assistantId),
+            );
+          },
+        );
       },
       {
         name: "inspect_datasets",
@@ -242,19 +292,25 @@ export function createLocalAgentTools(options: ToolOptions) {
     ),
     tool(
       async ({ plan }) => {
-        before("datasets.query", "Calculating structured results…");
-        try {
-          return JSON.stringify(
-            queryStructured(options.db, options.assistantId, plan),
-          );
-        } catch (e) {
-          return JSON.stringify({
-            error:
-              e instanceof AnalysisError
-                ? e.message
-                : "Invalid analytical plan. No result produced.",
-          });
-        }
+        return invoke(
+          "query_datasets",
+          { plan },
+          "Calculating structured results…",
+          async () => {
+            try {
+              return JSON.stringify(
+                queryStructured(options.db, options.assistantId, plan),
+              );
+            } catch (e) {
+              return JSON.stringify({
+                error:
+                  e instanceof AnalysisError
+                    ? e.message
+                    : "Invalid analytical plan. No result produced.",
+              });
+            }
+          },
+        );
       },
       {
         name: "query_datasets",

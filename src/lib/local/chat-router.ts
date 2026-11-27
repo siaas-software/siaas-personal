@@ -1,4 +1,4 @@
-import { checkNativePermission, type ToolTrace } from "./native-permissions";
+import { runNativeOperation, type ToolTrace } from "./native-permissions";
 import type { LocalDatabase } from "./database";
 import { retrieveAssistantSources } from "./assistant-research";
 import {
@@ -97,8 +97,6 @@ export async function executeLocalChat(
   trace?: ToolTrace,
 ) {
   signal.throwIfAborted();
-  if (intent.kind === "structured")
-    checkNativePermission(db, assistantId, "datasets.query", trace);
   let content: string;
   let result: ReturnType<typeof queryStructured> | null = null;
   let sources: Source[] = [];
@@ -113,56 +111,66 @@ export async function executeLocalChat(
         ).toString();
         break;
       case "structured": {
-        const matches = datasets(db, assistantId).filter(
-          (d) => d.filename.toLowerCase() === intent.file.toLowerCase(),
+        result = await runNativeOperation(
+          db,
+          assistantId,
+          trace,
+          signal,
+          "calculate_dataset",
+          intent,
+          () => {
+            const matches = datasets(db, assistantId).filter(
+              (d) => d.filename.toLowerCase() === intent.file.toLowerCase(),
+            );
+            if (matches.length !== 1)
+              throw new AnalysisError(
+                it
+                  ? "Seleziona un unico foglio disponibile in Analisi dati."
+                  : "Choose one available file and worksheet in Structured Data Analysis.",
+              );
+            const [dataset] = matches;
+            if (!dataset.mapping.confirmed)
+              throw new AnalysisError(
+                it
+                  ? "Conferma la mappatura del foglio."
+                  : "Confirm the worksheet mapping first.",
+              );
+            const { columns } = profile(dataset);
+            let step: Plan["stages"][number]["steps"][number];
+            if (intent.column) {
+              const matches = columns.filter(
+                (c) => c.name.toLowerCase() === intent.column!.toLowerCase(),
+              );
+              if (matches.length !== 1 || matches[0].type !== "number")
+                throw new AnalysisError(
+                  it
+                    ? "Specifica una sola colonna numerica confermata."
+                    : "Specify one confirmed numeric column by its exact name.",
+                );
+              const column = matches[0].id;
+              step = {
+                op: "group",
+                by: dataset.mapping.partitionColumns,
+                aggregates: [
+                  { fn: "sum", column, as: "total" },
+                  { fn: "count", column, as: "rowsUsed" },
+                ],
+              };
+            } else {
+              if (columns.length > 8)
+                throw new AnalysisError(
+                  it
+                    ? "Seleziona le colonne da confrontare in Analisi dati."
+                    : "Choose comparison columns in Structured Data Analysis.",
+                );
+              step = { op: "duplicates", by: columns.map((c) => c.id) };
+            }
+            return queryStructured(db, assistantId, {
+              stages: [{ id: "data", datasetId: dataset.id, steps: [step] }],
+              output: "data",
+            });
+          },
         );
-        if (matches.length !== 1)
-          throw new AnalysisError(
-            it
-              ? "Seleziona un unico foglio disponibile in Analisi dati."
-              : "Choose one available file and worksheet in Structured Data Analysis.",
-          );
-        const [dataset] = matches;
-        if (!dataset.mapping.confirmed)
-          throw new AnalysisError(
-            it
-              ? "Conferma la mappatura del foglio."
-              : "Confirm the worksheet mapping first.",
-          );
-        const { columns } = profile(dataset);
-        let step: Plan["stages"][number]["steps"][number];
-        if (intent.column) {
-          const matches = columns.filter(
-            (c) => c.name.toLowerCase() === intent.column!.toLowerCase(),
-          );
-          if (matches.length !== 1 || matches[0].type !== "number")
-            throw new AnalysisError(
-              it
-                ? "Specifica una sola colonna numerica confermata."
-                : "Specify one confirmed numeric column by its exact name.",
-            );
-          const column = matches[0].id;
-          step = {
-            op: "group",
-            by: dataset.mapping.partitionColumns,
-            aggregates: [
-              { fn: "sum", column, as: "total" },
-              { fn: "count", column, as: "rowsUsed" },
-            ],
-          };
-        } else {
-          if (columns.length > 8)
-            throw new AnalysisError(
-              it
-                ? "Seleziona le colonne da confrontare in Analisi dati."
-                : "Choose comparison columns in Structured Data Analysis.",
-            );
-          step = { op: "duplicates", by: columns.map((c) => c.id) };
-        }
-        result = queryStructured(db, assistantId, {
-          stages: [{ id: "data", datasetId: dataset.id, steps: [step] }],
-          output: "data",
-        });
         content = analysisMarkdown(result, false);
         break;
       }

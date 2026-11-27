@@ -1,3 +1,4 @@
+import { installApprovalRevisionTriggers } from "../local/approval-revision";
 import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { z } from "zod";
@@ -12,19 +13,24 @@ import {
   isPartitionName,
 } from "./import-review";
 import { AnalysisError, type Dataset, type Relationship } from "./types";
+const initialized = new WeakSet<LocalDatabase>();
 export function initStructured(db: LocalDatabase) {
+  if (initialized.has(db)) return;
   // Additive derived tables keep the existing schema version and rollback compatibility.
   db.sql
     .exec(`CREATE TABLE IF NOT EXISTS structured_datasets(id TEXT PRIMARY KEY, assistant_id TEXT NOT NULL REFERENCES assistants(id) ON DELETE CASCADE, document_id TEXT NOT NULL REFERENCES documents(id) ON DELETE CASCADE, body TEXT NOT NULL);
   CREATE INDEX IF NOT EXISTS structured_assistant ON structured_datasets(assistant_id);
   CREATE TABLE IF NOT EXISTS structured_relationships(id TEXT PRIMARY KEY, assistant_id TEXT NOT NULL REFERENCES assistants(id) ON DELETE CASCADE, left_id TEXT NOT NULL REFERENCES structured_datasets(id) ON DELETE CASCADE, right_id TEXT NOT NULL REFERENCES structured_datasets(id) ON DELETE CASCADE, body TEXT NOT NULL);`);
+  installApprovalRevisionTriggers(db.sql, "structured_datasets");
+  installApprovalRevisionTriggers(db.sql, "structured_relationships");
+  initialized.add(db);
 }
 export function datasets(db: LocalDatabase, assistantId: string): Dataset[] {
   db.assistantDirectory(assistantId);
   initStructured(db);
   return db.sql
     .prepare(
-      "SELECT s.body FROM structured_datasets s JOIN documents d ON d.id=s.document_id WHERE s.assistant_id=? AND json_extract(d.body,'$.status')='ready' AND coalesce(json_extract(d.body,'$.enabled'),1)!=0",
+      "SELECT s.body FROM structured_datasets s JOIN documents d ON d.id=s.document_id WHERE s.assistant_id=? AND d.assistant_id=s.assistant_id AND json_extract(d.body,'$.status')='ready' AND coalesce(json_extract(d.body,'$.enabled'),1)!=0",
     )
     .all(assistantId)
     .map((r) => JSON.parse(r.body as string));

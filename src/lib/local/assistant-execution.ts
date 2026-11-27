@@ -73,6 +73,9 @@ export async function executeAssistantTask(options: AssistantTaskOptions): Promi
     traceId: randomUUID(),
     parentTraceId: options.projectRunId,
   };
+  const terminalScope = () => ({ ...scope,
+    assistantId: options.db.get("assistants", scope.assistantId)?.project_id === scope.projectId ? scope.assistantId : null,
+  });
   const started = performance.now();
   store.append({ ...scope, kind: options.projectRunId ? "assistant.delegated" : "session.started" });
   let result: AssistantExecutionResult;
@@ -81,11 +84,16 @@ export async function executeAssistantTask(options: AssistantTaskOptions): Promi
       store.append({ ...scope, kind: "router.decision", details: { execution_path: executionPath } });
     });
   } catch (error) {
-    store.append({ ...scope, kind: options.signal.aborted ? "execution.cancelled" : "execution.failed" });
+    store.append({ ...terminalScope(), kind: options.signal.aborted ? "execution.cancelled" : "execution.failed" });
     throw error;
   }
+  if (result.executionPath.startsWith("model") && (result.inputTokens !== null || result.outputTokens !== null))
+    store.append({ ...terminalScope(), kind: "model.completed", details: {
+      ...(result.inputTokens !== null ? { input_tokens: result.inputTokens } : {}),
+      ...(result.outputTokens !== null ? { output_tokens: result.outputTokens } : {}),
+    } });
   store.append({
-    ...scope,
+    ...terminalScope(),
     kind: options.signal.aborted ? "execution.cancelled" :
       result.status === "complete" ? "execution.completed" : "execution.failed",
     details: { duration_ms: Math.round(performance.now() - started) },
@@ -167,7 +175,7 @@ async function runAssistantTask(
   };
   try {
     const structured = nativeAction
-      ? executeNativeAction(db, assistant.id, nativeAction, signal, trace)
+      ? await executeNativeAction(db, assistant.id, nativeAction, signal, trace)
       : intent
         ? await executeLocalChat(db, assistant.id, intent, language, signal, trace)
         : await structuredChat({

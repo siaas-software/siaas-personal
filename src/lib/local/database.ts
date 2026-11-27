@@ -1,3 +1,4 @@
+import { installApprovalRevisionTriggers } from "./approval-revision";
 import { LEXICAL_PROFILE } from "../catalog";
 import { researchSettingsSchema } from "../research";
 import { migrateExperimentalFeatures } from "../experimental";
@@ -74,7 +75,7 @@ export class LocalDatabase {
     const version = this.sql.prepare("PRAGMA user_version").get() as {
       user_version: number;
     };
-    if (version.user_version > 5)
+    if (version.user_version > 6)
       throw new Error(
         "Database creato da una versione più recente di SIAAS Personal.",
       );
@@ -169,6 +170,17 @@ export class LocalDatabase {
         BEGIN SELECT RAISE(ABORT, 'execution_events are immutable'); END;
           PRAGMA user_version=5;
         `);
+      });
+    }
+    if (version.user_version < 6) {
+      this.transaction(() => {
+        this.sql.exec(`CREATE TABLE IF NOT EXISTS approval_revisions (
+          project_id TEXT PRIMARY KEY REFERENCES projects(id) ON DELETE CASCADE,
+          revision INTEGER NOT NULL
+        )`);
+        for (const table of ["projects", "assistants", "documents", "knowledge_sources"] as const)
+          installApprovalRevisionTriggers(this.sql, table);
+        this.sql.exec("PRAGMA user_version=6");
       });
     }
     this.migrateFiles();

@@ -5,6 +5,7 @@ import { actionRequest, type ActionSkill } from "@/lib/actions";
 import { Shortcuts } from "./shortcuts";
 import { AboutSettings } from "./about-settings";
 import { AppVersion } from "./app-version";
+import { ApprovalRequests, ProjectSecurity } from "./project-security";
 import { useInterfaceLanguage } from "./interface-language";
 import { shortcutDisplayPrompt } from "@/lib/shortcuts";
 import { WebKnowledge } from "./web-knowledge";
@@ -853,6 +854,7 @@ export function Workspace() {
               : undefined
           }
         >
+          {desktop && activeProject && <ApprovalRequests key={activeProject.id} projectId={activeProject.id} assistants={activeAssistants} italian={italian}/>}
           {error && (
             <div className="notice error" role="alert">
               {error}
@@ -1897,6 +1899,7 @@ export function Workspace() {
               </div>
             </form>
           </div>
+          <ProjectSecurity key={activeProject.id} projectId={activeProject.id} assistants={activeAssistants} italian={italian}/>
           <div className="project-settings-danger">
             <button
               className="button resource-delete"
