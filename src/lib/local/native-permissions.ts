@@ -36,7 +36,11 @@ export function checkNativePermission(
   new ExecutionEventStore(db).append({
     ...(trace ?? { projectId, sessionId: randomUUID(), traceId: randomUUID() }),
     assistantId, kind: "tool.permission_checked",
-    details: { permission: decision.decision, reason_code: decision.reason },
+    details: {
+      permission: decision.decision,
+      reason_code: decision.reason,
+      ...(nativeCapabilities.has(capability) ? { tool_key: capability } : {}),
+    },
   });
   if (decision.decision !== "allow")
     throw new ActionError(403, decision.decision === "ask" ? "User approval required." : "Tool operation denied.");

@@ -24,7 +24,7 @@ export const EXECUTION_EVENT_KINDS = [
 export type ExecutionEventKind = (typeof EXECUTION_EVENT_KINDS)[number];
 export type ExecutionEventDetails = Partial<Record<
   | "execution_path" | "status" | "reason_code" | "permission"
-  | "tool_key" | "model_name" | "duration_ms" | "input_tokens"
+  | "tool_key" | "duration_ms" | "input_tokens"
   | "output_tokens" | "step_index" | "source_count",
   string | number | boolean | null
 >>;
@@ -53,11 +53,15 @@ export type ExecutionEventRecord = {
 };
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const allowedDetailKeys = new Set([
-  "execution_path", "status", "reason_code", "permission", "tool_key",
-  "model_name", "duration_ms", "input_tokens", "output_tokens",
-  "step_index", "source_count",
+const traceCodes = new Map<string, ReadonlySet<string>>([
+  ["execution_path", new Set(["native-action", "deterministic", "model", "model-structured",
+    "arithmetic", "structured", "document", "website", "help", "clarify"])],
+  ["reason_code", new Set(["hard-deny", "unregistered", "assistant-scope", "project-rule", "default", "unknown"])],
+  ["permission", new Set(["allow", "ask", "deny"])],
+  ["status", new Set(["running", "complete", "error", "cancelled"])],
+  ["tool_key", new Set(["documents.read", "datasets.query", "reports.create"])],
 ]);
+const countFields = new Set(["duration_ms", "input_tokens", "output_tokens", "step_index", "source_count"]);
 
 function requiredId(value: string, name: string) {
   if (!uuid.test(value)) throw new Error(`Invalid execution event ${name}.`);
@@ -66,15 +70,16 @@ function requiredId(value: string, name: string) {
 function validatedDetails(input: ExecutionEventDetails | undefined) {
   const details = input ?? {};
   for (const [key, value] of Object.entries(details)) {
-    if (!allowedDetailKeys.has(key))
+    const allowed = traceCodes.get(key);
+    if (allowed) {
+      if (typeof value !== "string" || !allowed.has(value))
+        throw new Error("Invalid execution event metadata.");
+    } else if (countFields.has(key)) {
+      if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 0)
+        throw new Error("Invalid execution event count.");
+    } else {
       throw new Error("Execution event contains unsupported private metadata.");
-    if (
-      value !== null &&
-      !(typeof value === "boolean" ||
-        (typeof value === "string" && value.length <= 160) ||
-        (typeof value === "number" && Number.isFinite(value) && value >= 0))
-    )
-      throw new Error("Invalid execution event metadata.");
+    }
   }
   if (Buffer.byteLength(JSON.stringify(details), "utf8") > 2048)
     throw new Error("Execution event metadata exceeds size limit.");

@@ -30,6 +30,9 @@ test("RC7 event store: project/assistant scopes, append order, persistence and c
     assert.throws(()=>store.append({projectId:projectB.id,assistantId:other.id,sessionId,traceId,kind:"session.started"}),/another project/);
     assert.throws(()=>store.append({projectId:projectA.id,assistantId:other.id,sessionId,traceId,kind:"session.started"}),/does not belong/);
     assert.throws(()=>store.append({projectId:projectA.id,assistantId:a.id,sessionId,traceId,kind:"model.completed",details:{private_prompt:"secret"} as never}),/unsupported private metadata/);
+    for (const details of [{ status: "private document text" }, { tool_key: "/home/private" }, { input_tokens: "secret" }]) {
+      assert.throws(() => store.append({ projectId: projectA.id, sessionId, traceId, kind: "router.decision", details }), /Invalid execution event/);
+    }
     assert.throws(()=>db.sql.prepare("UPDATE execution_events SET kind = 'execution.completed' WHERE id = ?").run(first.id),/immutable/);
     db.sql.prepare("DELETE FROM projects WHERE id = ?").run(projectA.id);
     assert.equal(db.sql.prepare("SELECT COUNT(*) AS count FROM execution_events").get()?.count,0);
