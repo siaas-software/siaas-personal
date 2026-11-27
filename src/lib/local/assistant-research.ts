@@ -1,3 +1,4 @@
+import { checkNativePermission, type ToolTrace } from "./native-permissions";
 import { researchSettingsSchema } from "../research";
 import { researchTerms } from "../research-policy";
 import { readLinkedDocument } from "./knowledge";
@@ -7,6 +8,7 @@ import type { LocalDatabase } from "./database";
 import { runResearchWorkflow, type ResearchResult } from "./research-workflow";
 
 type Options = {
+  trace?: ToolTrace;
   db: LocalDatabase;
   assistantId: string;
   modelId: string;
@@ -20,6 +22,7 @@ type Options = {
 export async function retrieveAssistantSources(
   options: Pick<
     Options,
+    | "trace"
     | "db"
     | "assistantId"
     | "embeddingProfile"
@@ -32,6 +35,7 @@ export async function retrieveAssistantSources(
     emit?: Options["emit"];
   },
 ): Promise<Source[]> {
+  checkNativePermission(options.db, options.assistantId, "documents.read", options.trace);
   const docs = new Map(
     options.db
       .rows("documents")

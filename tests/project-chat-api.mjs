@@ -480,7 +480,9 @@ try {
   for (const child of delegations) {
     assert.equal(child.parent_trace_id, events[0].trace_id);
     const kinds = events.filter(event => event.trace_id === child.trace_id).map(event => event.kind);
-    assert.deepEqual(kinds, ["assistant.delegated", "router.decision", "execution.completed"]);
+    assert.deepEqual(kinds.filter(kind => kind !== "tool.permission_checked"),
+      ["assistant.delegated", "router.decision", "execution.completed"]);
+    assert(kinds.includes("tool.permission_checked"));
   }
   assert.equal(sharing.status, "complete");
   assert(questions.at(-1).includes("UNTRUSTED DATA"));

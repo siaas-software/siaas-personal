@@ -97,8 +97,6 @@ export async function executeLocalChat(
   trace?: ToolTrace,
 ) {
   signal.throwIfAborted();
-  if (intent.kind === "document" || intent.kind === "website")
-    checkNativePermission(db, assistantId, "documents.read", trace);
   if (intent.kind === "structured")
     checkNativePermission(db, assistantId, "datasets.query", trace);
   let content: string;
@@ -173,6 +171,7 @@ export async function executeLocalChat(
         sources = await retrieveAssistantSources({
           db,
           assistantId,
+          trace,
           question: intent.terms,
           signal,
           embeddingProfile: null,

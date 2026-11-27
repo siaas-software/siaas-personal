@@ -1,3 +1,4 @@
+import { checkNativePermission, type ToolTrace } from "../local/native-permissions";
 import { requestsDatasetCalculation } from "../local/chat-router";
 import type { LocalDatabase } from "../local/database";
 import { retrieveAssistantSources } from "../local/assistant-research";
@@ -9,6 +10,7 @@ import { queryStructured, analysisMarkdown } from "./service";
 import { AnalysisError } from "./types";
 export async function structuredChat(options: {
   db: LocalDatabase;
+  trace?: ToolTrace;
   assistantId: string;
   modelId: string;
   question: string;
@@ -29,6 +31,7 @@ export async function structuredChat(options: {
     options.emit(content);
     return { content, sources: [], result: null };
   }
+  checkNativePermission(options.db, options.assistantId, "datasets.query", options.trace);
   let planning;
   try {
     planning = await planQuestion(
@@ -70,6 +73,8 @@ export async function structuredChat(options: {
     options.emit(content);
     return { content, sources: [], result: null };
   }
+  // Planning can await a slow model. Check current policy again before executing its plan.
+  checkNativePermission(options.db, options.assistantId, "datasets.query", options.trace);
   let result;
   try {
     result = queryStructured(options.db, options.assistantId, planning.plan);

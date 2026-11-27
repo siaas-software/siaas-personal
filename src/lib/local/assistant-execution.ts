@@ -171,6 +171,7 @@ async function runAssistantTask(
       : intent
         ? await executeLocalChat(db, assistant.id, intent, language, signal, trace)
         : await structuredChat({
+            trace,
             db,
             assistantId: assistant.id,
             modelId: modelId!,
@@ -212,6 +213,7 @@ async function runAssistantTask(
       generationStarted = true;
       inputTokens = outputTokens = null;
       const research = await prepareAssistantResearch({
+        trace,
         db,
         assistantId: assistant.id,
         modelId: modelId!,
