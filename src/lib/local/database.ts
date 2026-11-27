@@ -74,7 +74,7 @@ export class LocalDatabase {
     const version = this.sql.prepare("PRAGMA user_version").get() as {
       user_version: number;
     };
-    if (version.user_version > 4)
+    if (version.user_version > 5)
       throw new Error(
         "Database creato da una versione più recente di SIAAS Personal.",
       );
@@ -140,7 +140,37 @@ export class LocalDatabase {
       if (research.success)
         this.put("assistants", { ...assistant, research: research.data }, true);
     }
-    this.sql.exec("PRAGMA user_version=4");
+    if (version.user_version < 5) {
+      this.transaction(() => {
+        this.sql.exec(`
+      CREATE TABLE IF NOT EXISTS execution_events (
+        id TEXT PRIMARY KEY,
+        project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+        assistant_id TEXT REFERENCES assistants(id) ON DELETE CASCADE,
+        session_id TEXT NOT NULL,
+        trace_id TEXT NOT NULL,
+        parent_trace_id TEXT,
+        sequence INTEGER NOT NULL,
+        kind TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        details TEXT NOT NULL CHECK(json_valid(details)),
+        UNIQUE(session_id, sequence)
+      );
+      CREATE INDEX IF NOT EXISTS execution_events_project
+        ON execution_events(project_id, created_at DESC);
+      CREATE INDEX IF NOT EXISTS execution_events_assistant
+        ON execution_events(project_id, assistant_id, created_at DESC);
+      CREATE INDEX IF NOT EXISTS execution_events_session
+        ON execution_events(project_id, session_id, sequence);
+      CREATE INDEX IF NOT EXISTS execution_events_trace
+        ON execution_events(project_id, trace_id);
+      CREATE TRIGGER IF NOT EXISTS execution_events_prevent_update
+        BEFORE UPDATE ON execution_events
+        BEGIN SELECT RAISE(ABORT, 'execution_events are immutable'); END;
+          PRAGMA user_version=5;
+        `);
+      });
+    }
     this.migrateFiles();
     removeEmptyLegacyDirectories(
       directory,

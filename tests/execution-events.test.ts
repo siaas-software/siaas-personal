@@ -56,3 +56,30 @@ test("RC7 event store persists original events across database reopen", () => {
     rmSync(dir,{recursive:true,force:true});
   }
 });
+
+test("schema 4 migrates on open and child traces must stay within their parent session", () => {
+  const dir = mkdtempSync(join(tmpdir(), "siaas-trace-migration-"));
+  let db = new LocalDatabase(dir);
+  try {
+    const project = db.put("projects", { tenant_id: LOCAL_USER_ID, name: "Existing" });
+    db.sql.exec("DROP TABLE execution_events; PRAGMA user_version=4");
+    db.close();
+    db = new LocalDatabase(dir);
+    assert.equal(db.sql.prepare("PRAGMA user_version").get()?.user_version, 5);
+    assert.equal(db.get("projects", project.id)?.name, "Existing");
+    const store = new ExecutionEventStore(db);
+    const root = {
+      projectId: project.id, sessionId: randomUUID(), traceId: randomUUID(),
+      kind: "session.started" as const,
+    };
+    store.append(root);
+    const child = { ...root, traceId: randomUUID(), parentTraceId: root.traceId };
+    store.append(child);
+    assert.throws(() => store.append({ ...child, parentTraceId: undefined }), /parent cannot change/);
+    assert.throws(() => store.append({ ...child, traceId: randomUUID(), sessionId: randomUUID() }), /Invalid parent/);
+    assert.equal(store.listSession(project.id, root.sessionId).length, 2);
+  } finally {
+    db.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

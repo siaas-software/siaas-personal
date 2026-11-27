@@ -81,36 +81,8 @@ function validatedDetails(input: ExecutionEventDetails | undefined) {
   return details;
 }
 
-/** Creates an additive table; migration/versioning and runtime wiring remain RC7 work. */
 export class ExecutionEventStore {
-  constructor(private readonly db: LocalDatabase) {
-    this.db.sql.exec(`
-      CREATE TABLE IF NOT EXISTS execution_events (
-        id TEXT PRIMARY KEY,
-        project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-        assistant_id TEXT REFERENCES assistants(id) ON DELETE CASCADE,
-        session_id TEXT NOT NULL,
-        trace_id TEXT NOT NULL,
-        parent_trace_id TEXT,
-        sequence INTEGER NOT NULL,
-        kind TEXT NOT NULL,
-        created_at TEXT NOT NULL,
-        details TEXT NOT NULL CHECK(json_valid(details)),
-        UNIQUE(session_id, sequence)
-      );
-      CREATE INDEX IF NOT EXISTS execution_events_project
-        ON execution_events(project_id, created_at DESC);
-      CREATE INDEX IF NOT EXISTS execution_events_assistant
-        ON execution_events(project_id, assistant_id, created_at DESC);
-      CREATE INDEX IF NOT EXISTS execution_events_session
-        ON execution_events(project_id, session_id, sequence);
-      CREATE INDEX IF NOT EXISTS execution_events_trace
-        ON execution_events(project_id, trace_id);
-      CREATE TRIGGER IF NOT EXISTS execution_events_prevent_update
-        BEFORE UPDATE ON execution_events
-        BEGIN SELECT RAISE(ABORT, 'execution_events are immutable'); END;
-    `);
-  }
+  constructor(private readonly db: LocalDatabase) {}
 
   private project(projectId: string) {
     requiredId(projectId, "projectId");
@@ -143,10 +115,19 @@ export class ExecutionEventStore {
       if (previous && previous.project_id !== input.projectId)
         throw new Error("Execution session belongs to another project.");
       const trace = this.db.sql.prepare(
-        "SELECT project_id, session_id FROM execution_events WHERE trace_id = ? LIMIT 1"
-      ).get(input.traceId) as { project_id: string; session_id: string } | undefined;
+        "SELECT project_id, session_id, parent_trace_id FROM execution_events WHERE trace_id = ? LIMIT 1"
+      ).get(input.traceId) as { project_id: string; session_id: string; parent_trace_id: string | null } | undefined;
       if (trace && (trace.project_id !== input.projectId || trace.session_id !== input.sessionId))
         throw new Error("Execution trace belongs to another session.");
+      if (trace && trace.parent_trace_id !== (input.parentTraceId ?? null))
+        throw new Error("Execution trace parent cannot change.");
+      if (input.parentTraceId != null) {
+        const parent = this.db.sql.prepare(
+          "SELECT 1 FROM execution_events WHERE project_id = ? AND session_id = ? AND trace_id = ? LIMIT 1"
+        ).get(input.projectId, input.sessionId, input.parentTraceId);
+        if (!parent || input.parentTraceId === input.traceId)
+          throw new Error("Invalid parent execution trace.");
+      }
       const latest = this.db.sql.prepare(
         "SELECT COALESCE(MAX(sequence), 0) AS seq FROM execution_events WHERE session_id = ?"
       ).get(input.sessionId) as { seq: number };

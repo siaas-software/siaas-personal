@@ -42,6 +42,7 @@ test("malformed, duplicated and privilege-confusing rule objects are rejected", 
     {rules:[{capability:"x",decision:"ask",trusted:true}]},
     {rules:[], bypass:true},
     {rules:"allow"},
+    {rules:[{capability:"documents.read",decision:["allow"]}]},
     {rules:Array.from({length:101}, (_,i)=>({capability:"c"+i,decision:"deny"}))},
   ]) assert.throws(()=>parseProjectToolPermissions(config));
 });

@@ -502,7 +502,7 @@ try {
   assert.equal(reopened.get("project_runs", sharing.id).status, "complete");
   assert.equal(
     reopened.sql.prepare("PRAGMA user_version").get().user_version,
-    4,
+    5,
   );
   reopened.close();
   await api("/api/projects/" + project.id, "DELETE");

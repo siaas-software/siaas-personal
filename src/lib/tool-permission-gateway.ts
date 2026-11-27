@@ -52,7 +52,7 @@ export function parseProjectToolPermissions(input: unknown): ProjectToolPermissi
     const rule = raw as Record<string, unknown>;
     if (Object.keys(rule).some(key => key !== "capability" && key !== "decision") ||
         typeof rule.capability !== "string" || !CAPABILITY.test(rule.capability) ||
-        !["allow", "ask", "deny"].includes(String(rule.decision)) ||
+        (rule.decision !== "allow" && rule.decision !== "ask" && rule.decision !== "deny") ||
         seen.has(rule.capability)) throw new Error("Invalid or duplicate permission rule.");
     seen.add(rule.capability);
     rules.push({ capability: rule.capability, decision: rule.decision as ToolDecision });
