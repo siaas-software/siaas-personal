@@ -1,0 +1,7 @@
+# Missing-Docker mandatory gate — PASS, 2026-11-27
+
+Source: clean commit `0a475823e6b64702b2e208583a04d5f40cbbd42e`, restored using `git archive --format=tar` without changing source or test. Official `node:24.22.0-bookworm-slim`, pinned `node@sha256:91acba91b842bec0bf7ea6f5e09c644c7ccad72c4996ed9616d861d1c7cd60d4`. Debian 12 Linux x64, Node 24.22.0, user node, default bridge network, 4 CPUs, 6 GiB RAM, PID limit 512, all capabilities dropped, no-new-privileges.
+
+Read-only mounts: source/evidence input and existing proxy CA. No Docker socket, Docker/Compose/daemon binaries, or host user profile. No PATH override. Native loopback HTTP probe PASS; HTTPS/TLS checks retained. Official image pulled successfully. The unchanged `inspectDocker()` preflight returned `not_installed`. `npm ci`, `npm run desktop:build`, and unchanged `node --import tsx tests/missing-docker-e2e.mjs` completed; overall exit **0**. Full log retained. Local application and HTTP/SQLite tests use disposable container data; Ollama is genuinely unreachable at the port reserved by the unchanged test.
+
+Run the attached run.sh in the pinned image with task source tar at /input/source.tar, `NODE_EXTRA_CA_CERTS=/run/proxy-ca.pem`, `NODE_USE_ENV_PROXY=1`, `NEXT_TELEMETRY_DISABLED=1`, `npm_config_cache=/tmp/npm-cache`. The CA mount is needed only for this managed proxy. Container is stopped after successful execution; its root filesystem is retained temporarily for evidence. No host Docker alteration, test weakening, application change, native GUI or real Gemma PASS is implied.

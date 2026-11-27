@@ -73,7 +73,10 @@ try {
   const exported = await api(`/api/project/export?project=${project.id}`);
   assert.equal(exported.format, 'siaas-project-v2');
   assert.equal(exported.project.orchestration.enabled, true);
-  assert.deepEqual(exported.project.orchestration.assistant_indices, [2, 0]);
+  // Workspace lists newest first, portable export lists oldest first.
+  // Verify participant identity, not coincidental equal-millisecond ordering.
+  const selectedNames = [assistants[2].name, assistants[0].name];
+  assert.deepEqual(exported.project.orchestration.assistant_indices.map(i => exported.project.assistants[i].name), selectedNames);
   assert(!JSON.stringify(exported.project.orchestration).includes(assistants[0].id));
   assert(exported.project.assistants.every(a => a.sources.length === 1 && a.model === null && !('color' in a)));
   assert(!JSON.stringify(exported).includes('SECRET_LOCAL_TEXT_123'));
@@ -90,7 +93,8 @@ try {
   const fresh = (await api('/api/workspace')).assistants.filter(a => a.project_id === empty.id);
   assert.equal(fresh.length, 3);
   const importedConfig = (await api("/api/workspace")).projects.find(p => p.id === empty.id).orchestration;
-  assert.deepEqual(importedConfig.assistant_ids, [fresh[2].id, fresh[0].id]);
+  assert.deepEqual(importedConfig.assistant_ids.map(id => fresh.find(a => a.id === id)?.name), selectedNames);
+  assert(importedConfig.assistant_ids.every(id => !assistants.some(a => a.id === id)));
   assert.equal(importedConfig.enabled, true);
   assert.equal(importedConfig.share_results, true);
   for (const assistant of fresh) assert.equal((await api(`/api/documents?assistant=${assistant.id}`))[0].enabled, true);

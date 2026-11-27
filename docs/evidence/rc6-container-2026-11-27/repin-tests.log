@@ -1,0 +1,29 @@
+✔ computer-science-study: semantic palette controls card, preview, export and new project (20.82147ms)
+✔ production-planning: semantic palette controls card, preview, export and new project (6.241429ms)
+✔ personal-finance: semantic palette controls card, preview, export and new project (15.003684ms)
+✔ construction-cost-analysis: semantic palette controls card, preview, export and new project (3.298931ms)
+✔ technical-documentation: semantic palette controls card, preview, export and new project (3.548591ms)
+✔ materials-procurement: semantic palette controls card, preview, export and new project (4.855095ms)
+✔ pdf-maintenance-acceptance: semantic palette controls card, preview, export and new project (3.748852ms)
+✔ spreadsheet-purchase-reconciliation: semantic palette controls card, preview, export and new project (3.849575ms)
+✔ legacy/custom colors survive import/export and get readable card text (1.618886ms)
+✔ all authoritative keys accepted; malformed and unknown keys rejected (1.275594ms)
+✔ upgrade adds construction templates once while preserving saved rows, projects, assistants and Knowledge across restart (22.169854ms)
+✔ v2 export strips local data, models and assistant colors; legacy v1 stays valid (6.000894ms)
+✔ offline template import persists sources, isolates assistants, retries and replaces indexes (161.602909ms)
+✔ new built-ins replace retired catalog entries without changing existing projects (28.824257ms)
+✔ sync validates semantic/legacy catalogs, subsets, hashes and reproducibility (2131.937204ms)
+✔ template round trip keeps configuration and strips personal data at every level (3.073861ms)
+✔ built-in templates are complete, persist once and respect tombstones across restarts (12.017958ms)
+✔ v2 project chat settings remain portable and map only selected local assistants (2.780308ms)
+✔ RC5 pristine official seeds upgrade to v2 while edits, tombstones and projects are preserved (9.439178ms)
+✔ two Gemma examples import with distinct local assistants, disabled coordinator and no embedded documents (10.9829ms)
+✔ RC5 migration preserves edits and tombstones committed after the initial list read (8.961256ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2488.91591
