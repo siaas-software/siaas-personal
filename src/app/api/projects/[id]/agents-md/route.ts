@@ -1,4 +1,6 @@
 import { localWorkspace, fail, HttpError, uuid } from "@/lib/http";
+import { enabledSkills, projectSkills } from "@/lib/local/project-skills";
+import { listActions } from "@/lib/local/actions";
 import { generateProjectAgentsMarkdown } from "@/lib/agents-md";
 import type { Assistant, Project } from "@/lib/catalog";
 
@@ -7,7 +9,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   try {
     const { db, tenantId } = await localWorkspace(req);
     const id = uuid.parse((await params).id);
-    const project = db.get("projects", id) as (Project & { permissions?: unknown }) | null;
+    const project = db.get("projects", id) as (Project & { permissions?: unknown; action_ids?: string[] }) | null;
     if (!project || project.tenant_id !== tenantId)
       throw new HttpError(404, "Project not found.");
     const assistants = db.rows("assistants").filter((a) =>
@@ -17,11 +19,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       name: project.name,
       description: project.description,
       assistants: assistants.map(a=>({
-        name:a.name, description:a.description, instructions:a.instructions,
+        name:a.name, description:a.description, instructions:a.instructions, skills:enabledSkills(db,id,a.id).map(s => s.name),
       })),
-      // Actions are workspace-scoped in RC5; phase C must add explicit
-      // project associations before exporting/displaying project Actions.
-      actions: [],
+      skills: projectSkills(db,id).map(s => s.name),
+      actions: listActions(db).filter(action => project.action_ids?.includes(action.id)),
       permissions: project.permissions,
       orchestration: project.orchestration,
     });

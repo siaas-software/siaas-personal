@@ -5,6 +5,8 @@ import { actionRequest, type ActionSkill } from "@/lib/actions";
 import { Shortcuts } from "./shortcuts";
 import { AboutSettings } from "./about-settings";
 import { AppVersion } from "./app-version";
+import { ProjectSkills } from "./project-skills";
+import { ProjectGuidance } from "./project-guidance";
 import { ApprovalRequests, ProjectSecurity } from "./project-security";
 import { useInterfaceLanguage } from "./interface-language";
 import { shortcutDisplayPrompt } from "@/lib/shortcuts";
@@ -1899,6 +1901,8 @@ export function Workspace() {
               </div>
             </form>
           </div>
+          <ProjectSkills key={"skills-" + activeProject.id} projectId={activeProject.id} assistants={activeAssistants} italian={italian}/>
+          <ProjectGuidance key={"guidance-" + activeProject.id} projectId={activeProject.id} italian={italian}/>
           <ProjectSecurity key={activeProject.id} projectId={activeProject.id} assistants={activeAssistants} italian={italian}/>
           <div className="project-settings-danger">
             <button

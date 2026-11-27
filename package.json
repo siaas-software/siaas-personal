@@ -58,6 +58,7 @@
     "decimal.js": "10.6.0",
     "electron-updater": "6.8.11",
     "exceljs": "4.4.0",
+    "jszip": "3.10.2",
     "langchain": "1.5.16",
     "lucide-react": "1.49.0",
     "mammoth": "1.13.0",
@@ -66,7 +67,9 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-markdown": "10.1.0",
+    "remark-parse": "11.0.0",
     "server-only": "0.0.1",
+    "unified": "11.0.5",
     "unpdf": "1.8.1",
     "yauzl": "3.4.0",
     "zod": "4.6.7"

@@ -410,6 +410,47 @@ try {
   assert.match(native.steps[0].text, /Only-first/);
   assert(!native.steps[1].text.includes("Only-first"));
   assert(!JSON.stringify(native).includes("Private-other"));
+  const skillsUrl = "/api/projects/"+project.id+"/skills";
+  const archiveSkill = async body => {
+    const zip = new JSZip();
+    zip.file("review/SKILL.md", "---\nname: review\ndescription: Review material\n---\n" + body);
+    return zip.generateAsync({type:"base64"});
+  };
+  const archive = await archiveSkill("Compare evidence.");
+  const preview = await api(skillsUrl, "POST", {op:"preview",archive});
+  const install = {op:"install",archive,digest:preview.digest,conflict:"keep"};
+  const {id:skillId} = await api(skillsUrl,"POST",install);
+  const assignment = {op:"assign", assistant:assistants[0].id,id:skillId,digest:preview.digest,enabled:true};
+  assert.deepEqual((await api(skillsUrl+"?assistant="+assistants[0].id)).enabled, []);
+  await api(skillsUrl,"POST",{...assignment,assistant:stranger.id},404);
+  await api(skillsUrl,"POST",assignment);
+  assert.deepEqual((await api(skillsUrl+"?assistant="+assistants[0].id)).enabled, [skillId]);
+  assert.deepEqual((await api(skillsUrl+"?assistant="+assistants[1].id)).enabled, []);
+  const exportedSkill = await fetch(origin+skillsUrl+"?id="+skillId+"&export=1",{headers});
+  assert.equal(exportedSkill.status,200);
+  const exportedArchive=Buffer.from(await exportedSkill.arrayBuffer()).toString("base64");
+  assert.equal((await api(skillsUrl,"POST",{op:"preview",archive:exportedArchive})).digest,preview.digest);
+  const changedArchive=await archiveSkill("Different guidance.");
+  const changed=await api(skillsUrl,"POST",{op:"preview",archive:changedArchive});
+  await api(skillsUrl,"POST",{op:"install",archive:changedArchive,digest:changed.digest,conflict:"replace",expected:preview.digest});
+  assert.deepEqual((await api(skillsUrl+"?assistant="+assistants[0].id)).enabled, []);
+  await api(skillsUrl,"POST",{op:"restore",id:skillId,digest:changed.digest});
+  assert.equal((await api(skillsUrl+"?id="+skillId)).digest,preview.digest);
+  await api("/api/projects/"+other.id+"/skills?id="+skillId,"GET",undefined,404);
+  const projectActions = "/api/projects/" + project.id + "/actions";
+  const linkedAction = "builtin:list-sources";
+  const list = await api(projectActions);
+  assert(list.available.some(a => a.id === linkedAction));
+  assert.deepEqual(list.selected, []);
+  await api(projectActions, "PUT", { ids: [linkedAction] });
+  const actionName = list.available.find(a => a.id === linkedAction).name;
+  const previewPath = "/api/projects/" + project.id + "/agents-md";
+  assert((await api(previewPath)).markdown.includes("### " + actionName));
+  await api(projectActions, "PUT", { ids: ["unknown-action"] }, 400);
+  assert.deepEqual((await api(projectActions)).selected, [linkedAction]);
+  assert.deepEqual((await api("/api/projects/" + other.id + "/actions")).selected, []);
+  await api(projectActions, "PUT", { ids: [] });
+  assert(!(await api(previewPath)).markdown.includes("### " + actionName));
   const permissionsPath = "/api/projects/" + project.id + "/permissions";
   const tracePath = "/api/projects/" + project.id + "/trace";
   assert.equal((await fetch(origin + tracePath)).status, 403);
@@ -598,7 +639,7 @@ try {
   assert.equal(reopened.get("project_runs", sharing.id).status, "complete");
   assert.equal(
     reopened.sql.prepare("PRAGMA user_version").get().user_version,
-    6,
+    7,
   );
   reopened.close();
   await api("/api/projects/" + project.id, "DELETE");
