@@ -1,0 +1,5 @@
+
+> siaas-personal@1.1.0-rc.5 test:projects
+> node tests/project-flows.mjs
+
+PASS: real desktop UI/API/SQLite; template configuration, private-data exclusion, named export/import, deletion and restart, eight built-ins, real cards, preserved white default with accessible palette display, sidebar, palette editing/background, no project-list Ollama banner.

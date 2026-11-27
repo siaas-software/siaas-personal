@@ -1,4 +1,5 @@
 import type { LocalDatabase } from "./local/database";
+import rc5Builtins from "../generated/builtin-templates-rc5.json";
 import {
   BUILTIN_TEMPLATES,
   templateProjectSchema,
@@ -19,7 +20,28 @@ export async function listTemplates(
   if (error) throw error;
   const rows = data ?? [];
   for (const [key, preset] of Object.entries(BUILTIN_TEMPLATES)) {
-    if (rows.some((row) => row.builtin_key === key)) continue;
+    const previous = rows.find((row) => row.builtin_key === key);
+    if (previous) {
+      // Upgrade only a pristine, still-active RC5 official seed. Never change a
+      // deleted (tombstoned) or user-customized preset, nor any existing project.
+      const baseline = rc5Builtins[key as keyof typeof rc5Builtins];
+      // Re-read and compare inside the write transaction: a settings edit or
+      // tombstone may have committed while the initial query was awaited.
+      const current = db.transaction(() => {
+        const row = db.get("project_templates", previous.id);
+        if (!row || row.tenant_id !== tenantId) return null;
+        const isPristine =
+          !row.deleted && row.orchestration === undefined && baseline !== undefined &&
+          JSON.stringify(templateProjectSchema.parse(row)) ===
+            JSON.stringify(templateProjectSchema.parse(baseline));
+        return isPristine
+          ? db.put("project_templates", { ...row, ...templateProjectSchema.parse(preset) }, true)
+          : row;
+      });
+      if (current) Object.assign(previous, current);
+      else previous.deleted = true;
+      continue;
+    }
     const project = templateProjectSchema.parse(preset);
     const { data: inserted, error: insertError } = await db
       .from("project_templates")

@@ -213,7 +213,7 @@ try {
   assert.equal((await request(`/api/conversations/${conversation.id}`)).status, 404);
   await assert.rejects(access(join(directory, 'data', 'files', doc.storage_path)));
   const retainedTemplates = await api('/api/templates');
-  assert.equal(retainedTemplates.filter(t => t.builtin_key).length, 6);
+  assert.equal(retainedTemplates.filter(t => t.builtin_key).length, 8);
   assert.deepEqual(retainedTemplates.filter(t => !t.builtin_key).map(t => t.name).sort(), ['Evento riutilizzabile', 'Template importato']);
   await page.getByRole('button', { name: 'New project', exact: true }).first().click();
   await page.getByLabel('Project name', { exact: true }).fill('Project bianco');
@@ -259,7 +259,7 @@ try {
   assert(!(await api('/api/templates')).some(t => t.builtin_key === 'computer-science-study' || t.id === custom.id));
   assert((await api('/api/templates')).some(t => t.name === 'Evento riutilizzabile'));
   assert.equal(pageErrors.length, 0, pageErrors.join('\n'));
-  console.log('PASS: real desktop UI/API/SQLite; template configuration, private-data exclusion, named export/import, deletion and restart, six built-ins, real cards, preserved white default with accessible palette display, sidebar, palette editing/background, no project-list Ollama banner.');
+  console.log('PASS: real desktop UI/API/SQLite; template configuration, private-data exclusion, named export/import, deletion and restart, eight built-ins, real cards, preserved white default with accessible palette display, sidebar, palette editing/background, no project-list Ollama banner.');
 } catch (error) {
   console.error(logs); throw error;
 } finally {

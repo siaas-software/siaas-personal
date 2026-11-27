@@ -39,9 +39,11 @@ const input = {
   ],
 };
 
-test("v1 export strips local data, models and assistant colors; legacy v1 stays valid", () => {
+test("v2 export strips local data, models and assistant colors; legacy v1 stays valid", () => {
   const exported = JSON.parse(exportProjectBundle(input).content);
-  assert.equal(exported.format, "siaas-project-v1");
+  assert.equal(exported.format, "siaas-project-v2");
+  assert.deepEqual(exported.project.orchestration.assistant_indices, []);
+  assert.equal(exported.project.orchestration.enabled, false);
   assert.deepEqual(Object.keys(exported).sort(), ["format", "project"]);
   assert.deepEqual(exported.project.assistants[0], {
     name: "Tutor",
@@ -193,6 +195,8 @@ test("new built-ins replace retired catalog entries without changing existing pr
       "construction-cost-analysis",
       "technical-documentation",
       "materials-procurement",
+      "pdf-maintenance-acceptance",
+      "spreadsheet-purchase-reconciliation",
     ]);
     const old = db.put("project_templates", {
       tenant_id: LOCAL_USER_ID,
@@ -208,7 +212,7 @@ test("new built-ins replace retired catalog entries without changing existing pr
       old.id,
     );
     const rows = await listTemplates(db, LOCAL_USER_ID);
-    assert.equal(rows.length, 6);
+    assert.equal(rows.length, 8);
     assert.equal(db.get("projects", project.project.id)?.template_id, old.id);
     for (const row of rows) {
       assert(row.assistants.length > 0);
@@ -222,6 +226,11 @@ test("new built-ins replace retired catalog entries without changing existing pr
       );
       const imported = importLocalTemplate(db, row);
       assert.equal(imported.documents.length, sourceCount);
+      assert.deepEqual(
+        imported.project.orchestration.assistant_ids,
+        row.orchestration?.assistant_indices.map((index) => imported.assistantIds[index]) ?? [],
+      );
+      assert.equal(imported.project.orchestration.enabled, false);
       if (!row.assistants[0].sources.length) continue;
       const manifest = JSON.parse(
         readFileSync(

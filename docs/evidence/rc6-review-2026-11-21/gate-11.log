@@ -1,0 +1,29 @@
+
+> siaas-personal@1.1.0-rc.5 test:projects
+> node tests/project-flows.mjs
+
+▲ Next.js 16.4.6
+- Local:         http://127.0.0.1:40131
+- Network:       http://127.0.0.1:40131
+✓ Ready in 0ms
+✓ Running next.config took 2ms
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+browserType.launch: Executable doesn't exist at /home/agent/.cache/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     npx playwright install                                 ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+    at /workspace/siaas-personal-flow01/tests/project-flows.mjs:65:28 {
+  log: [],
+  name: 'Error'
+}
+
+Node.js v24.22.0

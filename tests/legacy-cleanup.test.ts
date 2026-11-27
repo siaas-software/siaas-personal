@@ -102,7 +102,15 @@ test("startup removes only empty legacy folders, preserves personal records and 
         ],
       },
     });
-    assert.deepEqual(templateBundle(bundle.project), bundle);
+    const exported = templateBundle(bundle.project);
+    assert.equal(exported.format, "siaas-project-v2");
+    const { orchestration, ...portableProject } = exported.project;
+    assert.deepEqual(portableProject, bundle.project);
+    assert.deepEqual(orchestration, {
+      enabled: false, instructions: "", share_results: false,
+      assistant_indices: [], max_steps: 4,
+    });
+    assert.deepEqual(templateBundleSchema.parse(exported), exported);
     assert(!JSON.stringify(bundle).includes("skills"));
     assert.equal(bundle.project.assistants[0].instructions, "Keep");
   } finally {

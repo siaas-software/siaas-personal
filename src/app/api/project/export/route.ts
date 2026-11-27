@@ -1,6 +1,7 @@
 import { isDesktop } from "@/lib/runtime";
 import { localWorkspace, fail, HttpError, uuid } from "@/lib/http";
 import { exportProjectBundle } from "@/lib/export-bundle";
+import { portableTemplateOrchestration } from "@/lib/templates";
 
 export async function GET(req: Request) {
   try {
@@ -8,7 +9,7 @@ export async function GET(req: Request) {
     const projectId = uuid.parse(new URL(req.url).searchParams.get("project"));
     const { data: project, error: projectError } = await db
       .from("projects")
-      .select("name,description,color")
+      .select("name,description,color,orchestration")
       .eq("id", projectId)
       .eq("tenant_id", tenantId)
       .maybeSingle();
@@ -38,6 +39,7 @@ export async function GET(req: Request) {
       description: project.description,
       color: project.color,
       assistants: portableAssistants,
+      orchestration: portableTemplateOrchestration(project.orchestration, (assistants ?? []).map((a) => a.id)),
     });
     return new Response(bundle.content, {
       headers: {

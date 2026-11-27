@@ -41,7 +41,7 @@
 - Structured parsing runs in a bounded worker. Keep archive/resource limits, formula/error/cached-value distinctions and explicit review of ambiguous mappings. Never execute spreadsheet formulas, macros, arbitrary expressions, SQL or model-generated code.
 - Analytical plans are schema-validated and run read-only against authorized datasets in the TypeScript engine. Preserve operation/time/output budgets, precision, partitions, relationship/cardinality checks, freshness, provenance and explicit truncation. SQLite stores datasets/results; it is not an arbitrary analytical SQL executor. Model explanations and RAG excerpts must not substitute for computed totals. See [the structured guide](docs/structured-data-analysis.md).
 - Advanced Reasoning (Beta) and Advanced Web Research (Beta) are independently opt-in and off by default. Docker is optional and required only by these supported Beta stacks; standard chat, Knowledge, structured analysis and configured websites work without it. Preserve prerequisite checks and per-assistant web-discovery consent. See [the research guide](docs/research-en.md).
-- Preserve `siaas-project-v1`: portable templates carry configuration/public source URLs, with model selection reset to `null`; never include documents, local paths, chats, embeddings or indexing data. Do not hand-edit generated catalog snapshots.
+- Preserve legacy `siaas-project-v1` import support while adopting `siaas-project-v2` for portable project orchestration; templates carry configuration/public source URLs, with model selection reset to `null`; never include documents, local paths, chats, embeddings or indexing data. Do not hand-edit generated catalog snapshots.
 
 ## Development commands and validation
 

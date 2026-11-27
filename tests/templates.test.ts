@@ -5,8 +5,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { LocalDatabase } from "../src/lib/local/database";
 import { LOCAL_USER_ID } from "../src/lib/runtime";
-import { templateBundle, templateBundleSchema } from "../src/lib/templates";
+import { templateBundle, templateBundleSchema, materializeTemplateOrchestration, portableTemplateOrchestration } from "../src/lib/templates";
 import { listTemplates } from "../src/lib/template-store";
+import rc5Builtins from "../src/generated/builtin-templates-rc5.json";
+import { BUILTIN_TEMPLATES } from "../src/lib/templates";
+import { importLocalTemplate } from "../src/lib/local/template-project";
 
 test("template round trip keeps configuration and strips personal data at every level", () => {
   const result = templateBundle({ name: "Example", description: "Role", color: "#123456", documents: ["secret"],
@@ -25,11 +28,139 @@ test("built-in templates are complete, persist once and respect tombstones acros
   try {
     const client = () => db;
     const first = await listTemplates(client(), LOCAL_USER_ID);
-    assert.equal(first.length, 6);
+    assert.equal(first.length, 8);
     assert(first.every((t) => t.assistants.every((a) => a.instructions && a.description && a.model === null)));
-    assert.equal((await listTemplates(client(), LOCAL_USER_ID)).length, 6);
+    assert.equal((await listTemplates(client(), LOCAL_USER_ID)).length, 8);
     await db.from("project_templates").update({ deleted: true }).eq("id", first[0].id);
     db.close(); db = new LocalDatabase(path);
-    assert.equal((await listTemplates(client(), LOCAL_USER_ID)).length, 5);
+    assert.equal((await listTemplates(client(), LOCAL_USER_ID)).length, 7);
   } finally { db.close(); rmSync(path, { recursive: true, force: true }); }
+});
+
+test("v2 project chat settings remain portable and map only selected local assistants", () => {
+  const local = ["11111111-1111-4111-8111-111111111111", "22222222-2222-4222-8222-222222222222"];
+  const configured = materializeTemplateOrchestration({
+    enabled: true,
+    instructions: "Coordinate without expanding permissions.",
+    share_results: true,
+    assistant_indices: [1, 0],
+    max_steps: 2,
+  }, local);
+  assert.deepEqual(configured.assistant_ids, [local[1], local[0]]);
+  assert.deepEqual(portableTemplateOrchestration(configured, local).assistant_indices, [1, 0]);
+  const bundle = templateBundle({
+    name: "Portable project",
+    assistants: [{ name: "A" }, { name: "B" }],
+    orchestration: portableTemplateOrchestration(configured, local),
+  });
+  assert.equal(bundle.format, "siaas-project-v2");
+  assert.deepEqual(templateBundleSchema.parse(bundle), bundle);
+  assert(!JSON.stringify(bundle).includes(local[0]));
+  assert(!JSON.stringify(bundle).includes(local[1]));
+  for (const indices of [[0,0], [2], [-1], [0,1,2]]) {
+    const result = templateBundleSchema.safeParse({
+      ...bundle, project: { ...bundle.project, orchestration: {
+        ...bundle.project.orchestration, assistant_indices: indices,
+      } },
+    });
+    assert.equal(result.success, false, JSON.stringify(indices));
+  }
+  assert.equal(templateBundleSchema.safeParse({
+    format: "siaas-project-v1", project: bundle.project,
+  }).success, false);
+  assert.equal(templateBundleSchema.safeParse({
+    format: "siaas-project-v2", project: {
+      name: "Missing configuration", assistants: [{ name: "A" }],
+    },
+  }).success, false);
+  assert.throws(() => portableTemplateOrchestration({
+    ...configured, assistant_ids: ["33333333-3333-4333-8333-333333333333"],
+  }, local));
+});
+
+test("RC5 pristine official seeds upgrade to v2 while edits, tombstones and projects are preserved", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "siaas-v2-rc5-upgrade-"));
+  const db = new LocalDatabase(dir);
+  try {
+    for (const [key, preset] of Object.entries(rc5Builtins)) {
+      db.put("project_templates", {
+        ...preset,
+        id: `${LOCAL_USER_ID}:${key}`,
+        tenant_id: LOCAL_USER_ID,
+        builtin_key: key,
+        deleted: key === "materials-procurement",
+      });
+    }
+    const editedKey = "personal-finance";
+    const edited = db.get("project_templates", `${LOCAL_USER_ID}:${editedKey}`)!;
+    db.put("project_templates", { ...edited, description: "User-edited finance description" }, true);
+    const existingProject = db.put("projects", {
+      tenant_id: LOCAL_USER_ID, name: "Keep my project",
+      orchestration: { enabled: false, assistant_ids: [], instructions: "Keep", share_results: false, max_steps: 3 },
+    });
+    const before = db.get("projects", existingProject.id);
+    const first = await listTemplates(db, LOCAL_USER_ID);
+    assert.equal(first.length, 7);
+    const upgraded = first.find((item) => item.builtin_key === "computer-science-study")!;
+    assert.deepEqual(upgraded.orchestration?.assistant_indices, [0,1,2]);
+    assert.equal(upgraded.orchestration?.enabled, false);
+    assert.deepEqual(upgraded.assistants, BUILTIN_TEMPLATES["computer-science-study"].assistants);
+    const customized = first.find((item) => item.builtin_key === editedKey)!;
+    assert.equal(customized.description, "User-edited finance description");
+    assert.equal(customized.orchestration, undefined);
+    assert.equal(db.get("project_templates", `${LOCAL_USER_ID}:materials-procurement`)?.deleted, true);
+    assert.deepEqual(db.get("projects", existingProject.id), before);
+    const afterUpgrade = db.rows("project_templates");
+    assert.deepEqual(await listTemplates(db, LOCAL_USER_ID), first);
+    assert.deepEqual(db.rows("project_templates"), afterUpgrade);
+  } finally {
+    db.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("two Gemma examples import with distinct local assistants, disabled coordinator and no embedded documents", () => {
+  const dir = mkdtempSync(join(tmpdir(), "siaas-gemma-examples-"));
+  const db = new LocalDatabase(dir);
+  try {
+    for (const id of ["pdf-maintenance-acceptance", "spreadsheet-purchase-reconciliation"]) {
+      const preset = BUILTIN_TEMPLATES[id];
+      assert.ok(preset);
+      assert.equal(preset.assistants.length, 2);
+      assert.equal(preset.orchestration?.enabled, false);
+      assert.equal(preset.orchestration?.share_results, false);
+      assert.deepEqual(preset.orchestration?.assistant_indices, [0, 1]);
+      assert(preset.assistants.every(a => a.model === null && a.sources.length === 0));
+      const imported = importLocalTemplate(db, preset);
+      assert.equal(imported.assistantIds.length, 2);
+      assert.notEqual(imported.assistantIds[0], imported.assistantIds[1]);
+      assert.equal(imported.documents.length, 0);
+      assert.deepEqual(imported.project.orchestration.assistant_ids, imported.assistantIds);
+      assert.equal(imported.project.orchestration.enabled, false);
+      assert.equal(imported.project.orchestration.share_results, false);
+    }
+  } finally {
+    db.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("RC5 migration preserves edits and tombstones committed after the initial list read", async () => {
+  for (const change of [{ description: "Concurrent user edit" }, { deleted: true }]) {
+    const dir = mkdtempSync(join(tmpdir(), "siaas-template-race-"));
+    const db = new LocalDatabase(dir);
+    try {
+      const key = "computer-science-study";
+      const id = `${LOCAL_USER_ID}:${key}`;
+      db.put("project_templates", { ...rc5Builtins[key], id,
+        tenant_id: LOCAL_USER_ID, builtin_key: key, deleted: false });
+      await Promise.all([
+        listTemplates(db, LOCAL_USER_ID),
+        db.from("project_templates").update(change).eq("id", id),
+      ]);
+      const row = db.get("project_templates", id)!;
+      for (const [field, value] of Object.entries(change)) assert.equal(row[field], value);
+      assert.equal(row.orchestration, undefined);
+    } finally { db.close(); rmSync(dir, { recursive: true, force: true }); }
+  }
 });

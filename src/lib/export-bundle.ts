@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { templateBundle } from "./templates";
+import { templateBundle, type TemplateProject } from "./templates";
 
 export type PortableAssistant = {
   name: string;
@@ -15,9 +15,10 @@ export type PortableProject = {
   description?: string;
   color?: string;
   assistants: PortableAssistant[];
+  orchestration?: TemplateProject["orchestration"];
 };
 
-export const PROJECT_EXPORT_FORMAT = "siaas-project-v1";
+export const PROJECT_EXPORT_FORMAT = "siaas-project-v2";
 
 export function exportProjectBundle(project: PortableProject) {
   const value = templateBundle(project);

@@ -1,0 +1,21 @@
+
+> siaas-personal@1.1.0-rc.5 test:installer
+> node --test tests/installer.test.cjs
+
+✔ Ollama compatibility and loopback policy (1.196133ms)
+✔ package support and archive path validation (0.345787ms)
+✔ download rejects corruption and unexpected origins before execution (32.449794ms)
+✔ existing compatible service is reused and never stopped; old service is preserved (130.106153ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 265.168977
+npm notice
+npm notice New major version of npm available! 11.19.1 -> 12.2.3
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.3
+npm notice To update run: npm install -g npm@12.2.3
+npm notice

@@ -1,7 +1,7 @@
 import { isDesktop } from "@/lib/runtime";
 import { z } from "zod";
 import { localWorkspace, fail, HttpError, jsonBody, uuid } from "@/lib/http";
-import { templateProjectSchema } from "@/lib/templates";
+import { templateProjectSchema, portableTemplateOrchestration } from "@/lib/templates";
 
 export async function POST(
   req: Request,
@@ -15,7 +15,7 @@ export async function POST(
       .parse(await jsonBody(req));
     const { data: project, error } = await db
       .from("projects")
-      .select("name,description,color")
+      .select("name,description,color,orchestration")
       .eq("id", id)
       .eq("tenant_id", tenantId)
       .maybeSingle();
@@ -49,6 +49,7 @@ export async function POST(
       ...project,
       name,
       assistants: portableAssistants,
+      orchestration: portableTemplateOrchestration(project.orchestration, (assistants ?? []).map((a) => a.id)),
     });
     const { data: template, error: insertError } = await db
       .from("project_templates")

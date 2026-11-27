@@ -1,0 +1,1 @@
+[{"Type":"bind","Source":"/workspace/rc6-container-2026-11-27","Destination":"/input","Mode":"","RW":false,"Propagation":"rprivate"},{"Type":"bind","Source":"/usr/local/share/ca-certificates/environment-proxy-ca.crt","Destination":"/run/proxy-ca.pem","Mode":"","RW":false,"Propagation":"rprivate"}]

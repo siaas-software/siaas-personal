@@ -1,0 +1,20 @@
+[
+  {
+    "command": "npm run test:projects",
+    "exit": 0,
+    "seconds": 18.07,
+    "log": "ui-0.log"
+  },
+  {
+    "command": "node tests/overview-e2e.mjs",
+    "exit": 0,
+    "seconds": 10.42,
+    "log": "ui-1.log"
+  },
+  {
+    "command": "node --import tsx tests/missing-docker-e2e.mjs",
+    "exit": 1,
+    "seconds": 0.53,
+    "log": "ui-2.log"
+  }
+]

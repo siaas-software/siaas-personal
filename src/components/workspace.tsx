@@ -425,7 +425,7 @@ export function Workspace() {
       const raw = await file.text();
       const parsed = JSON.parse(raw);
       if (
-        parsed?.format !== "siaas-project-v1" ||
+        !["siaas-project-v1", "siaas-project-v2"].includes(parsed?.format) ||
         !Array.isArray(parsed.project?.assistants)
       )
         throw new Error("This file is not a valid SIAAS Personal template.");

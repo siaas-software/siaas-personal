@@ -1,0 +1,20 @@
+[
+  {
+    "command": "node --import tsx tests/project-chat-api.mjs --ui",
+    "exit": 0,
+    "seconds": 4.61,
+    "log": "remaining-ui-0.log"
+  },
+  {
+    "command": "node tests/template-palettes-ui.mjs",
+    "exit": 0,
+    "seconds": 43.31,
+    "log": "remaining-ui-1.log"
+  },
+  {
+    "command": "npm run test:ui",
+    "exit": 0,
+    "seconds": 24.44,
+    "log": "remaining-ui-2.log"
+  }
+]

@@ -1,0 +1,2 @@
+PASS unified chat HTTP, stored replies, exact invoice, RC4 budgets and duplicates, ambiguous input, cross-project denial, no model selected, zero Ollama HTTP requests.
+PASS stopped Ollama endpoint and chat-time invalidation of a changed linked CSV

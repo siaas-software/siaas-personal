@@ -40,10 +40,10 @@ test("sync validates semantic/legacy catalogs, subsets, hashes and reproducibili
       output: "output.json",
     };
     const catalog = {
-      version: 1,
+      version: 2,
       templates: Object.entries(snapshot).map(([id, project]) => ({
         id,
-        format: "siaas-project-v1",
+        format: "siaas-project-v2",
         project: { ...project },
         listing: { description: { en: "Test", it: "Test" }, category: "Work" },
       })),
@@ -89,8 +89,12 @@ test("sync validates semantic/legacy catalogs, subsets, hashes and reproducibili
     }
     write(config, configPath);
     const legacy = structuredClone(catalog);
-    for (const item of legacy.templates)
+    legacy.version = 1;
+    for (const item of legacy.templates) {
+      item.format = "siaas-project-v1";
       delete (item.project as { palette?: string }).palette;
+      delete (item.project as { orchestration?: object }).orchestration;
+    }
     write(legacy);
     assert.equal(sync().status, 0);
     assert(
@@ -98,7 +102,15 @@ test("sync validates semantic/legacy catalogs, subsets, hashes and reproducibili
         (p) => !("palette" in (p as object)),
       ),
     );
+    write(catalog);
+    assert.equal(sync().status, 0);
     const saved = readFileSync(outputPath, "utf8");
+    const bad = structuredClone(catalog);
+    bad.templates[0].project.orchestration.assistant_indices = [999];
+    write(bad);
+    assert.notEqual(sync().status, 0);
+    write(catalog);
+    assert.equal(sync().status, 0);
     for (const palette of ["unknown", null, 42]) {
       write({
         ...catalog,

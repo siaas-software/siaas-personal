@@ -1,6 +1,6 @@
 import type { LocalDatabase } from "./database";
 import { LOCAL_USER_ID } from "../runtime";
-import { templateProjectSchema } from "../templates";
+import { templateProjectSchema, materializeTemplateOrchestration } from "../templates";
 import { registerWebSource } from "./web-knowledge";
 
 // Register the complete project in one transaction before any network operation.
@@ -22,7 +22,7 @@ export function importLocalTemplate(
         "Import into an empty project to preserve existing assistants.",
       );
     // Projects store the resolved hex only, so later palette selection remains independent.
-    const { assistants, palette: _palette, ...fields } = config;
+    const { assistants, palette: _palette, orchestration: _orchestration, ...fields } = config;
     const project = db.put(
       "projects",
       {
@@ -46,7 +46,11 @@ export function importLocalTemplate(
       for (const url of sources)
         documents.push(registerWebSource(db, assistant.id, url).id);
     }
-    return { project, documents, assistantIds };
+    const configuredProject = db.put("projects", {
+      ...project,
+      orchestration: materializeTemplateOrchestration(config.orchestration, assistantIds),
+    }, true);
+    return { project: configuredProject, documents, assistantIds };
   });
   result.assistantIds.forEach((id) => db.syncKnowledgeFiles(id));
   return result;

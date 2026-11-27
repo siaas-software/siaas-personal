@@ -1,0 +1,74 @@
+[
+  {
+    "command": "npm test",
+    "exit": 0,
+    "seconds": 9.19,
+    "log": "gate-0.log"
+  },
+  {
+    "command": "npm run typecheck",
+    "exit": 0,
+    "seconds": 0.88,
+    "log": "gate-1.log"
+  },
+  {
+    "command": "npm run build",
+    "exit": 0,
+    "seconds": 5.35,
+    "log": "gate-2.log"
+  },
+  {
+    "command": "npm run desktop:build",
+    "exit": 0,
+    "seconds": 12.37,
+    "log": "gate-3.log"
+  },
+  {
+    "command": "node tests/template-api.mjs",
+    "exit": 0,
+    "seconds": 1.27,
+    "log": "gate-4.log"
+  },
+  {
+    "command": "npm run test:chat",
+    "exit": 0,
+    "seconds": 3.54,
+    "log": "gate-5.log"
+  },
+  {
+    "command": "npm run test:knowledge",
+    "exit": 0,
+    "seconds": 1.17,
+    "log": "gate-6.log"
+  },
+  {
+    "command": "npm run test:actions:api",
+    "exit": 0,
+    "seconds": 2.12,
+    "log": "gate-7.log"
+  },
+  {
+    "command": "node tests/structured-api.mjs",
+    "exit": 0,
+    "seconds": 1.78,
+    "log": "gate-8.log"
+  },
+  {
+    "command": "node tests/structured-api.mjs --hybrid --offline",
+    "exit": 0,
+    "seconds": 1.73,
+    "log": "gate-9.log"
+  },
+  {
+    "command": "node --import tsx tests/project-chat-api.mjs",
+    "exit": 0,
+    "seconds": 1.87,
+    "log": "gate-10.log"
+  },
+  {
+    "command": "npm run test:projects",
+    "exit": 1,
+    "seconds": 1.07,
+    "log": "gate-11.log"
+  }
+]
