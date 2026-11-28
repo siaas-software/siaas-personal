@@ -19,6 +19,7 @@ const operations = {
   query_datasets: "datasets.query",
   calculate_dataset: "datasets.query",
   create_report: "reports.create",
+  mcp_call: "mcp.write",
 } as const;
 export type NativeOperation = keyof typeof operations;
 export type ToolTrace = {
@@ -36,6 +37,7 @@ export async function runNativeOperation<T>(
   operation: NativeOperation,
   parameters: object,
   execute: (revalidate: () => void) => T | Promise<T>,
+  external?: { capability: string; assigned: () => boolean },
 ): Promise<T> {
   signal.throwIfAborted();
   const scope = {
@@ -47,6 +49,7 @@ export async function runNativeOperation<T>(
     assistantId,
   };
   const capability = operations[operation];
+  if ((operation === "mcp_call") !== Boolean(external)) throw new ActionError(403,"Invalid tool registration.");
   function policy() {
     const project = db.get("projects", scope.projectId);
     const assistant = db.get("assistants", assistantId);
@@ -56,10 +59,12 @@ export async function runNativeOperation<T>(
       assistant.project_id === scope.projectId;
     if (!member)
       throw new ActionError(403, "Assistant or project unavailable.");
+    const permissions=project.permissions;
+    const exact=external && permissions?.rules?.some((r:{capability:string})=>r.capability===external.capability);
     return resolveToolPermission({
-      capability,
+      capability: exact ? external!.capability : capability,
       registered: Object.hasOwn(operations, operation),
-      assistantScopeAllowed: member,
+      assistantScopeAllowed: member && (!external || external.assigned()),
       projectPermissions: project.permissions,
     });
   }

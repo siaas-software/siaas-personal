@@ -6,6 +6,7 @@ import { Shortcuts } from "./shortcuts";
 import { AboutSettings } from "./about-settings";
 import { AppVersion } from "./app-version";
 import { ProjectSkills } from "./project-skills";
+import { ProjectMcp } from "./project-mcp";
 import { ProjectGuidance } from "./project-guidance";
 import { ApprovalRequests, ProjectSecurity } from "./project-security";
 import { useInterfaceLanguage } from "./interface-language";
@@ -1901,6 +1902,7 @@ export function Workspace() {
               </div>
             </form>
           </div>
+          <ProjectMcp key={"mcp-"+activeProject.id} projectId={activeProject.id} assistants={activeAssistants} italian={italian}/>
           <ProjectSkills key={"skills-" + activeProject.id} projectId={activeProject.id} assistants={activeAssistants} italian={italian}/>
           <ProjectGuidance key={"guidance-" + activeProject.id} projectId={activeProject.id} italian={italian}/>
           <ProjectSecurity key={activeProject.id} projectId={activeProject.id} assistants={activeAssistants} italian={italian}/>

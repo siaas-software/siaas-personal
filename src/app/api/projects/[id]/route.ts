@@ -92,6 +92,8 @@ export async function DELETE(
       .maybeSingle();
     if (error) throw error;
     if (!project) throw new HttpError(404, "Progetto non trovato.");
+    const {listServers,disconnectServer}=await import("@/lib/local/mcp/registry");
+    await Promise.all(listServers(db,id).map(server=>disconnectServer(db,id,server.id)));
     await removeProjectFiles(db, tenantId, id);
     const { error: deleteError } = await db
       .from("projects")

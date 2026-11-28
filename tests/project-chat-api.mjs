@@ -533,6 +533,10 @@ try {
   await api(approvalsPath, "POST", { id: directRequest.id, outcome: "approved" });
   assert.match((await directRun).content, /Only-first/);
   await api(permissionsPath, "PUT", { rules: [] });
+  if(process.argv.includes("--mcp")){
+    const {checkMcp}=await import("./mcp-acceptance.mjs");
+    await checkMcp({api,project,assistant:assistants[0],stranger,direct,until,db});
+  }
   await api(path, "POST", { question: "2+2", action_id: "missing" }, 404);
   configure([stranger.id]);
   await api(path, "POST", { question: "2+2" }, 403);
@@ -645,7 +649,7 @@ try {
   assert.equal(reopened.get("project_runs", sharing.id).status, "complete");
   assert.equal(
     reopened.sql.prepare("PRAGMA user_version").get().user_version,
-    7,
+    8,
   );
   reopened.close();
   await api("/api/projects/" + project.id, "DELETE");

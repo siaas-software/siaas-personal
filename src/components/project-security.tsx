@@ -20,6 +20,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 const labels: Record<string, [string, string]> = {
+  mcp_call:["Call external MCP tool","Eseguire lo strumento MCP esterno"],
   list_sources: ["List available sources", "Elencare le fonti disponibili"],
   search_documents: ["Search documents", "Cercare nei documenti"],
   read_document: ["Read document passages", "Leggere parti di un documento"],

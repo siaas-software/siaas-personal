@@ -31,10 +31,16 @@ type Intent =
     }
   | { kind: "structured"; file: string; column?: string }
   | { kind: "document" | "website"; terms: string }
-  | { kind: "help" | "clarify" };
+  | { kind: "help" | "clarify" }
+  | { kind: "mcp"; serverId:string; name:string; args:string };
 
 export function localIntent(question: string): Intent | null {
   const q = question.trim();
+  if (/^\/mcp(?:\s|$)/i.test(q)) {
+    const command = /^\/mcp\s+([a-f0-9-]{36})\s+([A-Za-z][A-Za-z0-9_.-]{0,63})\s+(\{[\s\S]*\})$/.exec(q);
+    if (!command) throw new AnalysisError("Use /mcp <server-id> <tool> {JSON arguments}.");
+    return {kind:"mcp",serverId:command[1],name:command[2],args:command[3]};
+  }
   if (/^(?:\/help|\/aiuto)$/i.test(q)) return { kind: "help" };
   const math =
     /^(?:(?:what is|calculate|quanto fa|quanto fanno|calcola)\s+)?([+-]?\d+(?:[.,]\d+)?)\s*([+*/×÷-])\s*([+-]?\d+(?:[.,]\d+)?)[?=]?$/i.exec(
@@ -103,6 +109,12 @@ export async function executeLocalChat(
   const it = language === "it";
   try {
     switch (intent.kind) {
+      case "mcp": {
+        if(!trace) throw new AnalysisError("Missing MCP execution context.");
+        const {invokeMcp}=await import("./mcp/registry");
+        content=await invokeMcp(db,assistantId,trace,intent.serverId,intent.name,JSON.parse(intent.args),signal);
+        break;
+      }
       case "arithmetic":
         content = binaryDecimal(
           intent.operator,
