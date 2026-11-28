@@ -85,7 +85,7 @@ function fixture(
 test("migration maps every compatible shortcut exactly; Data Cell retains its native prompt", () => {
   assert.deepEqual(
     BUILTIN_ACTIONS.map((a) => a.id),
-    ["builtin:mindmap", "builtin:report", "builtin:flashcards", "builtin:quiz", "builtin:list-sources"],
+    ["builtin:mindmap", "builtin:report", "builtin:flashcards", "builtin:quiz", "builtin:list-sources","builtin:media"],
   );
   for (const legacy of SHORTCUT_ACTIONS.filter((a) => a.id !== "table")) {
     const action = BUILTIN_ACTIONS.find(
@@ -176,7 +176,7 @@ test("SQLite create/edit/delete, read-only builtins, duplicate names, persistenc
     // Damaged definitions can still be inspected and deleted to recover.
     deleteAction(db, action.id);
     assert.throws(() => getAction(db, action.id), /not found/);
-    assert.equal(listActions(db).length, 5);
+    assert.equal(listActions(db).length, 6);
     // A real SQLite write failure must surface, not return a successful save.
     db.sql.exec("PRAGMA query_only=ON");
     assert.throws(() => saveAction(db, { name: "Cannot write", markdown }));

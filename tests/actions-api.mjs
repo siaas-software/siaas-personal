@@ -209,7 +209,7 @@ try {
   const builtins = (await api("/api/actions")).body;
   assert.deepEqual(
     builtins.map((a) => a.id),
-    ["builtin:mindmap", "builtin:report", "builtin:flashcards", "builtin:quiz", "builtin:list-sources"],
+    ["builtin:mindmap", "builtin:report", "builtin:flashcards", "builtin:quiz", "builtin:list-sources","builtin:media"],
   );
   for (const action of builtins) {
     assert.equal(
@@ -324,7 +324,7 @@ try {
     (await api(`/api/actions/${id}`)).body.markdown,
     edited.body.markdown,
   );
-  assert.equal((await api("/api/actions")).body.length, 6);
+  assert.equal((await api("/api/actions")).body.length, 7);
   assert.equal(
     (await api("/api/actions/models")).body.modelId,
     "ollama/test:3b",
@@ -369,7 +369,7 @@ try {
       assert.equal(result.body.preview, null);
       assert.equal(result.body.markdown, null);
     } else assert(result.status >= 400, JSON.stringify(result));
-    assert.equal((await api("/api/actions")).body.length, 6);
+    assert.equal((await api("/api/actions")).body.length, 7);
   }
   behavior = "normal";
   const project = (

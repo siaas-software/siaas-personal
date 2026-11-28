@@ -27,3 +27,20 @@ The client uses the MIT-licensed `@modelcontextprotocol/sdk` 1.32.2. Streamable 
 In **Connessioni MCP**, configura un server attendibile e scegli un nome condivisibile con chi riceverà il template. Connettiti, controlla lo schema dello strumento, seleziona un assistente e assegnagli lo strumento. In chat puoi usare il comando deterministico `/mcp <UUID connessione> <strumento> <oggetto JSON>`. La regola Deny del progetto blocca anche gli strumenti assegnati.
 
 Un eseguibile stdio viene verificato tramite SHA-256 e avviato con i privilegi del tuo utente. Seleziona solo programmi attendibili. Il token HTTPS dura per la connessione corrente. Dopo il riavvio, riconnetti il server dalle impostazioni. Il template conserva nome logico del server, strumento, impronta e posizione dell’assistente. Per eseguire la richiesta nel progetto di destinazione, configura e assegna esplicitamente lo strumento.
+
+## Local media acceptance profile
+
+Settings → Media Engine enables deterministic CPU processing. Inputs belong to one project and assistant. Add PNG files in settings. Download generated media, choose a typed operation, and submit its command in the assistant chat or through the Local media Action. One job runs per profile. Result publication rechecks the current permissions and settings. The profile stores at most 64 MiB of media files. Video assembly uses 12 frames per second. Inspection reports codec, dimensions and frames. The Linux profile locates FFmpeg and ffprobe under /usr/bin.
+
+The separately enabled CPU image generator accepts one locally installed Linux x86-64 build and one distilled text-to-image model. In Settings, follow the component links, download the selected files and choose **Verify and install**. The app verifies SHA-256 before installation and again when staging the job. Generated images are square, 256 or 512 pixels, with one denoising step. The worker has a 90-second wall-clock deadline, a 4.5 GiB virtual address-space ceiling and a configurable thread limit. Available-memory checks are estimates. The model and backend remain optional.
+
+| Component | Revision | SHA-256 |
+| --- | --- | --- |
+| stable-diffusion.cpp Linux CPU, Ubuntu 24.04 archive | master-901-241518b, MIT | `24fda39afa2e9299f0bfbc8b97b316d1d8f2f64dc928f315c147e50936e3c33e` |
+| SDXS-512 tinySDdistilled Q8_0 | 3144d898d61492f8382ffcabec055733fc5b2a0e, model card OpenRAIL++ | `409ab23582ee074c6b9d5395784fc0741b0599fb9d138686c69087c71678eb6a` |
+
+## Elaborazione media locale
+
+In Impostazioni → Media Engine abilita l’elaborazione CPU, scegli l’assistente e carica i PNG. Seleziona l’operazione e incolla il comando nella chat dell’assistente. Puoi ridimensionare, affiancare o sovrapporre immagini, creare un video dalle foto, applicare una dissolvenza, unire o ricodificare video prodotti dall’app e ispezionare il risultato. Il Gateway mostra i parametri da approvare. I file sono scaricabili dalla sezione dello stesso assistente.
+
+Per generare un’immagine su Linux x86-64, apri la sezione stable-diffusion.cpp, scarica i due componenti dalle fonti indicate, verifica e installa i file locali e abilita la generazione CPU. Il modello produce PNG quadrati da 256 o 512 pixel. Per i video, la combinazione generativa modello e hardware richiede ancora una prova reale.

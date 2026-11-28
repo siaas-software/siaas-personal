@@ -30,6 +30,20 @@ export const mediaJob = z
     return job.inputs.length >= min && job.inputs.length <= max;
   });
 export const mediaRequest = z.union([
+  z
+    .object({
+      kind: z.literal("generate-image"),
+      inputs: z.tuple([]).default([]),
+      prompt: z
+        .string()
+        .trim()
+        .min(1)
+        .max(600)
+        .regex(/^[\p{L}\p{N} ,.!?'"’()-]+$/u),
+      width: z.union([z.literal(256), z.literal(512)]),
+      seed: z.number().int().min(0).max(2147483647),
+    })
+    .strict(),
   mediaJob,
   z
     .object({

@@ -1,5 +1,6 @@
 import { execFile, spawn } from "node:child_process";
 import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { generateCpu } from "./generator";
 import { promisify } from "node:util";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -88,7 +89,35 @@ export async function processFrames(
           mode: 0o600,
         },
       );
-    const deadline = AbortSignal.any([signal, AbortSignal.timeout(30000)]);
+    const deadline = AbortSignal.any([
+      signal,
+      AbortSignal.timeout(job.kind === "generate-image" ? 90000 : 30000),
+    ]);
+    if (job.kind === "generate-image") {
+      const bytes = await generateCpu(
+        profile,
+        directory,
+        job.prompt,
+        job.seed,
+        job.width,
+        threads,
+        deadline,
+        revalidate,
+      );
+      const { width, height } = checkPng(bytes);
+      const metadata = await inspectFile(
+        join(directory, "result.png"),
+        false,
+        deadline,
+      );
+      if (
+        width !== job.width ||
+        height !== job.width ||
+        metadata.codec !== "png"
+      )
+        throw new Error("Invalid generated image.");
+      return { type: "file" as const, bytes, mime: "image/png" };
+    }
     if (job.kind === "inspect") {
       revalidate();
       const metadata = await inspectFile(

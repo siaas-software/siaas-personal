@@ -179,7 +179,7 @@ async function runAssistantTask(
   };
   try {
     const structured = nativeAction
-      ? await executeNativeAction(db, assistant.id, nativeAction, signal, trace)
+      ? await executeNativeAction(db, assistant.id, nativeAction, signal, trace, question)
       : intent
         ? await executeLocalChat(db, assistant.id, intent, language, signal, trace)
         : await structuredChat({

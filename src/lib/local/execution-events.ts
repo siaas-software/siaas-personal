@@ -67,7 +67,7 @@ const traceCodes = new Map<string, ReadonlySet<string>>([
   ["reason_code", new Set(["hard-deny", "unregistered", "assistant-scope", "project-rule", "default", "unknown"])],
   ["permission", new Set(["allow", "ask", "deny"])],
   ["status", new Set(["running", "complete", "error", "cancelled"])],
-  ["tool_key", new Set(["documents.read", "datasets.query", "reports.create", "mcp.write","media.process"])],
+  ["tool_key", new Set(["documents.read", "datasets.query", "reports.create", "mcp.write","media.process","media.image.generate"])],
 ]);
 const countFields = new Set(["duration_ms", "input_tokens", "output_tokens", "step_index", "source_count"]);
 

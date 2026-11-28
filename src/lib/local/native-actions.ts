@@ -12,10 +12,17 @@ export async function executeNativeAction(
   action: ActionSkill,
   signal: AbortSignal,
   trace?: ToolTrace,
+  question?:string,
 ): Promise<{ content: string; sources: []; result: null }> {
   signal.throwIfAborted();
   const assistant = db.get("assistants", assistantId);
   if (!assistant) throw new ActionError(404, "Assistente non trovato.");
+  if (action.kind==="builtin" && action.id==="builtin:media" && action.execution==="native" && action.capability==="process_assistant_media"){
+    if(!trace || !question) throw new ActionError(400,"A typed media request is required.");
+    const {executeMedia}=await import("./media/service");
+    const input=JSON.parse(question.replace(/^\/media\s+/,""));
+    return {content:await executeMedia(db,assistantId,trace,input,signal),sources:[],result:null};
+  }
   // Never trust a persisted/custom Action to declare executable capabilities.
   if (
     action.kind !== "builtin" ||

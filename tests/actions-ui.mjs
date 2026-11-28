@@ -108,7 +108,7 @@ try {
   );
   await page.getByRole("button", { name: "Actions", exact: true }).click();
   const builtins = page.getByRole("region", { name: "Built-in Actions" });
-  assert.equal(await builtins.locator("article").count(), 5);
+  assert.equal(await builtins.locator("article").count(), 6);
   assert.equal(
     await builtins.getByRole("button", { name: "Delete", exact: true }).count(),
     0,

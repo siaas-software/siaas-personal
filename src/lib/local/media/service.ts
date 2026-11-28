@@ -4,11 +4,16 @@ import { ActionError } from "../../actions";
 import { LOCAL_USER_ID } from "../../runtime";
 import type { LocalDatabase } from "../database";
 import { runNativeOperation, type ToolTrace } from "../native-permissions";
+import { components, cpuComponents } from "./generator";
 import { videoInputs, mediaRequest } from "./plan";
 import { processFrames } from "./processing";
 
 export const mediaSettings = z
-  .object({ enabled: z.boolean(), threads: z.number().int().min(1).max(4) })
+  .object({
+    enabled: z.boolean(),
+    generation: z.boolean().default(false),
+    threads: z.number().int().min(1).max(4),
+  })
   .strict();
 export function settings(db: LocalDatabase) {
   const w = db.get("workspaces", LOCAL_USER_ID);
@@ -86,6 +91,16 @@ export async function executeMedia(
   const p = owner(db, a);
   if (p !== trace.projectId || !config.enabled)
     throw new ActionError(403, "Media processing unavailable.");
+  if (job.kind === "generate-image") {
+    const installed = await components(db.directory);
+    if (
+      !config.generation ||
+      !installed.platform ||
+      !installed.backend ||
+      !installed.model
+    )
+      throw new ActionError(409, "CPU generator unavailable.");
+  }
   const lookup = db.sql.prepare(
     "SELECT digest FROM media_files WHERE id=? AND project_id=? AND assistant_id=? AND mime=?",
   );
@@ -96,7 +111,7 @@ export async function executeMedia(
             "SELECT mime FROM media_files WHERE id=? AND project_id=? AND assistant_id=?",
           )
           .get(job.inputs[0], p, a)?.mime
-      : videoInputs(job.kind)
+      : job.kind !== "generate-image" && videoInputs(job.kind)
         ? "video/mp4"
         : "image/png";
   if (mime !== "image/png" && mime !== "video/mp4")
@@ -115,8 +130,15 @@ export async function executeMedia(
     a,
     trace,
     signal,
-    "media_process",
-    { ...job, digests, configuration: config.revision },
+    job.kind === "generate-image" ? "media_generate" : "media_process",
+    {
+      ...job,
+      digests,
+      configuration: config.revision,
+      ...(job.kind === "generate-image"
+        ? { backend: cpuComponents.backend.sha, model: cpuComponents.model.sha }
+        : {}),
+    },
     async (revalidate) => {
       revalidate();
       const bytes = db.sql.prepare(

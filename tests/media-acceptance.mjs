@@ -112,7 +112,10 @@ export async function checkMedia({
     ["transcode", [initialVideo], "h264", 24],
     ["join-videos", [initialVideo, initialVideo], "h264", 48],
   ]) {
-    const run = complete("/media "+JSON.stringify({kind,inputs,width:64,height:64}));
+    const run = complete(
+      "/media " + JSON.stringify({ kind, inputs, width: 64, height: 64 }),
+      kind === "overlay" ? "builtin:media" : undefined,
+    );
     const approval = await until(async () => (await api(approvals)).pending[0]);
     await api(approvals, "POST", { id: approval.id, outcome: "approved" });
     const result = await run;
@@ -155,6 +158,63 @@ export async function checkMedia({
     height: 64,
     frames: 24,
   });
+  if (process.argv.includes("--generate-image")) {
+    for (const [component, path] of [
+      ["backend", process.env.SIAAS_TEST_SD_ZIP],
+      ["model", process.env.SIAAS_TEST_SD_MODEL],
+    ]) {
+      assert(path, "Pinned CPU component required");
+      await api("/api/local/media", "POST", { component, path });
+    }
+    await api("/api/local/media", "PUT", {
+      enabled: true,
+      generation: true,
+      threads: 2,
+    });
+    const prompt = "A red ceramic cup on a white table";
+    const generation = direct(
+      assistant,
+      "/media " +
+        JSON.stringify({
+          kind: "generate-image",
+          prompt,
+          width: 256,
+          seed: 41,
+        }),
+    );
+    const request = await until(async () => (await api(approvals)).pending[0]);
+    assert.equal(request.operation, "media_generate");
+    await api(approvals, "POST", { id: request.id, outcome: "approved" });
+    const result = await generation;
+    assert.equal(result.status, "complete", result.content);
+    const url = result.content.match(/\((\/api\/[^)]+)\)/)[1];
+    const bytes = Buffer.from(
+      await (await fetch(origin + url, { headers })).arrayBuffer(),
+    );
+    assert(!bytes.includes(Buffer.from(prompt)));
+    const rgb = execFileSync(
+      "/usr/bin/ffmpeg",
+      [
+        "-v",
+        "error",
+        "-i",
+        "pipe:0",
+        "-threads",
+        "1",
+        "-f",
+        "rawvideo",
+        "-pix_fmt",
+        "rgb24",
+        "pipe:1",
+      ],
+      { input: bytes },
+    );
+    assert.equal(rgb.length, 256 * 256 * 3);
+    assert(new Set(rgb).size > 64);
+    console.log(
+      "PASS approved desktop generation with pinned SDXS and stable-diffusion.cpp CPU, decoded 256×256 PNG.",
+    );
+  }
   const waiting = ask("resize", [a]);
   await until(async () => (await api(approvals)).pending[0]);
   await api("/api/local/media", "PUT", { enabled: false, threads: 1 });

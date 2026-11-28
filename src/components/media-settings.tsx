@@ -2,7 +2,13 @@
 import { useEffect, useState } from "react";
 import { mediaJob, videoInputs } from "@/lib/local/media/plan";
 import type { Assistant } from "@/lib/catalog";
-type Config = { enabled: boolean; threads: number; ffmpeg: boolean };
+type Config = {
+  enabled: boolean;
+  threads: number;
+  ffmpeg: boolean;
+  generation: boolean;
+  components: { platform: boolean; backend: boolean; model: boolean };
+};
 type FileEntry = { id: string; mime: string };
 export function MediaSettings({
   assistants,
@@ -106,7 +112,11 @@ export function MediaSettings({
                   fetch("/api/local/media", {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ enabled, threads: config.threads }),
+                    body: JSON.stringify({
+                      enabled,
+                      generation: config.generation,
+                      threads: config.threads,
+                    }),
                   }),
                 );
               }}
@@ -134,7 +144,11 @@ export function MediaSettings({
                   fetch("/api/local/media", {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ enabled: config.enabled, threads }),
+                    body: JSON.stringify({
+                      enabled: config.enabled,
+                      generation: config.generation,
+                      threads,
+                    }),
                   }),
                 );
               }}
@@ -144,6 +158,96 @@ export function MediaSettings({
               ))}
             </select>
           </label>
+          {config.components.platform && (
+            <details>
+              <summary>stable-diffusion.cpp · SDXS CPU</summary>
+              <p>
+                {t(
+                  "Linux x64. Install the two pinned files from local storage. One job uses up to 4.5 GiB of virtual address space.",
+                  "Linux x64. Installa da disco i due file indicati. Ogni processo ha un limite di 4,5 GiB di spazio di indirizzi virtuali.",
+                )}
+              </p>
+              {(["backend", "model"] as const).map((k) => (
+                <form
+                  key={k}
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const path = new FormData(e.currentTarget).get("path");
+                    void change(() =>
+                      fetch("/api/local/media", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ component: k, path }),
+                      }),
+                    );
+                  }}
+                >
+                  <a
+                    href={
+                      k === "backend"
+                        ? "https://github.com/leejet/stable-diffusion.cpp/releases/tag/master-901-241518b"
+                        : "https://huggingface.co/concedo/sdxs-512-tinySDdistilled-GGUF/tree/3144d898d61492f8382ffcabec055733fc5b2a0e"
+                    }
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {k === "backend"
+                      ? "sd-cli · Ubuntu 24.04 x86_64 ZIP · MIT · 25.5 MB"
+                      : "SDXS Q8_0 GGUF · OpenRAIL++ · 683 MB"}
+                  </a>
+                  {config.components[k] ? (
+                    <p>{t("Installed", "Installato")}</p>
+                  ) : (
+                    <>
+                      <label>
+                        {t("Local file path", "Percorso del file locale")}
+                        <input name="path" required />
+                      </label>
+                      <button>
+                        {t("Verify and install", "Verifica e installa")}
+                      </button>
+                    </>
+                  )}
+                </form>
+              ))}
+              <label>
+                <input
+                  type="checkbox"
+                  disabled={
+                    !config.components.model ||
+                    !config.components.backend ||
+                    !config.enabled
+                  }
+                  checked={config.generation}
+                  onChange={(e) => {
+                    const generation = e.target.checked;
+                    void change(() =>
+                      fetch("/api/local/media", {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          enabled: config.enabled,
+                          threads: config.threads,
+                          generation,
+                        }),
+                      }),
+                    );
+                  }}
+                />
+                {t(
+                  "Enable CPU image generation",
+                  "Abilita generazione immagini su CPU",
+                )}
+              </label>
+              {config.enabled && config.generation && (
+                <pre>
+                  {
+                    '/media {"kind":"generate-image","prompt":"A red ceramic cup","width":256,"seed":41}'
+                  }
+                </pre>
+              )}
+            </details>
+          )}
           <label>
             {t("Assistant files", "File dell’assistente")}
             <select value={assistant} onChange={(e) => select(e.target.value)}>

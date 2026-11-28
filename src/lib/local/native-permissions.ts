@@ -19,6 +19,7 @@ const operations = {
   query_datasets: "datasets.query",
   calculate_dataset: "datasets.query",
   create_report: "reports.create",
+  media_generate:"media.image.generate",
   media_process: "media.process",
   mcp_call: "mcp.write",
 } as const;
@@ -52,7 +53,7 @@ export async function runNativeOperation<T>(
   };
   const capability = operations[operation];
   if ((operation === "mcp_call") !== Boolean(external)) throw new ActionError(403,"Invalid tool registration.");
-  if ((operation === "media_process") !== Boolean(resourceAllowed)) throw new ActionError(403,"Missing media scope.");
+  if ((operation === "media_process" || operation === "media_generate") !== Boolean(resourceAllowed)) throw new ActionError(403,"Missing media scope.");
   function policy() {
     const project = db.get("projects", scope.projectId);
     const assistant = db.get("assistants", assistantId);
