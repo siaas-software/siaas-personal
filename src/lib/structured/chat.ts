@@ -1,3 +1,7 @@
+import {
+  runNativeOperation,
+  type ToolTrace,
+} from "../local/native-permissions";
 import { requestsDatasetCalculation } from "../local/chat-router";
 import type { LocalDatabase } from "../local/database";
 import { retrieveAssistantSources } from "../local/assistant-research";
@@ -9,6 +13,7 @@ import { queryStructured, analysisMarkdown } from "./service";
 import { AnalysisError } from "./types";
 export async function structuredChat(options: {
   db: LocalDatabase;
+  trace?: ToolTrace;
   assistantId: string;
   modelId: string;
   question: string;
@@ -31,14 +36,26 @@ export async function structuredChat(options: {
   }
   let planning;
   try {
-    planning = await planQuestion(
+    planning = await runNativeOperation(
       options.db,
       options.assistantId,
-      options.modelId,
-      options.question,
+      options.trace,
       options.signal,
-      options.request,
-      options.onUsage,
+      "plan_dataset_query",
+      { question: options.question, model: options.modelId },
+      async (revalidate) => {
+        const plan = await planQuestion(
+          options.db,
+          options.assistantId,
+          options.modelId,
+          options.question,
+          options.signal,
+          options.request,
+          options.onUsage,
+        );
+        revalidate();
+        return plan;
+      },
     );
   } catch (e) {
     options.signal.throwIfAborted();
@@ -70,9 +87,19 @@ export async function structuredChat(options: {
     options.emit(content);
     return { content, sources: [], result: null };
   }
+  // Planning can await a slow model. Check current policy again before executing its plan.
   let result;
   try {
-    result = queryStructured(options.db, options.assistantId, planning.plan);
+    const plan = planning.plan;
+    result = await runNativeOperation(
+      options.db,
+      options.assistantId,
+      options.trace,
+      options.signal,
+      "query_datasets",
+      { plan },
+      () => queryStructured(options.db, options.assistantId, plan),
+    );
   } catch (e) {
     const content =
       e instanceof AnalysisError

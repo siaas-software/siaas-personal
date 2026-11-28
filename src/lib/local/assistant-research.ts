@@ -1,3 +1,4 @@
+import { runNativeOperation, type ToolTrace } from "./native-permissions";
 import { researchSettingsSchema } from "../research";
 import { researchTerms } from "../research-policy";
 import { readLinkedDocument } from "./knowledge";
@@ -7,6 +8,7 @@ import type { LocalDatabase } from "./database";
 import { runResearchWorkflow, type ResearchResult } from "./research-workflow";
 
 type Options = {
+  trace?: ToolTrace;
   db: LocalDatabase;
   assistantId: string;
   modelId: string;
@@ -20,6 +22,7 @@ type Options = {
 export async function retrieveAssistantSources(
   options: Pick<
     Options,
+    | "trace"
     | "db"
     | "assistantId"
     | "embeddingProfile"
@@ -32,111 +35,127 @@ export async function retrieveAssistantSources(
     emit?: Options["emit"];
   },
 ): Promise<Source[]> {
-  const docs = new Map(
-    options.db
-      .rows("documents")
-      .filter(
-        (d) =>
-          d.assistant_id === options.assistantId &&
-          d.status === "ready" &&
-          d.enabled !== false &&
-          (!options.kind ||
-            (options.kind === "website") === Boolean(d.source_url)),
-      )
-      .map((d) => [d.id, d]),
-  );
-  let sources: Source[] = [];
-  if (
-    options.embeddingProfile &&
-    [...docs.values()].some(
-      (d) => d.embedding_model === options.embeddingProfile,
-    )
-  ) {
-    try {
-      const context = {
-        assistantId: options.assistantId,
-        projectId: options.db.get("assistants", options.assistantId)
-          ?.project_id,
-        conversationId: options.conversationId,
-      };
-      const request: typeof fetch = (input, init) =>
-        fetch(input, {
-          ...init,
-          signal: AbortSignal.any([
-            options.signal,
-            ...(init?.signal ? [init.signal] : []),
-          ]),
-        });
-      const [embedding] = await embedLocal(
-        [options.question],
-        "query",
-        options.embeddingProfile,
-        request,
-        context,
+  return runNativeOperation(
+    options.db,
+    options.assistantId,
+    options.trace,
+    options.signal,
+    "retrieve_sources",
+    {
+      query: options.question,
+      kind: options.kind,
+      embeddingProfile: options.embeddingProfile,
+    },
+    async (revalidate) => {
+      const docs = new Map(
+        options.db
+          .rows("documents")
+          .filter(
+            (d) =>
+              d.assistant_id === options.assistantId &&
+              d.status === "ready" &&
+              d.enabled !== false &&
+              (!options.kind ||
+                (options.kind === "website") === Boolean(d.source_url)),
+          )
+          .map((d) => [d.id, d]),
       );
-      options.signal.throwIfAborted();
-      const result = await options.db.rpc("match_documents_local", {
-        target_profile: options.embeddingProfile,
-        query_embedding: embedding,
-        target_assistant: options.assistantId,
-        match_count: 3,
-        match_threshold: 0.25,
-      });
-      if (result.error) throw result.error;
-      sources = (result.data ?? []) as Source[];
-    } catch {
-      options.signal.throwIfAborted();
-    }
-  }
-  // Deterministic fallback when embeddings are unavailable, without external inference.
-  if (!sources.length) {
-    const terms = researchTerms(options.question);
-    sources = options.db
-      .rows("document_chunks")
-      .filter(
-        (c) =>
-          c.assistant_id === options.assistantId && docs.has(c.document_id),
-      )
-      .map((c) => ({
-        c,
-        score: terms.filter((w) =>
-          `${docs.get(c.document_id)!.title} ${c.content}`
-            .toLowerCase()
-            .includes(w),
-        ).length,
-      }))
-      .filter((x) => x.score > 0)
-      .sort((a, b) => b.score - a.score || a.c.id.localeCompare(b.c.id))
-      .slice(0, 3)
-      .map(({ c, score }) => ({
-        id: c.id,
-        document_id: c.document_id,
-        title: docs.get(c.document_id)!.title,
-        content: c.content,
-        position: c.position,
-        similarity: score / Math.max(1, terms.length),
-        ...(docs.get(c.document_id)!.source_url
-          ? {
-              kind: "website" as const,
-              url: docs.get(c.document_id)!.source_url,
-              fetched_at: docs.get(c.document_id)!.fetched_at,
-            }
-          : { kind: "document" as const }),
-      }));
-  }
-  const checked = new Set<string>();
-  return sources
-    .filter((s) => {
-      options.signal.throwIfAborted();
-      const doc = docs.get(s.document_id);
-      if (!doc) return false;
-      if (doc.source_id && !checked.has(doc.id)) {
-        readLinkedDocument(options.db, doc);
-        checked.add(doc.id);
+      let sources: Source[] = [];
+      if (
+        options.embeddingProfile &&
+        [...docs.values()].some(
+          (d) => d.embedding_model === options.embeddingProfile,
+        )
+      ) {
+        try {
+          const context = {
+            assistantId: options.assistantId,
+            projectId: options.db.get("assistants", options.assistantId)
+              ?.project_id,
+            conversationId: options.conversationId,
+          };
+          const request: typeof fetch = (input, init) =>
+            fetch(input, {
+              ...init,
+              signal: AbortSignal.any([
+                options.signal,
+                ...(init?.signal ? [init.signal] : []),
+              ]),
+            });
+          const [embedding] = await embedLocal(
+            [options.question],
+            "query",
+            options.embeddingProfile,
+            request,
+            context,
+          );
+          options.signal.throwIfAborted();
+          revalidate();
+          const result = await options.db.rpc("match_documents_local", {
+            target_profile: options.embeddingProfile,
+            query_embedding: embedding,
+            target_assistant: options.assistantId,
+            match_count: 3,
+            match_threshold: 0.25,
+          });
+          if (result.error) throw result.error;
+          sources = (result.data ?? []) as Source[];
+        } catch {
+          options.signal.throwIfAborted();
+        }
       }
-      return true;
-    })
-    .map((s) => ({ ...s, content: s.content.slice(0, 1600) }));
+      revalidate();
+      // Deterministic fallback when embeddings are unavailable, without external inference.
+      if (!sources.length) {
+        const terms = researchTerms(options.question);
+        sources = options.db
+          .rows("document_chunks")
+          .filter(
+            (c) =>
+              c.assistant_id === options.assistantId && docs.has(c.document_id),
+          )
+          .map((c) => ({
+            c,
+            score: terms.filter((w) =>
+              `${docs.get(c.document_id)!.title} ${c.content}`
+                .toLowerCase()
+                .includes(w),
+            ).length,
+          }))
+          .filter((x) => x.score > 0)
+          .sort((a, b) => b.score - a.score || a.c.id.localeCompare(b.c.id))
+          .slice(0, 3)
+          .map(({ c, score }) => ({
+            id: c.id,
+            document_id: c.document_id,
+            title: docs.get(c.document_id)!.title,
+            content: c.content,
+            position: c.position,
+            similarity: score / Math.max(1, terms.length),
+            ...(docs.get(c.document_id)!.source_url
+              ? {
+                  kind: "website" as const,
+                  url: docs.get(c.document_id)!.source_url,
+                  fetched_at: docs.get(c.document_id)!.fetched_at,
+                }
+              : { kind: "document" as const }),
+          }));
+      }
+      const checked = new Set<string>();
+      return sources
+        .filter((s) => {
+          options.signal.throwIfAborted();
+          const doc = docs.get(s.document_id);
+          if (!doc) return false;
+          if (doc.source_id && !checked.has(doc.id)) {
+            readLinkedDocument(options.db, doc);
+            checked.add(doc.id);
+          }
+          return true;
+        })
+        .map((s) => ({ ...s, content: s.content.slice(0, 1600) }));
+    },
+  );
 }
 export async function prepareAssistantResearch(
   options: Options,

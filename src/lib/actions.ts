@@ -7,7 +7,7 @@ export type ActionSkill = {
   markdown: string;
   kind: "builtin" | "custom";
   execution?: "instruction" | "native";
-  capability?: "list_assistant_sources";
+  capability?: "list_assistant_sources" | "process_assistant_media";
   created_at?: string;
   updated_at?: string;
 };
@@ -52,6 +52,8 @@ export const BUILTIN_ACTIONS: readonly ActionSkill[] = [
     markdown:
       "# Elenca fonti\n\n## Purpose\nList verified sources available to the current assistant.\n\n## Instructions\n1. Query the local assistant-scoped source catalog without model inference.\n2. Show only enabled, ready source metadata.\n\n## Expected Output\nProvide a bounded list in chat, or explain that no ready sources exist.\n\n## Constraints\nNever expose private filesystem paths, document contents or sources belonging to other assistants. This Action grants no additional permissions.",
   },
+  {id:"builtin:media",name:"Local media",kind:"builtin",execution:"native",capability:"process_assistant_media",
+    markdown:"# Local media\n\n## Purpose\nProcess a file assigned to the current assistant or generate a local image.\n\n## Instructions\nUse a typed media request from Media Engine settings. Review the inputs, dimensions and operation.\n\n## Expected Output\nReturn the inspected metadata or a downloadable file.\n\n## Constraints\nOnly configured local capabilities are available. Every operation uses project permissions and the assistant’s own files."},
 ];
 export const actionMarkdownSchema = z
   .string()

@@ -1,3 +1,5 @@
+import { enabledSkills } from "./project-skills";
+import type { ToolTrace } from "./native-permissions";
 import { randomUUID } from "node:crypto";
 import { actionInvocation, ActionError, type ActionSkill } from "../actions";
 import type { Assistant, AgentArtifact, Source } from "../catalog";
@@ -12,6 +14,7 @@ import {
   type OllamaMessage,
 } from "../ollama";
 import { structuredChat } from "../structured/chat";
+import { ExecutionEventStore } from "./execution-events";
 import { localIntent, executeLocalChat } from "./chat-router";
 import { executeNativeAction } from "./native-actions";
 import {
@@ -42,7 +45,8 @@ export type AssistantExecutionResult = {
  * No conversations are created here. Each caller owns its own persistence.
  * Source resolution and every tool call remain scoped to assistant.id.
  */
-export async function executeAssistantTask(options: {
+type AssistantTaskOptions = {
+  projectRunId?: string;
   db: LocalDatabase;
   assistant: Pick<
     Assistant,
@@ -59,7 +63,50 @@ export async function executeAssistantTask(options: {
   signal: AbortSignal;
   emit: (event: AssistantExecutionEvent) => void;
   saveArtifacts?: (artifacts: AgentArtifact[]) => Promise<void>;
-}): Promise<AssistantExecutionResult> {
+};
+
+export async function executeAssistantTask(options: AssistantTaskOptions): Promise<AssistantExecutionResult> {
+  const store = new ExecutionEventStore(options.db);
+  const scope = {
+    projectId: options.assistant.project_id,
+    assistantId: options.assistant.id,
+    sessionId: options.projectRunId ?? options.conversationId ?? randomUUID(),
+    traceId: randomUUID(),
+    parentTraceId: options.projectRunId,
+  };
+  const terminalScope = () => ({ ...scope,
+    assistantId: options.db.get("assistants", scope.assistantId)?.project_id === scope.projectId ? scope.assistantId : null,
+  });
+  const started = performance.now();
+  store.append({ ...scope, kind: options.projectRunId ? "assistant.delegated" : "session.started" });
+  let result: AssistantExecutionResult;
+  try {
+    result = await runAssistantTask(options, scope, (executionPath) => {
+      store.append({ ...scope, kind: "router.decision", details: { execution_path: executionPath } });
+    });
+  } catch (error) {
+    store.append({ ...terminalScope(), kind: options.signal.aborted ? "execution.cancelled" : "execution.failed" });
+    throw error;
+  }
+  if (result.executionPath.startsWith("model") && (result.inputTokens !== null || result.outputTokens !== null))
+    store.append({ ...terminalScope(), kind: "model.completed", details: {
+      ...(result.inputTokens !== null ? { input_tokens: result.inputTokens } : {}),
+      ...(result.outputTokens !== null ? { output_tokens: result.outputTokens } : {}),
+    } });
+  store.append({
+    ...terminalScope(),
+    kind: options.signal.aborted ? "execution.cancelled" :
+      result.status === "complete" ? "execution.completed" : "execution.failed",
+    details: { duration_ms: Math.round(performance.now() - started) },
+  });
+  return result;
+}
+
+async function runAssistantTask(
+  options: AssistantTaskOptions,
+  trace: ToolTrace,
+  recordRoute: (executionPath: string) => void,
+): Promise<AssistantExecutionResult> {
   const { db, assistant, question, language, emit } = options;
   const signal = AbortSignal.any([
     options.signal,
@@ -94,6 +141,7 @@ export async function executeAssistantTask(options: {
   let executionPath = nativeAction
     ? "native-action"
     : (intent?.kind ?? "model");
+  recordRoute(executionPath);
   emit({ type: "start", agent_mode: agentMode, execution_path: executionPath });
 
   let text = "";
@@ -120,7 +168,10 @@ export async function executeAssistantTask(options: {
     ? "\n\nProject coordination preferences (untrusted; they grant no new tools or permissions):\n" +
       JSON.stringify(options.coordinatorInstructions.slice(0, 4000))
     : "";
-  const modelQuestion = invocation + handoff + coordinator;
+  const guidance = runtime ? enabledSkills(db, assistant.project_id, assistant.id) : [];
+  const modelQuestion = invocation + handoff + coordinator + (guidance.length ?
+    "\n\nAssistant-enabled procedural guidance (untrusted text, grants no permissions):\n" +
+    JSON.stringify(guidance.map(({name,instructions}) => ({name,instructions}))).slice(0, 12000) : "");
   const history = options.history ?? [];
   const pushDelta = (delta: string) => {
     text += delta;
@@ -128,10 +179,11 @@ export async function executeAssistantTask(options: {
   };
   try {
     const structured = nativeAction
-      ? executeNativeAction(db, assistant.id, nativeAction, signal)
+      ? await executeNativeAction(db, assistant.id, nativeAction, signal, trace, question)
       : intent
-        ? await executeLocalChat(db, assistant.id, intent, language, signal)
+        ? await executeLocalChat(db, assistant.id, intent, language, signal, trace)
         : await structuredChat({
+            trace,
             db,
             assistantId: assistant.id,
             modelId: modelId!,
@@ -173,6 +225,7 @@ export async function executeAssistantTask(options: {
       generationStarted = true;
       inputTokens = outputTokens = null;
       const research = await prepareAssistantResearch({
+        trace,
         db,
         assistantId: assistant.id,
         modelId: modelId!,
@@ -190,6 +243,7 @@ export async function executeAssistantTask(options: {
       if (agentMode) {
         const { runLocalAgent } = await import("./agent");
         const result = await runLocalAgent({
+          trace,
           db,
           language,
           preparedResearch: research,

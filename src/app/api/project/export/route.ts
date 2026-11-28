@@ -1,3 +1,4 @@
+import { portableTools } from "@/lib/local/portable-tools";
 import { isDesktop } from "@/lib/runtime";
 import { localWorkspace, fail, HttpError, uuid } from "@/lib/http";
 import { exportProjectBundle } from "@/lib/export-bundle";
@@ -39,6 +40,7 @@ export async function GET(req: Request) {
       description: project.description,
       color: project.color,
       assistants: portableAssistants,
+      requested_tools:local ? portableTools(local,projectId, (assistants ?? []).map(a=>a.id)) : undefined,
       orchestration: portableTemplateOrchestration(project.orchestration, (assistants ?? []).map((a) => a.id)),
     });
     return new Response(bundle.content, {

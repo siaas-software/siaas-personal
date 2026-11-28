@@ -4,7 +4,12 @@ import { ActionsPage, ActionsModelsPage } from "./actions";
 import { actionRequest, type ActionSkill } from "@/lib/actions";
 import { Shortcuts } from "./shortcuts";
 import { AboutSettings } from "./about-settings";
+import { MediaSettings } from "./media-settings";
 import { AppVersion } from "./app-version";
+import { ProjectSkills } from "./project-skills";
+import { ProjectMcp } from "./project-mcp";
+import { ProjectGuidance } from "./project-guidance";
+import { ApprovalRequests, ProjectSecurity } from "./project-security";
 import { useInterfaceLanguage } from "./interface-language";
 import { shortcutDisplayPrompt } from "@/lib/shortcuts";
 import { WebKnowledge } from "./web-knowledge";
@@ -425,7 +430,7 @@ export function Workspace() {
       const raw = await file.text();
       const parsed = JSON.parse(raw);
       if (
-        !["siaas-project-v1", "siaas-project-v2"].includes(parsed?.format) ||
+        !["siaas-project-v1", "siaas-project-v2", "siaas-project-v3"].includes(parsed?.format) ||
         !Array.isArray(parsed.project?.assistants)
       )
         throw new Error("This file is not a valid SIAAS Personal template.");
@@ -853,6 +858,7 @@ export function Workspace() {
               : undefined
           }
         >
+          {desktop && activeProject && <ApprovalRequests key={activeProject.id} projectId={activeProject.id} assistants={activeAssistants} italian={italian}/>}
           {error && (
             <div className="notice error" role="alert">
               {error}
@@ -1270,6 +1276,7 @@ export function Workspace() {
                   {desktop ? (
                     <>
                       <ExperimentalFeaturesPanel />
+                      <MediaSettings assistants={data?.assistants ?? []} italian={italian}/>
                       <DesktopUpdatesPanel />
                       <LocalStoragePanel />
                       <AboutSettings version={data?.version} />
@@ -1897,6 +1904,10 @@ export function Workspace() {
               </div>
             </form>
           </div>
+          <ProjectMcp key={"mcp-"+activeProject.id} projectId={activeProject.id} assistants={activeAssistants} italian={italian}/>
+          <ProjectSkills key={"skills-" + activeProject.id} projectId={activeProject.id} assistants={activeAssistants} italian={italian}/>
+          <ProjectGuidance key={"guidance-" + activeProject.id} projectId={activeProject.id} italian={italian}/>
+          <ProjectSecurity key={activeProject.id} projectId={activeProject.id} assistants={activeAssistants} italian={italian}/>
           <div className="project-settings-danger">
             <button
               className="button resource-delete"

@@ -252,6 +252,19 @@ try {
     try {
       const page = await browser.newPage({ extraHTTPHeaders: headers });
       await page.goto(origin + "/?project=" + project.id);
+      if (process.argv.includes("--mcp")) {
+        await page.getByRole("button", { name: "Project actions", exact:true }).click();
+        await page.getByRole("menuitem", { name: "Configuration", exact:true }).click();
+        const mcp = page.getByRole("group", {name:"MCP connections",exact:true});
+        await mcp.getByLabel("Connection name").fill("Desktop fixture");
+        await mcp.getByLabel("Endpoint", {exact:true}).fill("https://fixture.example/mcp");
+        await mcp.getByRole("button",{name:"Save connection"}).click();
+        await mcp.getByRole("heading",{name:"Desktop fixture"}).waitFor();
+        await mcp.getByRole("button",{name:"Remove connection"}).click();
+        await mcp.getByRole("heading",{name:"Desktop fixture"}).waitFor({state:"detached"});
+        await page.reload();
+        console.log("PASS MCP desktop settings create, list and remove through Chromium.");
+      }
       const panel = page.getByRole("region", {
         name: "Project chat",
         exact: true,
@@ -291,6 +304,19 @@ try {
       );
       await page.reload();
       await panel.getByRole("alert").first().waitFor();
+      configure([assistants[0].id]);
+      const policyUrl = "/api/projects/" + project.id + "/permissions";
+      await api(policyUrl, "PUT", { rules: [{capability:"documents.read",decision:"ask"}] });
+      for (const lang of ["en", "it"]) {
+        await page.goto(origin + "/?project=" + project.id + "&lang=" + lang);
+        const run = complete("List sources", "builtin:list-sources");
+        const prompt = page.getByRole("region", { name: lang === "it" ? "Richiesta di approvazione" : "Approval request" });
+        await prompt.getByRole("button", { name: lang === "it" ? "Approva" : "Approve", exact: true }).click({ timeout: 4500 });
+        assert.equal((await run).status, "complete");
+      }
+      await api(policyUrl, "PUT", { rules: [] });
+      configure();
+      console.log("PASS authenticated English and Italian approval controls resume the suspended operation.");
       console.log(
         "PASS project browser composer Enter, final result, history reload and server cancellation.",
       );
@@ -397,12 +423,139 @@ try {
   assert.match(native.steps[0].text, /Only-first/);
   assert(!native.steps[1].text.includes("Only-first"));
   assert(!JSON.stringify(native).includes("Private-other"));
+  const skillsUrl = "/api/projects/"+project.id+"/skill-packages";
+  const archiveSkill = async body => {
+    const zip = new JSZip();
+    zip.file("review/SKILL.md", "---\nname: review\ndescription: Review material\n---\n" + body);
+    return zip.generateAsync({type:"base64"});
+  };
+  const archive = await archiveSkill("Compare evidence.");
+  const preview = await api(skillsUrl, "POST", {op:"preview",archive});
+  const install = {op:"install",archive,digest:preview.digest,conflict:"keep"};
+  const {id:skillId} = await api(skillsUrl,"POST",install);
+  const assignment = {op:"assign", assistant:assistants[0].id,id:skillId,digest:preview.digest,enabled:true};
+  assert.deepEqual((await api(skillsUrl+"?assistant="+assistants[0].id)).enabled, []);
+  await api(skillsUrl,"POST",{...assignment,assistant:stranger.id},404);
+  await api(skillsUrl,"POST",assignment);
+  assert.deepEqual((await api(skillsUrl+"?assistant="+assistants[0].id)).enabled, [skillId]);
+  assert.deepEqual((await api(skillsUrl+"?assistant="+assistants[1].id)).enabled, []);
+  const exportedSkill = await fetch(origin+skillsUrl+"?id="+skillId+"&export=1",{headers});
+  assert.equal(exportedSkill.status,200);
+  const exportedArchive=Buffer.from(await exportedSkill.arrayBuffer()).toString("base64");
+  assert.equal((await api(skillsUrl,"POST",{op:"preview",archive:exportedArchive})).digest,preview.digest);
+  const changedArchive=await archiveSkill("Different guidance.");
+  const changed=await api(skillsUrl,"POST",{op:"preview",archive:changedArchive});
+  await api(skillsUrl,"POST",{op:"install",archive:changedArchive,digest:changed.digest,conflict:"replace",expected:preview.digest});
+  assert.deepEqual((await api(skillsUrl+"?assistant="+assistants[0].id)).enabled, []);
+  await api(skillsUrl,"POST",{op:"restore",id:skillId,digest:changed.digest});
+  assert.equal((await api(skillsUrl+"?id="+skillId)).digest,preview.digest);
+  await api("/api/projects/"+other.id+"/skill-packages?id="+skillId,"GET",undefined,404);
+  const projectActions = "/api/projects/" + project.id + "/actions";
+  const linkedAction = "builtin:list-sources";
+  const list = await api(projectActions);
+  assert(list.available.some(a => a.id === linkedAction));
+  assert.deepEqual(list.selected, []);
+  await api(projectActions, "PUT", { ids: [linkedAction] });
+  const exportedTools = await api("/api/project/export?project="+project.id);
+  assert.equal(exportedTools.format, "siaas-project-v3");
+  assert.equal(exportedTools.project.requested_tools.actions.length,1);
+  assert.equal(exportedTools.project.requested_tools.skills[0].digest, preview.digest);
+  assert(!JSON.stringify(exportedTools.project.requested_tools).includes(skillId));
+  assert(!JSON.stringify(exportedTools.project.requested_tools).includes("Compare evidence."));
+  const actionName = list.available.find(a => a.id === linkedAction).name;
+  const previewPath = "/api/projects/" + project.id + "/agents-md";
+  assert((await api(previewPath)).markdown.includes("### " + actionName));
+  await api(projectActions, "PUT", { ids: ["unknown-action"] }, 400);
+  assert.deepEqual((await api(projectActions)).selected, [linkedAction]);
+  assert.deepEqual((await api("/api/projects/" + other.id + "/actions")).selected, []);
+  await api(projectActions, "PUT", { ids: [] });
+  assert(!(await api(previewPath)).markdown.includes("### " + actionName));
+  const permissionsPath = "/api/projects/" + project.id + "/permissions";
+  const tracePath = "/api/projects/" + project.id + "/trace";
+  assert.equal((await fetch(origin + tracePath)).status, 403);
+  await api(tracePath + "?assistant=" + stranger.id, "GET", undefined, 404);
+  const scopedTrace = tracePath + "?assistant=" + assistants[0].id + "&limit=1";
+  const page = await api(scopedTrace);
+  assert.equal(page.events[0].assistant_id, assistants[0].id);
+  assert(page.next);
+  const older = await api(scopedTrace + "&before=" + page.next);
+  assert.equal(older.events[0].assistant_id, assistants[0].id);
+  assert.notEqual(older.events[0].id, page.events[0].id);
+  for (const decision of ["ask", "deny"]) {
+    const rules = [{ capability: "documents.read", decision }];
+    await api(permissionsPath, "PUT", { rules });
+    assert.deepEqual((await api(permissionsPath)).overrides.rules, rules);
+    const running = complete("List sources", "builtin:list-sources");
+    const approvalsPath = "/api/projects/" + project.id + "/approvals";
+    if (decision === "ask") {
+      const request = await until(async () => (await api(approvalsPath)).pending[0]);
+      assert.equal(request.operation, "list_sources");
+      await api("/api/projects/" + other.id + "/approvals", "POST", { id: request.id, outcome: "approved" }, 409);
+      await api(approvalsPath, "POST", { id: request.id, outcome: "rejected" });
+      await api(approvalsPath, "POST", { id: request.id, outcome: "approved" }, 409);
+    }
+    const refused = await running;
+    assert.equal(refused.status, "error");
+    assert(!JSON.stringify(refused).includes("Only-first"));
+    const audit = db.sql.prepare("SELECT details FROM execution_events WHERE session_id=? AND kind='tool.permission_checked'").all(refused.id);
+    assert.deepEqual(audit.map(row => JSON.parse(row.details).permission), [decision]);
+  }
+  const staleRevision = (await api(permissionsPath)).revision;
+  await api(permissionsPath, "PUT", { rules: [] });
+  const staleSave = await fetch(origin + permissionsPath, { method: "PUT", headers: { ...headers, "If-Match": '"' + staleRevision + '"' },
+    body: JSON.stringify({ rules: [{ capability:"reports.create", decision:"allow" }] }) });
+  assert.equal(staleSave.status, 412);
+  assert.deepEqual((await api(permissionsPath)).overrides.rules, []);
+  const approvalsPath = "/api/projects/" + project.id + "/approvals";
+  const askRules = { rules: [{ capability: "documents.read", decision: "ask" }] };
+  await api(permissionsPath, "PUT", askRules);
+  configure([assistants[0].id]);
+  const approvedRun = complete("List sources", "builtin:list-sources");
+  const approval = await until(async () => (await api(approvalsPath)).pending[0]);
+  const consume = () => fetch(origin + approvalsPath, {
+    method: "POST", headers, body: JSON.stringify({ id: approval.id, outcome: "approved" }),
+  });
+  assert.deepEqual((await Promise.all([consume(), consume()])).map(r => r.status).sort(), [200, 409]);
+  const resumed = await approvedRun;
+  assert.equal(resumed.status, "complete");
+  assert.match(resumed.steps[0].text, /Only-first/);
+  const successfulEvents = db.sql.prepare("SELECT kind FROM execution_events WHERE session_id=? ORDER BY sequence").all(resumed.id);
+  assert.deepEqual(successfulEvents.map(r => r.kind).filter(k => k.startsWith("tool.") || k.startsWith("approval.")),
+    ["tool.permission_checked", "approval.requested", "approval.approved", "tool.started", "tool.completed"]);
+  const cancelledRun = complete("List sources", "builtin:list-sources");
+  const cancelledRequest = await until(async () => (await api(approvalsPath)).pending[0]);
+  await api(approvalsPath, "POST", { id: cancelledRequest.id, outcome: "cancelled" });
+  assert.equal((await cancelledRun).status, "error");
+  const revokedRun = complete("List sources", "builtin:list-sources");
+  const revokedRequest = await until(async () => (await api(approvalsPath)).pending[0]);
+  await api(permissionsPath, "PUT", { rules: [] });
+  await api(permissionsPath, "PUT", askRules);
+  await api(approvalsPath, "POST", { id: revokedRequest.id, outcome: "approved" }, 409);
+  assert.equal((await revokedRun).status, "error");
+  configure();
+  await api(permissionsPath, "PUT", { rules: [] });
   assert.equal(calls, before);
   assert.equal(
     db.rows("conversations").length,
     2,
     "project runs contaminated individual history",
   );
+  await api(permissionsPath, "PUT", askRules);
+  const directRun = direct(assistants[0], "List sources", "builtin:list-sources");
+  const directRequest = await until(async () => (await api(approvalsPath)).pending[0]);
+  await api(approvalsPath, "POST", { id: directRequest.id, outcome: "approved" });
+  assert.match((await directRun).content, /Only-first/);
+  await api(permissionsPath, "PUT", { rules: [] });
+  if(process.argv.includes("--media")){
+    const {checkMedia}=await import("./media-acceptance.mjs");
+    configure([assistants[0].id]);
+    await checkMedia({api,origin,headers,project,assistant:assistants[0],stranger,direct,complete,until});
+    configure();
+  }
+  if(process.argv.includes("--mcp")){
+    const {checkMcp}=await import("./mcp-acceptance.mjs");
+    await checkMcp({api,project,assistant:assistants[0],stranger,direct,until,db});
+  }
   await api(path, "POST", { question: "2+2", action_id: "missing" }, 404);
   configure([stranger.id]);
   await api(path, "POST", { question: "2+2" }, 403);
@@ -449,6 +602,19 @@ try {
   assert(!questions.at(-1).includes("Previous assistant result"));
   configure(undefined, true);
   const sharing = await complete("handoff");
+  const events = db.sql.prepare(
+    "SELECT * FROM execution_events WHERE project_id = ? AND session_id = ? ORDER BY sequence"
+  ).all(project.id, sharing.id);
+  assert.equal(events[0].kind, "session.started");
+  const delegations = events.filter(event => event.kind === "assistant.delegated");
+  assert.deepEqual(delegations.map(event => event.assistant_id), sharing.steps.map(step => step.assistant_id));
+  for (const child of delegations) {
+    assert.equal(child.parent_trace_id, events[0].trace_id);
+    const kinds = events.filter(event => event.trace_id === child.trace_id).map(event => event.kind);
+    assert.deepEqual(kinds.filter(kind => !kind.startsWith("tool.") && kind !== "model.completed"),
+      ["assistant.delegated", "router.decision", "execution.completed"]);
+    assert(kinds.includes("tool.permission_checked"));
+  }
   assert.equal(sharing.status, "complete");
   assert(questions.at(-1).includes("UNTRUSTED DATA"));
   const stale = db.put("project_runs", {
@@ -502,7 +668,7 @@ try {
   assert.equal(reopened.get("project_runs", sharing.id).status, "complete");
   assert.equal(
     reopened.sql.prepare("PRAGMA user_version").get().user_version,
-    4,
+    9,
   );
   reopened.close();
   await api("/api/projects/" + project.id, "DELETE");

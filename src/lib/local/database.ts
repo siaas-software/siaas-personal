@@ -1,3 +1,4 @@
+import { installApprovalRevisionTriggers } from "./approval-revision";
 import { LEXICAL_PROFILE } from "../catalog";
 import { researchSettingsSchema } from "../research";
 import { migrateExperimentalFeatures } from "../experimental";
@@ -74,7 +75,7 @@ export class LocalDatabase {
     const version = this.sql.prepare("PRAGMA user_version").get() as {
       user_version: number;
     };
-    if (version.user_version > 4)
+    if (version.user_version > 9)
       throw new Error(
         "Database creato da una versione più recente di SIAAS Personal.",
       );
@@ -140,7 +141,84 @@ export class LocalDatabase {
       if (research.success)
         this.put("assistants", { ...assistant, research: research.data }, true);
     }
-    this.sql.exec("PRAGMA user_version=4");
+    if (version.user_version < 5) {
+      this.transaction(() => {
+        this.sql.exec(`
+      CREATE TABLE IF NOT EXISTS execution_events (
+        id TEXT PRIMARY KEY,
+        project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+        assistant_id TEXT REFERENCES assistants(id) ON DELETE CASCADE,
+        session_id TEXT NOT NULL,
+        trace_id TEXT NOT NULL,
+        parent_trace_id TEXT,
+        sequence INTEGER NOT NULL,
+        kind TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        details TEXT NOT NULL CHECK(json_valid(details)),
+        UNIQUE(session_id, sequence)
+      );
+      CREATE INDEX IF NOT EXISTS execution_events_project
+        ON execution_events(project_id, created_at DESC);
+      CREATE INDEX IF NOT EXISTS execution_events_assistant
+        ON execution_events(project_id, assistant_id, created_at DESC);
+      CREATE INDEX IF NOT EXISTS execution_events_session
+        ON execution_events(project_id, session_id, sequence);
+      CREATE INDEX IF NOT EXISTS execution_events_trace
+        ON execution_events(project_id, trace_id);
+      CREATE TRIGGER IF NOT EXISTS execution_events_prevent_update
+        BEFORE UPDATE ON execution_events
+        BEGIN SELECT RAISE(ABORT, 'execution_events are immutable'); END;
+          PRAGMA user_version=5;
+        `);
+      });
+    }
+    if (version.user_version < 6) {
+      this.transaction(() => {
+        this.sql.exec(`CREATE TABLE IF NOT EXISTS approval_revisions (
+          project_id TEXT PRIMARY KEY REFERENCES projects(id) ON DELETE CASCADE,
+          revision INTEGER NOT NULL
+        )`);
+        for (const table of ["projects", "assistants", "documents", "knowledge_sources"] as const)
+          installApprovalRevisionTriggers(this.sql, table);
+        this.sql.exec("PRAGMA user_version=6");
+      });
+    }
+    if (version.user_version < 7) {
+      this.transaction(() => this.sql.exec(`
+        CREATE TABLE IF NOT EXISTS project_skills(
+          id TEXT PRIMARY KEY, project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          name TEXT NOT NULL, package TEXT NOT NULL, previous TEXT,
+          UNIQUE(project_id,name)
+        );
+        CREATE TABLE IF NOT EXISTS assistant_skills(
+          assistant_id TEXT NOT NULL REFERENCES assistants(id) ON DELETE CASCADE,
+          skill_id TEXT NOT NULL REFERENCES project_skills(id) ON DELETE CASCADE,
+          PRIMARY KEY(assistant_id,skill_id)
+        );
+        CREATE TRIGGER IF NOT EXISTS clear_moved_assistant_skills AFTER UPDATE OF project_id ON assistants
+          WHEN OLD.project_id <> NEW.project_id BEGIN DELETE FROM assistant_skills WHERE assistant_id=NEW.id; END;
+        PRAGMA user_version=7;
+      `));
+    }
+    if (version.user_version < 8) {
+      this.transaction(() => this.sql.exec(`
+        CREATE TABLE IF NOT EXISTS mcp_connections(
+          id TEXT PRIMARY KEY, project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+          name TEXT NOT NULL, config TEXT NOT NULL, UNIQUE(project_id,name)
+        );
+        PRAGMA user_version=8;
+      `));
+    }
+    if (version.user_version < 9) this.transaction(() => this.sql.exec(`
+      CREATE TABLE IF NOT EXISTS media_files (
+        id TEXT PRIMARY KEY, project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+        assistant_id TEXT NOT NULL REFERENCES assistants(id) ON DELETE CASCADE,
+        mime TEXT NOT NULL, digest TEXT NOT NULL, bytes BLOB NOT NULL
+      );
+      CREATE TRIGGER IF NOT EXISTS clear_moved_media AFTER UPDATE OF project_id ON assistants
+      WHEN OLD.project_id <> NEW.project_id BEGIN DELETE FROM media_files WHERE assistant_id=NEW.id; END;
+      PRAGMA user_version=9;
+    `));
     this.migrateFiles();
     removeEmptyLegacyDirectories(
       directory,

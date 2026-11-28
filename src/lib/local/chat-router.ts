@@ -1,3 +1,4 @@
+import { runNativeOperation, type ToolTrace } from "./native-permissions";
 import type { LocalDatabase } from "./database";
 import { retrieveAssistantSources } from "./assistant-research";
 import {
@@ -30,10 +31,18 @@ type Intent =
     }
   | { kind: "structured"; file: string; column?: string }
   | { kind: "document" | "website"; terms: string }
-  | { kind: "help" | "clarify" };
+  | { kind: "help" | "clarify" }
+  | { kind: "media"; args:string }
+  | { kind: "mcp"; serverId:string; name:string; args:string };
 
 export function localIntent(question: string): Intent | null {
   const q = question.trim();
+  if (/^\/media(?:\s|$)/i.test(q)) return {kind:"media",args:q.slice(6).trim()};
+  if (/^\/mcp(?:\s|$)/i.test(q)) {
+    const command = /^\/mcp\s+([a-f0-9-]{36})\s+([A-Za-z][A-Za-z0-9_.-]{0,63})\s+(\{[\s\S]*\})$/.exec(q);
+    if (!command) throw new AnalysisError("Use /mcp <server-id> <tool> {JSON arguments}.");
+    return {kind:"mcp",serverId:command[1],name:command[2],args:command[3]};
+  }
   if (/^(?:\/help|\/aiuto)$/i.test(q)) return { kind: "help" };
   const math =
     /^(?:(?:what is|calculate|quanto fa|quanto fanno|calcola)\s+)?([+-]?\d+(?:[.,]\d+)?)\s*([+*/×÷-])\s*([+-]?\d+(?:[.,]\d+)?)[?=]?$/i.exec(
@@ -93,6 +102,7 @@ export async function executeLocalChat(
   intent: Intent,
   language: "en" | "it",
   signal: AbortSignal,
+  trace?: ToolTrace,
 ) {
   signal.throwIfAborted();
   let content: string;
@@ -101,6 +111,18 @@ export async function executeLocalChat(
   const it = language === "it";
   try {
     switch (intent.kind) {
+      case "media": {
+        if (!trace) throw new Error("Missing media execution context.");
+        const {executeMedia}=await import("./media/service");
+        content=await executeMedia(db,assistantId,trace,JSON.parse(intent.args),signal);
+        break;
+      }
+      case "mcp": {
+        if(!trace) throw new AnalysisError("Missing MCP execution context.");
+        const {invokeMcp}=await import("./mcp/registry");
+        content=await invokeMcp(db,assistantId,trace,intent.serverId,intent.name,JSON.parse(intent.args),signal);
+        break;
+      }
       case "arithmetic":
         content = binaryDecimal(
           intent.operator,
@@ -109,56 +131,66 @@ export async function executeLocalChat(
         ).toString();
         break;
       case "structured": {
-        const matches = datasets(db, assistantId).filter(
-          (d) => d.filename.toLowerCase() === intent.file.toLowerCase(),
+        result = await runNativeOperation(
+          db,
+          assistantId,
+          trace,
+          signal,
+          "calculate_dataset",
+          intent,
+          () => {
+            const matches = datasets(db, assistantId).filter(
+              (d) => d.filename.toLowerCase() === intent.file.toLowerCase(),
+            );
+            if (matches.length !== 1)
+              throw new AnalysisError(
+                it
+                  ? "Seleziona un unico foglio disponibile in Analisi dati."
+                  : "Choose one available file and worksheet in Structured Data Analysis.",
+              );
+            const [dataset] = matches;
+            if (!dataset.mapping.confirmed)
+              throw new AnalysisError(
+                it
+                  ? "Conferma la mappatura del foglio."
+                  : "Confirm the worksheet mapping first.",
+              );
+            const { columns } = profile(dataset);
+            let step: Plan["stages"][number]["steps"][number];
+            if (intent.column) {
+              const matches = columns.filter(
+                (c) => c.name.toLowerCase() === intent.column!.toLowerCase(),
+              );
+              if (matches.length !== 1 || matches[0].type !== "number")
+                throw new AnalysisError(
+                  it
+                    ? "Specifica una sola colonna numerica confermata."
+                    : "Specify one confirmed numeric column by its exact name.",
+                );
+              const column = matches[0].id;
+              step = {
+                op: "group",
+                by: dataset.mapping.partitionColumns,
+                aggregates: [
+                  { fn: "sum", column, as: "total" },
+                  { fn: "count", column, as: "rowsUsed" },
+                ],
+              };
+            } else {
+              if (columns.length > 8)
+                throw new AnalysisError(
+                  it
+                    ? "Seleziona le colonne da confrontare in Analisi dati."
+                    : "Choose comparison columns in Structured Data Analysis.",
+                );
+              step = { op: "duplicates", by: columns.map((c) => c.id) };
+            }
+            return queryStructured(db, assistantId, {
+              stages: [{ id: "data", datasetId: dataset.id, steps: [step] }],
+              output: "data",
+            });
+          },
         );
-        if (matches.length !== 1)
-          throw new AnalysisError(
-            it
-              ? "Seleziona un unico foglio disponibile in Analisi dati."
-              : "Choose one available file and worksheet in Structured Data Analysis.",
-          );
-        const [dataset] = matches;
-        if (!dataset.mapping.confirmed)
-          throw new AnalysisError(
-            it
-              ? "Conferma la mappatura del foglio."
-              : "Confirm the worksheet mapping first.",
-          );
-        const { columns } = profile(dataset);
-        let step: Plan["stages"][number]["steps"][number];
-        if (intent.column) {
-          const matches = columns.filter(
-            (c) => c.name.toLowerCase() === intent.column!.toLowerCase(),
-          );
-          if (matches.length !== 1 || matches[0].type !== "number")
-            throw new AnalysisError(
-              it
-                ? "Specifica una sola colonna numerica confermata."
-                : "Specify one confirmed numeric column by its exact name.",
-            );
-          const column = matches[0].id;
-          step = {
-            op: "group",
-            by: dataset.mapping.partitionColumns,
-            aggregates: [
-              { fn: "sum", column, as: "total" },
-              { fn: "count", column, as: "rowsUsed" },
-            ],
-          };
-        } else {
-          if (columns.length > 8)
-            throw new AnalysisError(
-              it
-                ? "Seleziona le colonne da confrontare in Analisi dati."
-                : "Choose comparison columns in Structured Data Analysis.",
-            );
-          step = { op: "duplicates", by: columns.map((c) => c.id) };
-        }
-        result = queryStructured(db, assistantId, {
-          stages: [{ id: "data", datasetId: dataset.id, steps: [step] }],
-          output: "data",
-        });
         content = analysisMarkdown(result, false);
         break;
       }
@@ -167,6 +199,7 @@ export async function executeLocalChat(
         sources = await retrieveAssistantSources({
           db,
           assistantId,
+          trace,
           question: intent.terms,
           signal,
           embeddingProfile: null,
