@@ -257,7 +257,7 @@ try {
         await page.getByRole("menuitem", { name: "Configuration", exact:true }).click();
         const mcp = page.getByRole("group", {name:"MCP connections",exact:true});
         await mcp.getByLabel("Connection name").fill("Desktop fixture");
-        await mcp.getByLabel("Endpoint").fill("https://fixture.example/mcp");
+        await mcp.getByLabel("Endpoint", {exact:true}).fill("https://fixture.example/mcp");
         await mcp.getByRole("button",{name:"Save connection"}).click();
         await mcp.getByRole("heading",{name:"Desktop fixture"}).waitFor();
         await mcp.getByRole("button",{name:"Remove connection"}).click();
