@@ -46,6 +46,13 @@ test("portable tool requests require v3 and remain inert upon import", async () 
     assert.throws(()=>templateBundleSchema.parse({...bundle,format:"siaas-project-v2"}));
     const imported=importLocalTemplate(db,templateBundleSchema.parse(bundle).project);
     assert.deepEqual(imported.project.requested_tools,requested_tools);
+    const {portableTools}=await import("../src/lib/local/portable-tools");
+    db.put("projects",{...imported.project, permissions:{rules:[{capability:"documents.read",decision:"deny"}]}},true);
+    const refs=portableTools(db,imported.project.id,imported.assistantIds);
+    assert.deepEqual(refs?.actions,requested_tools.actions);
+    assert.deepEqual(refs?.skills,requested_tools.skills);
+    assert.equal(refs?.rules.length,2);
+    assert.deepEqual(portableTools(db,imported.project.id,[])?.skills[0].assistant_indices,[]);
     assert(!imported.project.permissions && !imported.project.action_ids);
     assert.equal(db.sql.prepare("SELECT count(*) AS count FROM assistant_skills").get()?.count,0);
   } finally {db.close();rmSync(dir,{recursive:true,force:true});}

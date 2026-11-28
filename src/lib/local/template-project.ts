@@ -48,6 +48,7 @@ export function importLocalTemplate(
     }
     const configuredProject = db.put("projects", {
       ...project,
+      ...(config.requested_tools ? { requested_tool_assistant_ids: assistantIds } : {}),
       orchestration: materializeTemplateOrchestration(config.orchestration, assistantIds),
     }, true);
     return { project: configuredProject, documents, assistantIds };
