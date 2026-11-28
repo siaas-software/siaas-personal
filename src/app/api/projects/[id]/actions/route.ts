@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { fail, HttpError, jsonBody, localWorkspace, uuid } from "@/lib/http";
+import { actionReference } from "@/lib/local/portable-tools";
 import { listActions } from "@/lib/local/actions";
 
 type Params = { params: Promise<{ id: string }> };
@@ -14,9 +15,12 @@ async function context(req: Request, params: Params["params"]) {
 export async function GET(req: Request, { params }: Params) {
   try {
     const { db, project } = await context(req, params);
+    const requested: {name:string;digest:string}[] = project.requested_tools?.actions ?? [];
+    const local = listActions(db);
+    const suggestions = requested.map(ref => ({name:ref.name, id:local.find(a=>a.name===ref.name && actionReference(a).digest===ref.digest)?.id ?? null}));
     const available = listActions(db).map(({ id, name }) => ({ id, name }));
     return Response.json({
-      available,
+      suggestions, available,
       selected: available
         .filter((a) => project.action_ids?.includes(a.id))
         .map((a) => a.id),

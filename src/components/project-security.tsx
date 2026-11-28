@@ -136,6 +136,7 @@ export function ProjectSecurity({ projectId, assistants, italian }: Props) {
   const url = "/api/projects/" + projectId;
   const [rules, setRules] = useState<ToolPermissionRule[]>([]);
   const [defaults, setDefaults] = useState<ToolPermissionRule[]>([]);
+  const [suggested,setSuggested] = useState<ToolPermissionRule[]>([]);
   const [revision, setRevision] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [message, setMessage] = useState("");
@@ -148,11 +149,11 @@ export function ProjectSecurity({ projectId, assistants, italian }: Props) {
     const c = new AbortController();
     request<{
       defaults: { rules: ToolPermissionRule[] };
-      revision: number;
+      suggested:ToolPermissionRule[]; revision: number;
       overrides: { rules: ToolPermissionRule[] };
     }>(url + "/permissions", { signal: c.signal })
       .then((data) => {
-        setRevision(data.revision);
+        setRevision(data.revision);setSuggested(data.suggested);
         setRules(data.overrides.rules);
         setDefaults(data.defaults.rules);
         setLoaded(true);
@@ -209,6 +210,10 @@ export function ProjectSecurity({ projectId, assistants, italian }: Props) {
           ))}
         </ul>
       </details>
+      {suggested.length>0 && <details><summary>{italian?"Regole proposte dal template":"Template permission requests"}</summary>
+        {suggested.map(r=><p key={r.capability}>{r.capability} · {decisions[r.decision]} <button type="button" onClick={()=>
+          setRules(current=>[...current.filter(v=>v.capability!==r.capability),r])}>{italian?"Aggiungi alla bozza":"Add to draft"}</button></p>)}
+      </details>}
       <form
         onSubmit={(e) => {
           e.preventDefault();

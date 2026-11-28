@@ -9,7 +9,7 @@ export async function GET(req: Request, { params }: Params) {
     const id = uuid.parse((await params).id);
     const project = db.get("projects", id);
     if (!project || project.tenant_id !== tenantId) throw new HttpError(404, "Project not found.");
-    return Response.json({ revision: project.permission_revision ?? 0, defaults: defaultToolPermissions(), overrides: parseProjectToolPermissions(project.permissions) });
+    return Response.json({ suggested: project.requested_tools?.rules ?? [], revision: project.permission_revision ?? 0, defaults: defaultToolPermissions(), overrides: parseProjectToolPermissions(project.permissions) });
   } catch (error) { return fail(error); }
 }
 

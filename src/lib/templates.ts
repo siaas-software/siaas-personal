@@ -53,6 +53,12 @@ export const templateOrchestrationSchema = z
     { message: "Select unique assistant indices.", path: ["assistant_indices"] },
   );
 
+const ref = z.object({ name:z.string().min(1).max(80), digest:z.string().regex(/^[a-f0-9]{64}$/) }).strict();
+const requestedTools = z.object({
+  actions:z.array(ref).max(100),
+  skills:z.array(ref.extend({ assistant_indices:z.array(z.number().int().min(0).max(49)).max(50) })).max(100),
+  rules:z.array(z.object({capability:z.string().regex(/^[a-z][a-z0-9._:-]{0,127}$/),decision:z.enum(["allow","ask","deny"])}).strict()).max(100),
+}).strict();
 export const templateProjectSchema = z
   .object({
     name: z.string().trim().min(1).max(100),
@@ -61,8 +67,15 @@ export const templateProjectSchema = z
     palette: z.custom<ProjectPaletteKey>(isProjectPaletteKey, "Unknown project palette").optional(),
     assistants: z.array(templateAssistantSchema).max(50),
     orchestration: templateOrchestrationSchema.optional(),
+    requested_tools:requestedTools.optional(),
   })
   .superRefine((value, ctx) => {
+    for (const skill of value.requested_tools?.skills ?? [])
+      if (skill.assistant_indices.some(i=>i>=value.assistants.length) || new Set(skill.assistant_indices).size!==skill.assistant_indices.length)
+        ctx.addIssue({code:"custom",message:"Invalid Skill assistant references."});
+    const rules = value.requested_tools?.rules ?? [];
+    if (new Set(rules.map(r=>r.capability)).size!==rules.length)
+      ctx.addIssue({code:"custom",message:"Duplicate requested permission."});
     const orchestration = value.orchestration;
     if (!orchestration) return;
     for (const index of orchestration.assistant_indices) {
@@ -88,13 +101,15 @@ export const templateProjectSchema = z
 
 export const templateBundleSchema = z
   .object({
-    format: z.enum(["siaas-project-v1", "siaas-project-v2"]),
+    format: z.enum(["siaas-project-v1", "siaas-project-v2", "siaas-project-v3"]),
     project: templateProjectSchema,
   })
   .superRefine((bundle, ctx) => {
+    if (Boolean(bundle.project.requested_tools) !== (bundle.format === "siaas-project-v3"))
+      ctx.addIssue({code:"custom",message:"Portable tool requests require v3."});
     if (bundle.format === "siaas-project-v1" && bundle.project.orchestration)
       ctx.addIssue({ code: "custom", message: "Project orchestration requires template format v2.", path: ["project", "orchestration"] });
-    if (bundle.format === "siaas-project-v2" && !bundle.project.orchestration)
+    if (bundle.format !== "siaas-project-v1" && !bundle.project.orchestration)
       ctx.addIssue({ code: "custom", message: "Template v2 requires project orchestration.", path: ["project", "orchestration"] });
   });
 
@@ -145,7 +160,7 @@ export function portableTemplateOrchestration(
 export function templateBundle(project: unknown) {
   const config = templateProjectSchema.parse(project);
   return {
-    format: "siaas-project-v2" as const,
+    format: config.requested_tools ? "siaas-project-v3" as const : "siaas-project-v2" as const,
     project: {
       ...config,
       orchestration: config.orchestration ?? templateOrchestrationSchema.parse({}),

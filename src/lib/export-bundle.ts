@@ -15,6 +15,7 @@ export type PortableProject = {
   description?: string;
   color?: string;
   assistants: PortableAssistant[];
+  requested_tools?:TemplateProject["requested_tools"];
   orchestration?: TemplateProject["orchestration"];
 };
 

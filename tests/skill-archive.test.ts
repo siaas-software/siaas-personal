@@ -28,3 +28,25 @@ test("Markdown Skill ZIP retains its content identity across compression and rej
     (z:JSZip)=>z.file("review/references/bytes.md",Buffer.from([0xff])),
   ]) await assert.rejects(inspectSkillArchive(await pack(change)));
 });
+
+test("portable tool requests require v3 and remain inert upon import", async () => {
+  const {templateBundle, templateBundleSchema}=await import("../src/lib/templates");
+  const {LocalDatabase}=await import("../src/lib/local/database");
+  const {importLocalTemplate}=await import("../src/lib/local/template-project");
+  const {mkdtempSync,rmSync}=await import("node:fs");
+  const {tmpdir}=await import("node:os");
+  const {join}=await import("node:path");
+  const dir=mkdtempSync(join(tmpdir(),"rc7-portable-"));
+  const db=new LocalDatabase(dir);
+  try {
+    const requested_tools={actions:[{name:"Action",digest:"b".repeat(64)}],skills:[{name:"review",digest:"a".repeat(64),assistant_indices:[0]}],
+      rules:[{capability:"reports.create",decision:"allow"}]};
+    const bundle=templateBundle({name:"Portable",assistants:[{name:"Reviewer"}],requested_tools});
+    assert.equal(bundle.format,"siaas-project-v3");
+    assert.throws(()=>templateBundleSchema.parse({...bundle,format:"siaas-project-v2"}));
+    const imported=importLocalTemplate(db,templateBundleSchema.parse(bundle).project);
+    assert.deepEqual(imported.project.requested_tools,requested_tools);
+    assert(!imported.project.permissions && !imported.project.action_ids);
+    assert.equal(db.sql.prepare("SELECT count(*) AS count FROM assistant_skills").get()?.count,0);
+  } finally {db.close();rmSync(dir,{recursive:true,force:true});}
+});

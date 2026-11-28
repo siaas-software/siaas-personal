@@ -26,7 +26,8 @@ export function ProjectSkills({
   assistants: Assistant[];
   italian: boolean;
 }) {
-  const url = "/api/projects/" + projectId + "/skills";
+  const [requested,setRequested]=useState<{name:string;digest:string}[]>([]);
+  const url = "/api/projects/" + projectId + "/skill-packages";
   const [assistant, setAssistant] = useState(""),
     [items, setItems] = useState<Item[]>([]),
     [enabled, setEnabled] = useState<string[]>([]);
@@ -46,6 +47,7 @@ export function ProjectSkills({
         return r.json();
       })
       .then((data) => {
+        setRequested(data.requested);
         setItems(data.skills);
         setEnabled(data.enabled);
       })
@@ -101,6 +103,8 @@ export function ProjectSkills({
       <legend>
         {text("Procedural Skills", "Competenze procedurali (Skills)")}
       </legend>
+      {requested.length>0 && <details><summary>{text("Skills requested by template","Skills richieste dal template")}</summary>
+        <ul>{requested.map((r,index)=><li key={index}>{r.name} · {items.some(s=>s.digest===r.digest)?text("Available","Disponibile"):text("Matching package required","Serve il pacchetto corrispondente")}</li>)}</ul></details>}
       <label>
         {text(
           "Preview a Markdown Skill ZIP",

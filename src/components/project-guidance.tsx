@@ -10,6 +10,7 @@ export function ProjectGuidance({
 }) {
   const base = "/api/projects/" + projectId;
   const [actions, setActions] = useState<{ id: string; name: string }[]>([]);
+  const [suggestions,setSuggestions]=useState<{name:string;id:string|null}[]>([]);
   const [ids, setIds] = useState<string[]>([]);
   const [ready, setReady] = useState(false);
   const [preview, setPreview] = useState("");
@@ -22,7 +23,7 @@ export function ProjectGuidance({
       if (!response.ok) throw new Error();
       const data = await response.json();
       setActions(data.available);
-      setIds(data.selected);
+      setSuggestions(data.suggestions);setIds(data.selected);
       setReady(true);
     }
     void load().catch(() => {
@@ -53,6 +54,9 @@ export function ProjectGuidance({
         <legend>
           {italian ? "Azioni collegate al progetto" : "Project Actions"}
         </legend>
+        {suggestions.length>0 && <details><summary>{italian?"Azioni proposte dal template":"Template Action requests"}</summary>
+          {suggestions.map((s,i)=><p key={i}>{s.name} {s.id ? <button type="button" onClick={()=>setIds(old=>[...new Set([...old,s.id!])])}>{italian?"Seleziona":"Select"}</button> :
+            (italian?"Non disponibile":"Unavailable")}</p>)}</details>}
         {actions.map((a) => (
           <label key={a.id}>
             <input

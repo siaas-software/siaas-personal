@@ -1,3 +1,4 @@
+import { portableTools } from "@/lib/local/portable-tools";
 import { isDesktop } from "@/lib/runtime";
 import { z } from "zod";
 import { localWorkspace, fail, HttpError, jsonBody, uuid } from "@/lib/http";
@@ -49,6 +50,7 @@ export async function POST(
       ...project,
       name,
       assistants: portableAssistants,
+      requested_tools:local ? portableTools(local,id, (assistants ?? []).map(a=>a.id)) : undefined,
       orchestration: portableTemplateOrchestration(project.orchestration, (assistants ?? []).map((a) => a.id)),
     });
     const { data: template, error: insertError } = await db

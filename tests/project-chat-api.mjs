@@ -410,7 +410,7 @@ try {
   assert.match(native.steps[0].text, /Only-first/);
   assert(!native.steps[1].text.includes("Only-first"));
   assert(!JSON.stringify(native).includes("Private-other"));
-  const skillsUrl = "/api/projects/"+project.id+"/skills";
+  const skillsUrl = "/api/projects/"+project.id+"/skill-packages";
   const archiveSkill = async body => {
     const zip = new JSZip();
     zip.file("review/SKILL.md", "---\nname: review\ndescription: Review material\n---\n" + body);
@@ -436,13 +436,19 @@ try {
   assert.deepEqual((await api(skillsUrl+"?assistant="+assistants[0].id)).enabled, []);
   await api(skillsUrl,"POST",{op:"restore",id:skillId,digest:changed.digest});
   assert.equal((await api(skillsUrl+"?id="+skillId)).digest,preview.digest);
-  await api("/api/projects/"+other.id+"/skills?id="+skillId,"GET",undefined,404);
+  await api("/api/projects/"+other.id+"/skill-packages?id="+skillId,"GET",undefined,404);
   const projectActions = "/api/projects/" + project.id + "/actions";
   const linkedAction = "builtin:list-sources";
   const list = await api(projectActions);
   assert(list.available.some(a => a.id === linkedAction));
   assert.deepEqual(list.selected, []);
   await api(projectActions, "PUT", { ids: [linkedAction] });
+  const exportedTools = await api("/api/project/export?project="+project.id);
+  assert.equal(exportedTools.format, "siaas-project-v3");
+  assert.equal(exportedTools.project.requested_tools.actions.length,1);
+  assert.equal(exportedTools.project.requested_tools.skills[0].digest, preview.digest);
+  assert(!JSON.stringify(exportedTools.project.requested_tools).includes(skillId));
+  assert(!JSON.stringify(exportedTools.project.requested_tools).includes("Compare evidence."));
   const actionName = list.available.find(a => a.id === linkedAction).name;
   const previewPath = "/api/projects/" + project.id + "/agents-md";
   assert((await api(previewPath)).markdown.includes("### " + actionName));

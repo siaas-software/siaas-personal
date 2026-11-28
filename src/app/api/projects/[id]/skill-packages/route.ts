@@ -25,6 +25,7 @@ export async function GET(req: Request, { params }: Params) {
     if (!id)
       return Response.json({
         skills: projectSkills(db, project),
+        requested: db.get("projects",project)?.requested_tools?.skills ?? [],
         enabled: assistant
           ? enabledSkills(db, project, uuid.parse(assistant)).map((s) => s.id)
           : [],
