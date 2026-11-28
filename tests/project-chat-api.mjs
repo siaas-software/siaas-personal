@@ -252,6 +252,19 @@ try {
     try {
       const page = await browser.newPage({ extraHTTPHeaders: headers });
       await page.goto(origin + "/?project=" + project.id);
+      if (process.argv.includes("--mcp")) {
+        await page.getByRole("button", { name: "Project actions", exact:true }).click();
+        await page.getByRole("menuitem", { name: "Configuration", exact:true }).click();
+        const mcp = page.getByRole("group", {name:"MCP connections",exact:true});
+        await mcp.getByLabel("Connection name").fill("Desktop fixture");
+        await mcp.getByLabel("Endpoint").fill("https://fixture.example/mcp");
+        await mcp.getByRole("button",{name:"Save connection"}).click();
+        await mcp.getByRole("heading",{name:"Desktop fixture"}).waitFor();
+        await mcp.getByRole("button",{name:"Remove connection"}).click();
+        await mcp.getByRole("heading",{name:"Desktop fixture"}).waitFor({state:"detached"});
+        await page.reload();
+        console.log("PASS MCP desktop settings create, list and remove through Chromium.");
+      }
       const panel = page.getByRole("region", {
         name: "Project chat",
         exact: true,

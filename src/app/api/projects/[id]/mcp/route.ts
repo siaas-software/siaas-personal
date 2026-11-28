@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { fail, HttpError, jsonBody, localWorkspace, uuid } from "@/lib/http";
+import { mcpServerName, type TemplateProject } from "@/lib/templates";
 import { serverConfig } from "@/lib/local/mcp/client";
 import {
   listServers,
@@ -17,11 +18,35 @@ export async function GET(req: Request, { params }: Params) {
       id = uuid.parse((await params).id);
     const assistant = new URL(req.url).searchParams.get("assistant");
     const servers = listServers(db, id);
-    if (!assistant) return Response.json({ servers });
+    const project = db.get("projects", id)!;
+    const requests: TemplateProject["requested_tools"] =
+      project.requested_tools;
+    const requested = (requests?.mcp ?? [])
+      .filter(
+        (r) =>
+          !assistant ||
+          r.assistant_indices.some(
+            (i) => project.requested_tool_assistant_ids?.[i] === assistant,
+          ),
+      )
+      .map((r) => {
+        const matches = servers.filter((s) => s.name === r.server);
+        const matched =
+          matches.length === 1 &&
+          matches[0].tools.some(
+            (t) => t.name === r.tool && t.digest === r.digest,
+          );
+        return { server: r.server, tool: r.tool, digest: r.digest, matched };
+      });
+    if (!assistant) return Response.json({ servers, requested });
     const a = db.get("assistants", uuid.parse(assistant));
     if (!a || a.tenant_id !== tenantId || a.project_id !== id)
       throw new HttpError(404, "Assistant unavailable.");
-    return Response.json({ servers, assignments: a.mcp_assignments ?? {} });
+    return Response.json({
+      servers,
+      requested,
+      assignments: a.mcp_assignments ?? {},
+    });
   } catch (e) {
     return fail(e);
   }
@@ -30,7 +55,7 @@ const operation = z.discriminatedUnion("op", [
   z
     .object({
       op: z.literal("save"),
-      name: z.string().trim().min(1).max(80),
+      name: mcpServerName,
       config: serverConfig,
     })
     .strict(),

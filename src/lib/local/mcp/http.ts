@@ -89,29 +89,42 @@ export function endpointFetch(endpoint: URL, bearer?: string) {
             reject(new Error("MCP redirect refused."));
             return;
           }
+          if (status < 200 || status > 599) {
+            res.destroy();
+            reject(new Error("Invalid MCP response."));
+            return;
+          }
+          const head = new Headers();
+          for (const name of ["content-type", "mcp-session-id"]) {
+            const value = res.headers[name];
+            if (typeof value === "string") head.set(name, value);
+          }
+          if (status === 204 || status === 205 || status === 304) {
+            res.destroy();
+            resolve(new Response(null, { status, headers: head }));
+            return;
+          }
           let total = 0;
-          const parts: Buffer[] = [];
-          res.on("error", () => reject(new Error("MCP response interrupted.")));
-          res.on("data", (chunk: Buffer) => {
-            total += chunk.length;
-            if (total > 131072) {
+          const body = new ReadableStream<Uint8Array>({
+            start(controller) {
+              res.on("data", (part: Buffer) => {
+                total += part.length;
+                if (total > 131072) {
+                  res.destroy(new Error("MCP response too large."));
+                  return;
+                }
+                controller.enqueue(part);
+              });
+              res.on("end", () => controller.close());
+              res.on("error", () =>
+                controller.error(new Error("MCP response interrupted.")),
+              );
+            },
+            cancel() {
               res.destroy();
-              reject(new Error("MCP response too large."));
-            } else parts.push(chunk);
+            },
           });
-          res.on("end", () => {
-            const head = new Headers();
-            for (const name of ["content-type", "mcp-session-id"]) {
-              const value = res.headers[name];
-              if (typeof value === "string") head.set(name, value);
-            }
-            resolve(
-              new Response(
-                total && status !== 204 ? Buffer.concat(parts) : null,
-                { status, headers: head },
-              ),
-            );
-          });
+          resolve(new Response(body, { status, headers: head }));
         },
       );
       request.on("error", () =>

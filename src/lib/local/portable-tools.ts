@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { LOCAL_USER_ID } from "../runtime";
-import type { TemplateProject } from "../templates";
+import type { TemplateProject, McpRequest } from "../templates";
 import { listActions } from "./actions";
 import type { LocalDatabase } from "./database";
 
@@ -72,8 +72,50 @@ export function portableTools(
       ].sort((a, b) => a - b),
     });
   }
-  if (!actionRefs.size && !ruleRefs.size && !skillRefs.size) return undefined;
+  // Exact MCP permission keys contain a machine-specific connection identity.
+  for (const capability of ruleRefs.keys())
+    if (/^mcp\.[a-f0-9]{64}$/.test(capability)) ruleRefs.delete(capability);
+  const mcp = new Map<string, McpRequest>();
+  function include(
+    server: string,
+    tool: string,
+    digest: string,
+    indices: number[],
+  ) {
+    const key = JSON.stringify([server, tool, digest]);
+    const existing = mcp.get(key);
+    const merged = new Set([
+      ...(existing?.assistant_indices ?? []),
+      ...indices,
+    ]);
+    mcp.set(key, {
+      server,
+      tool,
+      digest,
+      assistant_indices: [...merged].sort((a, b) => a - b),
+    });
+  }
+  for (const request of requested?.mcp ?? []) {
+    const indices = request.assistant_indices
+      .map((i) => assistants.indexOf(importedIds[i]))
+      .filter((i) => i >= 0);
+    include(request.server, request.tool, request.digest, indices);
+  }
+  assistants.forEach((assistantId, index) => {
+    const assistant = db.get("assistants", assistantId);
+    if (assistant?.tenant_id !== LOCAL_USER_ID || assistant.project_id !== id)
+      return;
+    for (const [capability, ref] of Object.entries(
+      assistant.mcp_references ?? {},
+    ) as [string, Omit<McpRequest, "assistant_indices">][]) {
+      if (assistant.mcp_assignments?.[capability] === ref.digest)
+        include(ref.server, ref.tool, ref.digest, [index]);
+    }
+  });
+  if (!actionRefs.size && !ruleRefs.size && !skillRefs.size && !mcp.size)
+    return undefined;
   return {
+    ...(mcp.size ? { mcp: [...mcp.values()] } : {}),
     actions: [...actionRefs.values()],
     rules: [...ruleRefs.values()],
     skills: [...skillRefs.values()],

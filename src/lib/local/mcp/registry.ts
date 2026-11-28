@@ -1,5 +1,6 @@
 import { randomUUID, createHash } from "node:crypto";
 import { ActionError } from "../../actions";
+import { mcpServerName } from "../../templates";
 import { LOCAL_USER_ID } from "../../runtime";
 import type { LocalDatabase } from "../database";
 import { runNativeOperation, type ToolTrace } from "../native-permissions";
@@ -42,6 +43,7 @@ export function saveServer(
   value: McpConfig,
 ) {
   project(db, p);
+  mcpServerName.parse(name);
   const config = serverConfig.parse(value);
   if (config.transport === "http")
     remoteEndpoint(config.endpoint, config.allowLoopback);
@@ -153,9 +155,30 @@ export async function openServer(
 }
 export async function removeServer(db: LocalDatabase, p: string, id: string) {
   row(db, p, id);
-  db.sql
-    .prepare("DELETE FROM mcp_connections WHERE project_id=? AND id=?")
-    .run(p, id);
+  db.transaction(() => {
+    for (const assistant of db.rows("assistants")) {
+      if (assistant.project_id !== p || assistant.tenant_id !== LOCAL_USER_ID)
+        continue;
+      const references = { ...assistant.mcp_references };
+      const grants = { ...assistant.mcp_assignments };
+      let changed = false;
+      for (const capability of Object.keys(references)) {
+        if (references[capability].serverId !== id) continue;
+        delete references[capability];
+        delete grants[capability];
+        changed = true;
+      }
+      if (changed)
+        db.put(
+          "assistants",
+          { ...assistant, mcp_references: references, mcp_assignments: grants },
+          true,
+        );
+    }
+    db.sql
+      .prepare("DELETE FROM mcp_connections WHERE project_id=? AND id=?")
+      .run(p, id);
+  });
   const k = key(db, id),
     active = connections.get(k);
   if (active) {
@@ -174,13 +197,14 @@ export function assignMcp(
   digest: string,
   enabled: boolean,
 ) {
-  row(db, p, id);
+  const server = row(db, p, id);
   db.transaction(() => {
     const assistant = db.get("assistants", a);
     if (assistant?.tenant_id !== LOCAL_USER_ID || assistant.project_id !== p)
       throw new ActionError(404, "Assistant unavailable.");
     const capability = token(id, name);
     const grants = { ...assistant.mcp_assignments };
+    const references = { ...assistant.mcp_references };
     if (enabled) {
       const tool = connections
         .get(key(db, id))
@@ -193,8 +217,21 @@ export function assignMcp(
       )
         throw new ActionError(409, "Assignment limit reached.");
       grants[capability] = digest;
-    } else delete grants[capability];
-    db.put("assistants", { ...assistant, mcp_assignments: grants }, true);
+      references[capability] = {
+        serverId: id,
+        server: server.name,
+        tool: name,
+        digest,
+      };
+    } else {
+      delete grants[capability];
+      delete references[capability];
+    }
+    db.put(
+      "assistants",
+      { ...assistant, mcp_assignments: grants, mcp_references: references },
+      true,
+    );
   });
 }
 export async function invokeMcp(

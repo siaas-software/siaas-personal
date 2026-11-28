@@ -54,7 +54,16 @@ export const templateOrchestrationSchema = z
   );
 
 const ref = z.object({ name:z.string().min(1).max(80), digest:z.string().regex(/^[a-f0-9]{64}$/) }).strict();
+export const mcpServerName = z.string().regex(/^[A-Za-z][A-Za-z0-9 _-]{0,79}$/);
+const mcpRequest = z.object({
+  server: mcpServerName,
+  tool: z.string().regex(/^[A-Za-z][A-Za-z0-9_.-]{0,63}$/),
+  digest: z.string().regex(/^[a-f0-9]{64}$/),
+  assistant_indices: z.array(z.number().int().min(0).max(49)).max(50),
+}).strict();
+export type McpRequest = z.infer<typeof mcpRequest>;
 const requestedTools = z.object({
+  mcp: z.array(mcpRequest).max(3200).optional(),
   actions:z.array(ref).max(100),
   skills:z.array(ref.extend({ assistant_indices:z.array(z.number().int().min(0).max(49)).max(50) })).max(100),
   rules:z.array(z.object({capability:z.string().regex(/^[a-z][a-z0-9._:-]{0,127}$/),decision:z.enum(["allow","ask","deny"])}).strict()).max(100),
@@ -70,9 +79,12 @@ export const templateProjectSchema = z
     requested_tools:requestedTools.optional(),
   })
   .superRefine((value, ctx) => {
-    for (const skill of value.requested_tools?.skills ?? [])
+    for (const skill of [...(value.requested_tools?.skills ?? []), ...(value.requested_tools?.mcp ?? [])])
       if (skill.assistant_indices.some(i=>i>=value.assistants.length) || new Set(skill.assistant_indices).size!==skill.assistant_indices.length)
-        ctx.addIssue({code:"custom",message:"Invalid Skill assistant references."});
+        ctx.addIssue({code:"custom",message:"Invalid requested tool assistant references."});
+    const mcp = value.requested_tools?.mcp ?? [];
+    if (new Set(mcp.map(r => JSON.stringify([r.server, r.tool, r.digest]))).size !== mcp.length)
+      ctx.addIssue({code:"custom",message:"Duplicate MCP request."});
     const rules = value.requested_tools?.rules ?? [];
     if (new Set(rules.map(r=>r.capability)).size!==rules.length)
       ctx.addIssue({code:"custom",message:"Duplicate requested permission."});

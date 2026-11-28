@@ -28,6 +28,9 @@ export function ProjectMcp({
   const url = "/api/projects/" + projectId + "/mcp";
   const [assistant, setAssistant] = useState(""),
     [servers, setServers] = useState<Server[]>([]),
+    [requested, setRequested] = useState<
+      { server: string; tool: string; digest: string; matched: boolean }[]
+    >([]),
     [assigned, setAssigned] = useState<Record<string, string>>({});
   const [mode, setMode] = useState("http"),
     [refresh, setRefresh] = useState(0),
@@ -45,6 +48,7 @@ export function ProjectMcp({
         const data = await r.json();
         if (!c.signal.aborted) {
           setServers(data.servers);
+          setRequested(data.requested);
           setAssigned(data.assignments ?? {});
         }
       })
@@ -97,7 +101,12 @@ export function ProjectMcp({
       >
         <label>
           {t("Connection name", "Nome connessione")}
-          <input name="name" required maxLength={80} />
+          <input
+            name="name"
+            required
+            pattern="[A-Za-z][A-Za-z0-9 _\-]{0,79}"
+            maxLength={80}
+          />
         </label>
         <label>
           {t("Transport", "Trasporto")}
@@ -153,6 +162,23 @@ export function ProjectMcp({
           ))}
         </select>
       </label>
+      {requested.length > 0 && (
+        <section>
+          <h4>
+            {t("Template tool requests", "Strumenti richiesti dal template")}
+          </h4>
+          <ul>
+            {requested.map((r, i) => (
+              <li key={i}>
+                {r.server} / {r.tool} ·{" "}
+                {r.matched
+                  ? t("Local tool matches", "Strumento locale corrispondente")
+                  : t("Unresolved", "Da risolvere")}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       {servers.map((s) => (
         <section key={s.id}>
           <h4>{s.name}</h4>
@@ -206,6 +232,10 @@ export function ProjectMcp({
               </code>
               <p>
                 <code>{tool.capability}</code>
+              </p>
+              <p>
+                {t("Chat command", "Comando chat")}{" "}
+                <code>{`/mcp ${s.id} ${tool.name} {}`}</code>
               </p>
               <label>
                 <input

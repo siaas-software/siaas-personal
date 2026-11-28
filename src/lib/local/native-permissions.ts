@@ -60,7 +60,8 @@ export async function runNativeOperation<T>(
     if (!member)
       throw new ActionError(403, "Assistant or project unavailable.");
     const permissions=project.permissions;
-    const exact=external && permissions?.rules?.some((r:{capability:string})=>r.capability===external.capability);
+    const categoryDenied = permissions?.rules?.some((r: { capability:string; decision:string }) => r.capability === capability && r.decision === "deny");
+    const exact=external && !categoryDenied && permissions?.rules?.some((r:{capability:string})=>r.capability===external.capability);
     return resolveToolPermission({
       capability: exact ? external!.capability : capability,
       registered: Object.hasOwn(operations, operation),
