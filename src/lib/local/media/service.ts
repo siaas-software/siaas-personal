@@ -4,7 +4,8 @@ import { ActionError } from "../../actions";
 import { LOCAL_USER_ID } from "../../runtime";
 import type { LocalDatabase } from "../database";
 import { runNativeOperation, type ToolTrace } from "../native-permissions";
-import { mediaJob, processFrames } from "./processing";
+import { videoInputs, mediaRequest } from "./plan";
+import { processFrames } from "./processing";
 
 export const mediaSettings = z
   .object({ enabled: z.boolean(), threads: z.number().int().min(1).max(4) })
@@ -80,21 +81,35 @@ export async function executeMedia(
   raw: unknown,
   signal: AbortSignal,
 ) {
-  const job = mediaJob.parse(raw),
+  const job = mediaRequest.parse(raw),
     config = settings(db);
   const p = owner(db, a);
   if (p !== trace.projectId || !config.enabled)
     throw new ActionError(403, "Media processing unavailable.");
   const lookup = db.sql.prepare(
-    "SELECT digest FROM media_files WHERE id=? AND project_id=? AND assistant_id=? AND mime='image/png'",
+    "SELECT digest FROM media_files WHERE id=? AND project_id=? AND assistant_id=? AND mime=?",
   );
-  const digests = job.inputs.map((id) => lookup.get(id, p, a)?.digest);
+  const mime =
+    job.kind === "inspect"
+      ? db.sql
+          .prepare(
+            "SELECT mime FROM media_files WHERE id=? AND project_id=? AND assistant_id=?",
+          )
+          .get(job.inputs[0], p, a)?.mime
+      : videoInputs(job.kind)
+        ? "video/mp4"
+        : "image/png";
+  if (mime !== "image/png" && mime !== "video/mp4")
+    throw new ActionError(404, "Media input unavailable.");
+  const digests = job.inputs.map((id) => lookup.get(id, p, a, mime)?.digest);
   if (digests.some((d) => typeof d !== "string"))
     throw new ActionError(404, "Media input unavailable.");
   const accessible = () =>
     settings(db).enabled &&
     settings(db).revision === config.revision &&
-    job.inputs.every((id, i) => lookup.get(id, p, a)?.digest === digests[i]);
+    job.inputs.every(
+      (id, i) => lookup.get(id, p, a, mime)?.digest === digests[i],
+    );
   return runNativeOperation(
     db,
     a,
@@ -110,6 +125,7 @@ export async function executeMedia(
       const result = await processFrames(
         db.directory,
         job,
+        mime === "video/mp4",
         job.inputs.map((id) =>
           Buffer.from(bytes.get(id, p, a)!.bytes as Uint8Array),
         ),
@@ -117,6 +133,7 @@ export async function executeMedia(
         signal,
         revalidate,
       );
+      if (result.type === "metadata") return JSON.stringify(result.metadata);
       const id = saveMedia(db, p, a, result.mime, result.bytes, revalidate);
       return `[Download / Scarica](/api/assistants/${a}/media?file=${id})`;
     },

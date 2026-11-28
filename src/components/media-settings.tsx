@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { mediaJob, videoInputs } from "@/lib/local/media/plan";
 import type { Assistant } from "@/lib/catalog";
 type Config = { enabled: boolean; threads: number; ffmpeg: boolean };
 type FileEntry = { id: string; mime: string };
@@ -58,6 +59,30 @@ export function MediaSettings({
       setBusy(false);
     }
   }
+  const [operation, setOperation] = useState<
+    | "resize"
+    | "compose"
+    | "overlay"
+    | "photos-to-video"
+    | "transition"
+    | "transcode"
+    | "join-videos"
+  >("resize");
+  const candidates = files.filter(
+    (f) => f.mime === (videoInputs(operation) ? "video/mp4" : "image/png"),
+  );
+  const count =
+    operation === "resize" || operation === "transcode"
+      ? 1
+      : operation === "photos-to-video"
+        ? 12
+        : 2;
+  const command = mediaJob.safeParse({
+    kind: operation,
+    inputs: candidates.slice(0, count).map((f) => f.id),
+    width: 640,
+    height: 480,
+  });
   return (
     <section className="panel settings-panel">
       <h2>Media Engine</h2>
@@ -168,6 +193,10 @@ export function MediaSettings({
                     <a href={url + "?file=" + f.id} download>
                       {f.id} · {f.mime}
                     </a>{" "}
+                    <code>
+                      {"/media " +
+                        JSON.stringify({ kind: "inspect", inputs: [f.id] })}
+                    </code>
                     <button
                       type="button"
                       onClick={() =>
@@ -181,29 +210,44 @@ export function MediaSettings({
                   </li>
                 ))}
               </ul>
-              {files.some((f) => f.mime === "image/png") && (
+              <label>
+                {t("Operation", "Operazione")}
+                <select
+                  value={operation}
+                  onChange={(e) =>
+                    setOperation(e.target.value as typeof operation)
+                  }
+                >
+                  {[
+                    "resize",
+                    "compose",
+                    "overlay",
+                    "photos-to-video",
+                    "transition",
+                    "transcode",
+                    "join-videos",
+                  ].map((k) => (
+                    <option key={k}>{k}</option>
+                  ))}
+                </select>
+              </label>
+              {command.success ? (
                 <>
                   <p>
                     {t(
-                      "Paste a command in this assistant’s chat. List the photos in playback order.",
-                      "Incolla un comando nella chat dell’assistente. Elenca le foto nell’ordine di riproduzione.",
+                      "Paste in the assistant’s chat. Edit the input order or dimensions as needed.",
+                      "Incolla nella chat dell’assistente. Puoi modificare ordine dei file e dimensioni.",
                     )}
                   </p>
-                  {["resize", "photos-to-video"].map((kind) => (
-                    <pre key={kind}>
-                      {"/media " +
-                        JSON.stringify({
-                          kind,
-                          inputs: files
-                            .filter((f) => f.mime === "image/png")
-                            .slice(0, kind === "resize" ? 1 : 12)
-                            .map((f) => f.id),
-                          width: 640,
-                          height: 480,
-                        })}
-                    </pre>
-                  ))}
+                  <pre>{"/media " + JSON.stringify(command.data)}</pre>
                 </>
+              ) : (
+                <p>
+                  {t(
+                    "Add the required media files for this operation.",
+                    "Aggiungi i file richiesti per questa operazione.",
+                  )}
+                </p>
               )}
             </>
           )}

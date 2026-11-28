@@ -9,6 +9,7 @@ export async function checkMedia({
   stranger,
   project,
   direct,
+  complete,
   until,
 }) {
   const media = "/api/assistants/" + assistant.id + "/media";
@@ -101,6 +102,59 @@ export async function checkMedia({
       404,
     );
   }
+  const initialVideo = (await api(media)).find(
+    (f) => f.mime === "video/mp4",
+  ).id;
+  for (const [kind, inputs, codec, frames] of [
+    ["overlay", [a, b], "png", 1],
+    ["compose", [a, b], "png", 1],
+    ["transition", [a, b], "h264", 18],
+    ["transcode", [initialVideo], "h264", 24],
+    ["join-videos", [initialVideo, initialVideo], "h264", 48],
+  ]) {
+    const run = complete("/media "+JSON.stringify({kind,inputs,width:64,height:64}));
+    const approval = await until(async () => (await api(approvals)).pending[0]);
+    await api(approvals, "POST", { id: approval.id, outcome: "approved" });
+    const result = await run;
+    assert.equal(result.status, "complete", kind + " " + result.content);
+    const url = result.steps[0].text.match(/\((\/api\/[^)]+)\)/)[1];
+    const response = await fetch(origin + url, { headers });
+    const bytes = Buffer.from(await response.arrayBuffer());
+    const probe = JSON.parse(
+      execFileSync(
+        "/usr/bin/ffprobe",
+        [
+          "-v",
+          "error",
+          "-count_frames",
+          "-show_streams",
+          "-of",
+          "json",
+          "pipe:0",
+        ],
+        { input: bytes },
+      ),
+    ).streams[0];
+    assert.equal(probe.codec_name, codec);
+    assert.equal(Number(probe.nb_read_frames), frames);
+    assert.equal(probe.width, 64);
+    assert.equal(probe.height, 64);
+    console.log(
+      "PASS desktop FFmpeg " + kind + " " + codec + " frames=" + frames,
+    );
+  }
+  const inspection = direct(
+    assistant,
+    "/media " + JSON.stringify({ kind: "inspect", inputs: [initialVideo] }),
+  );
+  const consent = await until(async () => (await api(approvals)).pending[0]);
+  await api(approvals, "POST", { id: consent.id, outcome: "approved" });
+  assert.deepEqual(JSON.parse((await inspection).content), {
+    codec: "h264",
+    width: 64,
+    height: 64,
+    frames: 24,
+  });
   const waiting = ask("resize", [a]);
   await until(async () => (await api(approvals)).pending[0]);
   await api("/api/local/media", "PUT", { enabled: false, threads: 1 });

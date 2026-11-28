@@ -3,19 +3,13 @@ import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { promisify } from "node:util";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { z } from "zod";
+import {
+  ffmpegPlan,
+  videoInputs,
+  mediaRequest,
+  type MediaRequest,
+} from "./plan";
 
-const dimension = z.number().int().min(16).max(1280).multipleOf(2);
-export const mediaJob = z
-  .object({
-    kind: z.enum(["resize", "photos-to-video"]),
-    inputs: z.array(z.string().uuid()).min(1).max(12),
-    width: dimension,
-    height: dimension,
-  })
-  .strict()
-  .refine((j) => j.kind !== "resize" || j.inputs.length === 1);
-export type MediaJob = z.infer<typeof mediaJob>;
 const signature = Buffer.from("89504e470d0a1a0a", "hex");
 export function checkPng(data: Buffer) {
   if (
@@ -63,13 +57,14 @@ const jobs = ((
 ).siaasMediaJobs ??= new Set<string>());
 export async function processFrames(
   profile: string,
-  job: MediaJob,
+  job: MediaRequest,
+  videoInput: boolean,
   inputs: Buffer[],
   threads: number,
   signal: AbortSignal,
   revalidate: () => void,
 ) {
-  mediaJob.parse(job);
+  mediaRequest.parse(job);
   if (
     !Number.isInteger(threads) ||
     threads < 1 ||
@@ -78,72 +73,41 @@ export async function processFrames(
     jobs.has(profile)
   )
     throw new Error("Media worker unavailable.");
-  inputs.forEach(checkPng);
+  if (!videoInput) inputs.forEach(checkPng);
   signal.throwIfAborted();
   jobs.add(profile);
   let directory: string | undefined;
   try {
     directory = await mkdtemp(join(tmpdir(), "siaas-frames-"));
     for (let i = 0; i < inputs.length; i++)
-      await writeFile(join(directory, `frame-${i}.png`), inputs[i], {
-        flag: "wx",
-        mode: 0o600,
-      });
-    const video = job.kind === "photos-to-video",
-      file = video ? "result.mp4" : "result.png";
-    const filter = `scale=${job.width}:${job.height}:force_original_aspect_ratio=decrease,pad=${job.width}:${job.height}:(ow-iw)/2:(oh-ih)/2,setsar=1`;
-    // Fixed local executable, demuxer, filename pattern and encoder. Each photo lasts one second.
-    const args = [
-      "-nostdin",
-      "-n",
-      "-v",
-      "error",
-      "-xerror",
-      "-max_alloc",
-      "67108864",
-      "-filter_threads",
-      String(threads),
-      "-protocol_whitelist",
-      "file",
-      "-threads",
-      String(threads),
-      "-f",
-      "image2",
-      "-framerate",
-      "1",
-      "-c:v",
-      "png",
-      "-i",
-      "frame-%d.png",
-      "-an",
-      "-sn",
-      "-map_metadata",
-      "-1",
-      "-vf",
-      filter,
-      "-threads",
-      String(threads),
-      ...(video
-        ? [
-            "-r",
-            "12",
-            "-t",
-            String(inputs.length),
-            "-c:v",
-            "libx264",
-            "-pix_fmt",
-            "yuv420p",
-            "-preset",
-            "veryfast",
-            "-movflags",
-            "+faststart",
-          ]
-        : ["-frames:v", "1", "-c:v", "png"]),
-      "-fs",
-      "8388608",
-      file,
-    ];
+      await writeFile(
+        join(directory, `frame-${i}.${videoInput ? "mp4" : "png"}`),
+        inputs[i],
+        {
+          flag: "wx",
+          mode: 0o600,
+        },
+      );
     const deadline = AbortSignal.any([signal, AbortSignal.timeout(30000)]);
+    if (job.kind === "inspect") {
+      revalidate();
+      const metadata = await inspectFile(
+        join(directory, videoInput ? "frame-0.mp4" : "frame-0.png"),
+        videoInput,
+        deadline,
+      );
+      revalidate();
+      return { type: "metadata" as const, metadata };
+    }
+    const durations: number[] = [];
+    if (videoInputs(job.kind)) {
+      for (let i = 0; i < inputs.length; i++)
+        durations.push(
+          (await inspectFile(join(directory, `frame-${i}.mp4`), true, deadline))
+            .frames,
+        );
+    }
+    const { args, video, file, frames } = ffmpegPlan(job, threads, durations);
     revalidate();
     await new Promise<void>((resolve, reject) => {
       const proc = spawn("/usr/bin/ffmpeg", args, {
@@ -170,41 +134,19 @@ export async function processFrames(
     if (!size || size >= 8388608)
       throw new Error("Media output exceeds quota.");
     const bytes = await readFile(path);
-    const { stdout } = await promisify(execFile)(
-      "/usr/bin/ffprobe",
-      [
-        "-v",
-        "error",
-        "-protocol_whitelist",
-        "file",
-        "-f",
-        video ? "mov" : "png_pipe",
-        "-show_entries",
-        "stream=width,height,codec_name,nb_frames",
-        "-of",
-        "json",
-        path,
-      ],
-      {
-        cwd: directory,
-        signal: deadline,
-        killSignal: "SIGKILL",
-        maxBuffer: 8192,
-        env: { LANG: "C", NODE_ENV: "production" },
-      },
-    );
-    const streams = JSON.parse(stdout).streams;
-    if (!Array.isArray(streams) || streams.length !== 1)
-      throw new Error("Unexpected output streams.");
-    const [stream] = streams;
+    const stream = await inspectFile(path, video, deadline);
     if (
       stream.width !== job.width ||
       stream.height !== job.height ||
-      stream.codec_name !== (video ? "h264" : "png") ||
-      (video && Number(stream.nb_frames) !== inputs.length * 12)
+      stream.codec !== (video ? "h264" : "png") ||
+      (video && stream.frames !== frames)
     )
       throw new Error("Unexpected output format.");
-    return { bytes, mime: video ? "video/mp4" : "image/png" };
+    return {
+      type: "file" as const,
+      bytes,
+      mime: video ? "video/mp4" : "image/png",
+    };
   } finally {
     try {
       if (directory) await rm(directory, { recursive: true, force: true });
@@ -212,4 +154,52 @@ export async function processFrames(
       jobs.delete(profile);
     }
   }
+}
+
+async function inspectFile(path: string, video: boolean, signal: AbortSignal) {
+  const { stdout } = await promisify(execFile)(
+    "/usr/bin/ffprobe",
+    [
+      "-v",
+      "error",
+      "-protocol_whitelist",
+      "file",
+      "-f",
+      video ? "mov" : "png_pipe",
+      "-show_entries",
+      "stream=width,height,codec_name,nb_frames",
+      "-of",
+      "json",
+      path,
+    ],
+    {
+      signal,
+      killSignal: "SIGKILL",
+      maxBuffer: 8192,
+      env: { LANG: "C", NODE_ENV: "production" },
+    },
+  );
+  const streams = JSON.parse(stdout).streams;
+  if (!Array.isArray(streams) || streams.length !== 1)
+    throw new Error("Unexpected output streams.");
+  const [stream] = streams;
+  if (
+    (video &&
+      (stream.codec_name !== "h264" ||
+        !Number.isInteger(Number(stream.nb_frames)) ||
+        Number(stream.nb_frames) < 1 ||
+        Number(stream.nb_frames) > 288)) ||
+    (!video && stream.codec_name !== "png") ||
+    stream.width < 1 ||
+    stream.width > 4096 ||
+    stream.height < 1 ||
+    stream.height > 4096
+  )
+    throw new Error("Unsupported media.");
+  return {
+    codec: stream.codec_name as string,
+    width: stream.width as number,
+    height: stream.height as number,
+    frames: video ? Number(stream.nb_frames) : 1,
+  };
 }

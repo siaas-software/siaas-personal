@@ -548,7 +548,9 @@ try {
   await api(permissionsPath, "PUT", { rules: [] });
   if(process.argv.includes("--media")){
     const {checkMedia}=await import("./media-acceptance.mjs");
-    await checkMedia({api,origin,headers,project,assistant:assistants[0],stranger,direct,until});
+    configure([assistants[0].id]);
+    await checkMedia({api,origin,headers,project,assistant:assistants[0],stranger,direct,complete,until});
+    configure();
   }
   if(process.argv.includes("--mcp")){
     const {checkMcp}=await import("./mcp-acceptance.mjs");
