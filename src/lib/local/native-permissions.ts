@@ -19,6 +19,7 @@ const operations = {
   query_datasets: "datasets.query",
   calculate_dataset: "datasets.query",
   create_report: "reports.create",
+  media_process: "media.process",
   mcp_call: "mcp.write",
 } as const;
 export type NativeOperation = keyof typeof operations;
@@ -38,6 +39,7 @@ export async function runNativeOperation<T>(
   parameters: object,
   execute: (revalidate: () => void) => T | Promise<T>,
   external?: { capability: string; assigned: () => boolean },
+  resourceAllowed?: () => boolean,
 ): Promise<T> {
   signal.throwIfAborted();
   const scope = {
@@ -50,6 +52,7 @@ export async function runNativeOperation<T>(
   };
   const capability = operations[operation];
   if ((operation === "mcp_call") !== Boolean(external)) throw new ActionError(403,"Invalid tool registration.");
+  if ((operation === "media_process") !== Boolean(resourceAllowed)) throw new ActionError(403,"Missing media scope.");
   function policy() {
     const project = db.get("projects", scope.projectId);
     const assistant = db.get("assistants", assistantId);
@@ -65,7 +68,7 @@ export async function runNativeOperation<T>(
     return resolveToolPermission({
       capability: exact ? external!.capability : capability,
       registered: Object.hasOwn(operations, operation),
-      assistantScopeAllowed: member && (!external || external.assigned()),
+      assistantScopeAllowed: member && (!resourceAllowed || resourceAllowed()) && (!external || external.assigned()),
       projectPermissions: project.permissions,
     });
   }

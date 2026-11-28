@@ -32,10 +32,12 @@ type Intent =
   | { kind: "structured"; file: string; column?: string }
   | { kind: "document" | "website"; terms: string }
   | { kind: "help" | "clarify" }
+  | { kind: "media"; args:string }
   | { kind: "mcp"; serverId:string; name:string; args:string };
 
 export function localIntent(question: string): Intent | null {
   const q = question.trim();
+  if (/^\/media(?:\s|$)/i.test(q)) return {kind:"media",args:q.slice(6).trim()};
   if (/^\/mcp(?:\s|$)/i.test(q)) {
     const command = /^\/mcp\s+([a-f0-9-]{36})\s+([A-Za-z][A-Za-z0-9_.-]{0,63})\s+(\{[\s\S]*\})$/.exec(q);
     if (!command) throw new AnalysisError("Use /mcp <server-id> <tool> {JSON arguments}.");
@@ -109,6 +111,12 @@ export async function executeLocalChat(
   const it = language === "it";
   try {
     switch (intent.kind) {
+      case "media": {
+        if (!trace) throw new Error("Missing media execution context.");
+        const {executeMedia}=await import("./media/service");
+        content=await executeMedia(db,assistantId,trace,JSON.parse(intent.args),signal);
+        break;
+      }
       case "mcp": {
         if(!trace) throw new AnalysisError("Missing MCP execution context.");
         const {invokeMcp}=await import("./mcp/registry");

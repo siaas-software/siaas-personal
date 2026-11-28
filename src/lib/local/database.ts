@@ -75,7 +75,7 @@ export class LocalDatabase {
     const version = this.sql.prepare("PRAGMA user_version").get() as {
       user_version: number;
     };
-    if (version.user_version > 8)
+    if (version.user_version > 9)
       throw new Error(
         "Database creato da una versione più recente di SIAAS Personal.",
       );
@@ -209,6 +209,16 @@ export class LocalDatabase {
         PRAGMA user_version=8;
       `));
     }
+    if (version.user_version < 9) this.transaction(() => this.sql.exec(`
+      CREATE TABLE IF NOT EXISTS media_files (
+        id TEXT PRIMARY KEY, project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+        assistant_id TEXT NOT NULL REFERENCES assistants(id) ON DELETE CASCADE,
+        mime TEXT NOT NULL, digest TEXT NOT NULL, bytes BLOB NOT NULL
+      );
+      CREATE TRIGGER IF NOT EXISTS clear_moved_media AFTER UPDATE OF project_id ON assistants
+      WHEN OLD.project_id <> NEW.project_id BEGIN DELETE FROM media_files WHERE assistant_id=NEW.id; END;
+      PRAGMA user_version=9;
+    `));
     this.migrateFiles();
     removeEmptyLegacyDirectories(
       directory,

@@ -68,7 +68,7 @@ test("schema 4 migrates on open and child traces must stay within their parent s
     db.sql.exec("DROP TABLE execution_events; PRAGMA user_version=4");
     db.close();
     db = new LocalDatabase(dir);
-    assert.equal(db.sql.prepare("PRAGMA user_version").get()?.user_version, 8);
+    assert.equal(db.sql.prepare("PRAGMA user_version").get()?.user_version, 9);
     assert.equal(db.get("projects", project.id)?.name, "Existing");
     const store = new ExecutionEventStore(db);
     const root = {

@@ -546,6 +546,10 @@ try {
   await api(approvalsPath, "POST", { id: directRequest.id, outcome: "approved" });
   assert.match((await directRun).content, /Only-first/);
   await api(permissionsPath, "PUT", { rules: [] });
+  if(process.argv.includes("--media")){
+    const {checkMedia}=await import("./media-acceptance.mjs");
+    await checkMedia({api,origin,headers,project,assistant:assistants[0],stranger,direct,until});
+  }
   if(process.argv.includes("--mcp")){
     const {checkMcp}=await import("./mcp-acceptance.mjs");
     await checkMcp({api,project,assistant:assistants[0],stranger,direct,until,db});
@@ -662,7 +666,7 @@ try {
   assert.equal(reopened.get("project_runs", sharing.id).status, "complete");
   assert.equal(
     reopened.sql.prepare("PRAGMA user_version").get().user_version,
-    8,
+    9,
   );
   reopened.close();
   await api("/api/projects/" + project.id, "DELETE");

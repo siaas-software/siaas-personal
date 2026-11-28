@@ -4,6 +4,7 @@ import { ActionsPage, ActionsModelsPage } from "./actions";
 import { actionRequest, type ActionSkill } from "@/lib/actions";
 import { Shortcuts } from "./shortcuts";
 import { AboutSettings } from "./about-settings";
+import { MediaSettings } from "./media-settings";
 import { AppVersion } from "./app-version";
 import { ProjectSkills } from "./project-skills";
 import { ProjectMcp } from "./project-mcp";
@@ -1275,6 +1276,7 @@ export function Workspace() {
                   {desktop ? (
                     <>
                       <ExperimentalFeaturesPanel />
+                      <MediaSettings assistants={data?.assistants ?? []} italian={italian}/>
                       <DesktopUpdatesPanel />
                       <LocalStoragePanel />
                       <AboutSettings version={data?.version} />

@@ -24,6 +24,7 @@ const BASELINE = new Map<string, ToolDecision>([
   ["mcp.read", "ask"],
   ["mcp.write", "ask"],
   ["files.write", "ask"],
+  ["media.process", "ask"],
   ["media.image.generate", "ask"],
   ["media.video.generate", "ask"],
 ]);

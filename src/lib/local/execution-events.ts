@@ -62,12 +62,12 @@ export type ExecutionEventRecord = {
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const traceCodes = new Map<string, ReadonlySet<string>>([
-  ["execution_path", new Set(["native-action", "deterministic", "mcp", "model", "model-structured",
+  ["execution_path", new Set(["native-action", "deterministic", "media", "mcp", "model", "model-structured",
     "arithmetic", "structured", "document", "website", "help", "clarify"])],
   ["reason_code", new Set(["hard-deny", "unregistered", "assistant-scope", "project-rule", "default", "unknown"])],
   ["permission", new Set(["allow", "ask", "deny"])],
   ["status", new Set(["running", "complete", "error", "cancelled"])],
-  ["tool_key", new Set(["documents.read", "datasets.query", "reports.create", "mcp.write"])],
+  ["tool_key", new Set(["documents.read", "datasets.query", "reports.create", "mcp.write","media.process"])],
 ]);
 const countFields = new Set(["duration_ms", "input_tokens", "output_tokens", "step_index", "source_count"]);
 
